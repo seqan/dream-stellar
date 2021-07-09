@@ -62,6 +62,7 @@ struct search_arguments
     double threshold{};
     bool treshold_was_set{false};
     uint64_t pattern_size{};
+    uint64_t overlap{};
     uint8_t errors{0};
     bool compressed{false};
     bool write_time{false};

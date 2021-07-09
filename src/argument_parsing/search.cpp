@@ -1,4 +1,5 @@
 #include <seqan3/io/views/async_input_buffer.hpp>
+#include <seqan3/core/debug_stream.hpp>
 
 #include <raptor/argument_parsing/search.hpp>
 #include <raptor/search/search.hpp>
@@ -52,6 +53,11 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
                       "pattern",
                       "Choose the pattern size. Default: Use median of sequence lengths in query file.",
                       arguments.is_socks ? seqan3::option_spec::hidden : seqan3::option_spec::standard);
+    parser.add_option(arguments.overlap,
+                      '\0',
+                      "overlap",
+                      "Choose how much sequential sliding windows overlap. Default: pattern size - 1.",
+                      arguments.is_socks ? seqan3::option_spec::hidden : seqan3::option_spec::standard);
     parser.add_flag(arguments.compressed,
                     '\0',
                     "compressed",
@@ -78,23 +84,9 @@ void run_search(seqan3::argument_parser & parser, bool const is_socks)
     {
         seqan3::input_file_validator<seqan3::sequence_file_input<>>{}(arguments.query_file);
     }
-
+    
     arguments.treshold_was_set = parser.is_option_set("threshold");
 
-    // ==========================================
-    // Process --pattern.
-    // ==========================================
-    if (!arguments.is_socks && !arguments.pattern_size)
-    {
-        std::vector<uint64_t> sequence_lengths{};
-        seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>> query_in{arguments.query_file};
-        for (auto & [seq] : query_in | seqan3::views::async_input_buffer(16))
-        {
-            sequence_lengths.push_back(std::ranges::size(seq));
-        }
-        std::sort(sequence_lengths.begin(), sequence_lengths.end());
-        arguments.pattern_size = sequence_lengths[sequence_lengths.size()/2];
-    }
 
     // ==========================================
     // Read window and kmer size.
@@ -104,8 +96,63 @@ void run_search(seqan3::argument_parser & parser, bool const is_socks)
         cereal::BinaryInputArchive iarchive{is};
         iarchive(arguments.kmer_size);
         iarchive(arguments.window_size);
+	
+
         if (arguments.is_socks)
             arguments.pattern_size = arguments.kmer_size;
+    }
+
+    // ==========================================
+    // Process --pattern.
+    // ==========================================
+    
+    if (parser.is_option_set("pattern"))
+    {
+        if (arguments.pattern_size < arguments.window_size)
+            throw seqan3::argument_parser_error{"The minimiser window cannot be bigger than the sliding window."};
+    }
+    else
+        
+	// Default behaviour: local match
+	//arguments.pattern_size = arguments.window_size * 2;
+    
+	// Default behaviour: semiglobal match 
+	if (!arguments.is_socks && !arguments.pattern_size)
+	{
+            std::vector<uint64_t> sequence_lengths{};
+            seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>> query_in{arguments.query_file};
+            for (auto & [seq] : query_in | seqan3::views::async_input_buffer(16))
+            {
+                sequence_lengths.push_back(std::ranges::size(seq));
+            }
+            std::sort(sequence_lengths.begin(), sequence_lengths.end());
+            arguments.pattern_size = sequence_lengths[sequence_lengths.size()/2];
+        }
+
+    // ==========================================
+    // More checks.
+    // ==========================================
+
+
+    if (parser.is_option_set("overlap"))
+    {
+	if (arguments.overlap >= arguments.pattern_size)
+            throw seqan3::argument_parser_error{"The overlap size has to be smaller"
+		    "than the sliding window (i.e pattern) size."};
+    }
+    else
+        arguments.overlap = arguments.pattern_size - 1;
+    
+    if (parser.is_option_set("error"))
+    {
+        if (arguments.pattern_size + 1 <= (arguments.errors + 1) * arguments.kmer_size)
+        {	
+	    seqan3::debug_stream << "k-mer size: " << std::to_string(arguments.kmer_size) << '\n';
+	    seqan3::debug_stream << "window size: " << std::to_string(arguments.window_size) << '\n';
+	    seqan3::debug_stream << "pattern size: " << std::to_string(arguments.pattern_size) << '\n';
+	    
+	    throw seqan3::argument_parser_error{"The kmer lemma threshold is 0"};
+        }
     }
 
     // ==========================================
