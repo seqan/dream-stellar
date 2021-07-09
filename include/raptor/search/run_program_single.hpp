@@ -66,14 +66,17 @@ void run_program_single(search_arguments const & arguments)
             size_t const minimiser_count{minimiser.size()};
             size_t current_bin{0};
 
-            size_t const threshold = arguments.treshold_was_set ?
-                                         static_cast<size_t>(minimiser_count * arguments.threshold) :
+	    // evelin debugging
+	    // 1. is threshold set manually?
+	    // 2. elif w = k -> use k-mer lemma
+	    // 3. else use a precomputed table of thresholds to look up the value that corresponds to the number of minimisers
+	    // in the read, w and k.
+            size_t const threshold = arguments.treshold_was_set ? 
+		    			static_cast<size_t>(minimiser_count * arguments.threshold) :
                                          kmers_per_window == 1 ? kmer_lemma :
-                                         precomp_thresholds[std::min(minimiser_count < min_number_of_minimisers ?
-                                                                         0 :
-                                                                         minimiser_count - min_number_of_minimisers,
-                                                                     max_number_of_minimisers -
-                                                                         min_number_of_minimisers)] + 2;
+                                         precomp_thresholds[std::min(minimiser_count < min_number_of_minimisers ? 0 :
+                                         minimiser_count - min_number_of_minimisers, 
+					 max_number_of_minimisers - min_number_of_minimisers)] + 2;
 
             for (auto && count : result)
             {

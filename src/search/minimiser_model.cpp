@@ -10,6 +10,9 @@
  * \brief Provides stuff.
  */
 
+
+#include <seqan3/core/debug_stream.hpp>
+
 #include <numeric>
 
 #include <cereal/types/vector.hpp>
@@ -61,7 +64,9 @@ std::vector<size_t> precompute_threshold(size_t const pattern_size,
 
             if (n >= tau)
             {
-                thresholds.push_back(number_of_minimizers - i);
+		// evelin debugging
+		seqan3::debug_stream << "Threshold: " << std::to_string(number_of_minimizers - i) << '\t';
+    		thresholds.push_back(number_of_minimizers - i);
                 break;
             }
         }

@@ -133,7 +133,6 @@ void run_search(seqan3::argument_parser & parser, bool const is_socks)
     // More checks.
     // ==========================================
 
-
     if (parser.is_option_set("overlap"))
     {
 	if (arguments.overlap >= arguments.pattern_size)
@@ -143,18 +142,6 @@ void run_search(seqan3::argument_parser & parser, bool const is_socks)
     else
         arguments.overlap = arguments.pattern_size - 1;
     
-    if (parser.is_option_set("error"))
-    {
-        if (arguments.pattern_size + 1 <= (arguments.errors + 1) * arguments.kmer_size)
-        {	
-	    seqan3::debug_stream << "k-mer size: " << std::to_string(arguments.kmer_size) << '\n';
-	    seqan3::debug_stream << "window size: " << std::to_string(arguments.window_size) << '\n';
-	    seqan3::debug_stream << "pattern size: " << std::to_string(arguments.pattern_size) << '\n';
-	    
-	    throw seqan3::argument_parser_error{"The kmer lemma threshold is 0"};
-        }
-    }
-
     // ==========================================
     // Dispatch
     // ==========================================
