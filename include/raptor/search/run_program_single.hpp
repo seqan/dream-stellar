@@ -1,4 +1,3 @@
-#pragma once
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/search/views/minimiser_hash.hpp>
@@ -44,51 +43,119 @@ void run_program_single(search_arguments const & arguments)
     size_t const max_number_of_minimisers = arguments.pattern_size - arguments.window_size + 1;
     std::vector<size_t> const precomp_thresholds = compute_simple_model(arguments);
 
+
+    // evelin ?? the original used a template ??
+    auto agent = ibf.membership_agent();
+
+    // evelin [&] captures variables start, end which refer to index of first and last query read in one query file
     auto worker = [&] (size_t const start, size_t const end)
     {
-        auto counter = ibf.template counting_agent<uint16_t>();
+        //evelin auto counter = ibf.template counting_agent<uint16_t>();
         std::string result_string{};
+	std::set<size_t> result_set{};
         std::vector<uint64_t> minimiser;
+
+	// evelin debugging
+        seqan3::debug_stream << "Pattern size: " << std::to_string(arguments.pattern_size) << '\n';
+        seqan3::debug_stream << "Kmer size: " << std::to_string(arguments.kmer_size) << '\n';
+        seqan3::debug_stream << "Errors: " << std::to_string(arguments.errors) << '\n';
+        seqan3::debug_stream << "Threshold: " << threshold << '\n';
+        seqan3::debug_stream << "Bin count: " << std::to_string(ibf.bin_count()) << '\n';
 
         auto hash_view = seqan3::views::minimiser_hash(seqan3::ungapped{arguments.kmer_size},
                                                        seqan3::window_size{arguments.window_size},
                                                        seqan3::seed{adjust_seed(arguments.kmer_size)});
 
+	// take all records from start to end and loop through them
         for (auto && [id, seq] : records | seqan3::views::slice(start, end))
         {
             minimiser.clear();
+	    result_set.clear();
+
             result_string.clear();
             result_string += id;
             result_string += '\t';
 
             minimiser = seq | hash_view | seqan3::views::to<std::vector<uint64_t>>;
-            auto & result = counter.bulk_count(minimiser);
-            size_t const minimiser_count{minimiser.size()};
-            size_t current_bin{0};
-
+            
+	    // TODO: need minimiser count for each window to be able to do probabilistic thresholding
+	    size_t const minimiser_count{minimiser.size()};
+	    
 	    // evelin debugging
 	    // 1. is threshold set manually?
 	    // 2. elif w = k -> use k-mer lemma
 	    // 3. else use a precomputed table of thresholds to look up the value that corresponds to the number of minimisers
-	    // in the read, w and k.
+	    // in the pattern, w and k.
             size_t const threshold = arguments.treshold_was_set ? 
 		    			static_cast<size_t>(minimiser_count * arguments.threshold) :
                                          kmers_per_window == 1 ? kmer_lemma :
                                          precomp_thresholds[std::min(minimiser_count < min_number_of_minimisers ? 0 :
                                          minimiser_count - min_number_of_minimisers, 
 					 max_number_of_minimisers - min_number_of_minimisers)] + 2;
+            
+	    size_t read_len = seq.size(); // length of record
 
-            for (auto && count : result)
+//--------- precalculate vector with all pattern begin positions in read
+            // this adds some computational overhead but makes the code much more readable
+            std::vector<size_t> begin_vector;
+            for (size_t i = 0; i <= read_len - arguments.pattern_size;
+                            i = i + arguments.pattern_size - arguments.overlap)
             {
-                if (count >= threshold)
-                {
-                    result_string += std::to_string(current_bin);
-                    result_string += ',';
-                }
-                ++current_bin;
+                begin_vector.push_back(i);  
             }
+
+            if (begin_vector.back() < read_len - arguments.pattern_size)
+            {   
+                // last pattern might have a smaller overlap to make sure the end of the read is covered
+                begin_vector.push_back(read_len - arguments.pattern_size);
+            }
+
+//--------- table of counting vectors newly created for each read
+            // rows: each k-mer of read
+            // columns: each bin of IBF
+            std::vector<seqan3::counting_vector<uint8_t>> counting_table;
+            counting_table.reserve(minimiser.size());  // allocate size for the table
+            for (uint64_t min : minimiser)
+            {
+                // counting vector for single k-mer
+                seqan3::counting_vector<uint8_t> counts(ibf.bin_count(), 0);
+                counts += agent.bulk_contains(min);
+                counting_table.push_back(counts);
+                
+            }
+
+//--------- count occurrences of kmers
+            for (auto begin : begin_vector)
+            {
+                seqan3::counting_vector<uint8_t> total_counts(ibf.bin_count(), 0);
+                // take the slice of the table that accounts for the current pattern and sum over all counting vectors
+                for (size_t i = 0; i <= arguments.pattern_size - arguments.kmer_size; i++)
+                {
+                    total_counts += counting_table[begin + i];
+                }
+                // compare sum to threshold
+                for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
+                {           
+                    auto && count = total_counts[current_bin];
+                    // seqan3::debug_stream << std::to_string(count) << "\t";
+                    if (count >= threshold)
+                    {
+                        // the result_set is a union of results from all sliding windows of a read
+                        result_set.insert(current_bin);
+                    }
+                }
+                // seqan3::debug_stream << '\n';
+            }
+//---------- write out union of bin hits over all patterns
+            for (auto bin : result_set)
+            {
+                result_string += std::to_string(bin);
+                result_string += ',';
+            }
+
             result_string += '\n';
             synced_out.write(result_string);
+
         }
     };
 
