@@ -32,3 +32,13 @@
 
 # Build directory
 /build/
+
+# Metadata file
+all_bin_paths.txt
+
+# Output files
+*.out
+binary_*
+
+# Presentation files
+visualisations/*

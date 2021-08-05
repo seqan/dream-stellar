@@ -127,7 +127,7 @@ struct raptor : public cli_test
         return cli_test::data(name);
     }
 
-    static inline std::filesystem::path const search_result_path(size_t const number_of_repetitions, size_t const window_size, size_t const number_of_errors, bool const socks = false) noexcept
+    static inline std::filesystem::path const search_result_path(size_t const number_of_repetitions, size_t const window_size, size_t const number_of_errors) noexcept
     {
         std::string name{};
         name += std::to_string(std::max<int>(1, number_of_repetitions * 4));
@@ -136,10 +136,7 @@ struct raptor : public cli_test
         name += "window";
         name += std::to_string(number_of_errors);
         name += "error";
-        if (socks)
-            name += "socks.out";
-        else
-            name += ".out";
+        name += ".out";
         return cli_test::data(name);
     }
 

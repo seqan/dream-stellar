@@ -9,14 +9,13 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
     init_shared_meta(parser);
     init_shared_options(parser, arguments);
     parser.add_positional_option(arguments.bin_file,
-                                 arguments.is_socks ? "File containing color and file names." :
-                                                      "File containing one file per line per bin.",
+                                 "File containing one file per line per bin.",
                                  seqan3::input_file_validator{});
     parser.add_option(arguments.window_size,
                       '\0',
                       "window",
                       "Choose the window size.",
-                      arguments.is_socks ? seqan3::option_spec::hidden : seqan3::option_spec::standard,
+                      seqan3::option_spec::standard,
                       positive_integer_validator{});
     parser.add_option(arguments.kmer_size,
                       '\0',
@@ -27,8 +26,7 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
     parser.add_option(arguments.out_path,
                       '\0',
                       "output",
-                      arguments.is_socks ? "Provide an output filepath." :
-                                           "Provide an output filepath or an output directory if --compute-minimiser is used.",
+                      "Provide an output filepath or an output directory if --compute-minimiser is used.",
                       seqan3::option_spec::required);
     parser.add_option(arguments.size,
                       '\0',
@@ -50,60 +48,28 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
                     '\0',
                     "compute-minimiser",
                     "Computes minimisers using cutoffs from Mantis (Pandey et al.). Does not create the index.",
-                    arguments.is_socks ? seqan3::option_spec::hidden : seqan3::option_spec::standard);
+                    seqan3::option_spec::standard);
 }
 
-void run_build(seqan3::argument_parser & parser, bool const is_socks)
+void run_build(seqan3::argument_parser & parser)
 {
     build_arguments arguments{};
-    arguments.is_socks = is_socks;
     init_build_parser(parser, arguments);
     try_parsing(parser);
 
     // ==========================================
     // Process bin_path
     // ==========================================
-    if (!arguments.is_socks) // Either only one bin or a file containing bin paths
-    {
-        std::ifstream istrm{arguments.bin_file};
-        std::string line;
-        auto sequence_file_validator{bin_validator{}.sequence_file_validator};
+    std::ifstream istrm{arguments.bin_file};
+    std::string line;
+    auto sequence_file_validator{bin_validator{}.sequence_file_validator};
 
-        while (std::getline(istrm, line))
-        {
-            if (!line.empty())
-            {
-                sequence_file_validator(line);
-                arguments.bin_path.emplace_back(std::vector<std::filesystem::path>{line});
-            }
-        }
-    }
-    else
+    while (std::getline(istrm, line))
     {
-        std::ifstream istrm{arguments.bin_file};
-        std::string line;
-        std::string color_name;
-        std::string file_name;
-        std::vector<std::filesystem::path> tmp;
-        auto sequence_file_validator{bin_validator{}.sequence_file_validator};
-
-        while (std::getline(istrm, line))
+        if (!line.empty())
         {
-            if (!line.empty())
-            {
-                tmp.clear();
-                std::stringstream sstream{line};
-                sstream >> color_name;
-                while (std::getline(sstream, file_name, ' '))
-                {
-                    if (!file_name.empty())
-                    {
-                        sequence_file_validator(file_name);
-                        tmp.emplace_back(file_name);
-                    }
-                }
-                arguments.bin_path.emplace_back(tmp);
-            }
+            sequence_file_validator(line);
+            arguments.bin_path.emplace_back(std::vector<std::filesystem::path>{line});
         }
     }
 

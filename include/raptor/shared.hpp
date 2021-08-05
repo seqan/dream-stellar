@@ -45,7 +45,6 @@ struct build_arguments
     uint64_t hash{2};
     bool compute_minimiser{false};
     bool compressed{false};
-    bool is_socks{false};
 };
 
 struct search_arguments
@@ -66,7 +65,6 @@ struct search_arguments
     uint8_t errors{0};
     bool compressed{false};
     bool write_time{false};
-    bool is_socks{false};
 };
 
 } // namespace raptor

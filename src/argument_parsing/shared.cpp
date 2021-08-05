@@ -5,7 +5,7 @@ namespace raptor
 
 void init_shared_meta(seqan3::argument_parser & parser)
 {
-    parser.info.app_name = "Raptor";
+    parser.info.app_name = "Sliding window";
     parser.info.author = "Enrico Seiler";
     parser.info.citation = "Seiler, E. et al. (2020). Raptor: A fast and space-efficient pre-filter for"
                            " querying very large collections of nucleotide sequences. bioRxiv 2020.10.08.330985. doi:"

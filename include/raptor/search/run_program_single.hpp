@@ -1,6 +1,7 @@
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/search/views/minimiser_hash.hpp>
+#include <seqan3/core/debug_stream.hpp>
 
 #include <raptor/search/compute_simple_model.hpp>
 #include <raptor/search/do_parallel.hpp>
@@ -59,7 +60,7 @@ void run_program_single(search_arguments const & arguments)
         seqan3::debug_stream << "Pattern size: " << std::to_string(arguments.pattern_size) << '\n';
         seqan3::debug_stream << "Kmer size: " << std::to_string(arguments.kmer_size) << '\n';
         seqan3::debug_stream << "Errors: " << std::to_string(arguments.errors) << '\n';
-        seqan3::debug_stream << "Threshold: " << threshold << '\n';
+        // seqan3::debug_stream << "Threshold: " << threshold << '\n';
         seqan3::debug_stream << "Bin count: " << std::to_string(ibf.bin_count()) << '\n';
 
         auto hash_view = seqan3::views::minimiser_hash(seqan3::ungapped{arguments.kmer_size},

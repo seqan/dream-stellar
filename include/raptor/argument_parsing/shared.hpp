@@ -24,7 +24,7 @@ void init_shared_options(seqan3::argument_parser & parser, arguments_t & argumen
                       '\0',
                       "parts",
                       "Splits the index in this many parts.",
-                      arguments.is_socks ? seqan3::option_spec::hidden : seqan3::option_spec::standard,
+                      seqan3::option_spec::standard,
                       power_of_two_validator{});
 }
 
