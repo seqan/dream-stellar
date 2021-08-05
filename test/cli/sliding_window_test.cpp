@@ -6,17 +6,17 @@
 #include "cli_test.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////// raptor build tests ///////////////////////////////////////////////////
+///////////////////////////////////////////////// sliding_window build tests ///////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_P(raptor_build, build_with_file)
+TEST_P(sliding_window_build, build_with_file)
 {
     auto const [number_of_repeated_bins, window_size, run_parallel_tmp] = GetParam();
     bool const run_parallel = run_parallel_tmp && number_of_repeated_bins >= 32;
 
     {
         std::string const expanded_bins = repeat_bins(number_of_repeated_bins);
-        std::ofstream file{"raptor_cli_test.txt"};
+        std::ofstream file{"sliding_window_cli_test.txt"};
         auto split_bins = expanded_bins
                         | std::views::split(' ')
                         | std::views::transform([](auto &&rng) {
@@ -28,13 +28,13 @@ TEST_P(raptor_build, build_with_file)
         file << '\n';
     }
 
-    cli_test_result const result = execute_app("raptor", "build",
+    cli_test_result const result = execute_app("sliding_window", "build",
                                                          "--kmer 19",
                                                          "--window ", std::to_string(window_size),
                                                          "--size 64k",
                                                          "--threads ", run_parallel ? "2" : "1",
                                                          "--output index.ibf",
-                                                         "raptor_cli_test.txt");
+                                                         "sliding_window_cli_test.txt");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
@@ -47,9 +47,9 @@ TEST_P(raptor_build, build_with_file)
 
 
 INSTANTIATE_TEST_SUITE_P(build_suite,
-                         raptor_build,
+                         sliding_window_build,
                          testing::Combine(testing::Values(0, 16, 32), testing::Values(19, 23), testing::Values(true, false)),
-                         [] (testing::TestParamInfo<raptor_build::ParamType> const & info)
+                         [] (testing::TestParamInfo<sliding_window_build::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::max<int>(1, std::get<0>(info.param) * 4)) + "_bins_" +
                                                 std::to_string(std::get<1>(info.param)) + "_window_" +
@@ -58,17 +58,17 @@ INSTANTIATE_TEST_SUITE_P(build_suite,
                          });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////// raptor search tests //////////////////////////////////////////////////
+///////////////////////////////////////////////// sliding_window search tests //////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_P(raptor_search, search)
+TEST_P(sliding_window_search, search)
 {
     auto const [number_of_repeated_bins, window_size, number_of_errors] = GetParam();
 
     if (window_size == 23 && number_of_errors == 0)
         GTEST_SKIP() << "Needs dynamic threshold correction";
 
-    cli_test_result const result = execute_app("raptor", "search",
+    cli_test_result const result = execute_app("sliding_window", "search",
                                                          "--output search.out",
                                                          "--error ", std::to_string(number_of_errors),
                                                          "--index ", ibf_path(number_of_repeated_bins, window_size),
@@ -84,11 +84,11 @@ TEST_P(raptor_search, search)
 }
 
 // Search with threshold
-TEST_P(raptor_search, search_threshold)
+TEST_P(sliding_window_search, search_threshold)
 {
     auto const [number_of_repeated_bins, window_size, number_of_errors] = GetParam();
 
-    cli_test_result const result = execute_app("raptor", "search",
+    cli_test_result const result = execute_app("sliding_window", "search",
                                                          "--output search_threshold.out",
                                                          "--threshold 0.50",
                                                          "--index ", ibf_path(number_of_repeated_bins, window_size),
@@ -119,9 +119,9 @@ TEST_P(raptor_search, search_threshold)
 }
 
 INSTANTIATE_TEST_SUITE_P(search_suite,
-                         raptor_search,
+                         sliding_window_search,
                          testing::Combine(testing::Values(0, 16, 32), testing::Values(19, 23), testing::Values(0, 1)),
-                         [] (testing::TestParamInfo<raptor_search::ParamType> const & info)
+                         [] (testing::TestParamInfo<sliding_window_search::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::max<int>(1, std::get<0>(info.param) * 4)) + "_bins_" +
                                                 std::to_string(std::get<1>(info.param)) + "_window_" +
