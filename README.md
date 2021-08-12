@@ -1,4 +1,7 @@
-# Sliding window [![build status](https://github.com/seqan/raptor/workflows/Raptor%20CI/badge.svg?branch=master)](https://github.com/seqan/raptor/actions)
+# Sliding window 
+
+[![Build Status](https://github.com/seqan/app-template/workflows/App%20CI/badge.svg)](https://github.com/seqan/app-template/actions?query=branch%3Amaster+workflow%3A%22App+CI%22)
+
 ## Quick run
 
 `./sliding_window build ../../../A2-metagenome-snakemake/MG-2/metadata/bin_paths.txt --threads 8 --output index.out --size 80m`
@@ -8,22 +11,7 @@
 ### A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences
 
 ## Download and Installation
-There may be performance benefits when compiling from source, especially when using `-march=native` as compiler directive.
 
-### Install with bioconda (Linux)
-[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/raptor/README.html)
-
-```bash
-conda install -c bioconda -c conda-forge raptor
-```
-
-### Install with brew (Linux, macOS)
-
-```bash
-brew install brewsci/bio/raptor
-```
-
-### Compile from source
 <details><summary>Prerequisites (click to expand)</summary>
 
 * CMake >= 3.8
@@ -36,27 +24,15 @@ Refer to the [Seqan3 Setup Tutorial](https://docs.seqan.de/seqan/3-master-user/s
 <details><summary>Download current master branch (click to expand)</summary>
 
 ```bash
-git clone --recurse-submodules https://github.com/seqan/raptor
+git clone --recurse-submodules https://github.com/eaasna/sliding-window
 ```
 
-</details>
-
-<details><summary>Download specific version (click to expand)</summary>
-
-E.g., for version `1.0.0`:
-```bash
-git clone --branch raptor-v1.0.0 --recurse-submodules https://github.com/seqan/raptor
-```
-Or from within an existing repository
-```bash
-git checkout raptor-v1.0.0
-```
 </details>
 
 <details><summary>Building (click to expand)</summary>
 
 ```bash
-cd raptor
+cd sliding-window
 mkdir -p build
 cd build
 cmake ..
@@ -65,7 +41,7 @@ make
 
 The binary can be found in `bin`.
 
-You may want to add the raptor executable yo your PATH:
+You may want to add the executable to your PATH:
 ```
 export PATH=$(pwd)/bin:$PATH
 raptor --version
@@ -103,8 +79,8 @@ In the following, we will use the `64` data set.
 To build an index over all bins, we first prepare a file that contains one file path per line
 (a line corresponds to a bin) and use this file as input:
 ```
-seq -f "example_data/64/bins/bin_%02g.fasta" 0 1 63 > all_bin_paths.txt
-raptor build --kmer 19 --window 23 --size 8m --output another_index.raptor all_bin_paths.txt
+seq -f "example_data/64/bins/bin_%02g.fasta" 0 1 63 > bin_paths.txt
+sliding_window build bin_paths.txt --threads 8 --output index.out --size 80m
 ```
 
 You may be prompted to enable or disable automatic update notifications. For questions, please consult
@@ -113,7 +89,7 @@ You may be prompted to enable or disable automatic update notifications. For que
 Afterwards, we can search for all reads from bin 1:
 
 ```
-raptor search --error 2 --index index.raptor --query example_data/64/reads/mini.fastq --output search.output
+sliding_window search --index index.out --query example_data/64/reads/mini.fastq --errors 2 --pattern 50 --output matches.out --overlap 10
 ```
 
 Each line of the output consists of the read ID (in the toy example these are numbers) and the corresponding bins in
@@ -136,40 +112,13 @@ which they were found:
 
 For a list of options, see the help pages:
 ```console
-raptor --help
-raptor build --help
-raptor search --help
-```
-
-### Preprocessing the input
-We offer the option to precompute the minimisers of the input files. This is useful to build indices of big datasets
-(in the range of several TiB) and also allows an estimation of the needed index size since the amount of minimisers is
-known.
-Following above example, we would change the build step as follows:
-
-First we precompute the minimisers and store them in a directory:
-```
-mkdir -p precomputed_minimisers
-seq -f "example_data/64/bins/bin_%02g.fasta" 0 1 63 > all_bin_paths.txt
-raptor build --kmer 19 --window 23 --size 8m --compute-minimiser --output precomputed_minimisers/ all_bin_paths.txt
-```
-
-Then we run the build step again and use the computed minimisers as input:
-```
-seq -f "precomputed_minimisers/bin_%02g.minimiser" 0 1 63 > all_minimiser_paths.txt
-raptor build --size 8m --output another_minimiser_index.raptor all_minimiser_paths.txt
-```
-
-### SOCKS interface
-We implement the core interface of [SOCKS](https://gitlab.ub.uni-bielefeld.de/gi/socks).
-For a list of options, see the help pages:
-```console
-raptor socks build --help
-raptor socks lookup-kmer --help
+sliding_window --help
+sliding_window build --help
+sliding_window search --help
 ```
 
 ## Authorship and Copyright
-Raptor is being developed by [Enrico Seiler](mailto:enrico.seiler@fu-berlin.de), but also incorporates much work from
+The sliding window filter is based on Raptor. Raptor is being developed by [Enrico Seiler](mailto:enrico.seiler@fu-berlin.de), but also incorporates much work from
 other members of [SeqAn](https://www.seqan.de).
 
 ### Citation
