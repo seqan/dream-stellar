@@ -1,9 +1,9 @@
 # Sliding window [![build status](https://github.com/seqan/raptor/workflows/Raptor%20CI/badge.svg?branch=master)](https://github.com/seqan/raptor/actions)
 ## Quick run
 
-`./sliding_window build ../../../A2-metagenome-snakemake/MG-2/metadata/bin_paths.txt --threads 8 --output ../../index.out --size 80m`
+`./sliding_window build ../../../A2-metagenome-snakemake/MG-2/metadata/bin_paths.txt --threads 8 --output index.out --size 80m`
 
-`./sliding_window search --index ../../index.out --query ../../../A2-metagenome-snakemake/data/1024/reads_e5_150/100.fastq --pattern 50 --output ../../matches.out --overlap 10`
+`./sliding_window search --index index.out --query ../../../A2-metagenome-snakemake/data/MG-2/64/reads_e5_150/10.fastq --pattern 50 --output matches.out --overlap 10`
 
 ### A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences
 
