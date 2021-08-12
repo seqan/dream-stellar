@@ -9,6 +9,12 @@
 `./sliding_window search --index index.out --query ../../../A2-metagenome-snakemake/data/MG-2/64/reads_e5_150/10.fastq --pattern 50 --output matches.out --overlap 10`
 
 ### A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences
+The aim of this repository is to develop an IBF based prefilter for metagenomics read mapping. The IBF is created from the (k,k)-minimiser content of the reference database. The filter excludes parts of the reference datbase for each query read. Only reference sequences where an approximate local match for the query sequence was found are retained. 
+A local match is defined as:
+* length >= w
+* errors <= e
+
+where w is the window length and e is the allowed number of errors. Each read is divided into multiple possibly overlapping windows. The (k, k)-minimiser content of each window is then queried in the IBF.
 
 ## Download and Installation
 
