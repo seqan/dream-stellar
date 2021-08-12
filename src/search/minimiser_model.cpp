@@ -14,9 +14,9 @@
 
 #include <cereal/types/vector.hpp>
 
-#include <raptor/search/minimiser_model.hpp>
+#include <sliding_window/search/minimiser_model.hpp>
 
-namespace raptor
+namespace sliding_window
 {
 
 std::vector<size_t> precompute_threshold(size_t const pattern_size,
@@ -98,4 +98,4 @@ bool do_cerealisation_in(std::vector<size_t> & vec, search_arguments const & arg
     return true;
 }
 
-} // namespace raptor
+} // namespace sliding_window

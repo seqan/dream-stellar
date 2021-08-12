@@ -1,6 +1,6 @@
-#include <raptor/build/compute_minimiser.hpp>
+#include <sliding_window/build/compute_minimiser.hpp>
 
-namespace raptor
+namespace sliding_window
 {
 
 bool check_for_fasta_format(std::vector<std::string> const & valid_extensions, std::string const & file_path)
@@ -106,4 +106,4 @@ void compute_minimiser(build_arguments const & arguments)
     call_parallel_on_bins(worker, arguments);
 }
 
-} // namespace raptor
+} // namespace sliding_window

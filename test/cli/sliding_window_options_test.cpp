@@ -15,7 +15,7 @@ TEST_F(sliding_window, no_options)
     cli_test_result const result = execute_app("sliding_window");
     std::string const expected
     {
-        "Raptor - A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences.\n"
+        "Sliding window - A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences.\n"
         "===========================================================================================================\n"
         "    Try -h or --help for more information.\n"
     };
@@ -29,7 +29,7 @@ TEST_F(sliding_window_build, no_options)
     cli_test_result const result = execute_app("sliding_window", "build");
     std::string const expected
     {
-        "Raptor - A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences.\n"
+        "Sliding window - A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences.\n"
         "===========================================================================================================\n"
         "    Try -h or --help for more information.\n"
     };
@@ -43,7 +43,7 @@ TEST_F(sliding_window_search, no_options)
     cli_test_result const result = execute_app("sliding_window", "search");
     std::string const expected
     {
-        "Raptor - A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences.\n"
+        "Sliding window - A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences.\n"
         "===========================================================================================================\n"
         "    Try -h or --help for more information.\n"
     };
