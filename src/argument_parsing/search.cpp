@@ -1,10 +1,10 @@
 #include <seqan3/io/views/async_input_buffer.hpp>
 #include <seqan3/core/debug_stream.hpp>
 
-#include <raptor/argument_parsing/search.hpp>
-#include <raptor/search/search.hpp>
+#include <sliding_window/argument_parsing/search.hpp>
+#include <sliding_window/search/search.hpp>
 
-namespace raptor
+namespace sliding_window
 {
 
 void init_search_parser(seqan3::argument_parser & parser, search_arguments & arguments)
@@ -135,7 +135,7 @@ void run_search(seqan3::argument_parser & parser)
     // ==========================================
     // Dispatch
     // ==========================================
-    raptor_search(arguments);
+    sliding_window_search(arguments);
 };
 
-} // namespace raptor
+} // namespace sliding_window

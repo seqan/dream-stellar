@@ -93,7 +93,7 @@ protected:
     }
 };
 
-struct raptor : public cli_test
+struct sliding_window : public cli_test
 {
     static inline std::string const repeat_bins(size_t const repetitions) noexcept
     {
@@ -151,5 +151,5 @@ struct raptor : public cli_test
     }
 };
 
-struct raptor_build : public raptor, public testing::WithParamInterface<std::tuple<size_t, size_t, bool>> {};
-struct raptor_search : public raptor, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
+struct sliding_window_build : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, bool>> {};
+struct sliding_window_search : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};

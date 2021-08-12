@@ -1,6 +1,6 @@
-#include <raptor/search/compute_simple_model.hpp>
+#include <sliding_window/search/compute_simple_model.hpp>
 
-namespace raptor
+namespace sliding_window
 {
 
 std::vector<size_t> compute_simple_model(search_arguments const & arguments)
@@ -21,4 +21,4 @@ std::vector<size_t> compute_simple_model(search_arguments const & arguments)
     return precomp_thresholds;
 }
 
-} // namespace raptor
+} // namespace sliding_window
