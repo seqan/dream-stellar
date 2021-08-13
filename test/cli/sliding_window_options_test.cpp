@@ -15,9 +15,9 @@ TEST_F(sliding_window, no_options)
     cli_test_result const result = execute_app("sliding_window");
     std::string const expected
     {
-        "Sliding window - A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences.\n"
-        "===========================================================================================================\n"
-        "    Try -h or --help for more information.\n"
+        "Sliding window - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
+	"=========================================================================================================\n"
+	"    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
@@ -29,9 +29,9 @@ TEST_F(sliding_window_build, no_options)
     cli_test_result const result = execute_app("sliding_window", "build");
     std::string const expected
     {
-        "Sliding window - A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences.\n"
-        "===========================================================================================================\n"
-        "    Try -h or --help for more information.\n"
+        "Sliding window - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
+	"=========================================================================================================\n"
+	"    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
@@ -43,9 +43,9 @@ TEST_F(sliding_window_search, no_options)
     cli_test_result const result = execute_app("sliding_window", "search");
     std::string const expected
     {
-        "Sliding window - A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences.\n"
-        "===========================================================================================================\n"
-        "    Try -h or --help for more information.\n"
+        "Sliding window - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
+	"=========================================================================================================\n"
+	"    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
@@ -255,3 +255,17 @@ TEST_F(sliding_window_search, output_wrong)
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --output: Cannot write "
                                       "\"foo/search.out\"!\n"});
 }
+
+TEST_F(sliding_window_search, pattern_window)
+{
+    cli_test_result const result = execute_app("sliding_window", "search",
+                                                         "--query ", data("query.fq"),
+                                                         "--index ", tmp_ibf_file.file_path,
+                                                         "--output search.out",
+							 "--pattern 12");
+    EXPECT_NE(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    EXPECT_EQ(result.err, std::string{"[Error] The minimiser window cannot be bigger than the sliding window.\n"});
+}
+
+
