@@ -33,8 +33,9 @@
 # Build directory
 /build/
 
-# Metadata file
+# Metadata files
 all_bin_paths.txt
+bin_paths.txt
 
 # Output files
 *.out

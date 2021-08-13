@@ -56,12 +56,14 @@ void run_program_single(search_arguments const & arguments)
 	std::set<size_t> result_set{};
         std::vector<uint64_t> minimiser;
 
+	/*
 	// evelin debugging
         seqan3::debug_stream << "Pattern size: " << std::to_string(arguments.pattern_size) << '\n';
         seqan3::debug_stream << "Kmer size: " << std::to_string(arguments.kmer_size) << '\n';
         seqan3::debug_stream << "Errors: " << std::to_string(arguments.errors) << '\n';
         // seqan3::debug_stream << "Threshold: " << threshold << '\n';
         seqan3::debug_stream << "Bin count: " << std::to_string(ibf.bin_count()) << '\n';
+	*/
 
         auto hash_view = seqan3::views::minimiser_hash(seqan3::ungapped{arguments.kmer_size},
                                                        seqan3::window_size{arguments.window_size},
