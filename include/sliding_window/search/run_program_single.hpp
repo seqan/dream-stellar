@@ -1,4 +1,3 @@
-
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/core/debug_stream.hpp>
 
@@ -7,7 +6,7 @@
 #include <sliding_window/search/load_ibf.hpp>
 #include <sliding_window/search/sync_out.hpp>
 
-#include <minimiser_hash.hpp>
+#include <indexed_minimiser_hash.hpp>
 
 namespace sliding_window
 {
@@ -66,7 +65,7 @@ void run_program_single(search_arguments const & arguments)
         seqan3::debug_stream << "Bin count: " << std::to_string(ibf.bin_count()) << '\n';
 	*/
 
-        auto my_view = my_minimiser_hash(seqan3::ungapped{arguments.kmer_size},
+        auto hash_tuple_view = indexed_minimiser_hash(seqan3::ungapped{arguments.kmer_size},
                          	window_size{arguments.window_size},
                          	seed{adjust_seed(arguments.kmer_size)});
 
@@ -80,7 +79,7 @@ void run_program_single(search_arguments const & arguments)
             result_string += id;
             result_string += '\t';
 
-            minimiser = seq | my_view | seqan3::views::to<std::vector<std::tuple<uint64_t, size_t>>>;
+            minimiser = seq | hash_tuple_view | seqan3::views::to<std::vector<std::tuple<uint64_t, size_t>>>;
             
 	    // TODO: need minimiser count for each window to be able to do probabilistic thresholding
 	    size_t const minimiser_count{minimiser.size()};

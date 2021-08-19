@@ -7,7 +7,7 @@
 
 /*!\file
  * \author Mitra Darvish <mitra.darvish AT fu-berlin.de>
- * \brief Edited based on seqan3::views::minimiser to return a range of tuples (minimiser, start_positon)
+ * \brief Edited by Evelin Aasna based on seqan3::views::minimiser to return a range of tuples (minimiser, start_positon)
  */
 
 #pragma once
@@ -25,7 +25,7 @@
 namespace sliding_window
 {
 // ---------------------------------------------------------------------------------------------------------------------
-// minimiser_start_position_view class
+// indexed_minimiser_view class
 // ---------------------------------------------------------------------------------------------------------------------
 
 /*!\brief The type returned by seqan3::views::minimiser.
@@ -47,11 +47,11 @@ namespace sliding_window
  */
 template <std::ranges::view urng1_t,
           std::ranges::view urng2_t = std::ranges::empty_view<seqan3::detail::empty_type>>
-class minimiser_start_position_view : public std::ranges::view_interface<minimiser_start_position_view<urng1_t, urng2_t>>
+class indexed_minimiser_view : public std::ranges::view_interface<indexed_minimiser_view<urng1_t, urng2_t>>
 {
 private:
-    static_assert(std::ranges::forward_range<urng1_t>, "The minimiser_start_position_view only works on forward_ranges.");
-    static_assert(std::ranges::forward_range<urng2_t>, "The minimiser_start_position_view only works on forward_ranges.");
+    static_assert(std::ranges::forward_range<urng1_t>, "The indexed_minimiser_view only works on forward_ranges.");
+    static_assert(std::ranges::forward_range<urng2_t>, "The indexed_minimiser_view only works on forward_ranges.");
     static_assert(std::totally_ordered<std::ranges::range_reference_t<urng1_t>>,
                   "The reference type of the underlying range must model std::totally_ordered.");
 
@@ -80,27 +80,27 @@ private:
     template <bool const_range>
     class basic_iterator;
 
-    //!\brief The sentinel type of the minimiser_start_position_view.
+    //!\brief The sentinel type of the indexed_minimiser_view.
     using sentinel = std::default_sentinel_t;
 
 public:
     /*!\name Constructors, destructor and assignment
      * \{
      */
-    minimiser_start_position_view() = default; //!< Defaulted.
-    minimiser_start_position_view(minimiser_start_position_view const & rhs) = default; //!< Defaulted.
-    minimiser_start_position_view(minimiser_start_position_view && rhs) = default; //!< Defaulted.
-    minimiser_start_position_view & operator=(minimiser_start_position_view const & rhs) = default; //!< Defaulted.
-    minimiser_start_position_view & operator=(minimiser_start_position_view && rhs) = default; //!< Defaulted.
-    ~minimiser_start_position_view() = default; //!< Defaulted.
+    indexed_minimiser_view() = default; //!< Defaulted.
+    indexed_minimiser_view(indexed_minimiser_view const & rhs) = default; //!< Defaulted.
+    indexed_minimiser_view(indexed_minimiser_view && rhs) = default; //!< Defaulted.
+    indexed_minimiser_view & operator=(indexed_minimiser_view const & rhs) = default; //!< Defaulted.
+    indexed_minimiser_view & operator=(indexed_minimiser_view && rhs) = default; //!< Defaulted.
+    ~indexed_minimiser_view() = default; //!< Defaulted.
 
     /*!\brief Construct from a view and a given number of values in one window.
     * \param[in] urange1     The input range to process. Must model std::ranges::viewable_range and
     *                        std::ranges::forward_range.
     * \param[in] window_size The number of values in one window.
     */
-    minimiser_start_position_view(urng1_t urange1, size_t const window_size) :
-        minimiser_start_position_view{std::move(urange1), default_urng2_t{}, window_size}
+    indexed_minimiser_view(urng1_t urange1, size_t const window_size) :
+        indexed_minimiser_view{std::move(urange1), default_urng2_t{}, window_size}
     {}
 
     /*!\brief Construct from a non-view that can be view-wrapped and a given number of values in one window.
@@ -115,7 +115,7 @@ public:
         requires (std::ranges::viewable_range<other_urng1_t> &&
                   std::constructible_from<urng1_t, ranges::ref_view<std::remove_reference_t<other_urng1_t>>>)
     //!\endcond
-    minimiser_start_position_view(other_urng1_t && urange1, size_t const window_size) :
+    indexed_minimiser_view(other_urng1_t && urange1, size_t const window_size) :
         urange1{std::views::all(std::forward<other_urng1_t>(urange1))},
         urange2{default_urng2_t{}},
         window_size{window_size}
@@ -128,7 +128,7 @@ public:
     *                        std::ranges::forward_range.
     * \param[in] window_size The number of values in one window.
     */
-    minimiser_start_position_view(urng1_t urange1, urng2_t urange2, size_t const window_size) :
+    indexed_minimiser_view(urng1_t urange1, urng2_t urange2, size_t const window_size) :
         urange1{std::move(urange1)},
         urange2{std::move(urange2)},
         window_size{window_size}
@@ -158,7 +158,7 @@ public:
                   std::ranges::viewable_range<other_urng2_t> &&
                   std::constructible_from<urng2_t, std::views::all_t<other_urng2_t>>)
     //!\endcond
-    minimiser_start_position_view(other_urng1_t && urange1, other_urng2_t && urange2, size_t const window_size) :
+    indexed_minimiser_view(other_urng1_t && urange1, other_urng2_t && urange2, size_t const window_size) :
         urange1{std::views::all(std::forward<other_urng1_t>(urange1))},
         urange2{std::views::all(std::forward<other_urng2_t>(urange2))},
         window_size{window_size}
@@ -232,7 +232,7 @@ public:
 //!\brief Iterator for calculating minimisers.
 template <std::ranges::view urng1_t, std::ranges::view urng2_t>
 template <bool const_range>
-class minimiser_start_position_view<urng1_t, urng2_t>::basic_iterator
+class indexed_minimiser_view<urng1_t, urng2_t>::basic_iterator
 {
 private:
     //!\brief The sentinel type of the first underlying range.
@@ -254,29 +254,6 @@ public:
      * \{
      */
   
-    // TODO: define the associated types 
-    /*
-    // combine_pairs associated types 
-    //
-    //!\brief The difference type.
-    using difference_type = std::ptrdiff_t;
-    //!\brief The value type.
-    using value_type = std::tuple<underlying_val_t, underlying_val_t>;
-    //!\brief The reference type.
-    using reference = common_tuple<underlying_ref_t, underlying_ref_t>;
-
-    // minimiser_view associated types
-    //
-    //!\brief Type for distances between iterators.
-    using difference_type = std::ranges::range_difference_t<urng1_t>;
-    //!\brief Value type of this iterator.
-    using value_type = std::ranges::range_value_t<urng1_t>;
-    //!\brief Reference to `value_type`.
-    using reference = value_type;
-    */
-
-    // minimiser_start_position_view associated types
-    //
     //!\brief Type for distances between iterators.
     using difference_type = std::ranges::range_difference_t<urng1_t>;
     //!\brief Value type of this iterator.
@@ -362,25 +339,25 @@ public:
         return !(lhs == rhs);
     }
 
-    //!\brief Compare to the sentinel of the minimiser_start_position_view.
+    //!\brief Compare to the sentinel of the indexed_minimiser_view.
     friend bool operator==(basic_iterator const & lhs, sentinel const &)
     {
         return lhs.urng1_iterator == lhs.urng1_sentinel;
     }
 
-    //!\brief Compare to the sentinel of the minimiser_start_position_view.
+    //!\brief Compare to the sentinel of the indexed_minimiser_view.
     friend bool operator==(sentinel const & lhs, basic_iterator const & rhs)
     {
         return rhs == lhs;
     }
 
-    //!\brief Compare to the sentinel of the minimiser_start_position_view.
+    //!\brief Compare to the sentinel of the indexed_minimiser_view.
     friend bool operator!=(sentinel const & lhs, basic_iterator const & rhs)
     {
         return !(lhs == rhs);
     }
 
-    //!\brief Compare to the sentinel of the minimiser_start_position_view.
+    //!\brief Compare to the sentinel of the indexed_minimiser_view.
     friend bool operator!=(basic_iterator const & lhs, sentinel const & rhs)
     {
         return !(lhs == rhs);
@@ -526,11 +503,11 @@ private:
 
 //!\brief A deduction guide for the view class template.
 template <std::ranges::viewable_range rng1_t>
-minimiser_start_position_view(rng1_t &&, size_t const window_size) -> minimiser_start_position_view<std::views::all_t<rng1_t>>;
+indexed_minimiser_view(rng1_t &&, size_t const window_size) -> indexed_minimiser_view<std::views::all_t<rng1_t>>;
 
 //!\brief A deduction guide for the view class template.
 template <std::ranges::viewable_range rng1_t, std::ranges::viewable_range rng2_t>
-minimiser_start_position_view(rng1_t &&, rng2_t &&, size_t const window_size) -> minimiser_start_position_view<std::views::all_t<rng1_t>,
+indexed_minimiser_view(rng1_t &&, rng2_t &&, size_t const window_size) -> indexed_minimiser_view<std::views::all_t<rng1_t>,
                                                                                         std::views::all_t<rng2_t>>;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -567,11 +544,10 @@ struct minimiser_fn
             throw std::invalid_argument{"The chosen window_size is not valid. "
                                         "Please choose a value greater than 1 or use two ranges."};
 
-        return minimiser_start_position_view{urange1, window_size};
+        return indexed_minimiser_view{urange1, window_size};
     }
 };
 
 inline constexpr auto minimiser = minimiser_fn{};
 
 } // namespace sliding_window
-

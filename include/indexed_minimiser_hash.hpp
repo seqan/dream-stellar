@@ -7,7 +7,7 @@
 
 /*!\file
  * \author Mitra Darvish <mitra.darvish AT fu-berlin.de>
- * \brief Edited based on seqan3::views::minimiser_hash.
+ * \brief Edited by Evelin Aasna based on seqan3::views::minimiser_hash.
  */
 
 #pragma once
@@ -15,7 +15,7 @@
 #include <seqan3/alphabet/views/complement.hpp>
 #include <seqan3/core/detail/strong_type.hpp>
 #include <seqan3/search/views/kmer_hash.hpp>
-#include <minimiser_start_position.hpp>
+#include <indexed_minimiser.hpp>
 
 namespace sliding_window
 {
@@ -40,7 +40,7 @@ struct window_size : seqan3::detail::strong_type<uint32_t, window_size>
 // 1. facilitate piping behavior
 // 2. allow for creation of view objects
 //
-struct minimiser_hash_fn
+struct indexed_minimiser_hash_fn
 {
     /*!\brief Store the shape and the window size and return a range adaptor closure object.
     * \param[in] shape       The seqan3::shape to use for hashing.
@@ -101,12 +101,12 @@ struct minimiser_hash_fn
                                                                                   {return i ^ seed.get();})
                                                            | std::views::reverse;
 
-        return minimiser_start_position_view(forward_strand, reverse_strand, window_size.get() - shape.size() + 1);
+        return indexed_minimiser_view(forward_strand, reverse_strand, window_size.get() - shape.size() + 1);
     }
     
 };
 
-inline constexpr auto my_minimiser_hash = minimiser_hash_fn{};
+inline constexpr auto indexed_minimiser_hash = indexed_minimiser_hash_fn{};
 
 } // namespace sliding_window
 
