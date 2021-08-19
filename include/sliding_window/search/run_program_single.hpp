@@ -1,12 +1,13 @@
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
-#include <seqan3/search/views/minimiser_hash.hpp>
 #include <seqan3/core/debug_stream.hpp>
 
 #include <sliding_window/search/compute_simple_model.hpp>
 #include <sliding_window/search/do_parallel.hpp>
 #include <sliding_window/search/load_ibf.hpp>
 #include <sliding_window/search/sync_out.hpp>
+
+#include <minimiser_hash.hpp>
 
 namespace sliding_window
 {
@@ -54,7 +55,7 @@ void run_program_single(search_arguments const & arguments)
         //evelin auto counter = ibf.template counting_agent<uint16_t>();
         std::string result_string{};
 	std::set<size_t> result_set{};
-        std::vector<uint64_t> minimiser;
+        std::vector<std::tuple<uint64_t, size_t>> minimiser;
 
 	/*
 	// evelin debugging
@@ -65,9 +66,9 @@ void run_program_single(search_arguments const & arguments)
         seqan3::debug_stream << "Bin count: " << std::to_string(ibf.bin_count()) << '\n';
 	*/
 
-        auto hash_view = seqan3::views::minimiser_hash(seqan3::ungapped{arguments.kmer_size},
-                                                       seqan3::window_size{arguments.window_size},
-                                                       seqan3::seed{adjust_seed(arguments.kmer_size)});
+        auto my_view = my_minimiser_hash(seqan3::ungapped{arguments.kmer_size},
+                         	window_size{arguments.window_size},
+                         	seed{adjust_seed(arguments.kmer_size)});
 
 	// take all records from start to end and loop through them
         for (auto && [id, seq] : records | seqan3::views::slice(start, end))
@@ -79,7 +80,7 @@ void run_program_single(search_arguments const & arguments)
             result_string += id;
             result_string += '\t';
 
-            minimiser = seq | hash_view | seqan3::views::to<std::vector<uint64_t>>;
+            minimiser = seq | my_view | seqan3::views::to<std::vector<std::tuple<uint64_t, size_t>>>;
             
 	    // TODO: need minimiser count for each window to be able to do probabilistic thresholding
 	    size_t const minimiser_count{minimiser.size()};
@@ -118,7 +119,7 @@ void run_program_single(search_arguments const & arguments)
             // columns: each bin of IBF
             std::vector<seqan3::counting_vector<uint8_t>> counting_table;
             counting_table.reserve(minimiser.size());  // allocate size for the table
-            for (uint64_t min : minimiser)
+            for (auto [min,position] : minimiser)
             {
                 // counting vector for single k-mer
                 seqan3::counting_vector<uint8_t> counts(ibf.bin_count(), 0);
