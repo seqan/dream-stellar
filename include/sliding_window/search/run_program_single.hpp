@@ -11,6 +11,35 @@
 namespace sliding_window
 {
 
+//---------------
+// 
+// Precalculate vector with all pattern begin positions in read. 
+// This adds some computational overhead but makes the code much more readable.
+//
+//---------------
+std::vector<size_t> precalculate_begin(size_t read_len, uint64_t pattern_size, uint64_t overlap)
+{
+    std::vector<size_t> begin_vector;
+    for (size_t i = 0; i <= read_len - pattern_size;
+    		i = i + pattern_size - overlap)
+    {
+        begin_vector.push_back(i);  
+    }
+    if (begin_vector.back() < read_len - pattern_size)
+    {   
+        // last pattern might have a smaller overlap to make sure the end of the read is covered
+        begin_vector.push_back(read_len - pattern_size);
+    }
+
+    return begin_vector;
+}
+
+
+//---------------
+//
+// Search reads in IBF. 
+//
+//---------------
 template <bool compressed>
 void run_program_single(search_arguments const & arguments)
 {
@@ -45,31 +74,21 @@ void run_program_single(search_arguments const & arguments)
     std::vector<size_t> const precomp_thresholds = compute_simple_model(arguments);
 
 
-    // evelin ?? the original used a template ??
     auto agent = ibf.membership_agent();
 
-    // evelin [&] captures variables start, end which refer to index of first and last query read in one query file
     auto worker = [&] (size_t const start, size_t const end)
     {
-        //evelin auto counter = ibf.template counting_agent<uint16_t>();
+        // evelin auto counter = ibf.template counting_agent<uint16_t>();
         std::string result_string{};
 	std::set<size_t> result_set{};
-        std::vector<std::tuple<uint64_t, size_t>> minimiser;
 
-	/*
-	// evelin debugging
-        seqan3::debug_stream << "Pattern size: " << std::to_string(arguments.pattern_size) << '\n';
-        seqan3::debug_stream << "Kmer size: " << std::to_string(arguments.kmer_size) << '\n';
-        seqan3::debug_stream << "Errors: " << std::to_string(arguments.errors) << '\n';
-        // seqan3::debug_stream << "Threshold: " << threshold << '\n';
-        seqan3::debug_stream << "Bin count: " << std::to_string(ibf.bin_count()) << '\n';
-	*/
+	// vector holding all the minimisers and their starting position for the read
+        std::vector<std::tuple<uint64_t, size_t>> minimiser;
 
         auto hash_tuple_view = indexed_minimiser_hash(seqan3::ungapped{arguments.kmer_size},
                          	window_size{arguments.window_size},
                          	seed{adjust_seed(arguments.kmer_size)});
 
-	// take all records from start to end and loop through them
         for (auto && [id, seq] : records | seqan3::views::slice(start, end))
         {
             minimiser.clear();
@@ -79,9 +98,29 @@ void run_program_single(search_arguments const & arguments)
             result_string += id;
             result_string += '\t';
 
-            minimiser = seq | hash_tuple_view | seqan3::views::to<std::vector<std::tuple<uint64_t, size_t>>>;
-            
-	    // TODO: need minimiser count for each window to be able to do probabilistic thresholding
+            minimiser = seq | hash_tuple_view | seqan3::views::to<std::vector<std::tuple<uint64_t, size_t>>>;            
+	    auto begin_vector = precalculate_begin(seq.size(), arguments.pattern_size, arguments.overlap);
+
+//---------------
+// Table of counting vectors newly created for each read
+//	rows: each minimiser of read
+// 	columns: each bin of IBF
+//---------------
+            std::vector<seqan3::counting_vector<uint8_t>> counting_table;
+            counting_table.reserve(minimiser.size());
+
+// Vector of minimiser start positions
+	    std::vector<size_t> start_positions;
+	    minimiser_positions.reserve(minimiser.size());
+
+            for (auto [min,pos] : minimiser)
+            {
+		auto counts = agent.bulk_contains(min);
+                counting_table.push_back(counts);
+		minimiser_positions.push_back(pos);
+            }
+	    
+// TODO: need minimiser count for each window to be able to do probabilistic thresholding
 	    size_t const minimiser_count{minimiser.size()};
 	    
 	    // evelin debugging
@@ -94,44 +133,16 @@ void run_program_single(search_arguments const & arguments)
                                          kmers_per_window == 1 ? kmer_lemma :
                                          precomp_thresholds[std::min(minimiser_count < min_number_of_minimisers ? 0 :
                                          minimiser_count - min_number_of_minimisers, 
-					 max_number_of_minimisers - min_number_of_minimisers)] + 2;
-            
-	    size_t read_len = seq.size(); // length of record
-
-//--------- precalculate vector with all pattern begin positions in read
-            // this adds some computational overhead but makes the code much more readable
-            std::vector<size_t> begin_vector;
-            for (size_t i = 0; i <= read_len - arguments.pattern_size;
-                            i = i + arguments.pattern_size - arguments.overlap)
-            {
-                begin_vector.push_back(i);  
-            }
-
-            if (begin_vector.back() < read_len - arguments.pattern_size)
-            {   
-                // last pattern might have a smaller overlap to make sure the end of the read is covered
-                begin_vector.push_back(read_len - arguments.pattern_size);
-            }
-
-//--------- table of counting vectors newly created for each read
-            // rows: each k-mer of read
-            // columns: each bin of IBF
-            std::vector<seqan3::counting_vector<uint8_t>> counting_table;
-            counting_table.reserve(minimiser.size());  // allocate size for the table
-            for (auto [min,position] : minimiser)
-            {
-                // counting vector for single k-mer
-                seqan3::counting_vector<uint8_t> counts(ibf.bin_count(), 0);
-                counts += agent.bulk_contains(min);
-                counting_table.push_back(counts);
-                
-            }
+					 // enrico recommended to decrease this value
+					 max_number_of_minimisers - min_number_of_minimisers)] + 1;
 
 //--------- count occurrences of kmers
             for (auto begin : begin_vector)
             {
                 seqan3::counting_vector<uint8_t> total_counts(ibf.bin_count(), 0);
-                // take the slice of the table that accounts for the current pattern and sum over all counting vectors
+
+// TODO: update the indices so that each slice corresponds to a minimiser window
+		// take the slice of the table that accounts for the current pattern and sum over all counting vectors
                 for (size_t i = 0; i <= arguments.pattern_size - arguments.kmer_size; i++)
                 {
                     total_counts += counting_table[begin + i];
@@ -149,6 +160,7 @@ void run_program_single(search_arguments const & arguments)
                 }
                 // seqan3::debug_stream << '\n';
             }
+
 //---------- write out union of bin hits over all patterns
             for (auto bin : result_set)
             {

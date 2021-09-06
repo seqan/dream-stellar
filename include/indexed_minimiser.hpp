@@ -388,7 +388,6 @@ public:
 private:
     //!\brief The minimiser value.
     underlying_val_t minimiser_value{};
-    value_type pair_value{};
 
     //!\brief The offset relative to the beginning of the window where the minimizer value is found.
     size_t minimiser_position_offset{};
