@@ -27,31 +27,31 @@ simple_model(size_t const kmer_size, std::vector<double> const & proba_x, std::v
         double tmp = std::accumulate(proba_x.begin() + i,
                                      proba_x.begin() + std::min(std::ranges::size(proba_x), i + kmer_size),
                                      0.0);
-
-        max = std::max(tmp, max);
-    }
-
-    std::vector<size_t> coefficients{pascal_row(kmer_size)};
-    std::vector<double> probabilities(kmer_size + 1);
-    double p_mean = max / static_cast<double>(kmer_size);
-    double p_sum = 0;
-
-    for (size_t i = 0; i <= kmer_size; ++i)
-    {
-        double p_i_error = coefficients[i] * std::pow(p_mean, i) * std::pow(1 - p_mean, kmer_size - i);
-
-        for (size_t j = 0; j < indirect_errors.size() && i + j <= kmer_size; ++j)
-            probabilities[i + j] += p_i_error * indirect_errors[j];
-
-        p_sum += probabilities[i];
-    }
-
-    for (auto & x : probabilities)
-        x /= p_sum;
-
-    return {p_mean, probabilities};
-}
-
+                                                                                                                                
+        max = std::max(tmp, max);                                                                                               
+    }                                                                                                                           
+                                                                                                                                
+    std::vector<size_t> coefficients{pascal_row(kmer_size)};                                                                    
+    std::vector<double> probabilities(kmer_size + 1);                                                                           
+    double p_mean = max / static_cast<double>(kmer_size);                                                                       
+    double p_sum = 0;                                                                                                           
+                                                                                                                                
+    for (size_t i = 0; i <= kmer_size; ++i)                                                                                     
+    {                                                                                                                           
+        double p_i_error = coefficients[i] * std::pow(p_mean, i) * std::pow(1 - p_mean, kmer_size - i);                         
+                                                                                                                                
+        for (size_t j = 0; j < indirect_errors.size() && i + j <= kmer_size; ++j)                                               
+            probabilities[i + j] += p_i_error * indirect_errors[j];                                                             
+                                                                                                                                
+        p_sum += probabilities[i];                                                                                              
+    }                                                                                                                           
+                                                                                                                                
+    for (auto & x : probabilities)                                                                                              
+        x /= p_sum;                                                                                                             
+                                                                                                                                
+    return {p_mean, probabilities};                                                                                             
+}                                                                                                                               
+                                                                                                                                
 void impl(size_t const minimisers_left,
           std::vector<double> const & proba,
           std::vector<size_t> error_distribution,
@@ -104,7 +104,7 @@ std::vector<double> destroyed_indirectly_by_error(size_t const pattern_size,
     std::uniform_int_distribution<> dis2(0, pattern_size - 1);
     std::vector<uint8_t> mins(pattern_size, false);
     std::vector<uint8_t> minse(pattern_size, false);
-    std::vector<double> result(window_size - kmer_size, 0);
+    std::vector<double> result(window_size - kmer_size + 1, 0);
     std::vector<alphabet_t> sequence;
     sequence.reserve(pattern_size);
 

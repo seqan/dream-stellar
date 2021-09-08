@@ -95,47 +95,31 @@ protected:
 
 struct sliding_window : public cli_test
 {
-    static inline std::string const repeat_bins(size_t const repetitions) noexcept
-    {
-        if (repetitions == 0)
-            return cli_test::data("bin1.fa").string();
 
-        std::string result{};
-
-        for (size_t i{0}; i < repetitions; ++i)
-        {
-            result += cli_test::data("bin1.fa");
-            result += ' ';
-            result += cli_test::data("bin2.fa");
-            result += ' ';
-            result += cli_test::data("bin3.fa");
-            result += ' ';
-            result += cli_test::data("bin4.fa");
-            result += ' ';
-        }
-
-        return result;
-    }
-
-    static inline std::filesystem::path const ibf_path(size_t const number_of_repetitions, size_t const window_size) noexcept
+    static inline std::filesystem::path const ibf_path(size_t const number_of_bins, size_t const window_size) noexcept
     {
         std::string name{};
-        name += std::to_string(std::max<int>(1, number_of_repetitions * 4));
+        name += std::to_string(number_of_bins);
         name += "bins";
         name += std::to_string(window_size);
         name += "window.ibf";
         return cli_test::data(name);
     }
 
-    static inline std::filesystem::path const search_result_path(size_t const number_of_repetitions, size_t const window_size, size_t const number_of_errors) noexcept
+    static inline std::filesystem::path const search_result_path(size_t const number_of_bins, size_t const window_size, 
+		    size_t const number_of_errors, size_t const pattern_size, size_t const overlap) noexcept
     {
         std::string name{};
-        name += std::to_string(std::max<int>(1, number_of_repetitions * 4));
+        name += std::to_string(number_of_bins);
         name += "bins";
         name += std::to_string(window_size);
         name += "window";
         name += std::to_string(number_of_errors);
         name += "error";
+        name += std::to_string(pattern_size);
+        name += "pattern";
+        name += std::to_string(overlap);
+        name += "overlap";
         name += ".out";
         return cli_test::data(name);
     }
@@ -152,4 +136,5 @@ struct sliding_window : public cli_test
 };
 
 struct sliding_window_build : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, bool>> {};
-struct sliding_window_search : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
+struct sliding_window_search : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t, 
+	size_t, size_t>> {};
