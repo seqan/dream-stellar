@@ -44,7 +44,7 @@ std::vector<size_t> precalculate_begin(size_t read_len, uint64_t pattern_size, u
 template <typename min_vec, size_t index> 
 size_t find_minimiser_count(min_vec const & minimiser, size_t begin)  // no copy and can't modify minimiser
 {
-    
+   return 0; 
 }
 
 
@@ -117,8 +117,6 @@ void run_program_single(search_arguments const & arguments)
 // Table of counting vectors newly created for each read
 //	rows: each minimiser of read
 // 	columns: each bin of IBF
-//
-// 	TODO: instead of precomputing the whole table try to query certain regions of minimisers at a time.
 //---------------
             std::vector<seqan3::counting_vector<uint8_t>> counting_table;
             counting_table.reserve(minimiser.size());
@@ -127,9 +125,11 @@ void run_program_single(search_arguments const & arguments)
 	    std::vector<size_t> minimiser_positions;
 	    minimiser_positions.reserve(minimiser.size());
 
-// Vector of minimisers
+// TODO: use vector of minimisers to avoid keeping the whole precomputed count table in memory	    
+/*
 	    std::vector<uint64_t> minimiser_values;
 	    minimiser_values.reserve(minimiser.size());
+*/
 
             for (auto [min,pos] : minimiser)
             {
@@ -139,26 +139,28 @@ void run_program_single(search_arguments const & arguments)
                 counts += agent.bulk_contains(min);
                 counting_table.push_back(counts);
 		minimiser_positions.push_back(pos);
-		minimiser_values.push_back(min);
+		// minimiser_values.push_back(min);
             }
 	    
-	    //minimiser.clear();
+	    minimiser.clear();
 
 //---------------
 // For each sliding window
 //---------------
             for (auto begin : begin_vector)
             {
-		std::vector<size_t>::iterator pattern_first, pattern_last;
 
-// Indices for the first and last minimiser that are in the current sliding window
+		// Indices for the first and last minimiser that are in the current sliding window
+		std::vector<size_t>::iterator pattern_first, pattern_last;
 		pattern_first = std::lower_bound(minimiser_positions.begin(), minimiser_positions.end(), begin);
 		pattern_last = std::upper_bound(minimiser_positions.begin(), minimiser_positions.end(), 
 				begin + arguments.pattern_size - arguments.kmer_size - 1);
 
-		std::size_t first_index = std::distance(std::begin(minimiser_positions), pattern_first);
-		std::size_t last_index = std::distance(std::begin(minimiser_positions), pattern_last);
-                if (last_index == minimiser_positions.size())
+		std::size_t first_index, last_index;
+		first_index = std::distance(std::begin(minimiser_positions), pattern_first);
+		last_index = std::distance(std::begin(minimiser_positions), pattern_last);
+                
+		if (last_index == minimiser_positions.size())
                     last_index--; // if last minimiser of read
 
 
@@ -199,11 +201,6 @@ void run_program_single(search_arguments const & arguments)
                 }
             }
 
-//---------- 
-//
-// Write out union of bin hits over all patterns
-//
-//---------- 
             for (auto bin : result_set)
             {
                 result_string += std::to_string(bin);
