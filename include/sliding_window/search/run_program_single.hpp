@@ -86,16 +86,6 @@ void run_program_single(search_arguments const & arguments)
     size_t const max_number_of_minimisers = arguments.pattern_size - arguments.window_size + 1;
     std::vector<size_t> const precomp_thresholds = compute_simple_model(arguments);
 
-
-    seqan3::debug_stream << "min number of minimisers: " << min_number_of_minimisers << '\n';
-    seqan3::debug_stream << "size of threshold table: " << precomp_thresholds.size() << '\n';
-    seqan3::debug_stream << "max number of minimisers: " << max_number_of_minimisers << '\n';
-
-    for (size_t i : precomp_thresholds)
-    {
-	    seqan3::debug_stream << i << '\n';
-    }
-
     auto agent = ibf.membership_agent();
 
     auto worker = [&] (size_t const start, size_t const end)
@@ -145,20 +135,15 @@ void run_program_single(search_arguments const & arguments)
             {
 		// TODO: why doesn't this work?
 		// auto counts = agent.bulk_contains(min); 
-		
 		seqan3::counting_vector<uint8_t> counts(ibf.bin_count(), 0);
                 counts += agent.bulk_contains(min);
                 counting_table.push_back(counts);
 		minimiser_positions.push_back(pos);
 		minimiser_values.push_back(min);
-		// seqan3::debug_stream << min << '\t';
             }
 	    
-	    minimiser.clear();
+	    //minimiser.clear();
 
-	    
-	    seqan3::debug_stream << "w: " << arguments.window_size << '\t' << "k: " << arguments.kmer_size << '\n';
-	    seqan3::debug_stream << "Number of minimisers on read: " << minimiser_positions.size() << '\n';
 //---------------
 // For each sliding window
 //---------------
@@ -166,21 +151,21 @@ void run_program_single(search_arguments const & arguments)
             {
 		std::vector<size_t>::iterator pattern_first, pattern_last;
 
-// Find start and end index in the minimiser vector
+// Indices for the first and last minimiser that are in the current sliding window
 		pattern_first = std::lower_bound(minimiser_positions.begin(), minimiser_positions.end(), begin);
 		pattern_last = std::upper_bound(minimiser_positions.begin(), minimiser_positions.end(), 
 				begin + arguments.pattern_size - arguments.kmer_size - 1);
 
 		std::size_t first_index = std::distance(std::begin(minimiser_positions), pattern_first);
 		std::size_t last_index = std::distance(std::begin(minimiser_positions), pattern_last);
+                if (last_index == minimiser_positions.size())
+                    last_index--; // if last minimiser of read
+
 
 		// TODO: might use this to query one slice at a time?
    		// auto sliding_window_slice = minimiser_values | seqan3::views::slice(0,4);
-		size_t const minimiser_count = pattern_last - pattern_first - 1;
-	    
-	        seqan3::debug_stream << "first_index: " << first_index << '\n';
-	        seqan3::debug_stream << "last_index:: " << last_index << '\n';
-	        seqan3::debug_stream << "minimiser count: " << minimiser_count << '\n';
+		size_t const minimiser_count = last_index - first_index + 1;
+
 //---------------
 // Need minimiser count for each window to be able to do probabilistic thresholding
 // 1. is threshold set manually?
@@ -188,20 +173,20 @@ void run_program_single(search_arguments const & arguments)
 // 3. else use a precomputed table of thresholds to look up the value that corresponds to the number of minimisers
 // in the pattern, w and k.
 //---------------
-                size_t const threshold = arguments.treshold_was_set ? 
+		size_t const threshold = arguments.treshold_was_set ? 
 		    			static_cast<size_t>(minimiser_count * arguments.threshold) :
                                          kmers_per_window == 1 ? kmer_lemma :
                                          precomp_thresholds[std::min(minimiser_count < min_number_of_minimisers ? 0 :
                                          minimiser_count - min_number_of_minimisers, 
-					 // enrico recommended to decrease this value
+					 // enrico recommended decreasing this value
 					 max_number_of_minimisers - min_number_of_minimisers)] + 2;
      
 
 		seqan3::counting_vector<uint8_t> total_counts(ibf.bin_count(), 0);
 
-		for (size_t i = 0; i <= minimiser_count; i++)
+		for (size_t i = first_index; i <= last_index; i++)
 		{
-                    total_counts += counting_table[first_index + i];
+                    total_counts += counting_table[i];
                 }
                 for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
                 {           
