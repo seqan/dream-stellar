@@ -36,19 +36,6 @@ std::vector<size_t> precalculate_begin(size_t read_len, uint64_t pattern_size, u
 }
 
 //---------------
-// 
-// Find number of minimisers in sliding window.
-// Necessary for calculating count threshold for (w,k)-minimisers.
-//
-//---------------
-template <typename min_vec, size_t index> 
-size_t find_minimiser_count(min_vec const & minimiser, size_t begin)  // no copy and can't modify minimiser
-{
-   return 0; 
-}
-
-
-//---------------
 //
 // Search reads in IBF. 
 //
@@ -90,8 +77,6 @@ void run_program_single(search_arguments const & arguments)
 
     auto worker = [&] (size_t const start, size_t const end)
     {
-        // evelin 
-	auto counter = ibf.template counting_agent<uint16_t>();
         std::string result_string{};
 	std::set<size_t> result_set{};
 
@@ -118,28 +103,20 @@ void run_program_single(search_arguments const & arguments)
 //	rows: each minimiser of read
 // 	columns: each bin of IBF
 //---------------
-            std::vector<seqan3::counting_vector<uint8_t>> counting_table;
+
+	    std::vector<seqan3::counting_vector<uint8_t>> counting_table;
             counting_table.reserve(minimiser.size());
 
 // Vector of minimiser start positions
 	    std::vector<size_t> minimiser_positions;
 	    minimiser_positions.reserve(minimiser.size());
 
-// TODO: use vector of minimisers to avoid keeping the whole precomputed count table in memory	    
-/*
-	    std::vector<uint64_t> minimiser_values;
-	    minimiser_values.reserve(minimiser.size());
-*/
-
             for (auto [min,pos] : minimiser)
             {
-		// TODO: why doesn't this work?
-		// auto counts = agent.bulk_contains(min); 
 		seqan3::counting_vector<uint8_t> counts(ibf.bin_count(), 0);
                 counts += agent.bulk_contains(min);
-                counting_table.push_back(counts);
-		minimiser_positions.push_back(pos);
-		// minimiser_values.push_back(min);
+                counting_table.emplace_back(std::move(counts));
+		minimiser_positions.emplace_back(pos);
             }
 	    
 	    minimiser.clear();
@@ -163,9 +140,6 @@ void run_program_single(search_arguments const & arguments)
 		if (last_index == minimiser_positions.size())
                     last_index--; // if last minimiser of read
 
-
-		// TODO: might use this to query one slice at a time?
-   		// auto sliding_window_slice = minimiser_values | seqan3::views::slice(0,4);
 		size_t const minimiser_count = last_index - first_index + 1;
 
 //---------------

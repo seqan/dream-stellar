@@ -41,7 +41,7 @@ example_data/*
 
 
 # Output files
-*.out
+matches*
 binary_*
 
 # Presentation files
