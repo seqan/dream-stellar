@@ -73,7 +73,6 @@ void run_program_single(search_arguments const & arguments)
     size_t const max_number_of_minimisers = arguments.pattern_size - arguments.window_size + 1;
     std::vector<size_t> const precomp_thresholds = compute_simple_model(arguments);
 
-
     // capture all variables by reference
     auto worker = [&] (size_t const start, size_t const end)
     {
@@ -157,7 +156,8 @@ void run_program_single(search_arguments const & arguments)
 		
 		for (size_t i = first_index; i <= last_index; i++)
                     total_counts += counting_table[i];
-                for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
+                
+		for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
                 {           
                     auto && count = total_counts[current_bin];
                     if (count >= threshold)
