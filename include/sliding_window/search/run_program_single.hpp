@@ -77,7 +77,9 @@ void run_program_single(search_arguments const & arguments)
     // capture all variables by reference
     auto worker = [&] (size_t const start, size_t const end)
     {
-        auto agent = ibf.membership_agent();
+        // concurrent invocations of the membership agent are not thread safe
+	// agent has to be created for each thread
+	auto && agent = ibf.membership_agent();
         
 	std::string result_string{};
 	std::set<size_t> result_set{};
@@ -105,17 +107,18 @@ void run_program_single(search_arguments const & arguments)
 //	rows: each minimiser of read
 // 	columns: each bin of IBF
 //---------------
-	    std::vector<seqan3::counting_vector<uint8_t>> counting_table;
-            counting_table.reserve(minimiser.size());
+	    
+	    using binning_bitvector_t = typename std::remove_cvref_t<decltype(ibf)>::membership_agent::binning_bitvector;
+            std::vector<binning_bitvector_t> counting_table(minimiser.size(), 
+                                              binning_bitvector_t(ibf.bin_count()));
 
 	    std::vector<size_t> minimiser_start_positions;
 	    minimiser_start_positions.reserve(minimiser.size());
 
-            for (auto [min,pos] : minimiser)
+	    for (size_t i{0}; i < minimiser.size(); i++)
             {
-		seqan3::counting_vector<uint8_t> counts(ibf.bin_count(), 0);
-                counts += agent.bulk_contains(min);
-                counting_table.emplace_back(std::move(counts));
+		auto [min, pos] = minimiser[i];
+		counting_table[i].raw_data() |= agent.bulk_contains(min).raw_data();
 		minimiser_start_positions.emplace_back(pos);
             }
 	    
