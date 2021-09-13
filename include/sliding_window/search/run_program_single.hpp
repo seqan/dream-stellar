@@ -36,19 +36,6 @@ std::vector<size_t> precalculate_begin(size_t read_len, uint64_t pattern_size, u
 }
 
 //---------------
-// 
-// Find number of minimisers in sliding window.
-// Necessary for calculating count threshold for (w,k)-minimisers.
-//
-//---------------
-template <typename min_vec, size_t index> 
-size_t find_minimiser_count(min_vec const & minimiser, size_t begin)  // no copy and can't modify minimiser
-{
-   return 0; 
-}
-
-
-//---------------
 //
 // Search reads in IBF. 
 //
@@ -86,13 +73,14 @@ void run_program_single(search_arguments const & arguments)
     size_t const max_number_of_minimisers = arguments.pattern_size - arguments.window_size + 1;
     std::vector<size_t> const precomp_thresholds = compute_simple_model(arguments);
 
-    auto agent = ibf.membership_agent();
-
+    // capture all variables by reference
     auto worker = [&] (size_t const start, size_t const end)
     {
-        // evelin 
-	auto counter = ibf.template counting_agent<uint16_t>();
-        std::string result_string{};
+        // concurrent invocations of the membership agent are not thread safe
+	// agent has to be created for each thread
+	auto && agent = ibf.membership_agent();
+        
+	std::string result_string{};
 	std::set<size_t> result_set{};
 
 	// vector holding all the minimisers and their starting position for the read
@@ -118,63 +106,43 @@ void run_program_single(search_arguments const & arguments)
 //	rows: each minimiser of read
 // 	columns: each bin of IBF
 //---------------
-            std::vector<seqan3::counting_vector<uint8_t>> counting_table;
-            counting_table.reserve(minimiser.size());
+	    
+	    using binning_bitvector_t = typename std::remove_cvref_t<decltype(ibf)>::membership_agent::binning_bitvector;
+            std::vector<binning_bitvector_t> counting_table(minimiser.size(), 
+                                              binning_bitvector_t(ibf.bin_count()));
 
-// Vector of minimiser start positions
-	    std::vector<size_t> minimiser_positions;
-	    minimiser_positions.reserve(minimiser.size());
+	    std::vector<size_t> minimiser_start_positions;
+	    minimiser_start_positions.reserve(minimiser.size());
 
-// TODO: use vector of minimisers to avoid keeping the whole precomputed count table in memory	    
-/*
-	    std::vector<uint64_t> minimiser_values;
-	    minimiser_values.reserve(minimiser.size());
-*/
-
-            for (auto [min,pos] : minimiser)
+	    for (size_t i{0}; i < minimiser.size(); i++)
             {
-		// TODO: why doesn't this work?
-		// auto counts = agent.bulk_contains(min); 
-		seqan3::counting_vector<uint8_t> counts(ibf.bin_count(), 0);
-                counts += agent.bulk_contains(min);
-                counting_table.push_back(counts);
-		minimiser_positions.push_back(pos);
-		// minimiser_values.push_back(min);
+		auto [min, pos] = minimiser[i];
+		counting_table[i].raw_data() |= agent.bulk_contains(min).raw_data();
+		minimiser_start_positions.emplace_back(pos);
             }
 	    
 	    minimiser.clear();
 
 //---------------
-// For each sliding window
+// For each sliding window (pattern)
 //---------------
             for (auto begin : begin_vector)
             {
-
-		// Indices for the first and last minimiser that are in the current sliding window
+		// indices for the first and last minimiser of the current sliding window
 		std::vector<size_t>::iterator pattern_first, pattern_last;
-		pattern_first = std::lower_bound(minimiser_positions.begin(), minimiser_positions.end(), begin);
-		pattern_last = std::upper_bound(minimiser_positions.begin(), minimiser_positions.end(), 
+		pattern_first = std::lower_bound(minimiser_start_positions.begin(), minimiser_start_positions.end(), begin);
+		pattern_last = std::upper_bound(minimiser_start_positions.begin(), minimiser_start_positions.end(), 
 				begin + arguments.pattern_size - arguments.kmer_size - 1);
 
 		std::size_t first_index, last_index;
-		first_index = std::distance(std::begin(minimiser_positions), pattern_first);
-		last_index = std::distance(std::begin(minimiser_positions), pattern_last);
+		first_index = std::distance(std::begin(minimiser_start_positions), pattern_first);
+		last_index = std::distance(std::begin(minimiser_start_positions), pattern_last);
                 
-		if (last_index == minimiser_positions.size())
+		if (last_index == minimiser_start_positions.size())
                     last_index--; // if last minimiser of read
 
-
-		// TODO: might use this to query one slice at a time?
-   		// auto sliding_window_slice = minimiser_values | seqan3::views::slice(0,4);
 		size_t const minimiser_count = last_index - first_index + 1;
 
-//---------------
-// Need minimiser count for each window to be able to do probabilistic thresholding
-// 1. is threshold set manually?
-// 2. elif w = k -> use k-mer lemma
-// 3. else use a precomputed table of thresholds to look up the value that corresponds to the number of minimisers
-// in the pattern, w and k.
-//---------------
 		size_t const threshold = arguments.treshold_was_set ? 
 		    			static_cast<size_t>(minimiser_count * arguments.threshold) :
                                          kmers_per_window == 1 ? kmer_lemma :
@@ -183,14 +151,13 @@ void run_program_single(search_arguments const & arguments)
 					 // enrico recommended decreasing this value
 					 max_number_of_minimisers - min_number_of_minimisers)] + 2;
      
-
+	        // counting vector for the current pattern
 		seqan3::counting_vector<uint8_t> total_counts(ibf.bin_count(), 0);
-
+		
 		for (size_t i = first_index; i <= last_index; i++)
-		{
                     total_counts += counting_table[i];
-                }
-                for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
+                
+		for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
                 {           
                     auto && count = total_counts[current_bin];
                     if (count >= threshold)
