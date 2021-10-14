@@ -382,7 +382,7 @@ public:
     //!\brief Return the minimiser.
     reference operator*() const noexcept
     {
-	return reference{minimiser_value, minimiser_position_absolute_offset};
+	return reference{minimiser_value, first_window_position};
     }
 
 private:
@@ -392,11 +392,11 @@ private:
     //!\brief The offset relative to the beginning of the window where the minimizer value is found.
     size_t minimiser_position_offset{};
 
-    //!\brief The distance of the beginning of the current window from the beginning of the underlying range
-    size_t distance_from_beginning{};
-
-    //!\brief The offset relative to the beginning of the underlying range.
-    size_t minimiser_position_absolute_offset{};
+    // Defining the span of a minimiser. Consecutive windows might have the same minimiser.
+    // The span is 
+    // -> from the beginning of the first window
+    // <- to the end of the last window that has this k-mer as its minimiser
+    size_t first_window_position{};
 
     //!\brief Iterator to the rightmost value of one window.
     urng1_iterator_t urng1_iterator{};
@@ -429,7 +429,7 @@ private:
         ++urng1_iterator;
         if constexpr (second_range_is_given)
             ++urng2_iterator;
-	distance_from_beginning++;
+	first_window_position++;
     }
 
     //!\brief Calculates minimisers for the first window.
@@ -449,8 +449,7 @@ private:
         minimiser_value = *minimiser_it ;
       
 	minimiser_position_offset = std::distance(std::begin(window_values), minimiser_it);
-	distance_from_beginning = 0u;
-	minimiser_position_absolute_offset = minimiser_position_offset;
+	first_window_position = 0u;
     }
 
     /*!\brief Calculates the next minimiser value.
@@ -479,8 +478,6 @@ private:
             auto minimiser_it = std::ranges::min_element(window_values, std::less_equal<underlying_val_t>{});
             minimiser_value = *minimiser_it;
             minimiser_position_offset = std::distance(std::begin(window_values), minimiser_it);
-	    
-	    minimiser_position_absolute_offset = distance_from_beginning + minimiser_position_offset;
             return true;
         }
 
@@ -489,13 +486,11 @@ private:
         {
             minimiser_value = new_value;
             minimiser_position_offset = window_values.size() - 1;
-	    minimiser_position_absolute_offset = distance_from_beginning + minimiser_position_offset;
             return true;
         }
 
 	// Minimiser remains same after shifting
         --minimiser_position_offset;
-	minimiser_position_absolute_offset = distance_from_beginning + minimiser_position_offset;
         return false;
     }
 };
