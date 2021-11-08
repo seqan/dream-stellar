@@ -25,6 +25,7 @@ public:
         std::lock_guard<std::mutex> lock(write_mutex);
         file << std::forward<t>(data);
     }
+    // outfile gets unlocked as soon as the current threads exits the write function
 
 private:
     std::ofstream file;
