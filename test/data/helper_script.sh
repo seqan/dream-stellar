@@ -14,7 +14,7 @@ do
             for o in 1 40
             do
                 output="8bins"$w"window"$e"error"$p"pattern"$o"overlap.out"
-                #sliding_window search --index 8bins23window.ibf --query query.fq --output "$output" --error "$e" --pattern "$p" --overlap "$o"
+                sliding_window search --index 8bins${w}window.ibf --query query.fq --output "$output" --error "$e" --pattern "$p" --overlap "$o"
 		echo "declare_datasource (FILE ${output}
                     URL \${CMAKE_SOURCE_DIR}/test/data/${output}
                     URL_HASH SHA256="
