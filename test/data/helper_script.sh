@@ -18,7 +18,7 @@ do
 		echo "declare_datasource (FILE ${output}
                     URL \${CMAKE_SOURCE_DIR}/test/data/${output}
                     URL_HASH SHA256="
-		printf $output | sha256sum
+		sha256sum $output >&1
 		echo ")"
 	    done
         done
