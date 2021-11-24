@@ -78,7 +78,7 @@ struct indexed_minimiser_hash_fn
     constexpr auto operator()(urng_t && urange,
                               seqan3::shape const & shape,
                               window_size const window_size,
-                              seed const seed = seed{0x8F3F73B5CF1C9ADE}) const
+                              seed const seed = sliding_window::seed{0x8F3F73B5CF1C9ADE}) const
     {
         static_assert(std::ranges::viewable_range<urng_t>,
             "The range parameter to views::minimiser_hash cannot be a temporary of a non-view range.");
