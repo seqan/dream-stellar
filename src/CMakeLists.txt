@@ -51,3 +51,6 @@ target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_search_l
 # Sliding window executable
 add_executable ("${PROJECT_NAME}" sliding_window_main.cpp)
 target_link_libraries ("${PROJECT_NAME}" PUBLIC "${PROJECT_NAME}_lib")
+
+# Enable debugging in VisualStudio
+set_target_properties ("${PROJECT_NAME}" PROPERTIES COMPILE_FLAGS "-g")

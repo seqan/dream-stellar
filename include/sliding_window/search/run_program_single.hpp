@@ -5,6 +5,7 @@
 #include <sliding_window/search/compute_simple_model.hpp>
 #include <sliding_window/search/do_parallel.hpp>
 #include <sliding_window/search/load_ibf.hpp>
+#include <sliding_window/search/query_result.hpp>
 #include <sliding_window/search/sync_out.hpp>
 
 #include <indexed_minimiser_hash.hpp>
@@ -18,7 +19,7 @@ namespace sliding_window
 // This adds a small computational overhead but makes the code much more readable.
 //
 //-----------------------------
-std::vector<size_t> precalculate_begin(size_t read_len, uint64_t pattern_size, uint64_t overlap)
+std::vector<size_t> precalculate_begin(size_t const read_len, uint64_t const pattern_size, uint64_t const overlap)
 {
     std::vector<size_t> begin_vector;
     for (size_t i = 0; i <= read_len - pattern_size;
@@ -77,11 +78,12 @@ void run_program_single(search_arguments const & arguments)
     auto worker = [&] (size_t const start, size_t const end)
     {
         // concurrent invocations of the membership agent are not thread safe
-	// agent has to be created for each thread
+    // agent has to be created for each thread
 	auto && agent = ibf.membership_agent();
-        
-	std::string result_string{};
-	std::set<size_t> result_set{};
+
+
+    std::vector<query_result> thread_result{};    // set of query results processed by one thread
+	std::set<size_t> sequence_hits{};     // bin hits for one sequence
 
 	// vector holding all the minimisers and their starting position for the read
 	using minimiser_vec_t = std::vector<std::tuple<uint64_t, size_t>>;
@@ -93,11 +95,7 @@ void run_program_single(search_arguments const & arguments)
 
         for (auto && [id, seq] : records | seqan3::views::slice(start, end))
         {
-	    result_set.clear();
-
-            result_string.clear();
-            result_string += id;
-            result_string += '\t';
+	        sequence_hits.clear();
 
             minimiser = seq | hash_tuple_view | seqan3::views::to<minimiser_vec_t>;
 
@@ -192,21 +190,17 @@ void run_program_single(search_arguments const & arguments)
                     if (count >= threshold)
                     {
                         // the result_set is a union of results from all sliding windows of a read
-                        result_set.insert(current_bin);
+                        sequence_hits.insert(current_bin);
                     }
                 }
             }
 
-            for (auto bin : result_set)
-            {
-                result_string += std::to_string(bin);
-                result_string += ',';
-            }
-
-            result_string += '\n';
-            synced_out.write(result_string);
+            query_result query_result(id, sequence_hits);
+            thread_result.emplace_back(query_result);
 
         }
+
+        return thread_result;
     };
 
     for (auto && chunked_records : fin | seqan3::views::chunk((1ULL<<20)*10))
@@ -219,7 +213,7 @@ void run_program_single(search_arguments const & arguments)
 
         cereal_handle.wait();
 
-        do_parallel(worker, records.size(), arguments.threads, compute_time);
+        do_parallel(worker, records.size(), synced_out, arguments.threads, compute_time);
     }
 
     if (arguments.write_time)
