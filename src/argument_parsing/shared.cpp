@@ -5,7 +5,7 @@ namespace sliding_window
 
 void init_shared_meta(seqan3::argument_parser & parser)
 {
-    parser.info.app_name = "Sliding window";
+    parser.info.app_name = "sliding_window";
     parser.info.author = "Evelin Aasna";
     parser.info.email = "evelin.aasna@fu-berlin.de";
     parser.info.long_copyright = R"(BSD 3-Clause License
