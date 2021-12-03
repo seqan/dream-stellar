@@ -36,6 +36,13 @@ std::vector<size_t> precalculate_begin(size_t const read_len, uint64_t const pat
     return begin_vector;
 }
 
+struct search_time_statistics
+{
+    double ibf_io_time{0.0};
+    double reads_io_time{0.0};
+    double compute_time{0.0};
+};
+
 //-----------------------------
 //
 // Search reads in IBF. 
@@ -48,13 +55,11 @@ void run_program_single(search_arguments const & arguments)
                                                                  seqan3::data_layout::uncompressed;
     auto ibf = seqan3::interleaved_bloom_filter<ibf_data_layout>{};
 
-    double ibf_io_time{0.0};
-    double reads_io_time{0.0};
-    double compute_time{0.0};
+    search_time_statistics time_statistics{};
 
     auto cereal_worker = [&] ()
     {
-        load_ibf(ibf, arguments, ibf_io_time);
+        load_ibf(ibf, arguments, time_statistics.ibf_io_time);
     };
     auto cereal_handle = std::async(std::launch::async, cereal_worker);
 
@@ -64,6 +69,8 @@ void run_program_single(search_arguments const & arguments)
 
     sync_out synced_out{arguments.out_file};
 
+    // TODO: make these into a struct that can be passed to worker
+    // struct constructor takes arguments 
     size_t const kmers_per_window = arguments.window_size - arguments.kmer_size + 1;
     size_t const kmers_per_pattern = arguments.pattern_size - arguments.kmer_size + 1;
     size_t const min_number_of_minimisers = kmers_per_window == 1 ? kmers_per_pattern :
@@ -75,6 +82,9 @@ void run_program_single(search_arguments const & arguments)
     std::vector<size_t> const precomp_thresholds = compute_simple_model(arguments);
 
     // lambda captures all variables by reference
+
+    // TODO: instead of capturing everything by reference, pass as arguments
+    // place worker outside this function, make it a funciton
     auto worker = [&] (size_t const start, size_t const end)
     {
         // concurrent invocations of the membership agent are not thread safe
@@ -203,17 +213,18 @@ void run_program_single(search_arguments const & arguments)
         return thread_result;
     };
 
+// TODO: execute this one step higher
     for (auto && chunked_records : fin | seqan3::views::chunk((1ULL<<20)*10))
     {
         records.clear();
         auto start = std::chrono::high_resolution_clock::now();
         std::ranges::move(chunked_records, std::cpp20::back_inserter(records));
         auto end = std::chrono::high_resolution_clock::now();
-        reads_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+        time_statistics.reads_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
         cereal_handle.wait();
 
-        do_parallel(worker, records.size(), synced_out, arguments.threads, compute_time);
+        do_parallel(worker, records.size(), synced_out, arguments.threads, time_statistics.compute_time);
     }
 
     if (arguments.write_time)
@@ -224,9 +235,9 @@ void run_program_single(search_arguments const & arguments)
         file_handle << "IBF I/O\tReads I/O\tCompute\n";
         file_handle << std::fixed
                     << std::setprecision(2)
-                    << ibf_io_time << '\t'
-                    << reads_io_time << '\t'
-                    << compute_time;
+                    << time_statistics.ibf_io_time << '\t'
+                    << time_statistics.reads_io_time << '\t'
+                    << time_statistics.compute_time;
     }
 }
 
