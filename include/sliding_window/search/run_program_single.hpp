@@ -68,16 +68,8 @@ void run_program_single(search_arguments const &arguments)
 
     sync_out synced_out{arguments.out_file};
 
-    // TODO: make these into a struct that can be passed to worker
-    // struct constructor takes arguments
-    size_t const kmers_per_window = arguments.window_size - arguments.kmer_size + 1;
-    size_t const kmers_per_pattern = arguments.pattern_size - arguments.kmer_size + 1;
-    size_t const min_number_of_minimisers = kmers_per_window == 1 ? 
-                        kmers_per_pattern : std::ceil(kmers_per_pattern / static_cast<double>(kmers_per_window));
-    size_t const kmer_lemma = arguments.pattern_size + 1u > (arguments.errors + 1u) * arguments.kmer_size ? 
-                        arguments.pattern_size + 1u - (arguments.errors + 1u) * arguments.kmer_size : 0;
-    size_t const max_number_of_minimisers = arguments.pattern_size - arguments.window_size + 1;
-    std::vector<size_t> const precomp_thresholds = compute_simple_model(arguments);
+    // threshold threshold_data(search_arguments);
+    auto const threshold_data = make_threshold_data(arguments);
 
     // lambda captures all variables by reference
     // TODO: instead of capturing everything by reference, pass as arguments
@@ -177,11 +169,12 @@ void run_program_single(search_arguments const &arguments)
                 last_index = upper_it - window_span_end.begin() - 1; // - 1 because the upper bound returns the first el that is greater
 
                 size_t const minimiser_count = last_index - first_index + 1;
+
                 size_t const threshold = arguments.treshold_was_set ? 
-                                        static_cast<size_t>(minimiser_count * arguments.threshold) : kmers_per_window == 1 ? 
-                                        kmer_lemma : precomp_thresholds[std::min(minimiser_count < min_number_of_minimisers ? 
-                                        0 : minimiser_count - min_number_of_minimisers,  
-                                        max_number_of_minimisers - min_number_of_minimisers)] + 2; // enrico recommended decreasing this value
+                                        static_cast<size_t>(minimiser_count * arguments.threshold) : threshold_data.kmers_per_window == 1 ? 
+                                        threshold_data.kmer_lemma : threshold_data.precomp_thresholds[std::min(minimiser_count < threshold_data.min_number_of_minimisers ? 
+                                        0 : minimiser_count - threshold_data.min_number_of_minimisers,  
+                                        threshold_data.max_number_of_minimisers - threshold_data.min_number_of_minimisers)] + 2; // enrico recommended decreasing this value
 
                 // counting vector for the current pattern
                 seqan3::counting_vector<uint8_t> total_counts(ibf.bin_count(), 0);
