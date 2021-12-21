@@ -43,6 +43,63 @@ struct search_time_statistics
     double compute_time{0.0};
 };
 
+// position and threshold of one sliding window
+// interface for seeing if the current sliding window is above the threshold
+struct pattern_bounds
+{
+    size_t first_index;
+    size_t last_index;
+    size_t threshold;
+};
+
+template <typename span_vec_t>
+pattern_bounds make_pattern_bounds(size_t const & begin, search_arguments const & arguments, span_vec_t const & window_span_begin, span_vec_t const & window_span_end, threshold const & threshold_data)
+{
+    auto pattern = pattern_bounds{};
+
+    // indices for the first and last minimiser of the current sliding window
+    // std::vector<size_t>::iterator lower_it, upper_it;
+    auto lower_it = std::lower_bound(window_span_begin.begin(), window_span_begin.end(), begin);
+    auto upper_it = std::upper_bound(window_span_end.begin(), window_span_end.end(),
+                                begin + arguments.pattern_size - 1); // - 1 because of 0 based indexing
+
+    pattern.first_index = lower_it - window_span_begin.begin();
+    pattern.last_index = upper_it - window_span_end.begin() - 1; // - 1 because the upper bound returns the first el that is greater
+
+    size_t const minimiser_count = pattern.last_index - pattern.first_index + 1;
+
+    pattern.threshold = arguments.treshold_was_set ? 
+                            static_cast<size_t>(minimiser_count * arguments.threshold) : threshold_data.kmers_per_window == 1 ? 
+                            threshold_data.kmer_lemma : threshold_data.precomp_thresholds[std::min(minimiser_count < threshold_data.min_number_of_minimisers ? 
+                            0 : minimiser_count - threshold_data.min_number_of_minimisers,  
+                            threshold_data.max_number_of_minimisers - threshold_data.min_number_of_minimisers)] + 2; // enrico recommended decreasing this value
+
+    return pattern;
+}
+
+template <typename binning_bitvector_t>
+std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const & bin_count, binning_bitvector_t const & counting_table)
+{
+    std::set<size_t> pattern_hits{};    // bin hits for one pattern i.e sliding window
+
+    // counting vector for the current pattern
+    seqan3::counting_vector<uint8_t> total_counts(bin_count, 0);
+
+    for (size_t i = pattern.first_index; i <= pattern.last_index; i++)
+        total_counts += counting_table[i];
+    for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
+    {
+        auto &&count = total_counts[current_bin];
+        if (count >= pattern.threshold)
+        {
+            // the result_set is a union of results from all sliding windows of a read
+            pattern_hits.insert(current_bin);
+        }
+    }
+
+    return pattern_hits;
+}
+                
 //-----------------------------
 //
 // Search reads in IBF.
@@ -60,6 +117,8 @@ void run_program_single(search_arguments const &arguments)
     {
         load_ibf(ibf, arguments, time_statistics.ibf_io_time);
     };
+
+
     auto cereal_handle = std::async(std::launch::async, cereal_worker);
 
     seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>> fin{arguments.query_file};
@@ -68,17 +127,18 @@ void run_program_single(search_arguments const &arguments)
 
     sync_out synced_out{arguments.out_file};
 
-    // threshold threshold_data(search_arguments);
     auto const threshold_data = make_threshold_data(arguments);
 
     // lambda captures all variables by reference
     // TODO: instead of capturing everything by reference, pass as arguments
     // place worker outside this function, make it a funciton
+    // auto worker(size_t const start, size_t const end, auto const & ibf, search_arguments const & arguments, std::vector<record_type> const & records, threshold const & threshold_data)
     auto worker = [&](size_t const start, size_t const end)
     {
         // concurrent invocations of the membership agent are not thread safe
         // agent has to be created for each thread
         auto &&agent = ibf.membership_agent();
+        size_t bin_count = ibf.bin_count();
 
         std::vector<query_result> thread_result{}; // set of query results processed by one thread
         std::set<size_t> sequence_hits{};          // bin hits for one sequence
@@ -99,7 +159,7 @@ void run_program_single(search_arguments const &arguments)
 
             //-----------------------------
             //
-            // For each sliding window (pattern) the begin_vector shows the beginning of each sliding window
+            // For each read the begin_vector shows the beginning of each sliding window (pattern)
             //
             // If 	read_len = 150
             // 	pattern_size = 50
@@ -119,7 +179,7 @@ void run_program_single(search_arguments const &arguments)
             //-----------------------------
             using binning_bitvector_t = typename std::remove_cvref_t<decltype(ibf)>::membership_agent::binning_bitvector;
             std::vector<binning_bitvector_t> counting_table(minimiser.size(),
-                                                            binning_bitvector_t(ibf.bin_count()));
+                                                            binning_bitvector_t(bin_count));
 
             // the beginning of the first window this minimiser is in
             std::vector<size_t> window_span_begin(minimiser.size(), 0);
@@ -155,41 +215,11 @@ void run_program_single(search_arguments const &arguments)
             // AACG		AACGCGGC
             //
             //-----------------------------
-
             for (auto begin : begin_vector)
             {
-                // indices for the first and last minimiser of the current sliding window
-                std::vector<size_t>::iterator lower_it, upper_it;
-                lower_it = std::lower_bound(window_span_begin.begin(), window_span_begin.end(), begin);
-                upper_it = std::upper_bound(window_span_end.begin(), window_span_end.end(),
-                                            begin + arguments.pattern_size - 1); // - 1 because of 0 based indexing
-
-                size_t first_index, last_index;
-                first_index = lower_it - window_span_begin.begin();
-                last_index = upper_it - window_span_end.begin() - 1; // - 1 because the upper bound returns the first el that is greater
-
-                size_t const minimiser_count = last_index - first_index + 1;
-
-                size_t const threshold = arguments.treshold_was_set ? 
-                                        static_cast<size_t>(minimiser_count * arguments.threshold) : threshold_data.kmers_per_window == 1 ? 
-                                        threshold_data.kmer_lemma : threshold_data.precomp_thresholds[std::min(minimiser_count < threshold_data.min_number_of_minimisers ? 
-                                        0 : minimiser_count - threshold_data.min_number_of_minimisers,  
-                                        threshold_data.max_number_of_minimisers - threshold_data.min_number_of_minimisers)] + 2; // enrico recommended decreasing this value
-
-                // counting vector for the current pattern
-                seqan3::counting_vector<uint8_t> total_counts(ibf.bin_count(), 0);
-
-                for (size_t i = first_index; i <= last_index; i++)
-                    total_counts += counting_table[i];
-                for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
-                {
-                    auto &&count = total_counts[current_bin];
-                    if (count >= threshold)
-                    {
-                        // the result_set is a union of results from all sliding windows of a read
-                        sequence_hits.insert(current_bin);
-                    }
-                }
+                auto pattern = make_pattern_bounds(begin, arguments, window_span_begin, window_span_end, threshold_data);
+                auto pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
+                sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
             }
 
             query_result query_result(id, sequence_hits);
