@@ -36,6 +36,7 @@ std::vector<size_t> precalculate_begin(size_t const read_len, uint64_t const pat
     return begin_vector;
 }
 
+// TODO: make these generic for both build and search
 struct search_time_statistics
 {
     double ibf_io_time{0.0};
@@ -43,8 +44,25 @@ struct search_time_statistics
     double compute_time{0.0};
 };
 
-// position and threshold of one sliding window
-// interface for seeing if the current sliding window is above the threshold
+void write_time_statistics(search_time_statistics const & time_statistics, search_arguments const & arguments)
+{
+    std::filesystem::path file_path{arguments.out_file};
+    file_path += ".time";
+    std::ofstream file_handle{file_path};
+    file_handle << "IBF I/O\tReads I/O\tCompute\n";
+    file_handle << std::fixed
+                << std::setprecision(2)
+                << time_statistics.ibf_io_time << '\t'
+                << time_statistics.reads_io_time << '\t'
+                << time_statistics.compute_time;
+
+}
+
+//-----------------------------
+//
+// Position of a sliding window (i.e pattern) on the read and threshold for local match.
+//
+//-----------------------------
 struct pattern_bounds
 {
     size_t first_index;
@@ -53,7 +71,8 @@ struct pattern_bounds
 };
 
 template <typename span_vec_t>
-pattern_bounds make_pattern_bounds(size_t const & begin, search_arguments const & arguments, span_vec_t const & window_span_begin, span_vec_t const & window_span_end, threshold const & threshold_data)
+pattern_bounds make_pattern_bounds(size_t const & begin, search_arguments const & arguments, span_vec_t const & window_span_begin, 
+                                                            span_vec_t const & window_span_end, threshold const & threshold_data)
 {
     auto pattern = pattern_bounds{};
 
@@ -77,6 +96,11 @@ pattern_bounds make_pattern_bounds(size_t const & begin, search_arguments const 
     return pattern;
 }
 
+//-----------------------------
+//
+// Count matching k-mers and return matching bins for one pattern.
+//
+//-----------------------------
 template <typename binning_bitvector_t>
 std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const & bin_count, binning_bitvector_t const & counting_table)
 {
@@ -118,14 +142,11 @@ void run_program_single(search_arguments const &arguments)
         load_ibf(ibf, arguments, time_statistics.ibf_io_time);
     };
 
-
     auto cereal_handle = std::async(std::launch::async, cereal_worker);
 
     seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>> fin{arguments.query_file};
     using record_type = typename decltype(fin)::record_type;
     std::vector<record_type> records{};
-
-    sync_out synced_out{arguments.out_file};
 
     auto const threshold_data = make_threshold_data(arguments);
 
@@ -217,8 +238,8 @@ void run_program_single(search_arguments const &arguments)
             //-----------------------------
             for (auto begin : begin_vector)
             {
-                auto pattern = make_pattern_bounds(begin, arguments, window_span_begin, window_span_end, threshold_data);
-                auto pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
+                auto const pattern = make_pattern_bounds(begin, arguments, window_span_begin, window_span_end, threshold_data);
+                auto const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
                 sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
             }
 
@@ -230,6 +251,8 @@ void run_program_single(search_arguments const &arguments)
     };
 
     // TODO: execute this one step higher
+    sync_out synced_out{arguments.out_file};
+
     for (auto &&chunked_records : fin | seqan3::views::chunk((1ULL << 20) * 10))
     {
         records.clear();
@@ -245,15 +268,7 @@ void run_program_single(search_arguments const &arguments)
 
     if (arguments.write_time)
     {
-        std::filesystem::path file_path{arguments.out_file};
-        file_path += ".time";
-        std::ofstream file_handle{file_path};
-        file_handle << "IBF I/O\tReads I/O\tCompute\n";
-        file_handle << std::fixed
-                    << std::setprecision(2)
-                    << time_statistics.ibf_io_time << '\t'
-                    << time_statistics.reads_io_time << '\t'
-                    << time_statistics.compute_time;
+        write_time_statistics(time_statistics, arguments);
     }
 }
 
