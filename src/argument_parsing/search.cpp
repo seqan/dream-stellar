@@ -68,10 +68,13 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
                     seqan3::option_spec::advanced);
 }
 
+// TODO: split creating seqan3::argument_parser and checks/validation of the arguments
 void run_search(seqan3::argument_parser & parser)
 {
     search_arguments arguments{};
+
     init_search_parser(parser, arguments);
+
     try_parsing(parser);
 
     // ==========================================
@@ -131,7 +134,7 @@ void run_search(seqan3::argument_parser & parser)
     }
     else
         arguments.overlap = arguments.pattern_size - 1;
-    
+
     // ==========================================
     // Dispatch
     // ==========================================

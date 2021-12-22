@@ -3,7 +3,7 @@
 #include <seqan3/utility/views/slice.hpp> // provides views::slice
 
 #include <sliding_window/search/compute_simple_model.hpp>
-#include <sliding_window/search/do_parallel.hpp>
+#include <sliding_window/search/write_output_file_parallel.hpp>
 #include <sliding_window/search/load_ibf.hpp>
 #include <sliding_window/search/query_result.hpp>
 #include <sliding_window/search/sync_out.hpp>
@@ -123,19 +123,122 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
 
     return pattern_hits;
 }
-                
+
+//-----------------------------
+//
+// Process a batch of reads (start; end)
+//
+// TODO: pass slice of records directly instead of start, end and records
+//-----------------------------
+template <typename ibf_t, typename rec_vec_t>
+auto worker(size_t const start, size_t const end, ibf_t const & ibf, search_arguments const & arguments, 
+                                                                    rec_vec_t const & records, threshold const & threshold_data)
+{
+    // concurrent invocations of the membership agent are not thread safe
+    // agent has to be created for each thread
+    auto &&agent = ibf.membership_agent();
+    size_t bin_count = ibf.bin_count();
+
+    std::vector<query_result> thread_result{}; // set of query results processed by one thread
+    std::set<size_t> sequence_hits{};          // bin hits for one sequence
+
+    // vector holding all the minimisers and their starting position for the read
+    using minimiser_vec_t = std::vector<std::tuple<uint64_t, size_t>>;
+    minimiser_vec_t minimiser;
+
+    auto hash_tuple_view = indexed_minimiser_hash(seqan3::ungapped{arguments.kmer_size},
+                                                    window_size{arguments.window_size},
+                                                    seed{adjust_seed(arguments.kmer_size)});
+
+    for (auto &&[id, seq] : records | seqan3::views::slice(start, end))
+    {
+        sequence_hits.clear();
+
+        minimiser = seq | hash_tuple_view | seqan3::views::to<minimiser_vec_t>;
+
+        //-----------------------------
+        //
+        // For each read the begin_vector shows the beginning of each sliding window (pattern)
+        //
+        // If 	read_len = 150
+        // 	pattern_size = 50
+        // 	overlap = 30
+        //
+        // 	begin_vector = {0, 30, 60, 90, 100}
+        //
+        //-----------------------------
+        auto begin_vector = precalculate_begin(seq.size(), arguments.pattern_size, arguments.overlap);
+
+        //-----------------------------
+        //
+        // Table of counting vectors newly created for each read
+        //	rows: each minimiser of read
+        // 	columns: each bin of IBF
+        //
+        //-----------------------------
+        using binning_bitvector_t = typename std::remove_cvref_t<decltype(ibf)>::membership_agent::binning_bitvector;
+        std::vector<binning_bitvector_t> counting_table(minimiser.size(),
+                                                        binning_bitvector_t(bin_count));
+
+        // the beginning of the first window this minimiser is in
+        std::vector<size_t> window_span_begin(minimiser.size(), 0);
+        // the end of the last window this minimiser is in
+        std::vector<size_t> window_span_end(minimiser.size(), 0);
+
+        for (size_t i{1}; i < minimiser.size(); i++)
+        {
+            const auto &[min, start_pos] = minimiser[i];
+            window_span_begin[i] = start_pos;
+            size_t end_pos = start_pos + arguments.window_size - 2;
+            window_span_end[i - 1] = end_pos;
+            counting_table[i].raw_data() |= agent.bulk_contains(min).raw_data();
+        }
+
+        window_span_end[minimiser.size() - 1] = seq.size() - 1;
+        minimiser.clear();
+
+        //-----------------------------
+        //
+        // If seq = CGCAAAACGCGGC
+        // 	p = 12
+        // 	w = 8
+        // 	k = 4
+        //
+        // minimiser 		= (AAAA; 3), (AAAC; 4), (AACG, 5)
+        // window_span_begin 	=     0		4	   5
+        // window_span_end 	=     10	11	   12
+        //
+        // minimiser	span
+        // AAAA		CGCAAAACGCG
+        // AAAC		AAACGCGG
+        // AACG		AACGCGGC
+        //
+        //-----------------------------
+        for (auto begin : begin_vector)
+        {
+            auto const pattern = make_pattern_bounds(begin, arguments, window_span_begin, window_span_end, threshold_data);
+            auto const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
+            sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
+        }
+
+        query_result query_result(id, sequence_hits);
+        thread_result.emplace_back(query_result);
+    }
+
+    return thread_result;
+};
+
 //-----------------------------
 //
 // Search reads in IBF.
 //
 //-----------------------------
 template <bool compressed>
-void run_program_single(search_arguments const &arguments)
+auto run_program(search_arguments const &arguments, search_time_statistics & time_statistics)
 {
     constexpr seqan3::data_layout ibf_data_layout = compressed ? seqan3::data_layout::compressed : seqan3::data_layout::uncompressed;
     auto ibf = seqan3::interleaved_bloom_filter<ibf_data_layout>{};
-
-    search_time_statistics time_statistics{};
+    using ibf_t = decltype(ibf);
 
     auto cereal_worker = [&]()
     {
@@ -143,114 +246,15 @@ void run_program_single(search_arguments const &arguments)
     };
 
     auto cereal_handle = std::async(std::launch::async, cereal_worker);
+    using handle_t = decltype(cereal_handle);
 
     seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>> fin{arguments.query_file};
     using record_type = typename decltype(fin)::record_type;
     std::vector<record_type> records{};
+    using rec_vec_t = decltype(records);
 
     auto const threshold_data = make_threshold_data(arguments);
 
-    // lambda captures all variables by reference
-    // TODO: instead of capturing everything by reference, pass as arguments
-    // place worker outside this function, make it a funciton
-    // auto worker(size_t const start, size_t const end, auto const & ibf, search_arguments const & arguments, std::vector<record_type> const & records, threshold const & threshold_data)
-    auto worker = [&](size_t const start, size_t const end)
-    {
-        // concurrent invocations of the membership agent are not thread safe
-        // agent has to be created for each thread
-        auto &&agent = ibf.membership_agent();
-        size_t bin_count = ibf.bin_count();
-
-        std::vector<query_result> thread_result{}; // set of query results processed by one thread
-        std::set<size_t> sequence_hits{};          // bin hits for one sequence
-
-        // vector holding all the minimisers and their starting position for the read
-        using minimiser_vec_t = std::vector<std::tuple<uint64_t, size_t>>;
-        minimiser_vec_t minimiser;
-
-        auto hash_tuple_view = indexed_minimiser_hash(seqan3::ungapped{arguments.kmer_size},
-                                                        window_size{arguments.window_size},
-                                                        seed{adjust_seed(arguments.kmer_size)});
-
-        for (auto &&[id, seq] : records | seqan3::views::slice(start, end))
-        {
-            sequence_hits.clear();
-
-            minimiser = seq | hash_tuple_view | seqan3::views::to<minimiser_vec_t>;
-
-            //-----------------------------
-            //
-            // For each read the begin_vector shows the beginning of each sliding window (pattern)
-            //
-            // If 	read_len = 150
-            // 	pattern_size = 50
-            // 	overlap = 30
-            //
-            // 	begin_vector = {0, 30, 60, 90, 100}
-            //
-            //-----------------------------
-            auto begin_vector = precalculate_begin(seq.size(), arguments.pattern_size, arguments.overlap);
-
-            //-----------------------------
-            //
-            // Table of counting vectors newly created for each read
-            //	rows: each minimiser of read
-            // 	columns: each bin of IBF
-            //
-            //-----------------------------
-            using binning_bitvector_t = typename std::remove_cvref_t<decltype(ibf)>::membership_agent::binning_bitvector;
-            std::vector<binning_bitvector_t> counting_table(minimiser.size(),
-                                                            binning_bitvector_t(bin_count));
-
-            // the beginning of the first window this minimiser is in
-            std::vector<size_t> window_span_begin(minimiser.size(), 0);
-            // the end of the last window this minimiser is in
-            std::vector<size_t> window_span_end(minimiser.size(), 0);
-
-            for (size_t i{1}; i < minimiser.size(); i++)
-            {
-                const auto &[min, start_pos] = minimiser[i];
-                window_span_begin[i] = start_pos;
-                size_t end_pos = start_pos + arguments.window_size - 2;
-                window_span_end[i - 1] = end_pos;
-                counting_table[i].raw_data() |= agent.bulk_contains(min).raw_data();
-            }
-
-            window_span_end[minimiser.size() - 1] = seq.size() - 1;
-            minimiser.clear();
-
-            //-----------------------------
-            //
-            // If seq = CGCAAAACGCGGC
-            // 	p = 12
-            // 	w = 8
-            // 	k = 4
-            //
-            // minimiser 		= (AAAA; 3), (AAAC; 4), (AACG, 5)
-            // window_span_begin 	=     0		4	   5
-            // window_span_end 	=     10	11	   12
-            //
-            // minimiser	span
-            // AAAA		CGCAAAACGCG
-            // AAAC		AAACGCGG
-            // AACG		AACGCGGC
-            //
-            //-----------------------------
-            for (auto begin : begin_vector)
-            {
-                auto const pattern = make_pattern_bounds(begin, arguments, window_span_begin, window_span_end, threshold_data);
-                auto const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
-                sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
-            }
-
-            query_result query_result(id, sequence_hits);
-            thread_result.emplace_back(query_result);
-        }
-
-        return thread_result;
-    };
-
-    // TODO: execute this one step higher
     sync_out synced_out{arguments.out_file};
 
     for (auto &&chunked_records : fin | seqan3::views::chunk((1ULL << 20) * 10))
@@ -263,12 +267,9 @@ void run_program_single(search_arguments const &arguments)
 
         cereal_handle.wait();
 
-        do_parallel(worker, records.size(), synced_out, arguments.threads, time_statistics.compute_time);
-    }
-
-    if (arguments.write_time)
-    {
-        write_time_statistics(time_statistics, arguments);
+        // not allowed to pass template functions to other functions, 
+        // BUT allowed to pass specific instances of template functions to other functions
+        write_output_file_parallel(worker<ibf_t, rec_vec_t>, ibf, arguments, records, threshold_data, synced_out, time_statistics.compute_time);
     }
 }
 
