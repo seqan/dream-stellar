@@ -126,7 +126,7 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
 
 //-----------------------------
 //
-// Process a batch of reads (start; end)
+// Search a batch of reads (start; end) in the IBF
 //
 // TODO: pass slice of records directly instead of start, end and records
 //-----------------------------
@@ -227,50 +227,5 @@ auto worker(size_t const start, size_t const end, ibf_t const & ibf, search_argu
 
     return thread_result;
 };
-
-//-----------------------------
-//
-// Search reads in IBF.
-//
-//-----------------------------
-template <bool compressed>
-auto run_program(search_arguments const &arguments, search_time_statistics & time_statistics)
-{
-    constexpr seqan3::data_layout ibf_data_layout = compressed ? seqan3::data_layout::compressed : seqan3::data_layout::uncompressed;
-    auto ibf = seqan3::interleaved_bloom_filter<ibf_data_layout>{};
-    using ibf_t = decltype(ibf);
-
-    auto cereal_worker = [&]()
-    {
-        load_ibf(ibf, arguments, time_statistics.ibf_io_time);
-    };
-
-    auto cereal_handle = std::async(std::launch::async, cereal_worker);
-    using handle_t = decltype(cereal_handle);
-
-    seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>> fin{arguments.query_file};
-    using record_type = typename decltype(fin)::record_type;
-    std::vector<record_type> records{};
-    using rec_vec_t = decltype(records);
-
-    auto const threshold_data = make_threshold_data(arguments);
-
-    sync_out synced_out{arguments.out_file};
-
-    for (auto &&chunked_records : fin | seqan3::views::chunk((1ULL << 20) * 10))
-    {
-        records.clear();
-        auto start = std::chrono::high_resolution_clock::now();
-        std::ranges::move(chunked_records, std::cpp20::back_inserter(records));
-        auto end = std::chrono::high_resolution_clock::now();
-        time_statistics.reads_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
-
-        cereal_handle.wait();
-
-        // not allowed to pass template functions to other functions, 
-        // BUT allowed to pass specific instances of template functions to other functions
-        write_output_file_parallel(worker<ibf_t, rec_vec_t>, ibf, arguments, records, threshold_data, synced_out, time_statistics.compute_time);
-    }
-}
 
 } // namespace sliding_window
