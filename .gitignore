@@ -32,7 +32,7 @@
 
 # Build directory
 /build/
-/cmake-build-debug
+/debug
 
 # Metadata files
 all_bin_paths.txt
