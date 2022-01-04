@@ -1,6 +1,6 @@
 #include <sliding_window/search/search_setup.hpp>
 
-namespace sliding_window
+namespace sliding_window::app
 {
 
 //-----------------------------
@@ -21,7 +21,6 @@ auto run_program(search_arguments const &arguments, search_time_statistics & tim
     };
 
     auto cereal_handle = std::async(std::launch::async, cereal_worker);
-    using handle_t = decltype(cereal_handle);
 
     seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>> fin{arguments.query_file};
     using record_type = typename decltype(fin)::record_type;
@@ -63,4 +62,4 @@ void sliding_window_search(search_arguments const & arguments)
     return;
 }
 
-} // namespace sliding_window
+} // namespace sliding_window::app

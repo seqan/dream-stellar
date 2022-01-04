@@ -3,7 +3,7 @@
 #include <sliding_window/build/compute_minimiser.hpp>
 #include <sliding_window/build/run_program.hpp>
 
-namespace sliding_window
+namespace sliding_window::app
 {
 
 void sliding_window_build(build_arguments const & arguments)
@@ -30,4 +30,4 @@ void sliding_window_build(build_arguments const & arguments)
     return;
 }
 
-} // namespace sliding_window
+} // namespace sliding_window::app

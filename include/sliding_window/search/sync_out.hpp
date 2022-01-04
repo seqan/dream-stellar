@@ -4,7 +4,7 @@
 #include <fstream>
 #include <mutex>
 
-namespace sliding_window
+namespace sliding_window::app
 {
 
 class sync_out
@@ -32,4 +32,4 @@ private:
     std::mutex write_mutex;
 };
 
-} // namespace sliding_window
+} // namespace sliding_window::app
