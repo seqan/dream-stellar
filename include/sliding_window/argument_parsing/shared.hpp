@@ -3,7 +3,7 @@
 #include <sliding_window/argument_parsing/validators.hpp>
 #include <sliding_window/shared.hpp>
 
-namespace sliding_window
+namespace sliding_window::app
 {
 
 void init_shared_meta(seqan3::argument_parser & parser);
@@ -28,4 +28,4 @@ void init_shared_options(seqan3::argument_parser & parser, arguments_t & argumen
                       power_of_two_validator{});
 }
 
-} // namespace sliding_window
+} // namespace sliding_window::app

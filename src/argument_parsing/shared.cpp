@@ -1,6 +1,6 @@
 #include <sliding_window/argument_parsing/shared.hpp>
 
-namespace sliding_window
+namespace sliding_window::app
 {
 
 void init_shared_meta(seqan3::argument_parser & parser)
@@ -56,4 +56,4 @@ void try_parsing(seqan3::argument_parser & parser)
     }
 }
 
-} // namespace sliding_window
+} // namespace sliding_window::app

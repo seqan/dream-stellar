@@ -8,9 +8,8 @@
 #include <sliding_window/search/sync_out.hpp>
 
 
-namespace sliding_window
+namespace sliding_window::app
 {
-
 
 // && worker means only r-value references (temporary objects) can be passed
 // which means the memory can be reallocated after the function exits
@@ -56,4 +55,4 @@ inline void write_output_file_parallel(worker_t && worker, ibf_t const & ibf, se
     compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 }
 
-} // namespace sliding_window
+} // namespace sliding_window::app

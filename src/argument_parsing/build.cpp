@@ -1,7 +1,7 @@
 #include <sliding_window/argument_parsing/build.hpp>
 #include <sliding_window/build/build.hpp>
 
-namespace sliding_window
+namespace sliding_window::app
 {
 
 void init_build_parser(seqan3::argument_parser & parser, build_arguments & arguments)
@@ -160,4 +160,4 @@ void run_build(seqan3::argument_parser & parser)
     sliding_window_build(arguments);
 };
 
-} // namespace sliding_window
+} // namespace sliding_window::app

@@ -1,6 +1,6 @@
 #include <sliding_window/argument_parsing/top_level.hpp>
 
-namespace sliding_window
+namespace sliding_window::app
 {
 
 void init_top_level_parser(seqan3::argument_parser & parser)
@@ -12,4 +12,4 @@ void init_top_level_parser(seqan3::argument_parser & parser)
     parser.info.examples = {"./sliding_window build --help", "./sliding_window search --help"};
 };
 
-} // namespace sliding_window
+} // namespace sliding_window::app
