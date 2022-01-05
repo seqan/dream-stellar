@@ -14,7 +14,7 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
     parser.add_option(arguments.ibf_file,
                       '\0',
                       "index",
-                      "Provide a valid path to an IBF. Parts: Without suffix _0",
+                      "Provide a valid path to an IBF.",
                       seqan3::option_spec::required,
                       seqan3::input_file_validator{});
     parser.add_option(arguments.query_file,
