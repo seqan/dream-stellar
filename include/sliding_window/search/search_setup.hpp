@@ -71,8 +71,11 @@ struct pattern_bounds
 };
 
 template <typename span_vec_t>
-pattern_bounds make_pattern_bounds(size_t const & begin, search_arguments const & arguments, span_vec_t const & window_span_begin, 
-                                                            span_vec_t const & window_span_end, threshold const & threshold_data)
+pattern_bounds make_pattern_bounds(size_t const & begin, 
+                                   search_arguments const & arguments, 
+                                   span_vec_t const & window_span_begin, 
+                                   span_vec_t const & window_span_end, 
+                                   threshold const & threshold_data)
 {
     auto pattern = pattern_bounds{};
 
@@ -131,8 +134,12 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
 // TODO: pass slice of records directly instead of start, end and records
 //-----------------------------
 template <typename ibf_t, typename rec_vec_t>
-auto worker(size_t const start, size_t const end, ibf_t const & ibf, search_arguments const & arguments, 
-                                                                    rec_vec_t const & records, threshold const & threshold_data)
+std::vector<query_result> worker(size_t const start, 
+                                 size_t const end, 
+                                 ibf_t const & ibf, 
+                                 search_arguments const & arguments, 
+                                 rec_vec_t const & records, 
+                                 threshold const & threshold_data)
 {
     // concurrent invocations of the membership agent are not thread safe
     // agent has to be created for each thread
@@ -167,7 +174,7 @@ auto worker(size_t const start, size_t const end, ibf_t const & ibf, search_argu
         // 	begin_vector = {0, 30, 60, 90, 100}
         //
         //-----------------------------
-        auto begin_vector = precalculate_begin(seq.size(), arguments.pattern_size, arguments.overlap);
+        std::vector<size_t> begin_vector = precalculate_begin(seq.size(), arguments.pattern_size, arguments.overlap);
 
         //-----------------------------
         //
@@ -214,10 +221,10 @@ auto worker(size_t const start, size_t const end, ibf_t const & ibf, search_argu
         // AACG		AACGCGGC
         //
         //-----------------------------
-        for (auto begin : begin_vector)
+        for (size_t begin : begin_vector)
         {
-            auto const pattern = make_pattern_bounds(begin, arguments, window_span_begin, window_span_end, threshold_data);
-            auto const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
+            pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, window_span_end, threshold_data);
+            std::set<size_t> const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
             sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
         }
 
