@@ -18,7 +18,7 @@ inline void write_output_file_parallel(worker_t && worker, ibf_t const & ibf, se
                             threshold const & threshold_data, sync_out & synced_out, double & compute_time)
 {
     auto start = std::chrono::high_resolution_clock::now();
-    std::vector<decltype(std::async(std::launch::async, worker, size_t{}, size_t{}, ibf, arguments, records, threshold_data))> tasks;
+    std::vector<decltype(std::async(std::launch::async, worker, size_t{}, size_t{}, records, ibf, arguments, threshold_data))> tasks;
     size_t const num_records = records.size();
     size_t const records_per_thread = num_records / arguments.threads;
 
@@ -26,7 +26,7 @@ inline void write_output_file_parallel(worker_t && worker, ibf_t const & ibf, se
     {
         size_t const start = records_per_thread * i;
         size_t const end = i == (arguments.threads-1) ? num_records: records_per_thread * (i+1);
-        tasks.emplace_back(std::async(std::launch::async, worker, start, end, ibf, arguments, records, threshold_data));
+        tasks.emplace_back(std::async(std::launch::async, worker, start, end, records, ibf, arguments, threshold_data));
     }
     
     for (auto && task : tasks)

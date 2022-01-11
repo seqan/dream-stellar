@@ -18,13 +18,13 @@ public:
     query_result & operator=(query_result &&) = default;
     ~query_result() = default;
 
-    query_result(std::string const query_id, std::set<size_t> query_hits)
+    query_result(std::string const query_id, std::set<size_t> const & query_hits)
     {
         id = query_id;
         bin_hits = query_hits; 
     }
 
-    std::set<size_t> get_hits()
+    const std::set<size_t>& get_hits() const
     {
         return bin_hits;
     }
