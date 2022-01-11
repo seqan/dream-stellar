@@ -136,9 +136,9 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
 template <typename ibf_t, typename rec_vec_t>
 std::vector<query_result> worker(size_t const start, 
                                  size_t const end, 
+                                 rec_vec_t const & records,
                                  ibf_t const & ibf, 
-                                 search_arguments const & arguments, 
-                                 rec_vec_t const & records, 
+                                 search_arguments const & arguments,  
                                  threshold const & threshold_data)
 {
     // concurrent invocations of the membership agent are not thread safe

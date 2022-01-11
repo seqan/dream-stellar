@@ -21,7 +21,7 @@ public:
     query_result(std::string const query_id, std::set<size_t> const & query_hits)
     {
         id = query_id;
-        bin_hits = std::move(query_hits); 
+        bin_hits = query_hits; 
     }
 
     const std::set<size_t>& get_hits() const
