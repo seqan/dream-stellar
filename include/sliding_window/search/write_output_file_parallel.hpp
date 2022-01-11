@@ -4,6 +4,8 @@
 #include <future>
 #include <vector>
 
+#include <sliding_window/shared.hpp>
+#include <sliding_window/search/compute_simple_model.hpp>
 #include <sliding_window/search/query_result.hpp>
 #include <sliding_window/search/sync_out.hpp>
 

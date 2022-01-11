@@ -1,5 +1,7 @@
 #pragma once
 
+#include <seqan3/argument_parser/argument_parser.hpp>
+
 #include <sliding_window/shared.hpp>
 
 namespace sliding_window::app

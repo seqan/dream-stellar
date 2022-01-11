@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.8)
 
 include (cmake/app_datasources.cmake)
 
+# copies file to <build>/data/example_data.tar.gz
 # declare_datasource (FILE example_data.tar.gz
 #                     URL https://ftp.imp.fu-berlin.de/pub/seiler/raptor/example_data.tar.gz
 #                     URL_HASH SHA256=7c2e7bdbf573cfe2314c8255080a5d57d966722e8bfb53712e03d87ce463ff15)
@@ -95,4 +96,3 @@ declare_datasource (FILE 8bins23window1error100pattern1overlap.out
 declare_datasource (FILE 8bins23window1error100pattern40overlap.out
                     URL ${CMAKE_SOURCE_DIR}/test/data/8bins23window1error100pattern40overlap.out
                     URL_HASH SHA256=46a807d3c928135906ada88888d87ce04e7b8bb31e451161f6d3e69d406bf40d)
-

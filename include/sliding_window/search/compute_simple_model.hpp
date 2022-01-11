@@ -6,7 +6,7 @@
 namespace sliding_window
 {
 
-std::vector<size_t> compute_simple_model(search_arguments const & arguments)
+inline std::vector<size_t> compute_simple_model(search_arguments const & arguments)
 {
     std::vector<size_t> precomp_thresholds;
 
@@ -35,7 +35,7 @@ struct threshold
     std::vector<size_t> precomp_thresholds;
 };
 
-threshold make_threshold_data(search_arguments const & arguments)
+inline threshold make_threshold_data(search_arguments const & arguments)
 {
     auto threshold_data = threshold{};
     

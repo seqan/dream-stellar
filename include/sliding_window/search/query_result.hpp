@@ -1,5 +1,8 @@
 #pragma once
 
+#include <set>
+#include <string>
+
 namespace sliding_window
 {
 
