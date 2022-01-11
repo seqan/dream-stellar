@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.8)
 
 include (cmake/app_datasources.cmake)
 
+# copies file to <build>/data/example_data.tar.gz
 declare_datasource (FILE example_data.tar.gz
                     URL https://ftp.imp.fu-berlin.de/pub/seiler/raptor/example_data.tar.gz
                     URL_HASH SHA256=7c2e7bdbf573cfe2314c8255080a5d57d966722e8bfb53712e03d87ce463ff15)
