@@ -90,28 +90,48 @@ protected:
     }
 };
 
-struct raptor : public cli_test
+struct sliding_window : public cli_test
 {
-    std::string expand_bins(size_t const bins)
+
+    static inline std::filesystem::path const ibf_path(size_t const number_of_bins, size_t const window_size) noexcept
     {
-        std::string result{};
+        std::string name{};
+        name += std::to_string(number_of_bins);
+        name += "bins";
+        name += std::to_string(window_size);
+        name += "window.ibf";
+        return cli_test::data(name);
+    }
 
-        for (size_t i{0}; i < bins; ++i)
-        {
-            std::string filename = "example_data/" +
-                                   std::to_string(bins) +
-                                   "/bins" +
-                                   "/bin_" +
-                                   std::string(std::to_string(bins).size() - std::to_string(i).size(), '0') +
-                                   std::to_string(i) +
-                                   ".fasta";
-            result += cli_test::data(filename);
-            result += ' ';
-        }
+    static inline std::filesystem::path const search_result_path(size_t const number_of_bins, size_t const window_size, 
+		    size_t const number_of_errors, size_t const pattern_size, size_t const overlap) noexcept
+    {
+        std::string name{};
+        name += std::to_string(number_of_bins);
+        name += "bins";
+        name += std::to_string(window_size);
+        name += "window";
+        name += std::to_string(number_of_errors);
+        name += "error";
+        name += std::to_string(pattern_size);
+        name += "pattern";
+        name += std::to_string(overlap);
+        name += "overlap";
+        name += ".out";
+        return cli_test::data(name);
+    }
 
-        return result;
+    static inline std::string const string_from_file(std::filesystem::path const & path, std::ios_base::openmode const mode = std::ios_base::in)
+    {
+        std::ifstream file_stream(path, mode);
+        if (!file_stream.is_open())
+            throw std::logic_error{"Cannot open " + path.string()};
+        std::stringstream file_buffer;
+        file_buffer << file_stream.rdbuf();
+        return {file_buffer.str()};
     }
 };
 
-struct raptor_build : public raptor, public testing::WithParamInterface<std::tuple<size_t, bool>> {};
-struct raptor_search : public raptor, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
+struct sliding_window_build : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, bool>> {};
+struct sliding_window_search : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t, 
+	size_t, size_t>> {};

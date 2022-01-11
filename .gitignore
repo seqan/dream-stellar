@@ -28,5 +28,21 @@
 
 # Executables
 *.exe
-*.out
 *.app
+
+# Build directory
+/build/
+/debug
+
+# Metadata files
+all_bin_paths.txt
+bin_paths*.txt
+example_data/*
+
+
+# Output files
+matches*
+binary_*
+
+# Presentation files
+visualisations/*
