@@ -1,3 +1,5 @@
+#pragma once
+
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/core/debug_stream.hpp>
 #include <seqan3/utility/views/slice.hpp> // provides views::slice
@@ -19,7 +21,7 @@ namespace sliding_window
 // This adds a small computational overhead but makes the code much more readable.
 //
 //-----------------------------
-std::vector<size_t> precalculate_begin(size_t const read_len, uint64_t const pattern_size, uint64_t const overlap)
+inline std::vector<size_t> precalculate_begin(size_t const read_len, uint64_t const pattern_size, uint64_t const overlap)
 {
     std::vector<size_t> begin_vector;
     for (size_t i = 0; i <= read_len - pattern_size;
@@ -44,7 +46,7 @@ struct search_time_statistics
     double compute_time{0.0};
 };
 
-void write_time_statistics(search_time_statistics const & time_statistics, search_arguments const & arguments)
+inline void write_time_statistics(search_time_statistics const & time_statistics, search_arguments const & arguments)
 {
     std::filesystem::path file_path{arguments.out_file};
     file_path += ".time";
