@@ -1,5 +1,10 @@
+#pragma once
+
 #include <seqan3/core/debug_stream.hpp>
 #include <seqan3/io/sequence_file/all.hpp>
+
+#include <iostream>
+#include <fstream>
 
 class reference_metadata
 {
@@ -40,6 +45,20 @@ class reference_metadata
             }
 
             seqan3::debug_stream << "TOTAL LEN: " << total_len << '\n';
+        }
+
+        void to_file(std::string filepath)
+        {
+            std::ofstream out_file;
+            out_file.open (filepath);
+            out_file << "ID" << '\t' << "LEN" << '\n';
+            for (sequence_stats & seq : sequences)
+            {
+                out_file << seq.id << '\t' << seq.len << '\n';
+            }
+
+            out_file << "TOTAL LEN: " << total_len << '\n';
+            out_file.close();
         }
 
 };

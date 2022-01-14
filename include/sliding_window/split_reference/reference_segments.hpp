@@ -1,4 +1,10 @@
+#pragma once
+
 #include <seqan3/core/debug_stream.hpp>
+#include <seqan3/io/sequence_file/all.hpp>
+
+#include <iostream>
+#include <fstream>
 
 class reference_segments {
     public: 
@@ -58,6 +64,7 @@ class reference_segments {
             }
         }
 
+// TODO: delete after debugging
         void print_metadata()
         {
             seqan3::debug_stream << "------------------- SEGMENT METADATA -------------------" << '\n';
@@ -68,5 +75,19 @@ class reference_segments {
             {
                 seqan3::debug_stream << seg.bin << '\t' << seg.ref_id << '\t' << seg.start << '\t' << seg.len << '\n';
             }
+        }
+
+        void to_file(std::string filepath)
+        {
+            std::ofstream out_file;
+            out_file.open (filepath);
+            out_file << "(default) LENGTH: " << default_len << '\n';
+
+            out_file << "BIN" << '\t' << "REF ID" << '\t' << "START" << '\t' << "LEN" << '\n';
+            for (const auto & seg : members)
+            {
+                out_file << seg.bin << '\t' << seg.ref_id << '\t' << seg.start << '\t' << seg.len << '\n';
+            }
+            out_file.close();
         }
 };
