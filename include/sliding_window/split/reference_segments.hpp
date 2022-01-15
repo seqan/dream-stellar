@@ -6,6 +6,9 @@
 #include <iostream>
 #include <fstream>
 
+namespace sliding_window
+{
+
 class reference_segments {
     public: 
         class segment {
@@ -64,23 +67,10 @@ class reference_segments {
             }
         }
 
-// TODO: delete after debugging
-        void print_metadata()
-        {
-            seqan3::debug_stream << "------------------- SEGMENT METADATA -------------------" << '\n';
-            seqan3::debug_stream << "(default) LENGTH: " << default_len << '\n';
-
-            seqan3::debug_stream << "BIN" << '\t' << "REF ID" << '\t' << "START" << '\t' << "LEN" << '\n';
-            for (const auto & seg : members)
-            {
-                seqan3::debug_stream << seg.bin << '\t' << seg.ref_id << '\t' << seg.start << '\t' << seg.len << '\n';
-            }
-        }
-
         void to_file(std::string filepath)
         {
             std::ofstream out_file;
-            out_file.open (filepath);
+            out_file.open(filepath);
             out_file << "(default) LENGTH: " << default_len << '\n';
 
             out_file << "BIN" << '\t' << "REF ID" << '\t' << "START" << '\t' << "LEN" << '\n';
@@ -91,3 +81,5 @@ class reference_segments {
             out_file.close();
         }
 };
+
+} // namespace sliding_window

@@ -6,6 +6,9 @@
 #include <iostream>
 #include <fstream>
 
+namespace sliding_window
+{
+
 class reference_metadata
 {
     public:
@@ -34,23 +37,10 @@ class reference_metadata
             }
         }
 
-        void print_metadata()
-        {
-            seqan3::debug_stream << "------------------- REFERENCE METADATA -------------------" << '\n';
-            seqan3::debug_stream << "ID" << '\t' << "LEN" << '\n';
-
-            for (sequence_stats & seq : sequences)
-            {
-                seqan3::debug_stream << seq.id << '\t' << seq.len << '\n';
-            }
-
-            seqan3::debug_stream << "TOTAL LEN: " << total_len << '\n';
-        }
-
         void to_file(std::string filepath)
         {
             std::ofstream out_file;
-            out_file.open (filepath);
+            out_file.open(filepath);
             out_file << "ID" << '\t' << "LEN" << '\n';
             for (sequence_stats & seq : sequences)
             {
@@ -62,3 +52,5 @@ class reference_metadata
         }
 
 };
+
+} // namespace sliding_window

@@ -29,6 +29,17 @@ struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
     using sequence_alphabet = seqan3::dna4;
 };
 
+struct split_arguments
+{
+    std::filesystem::path ref_file{};
+    std::filesystem::path ref_out{"reference_metadata.txt"};
+    std::filesystem::path seg_out{"reference_segments.txt"};
+
+    size_t overlap{150};
+    size_t min_bins{64};
+    uint32_t min_len{1000000};
+};
+
 struct build_arguments
 {
     uint32_t window_size{23u};

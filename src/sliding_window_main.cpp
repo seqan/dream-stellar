@@ -3,6 +3,7 @@
 #include <sliding_window/argument_parsing/build.hpp>
 #include <sliding_window/argument_parsing/search.hpp>
 #include <sliding_window/argument_parsing/shared.hpp>
+#include <sliding_window/argument_parsing/split.hpp>
 #include <sliding_window/argument_parsing/top_level.hpp>
 #include <sliding_window/sliding_window.hpp>
 
@@ -10,12 +11,14 @@ int main(int argc, char ** argv)
 {
     try
     {
-        seqan3::argument_parser top_level_parser{"sliding_window", argc, argv, seqan3::update_notifications::on, {"build", "search"}};
+        seqan3::argument_parser top_level_parser{"sliding_window", argc, argv, seqan3::update_notifications::on, {"split", "build", "search"}};
         sliding_window::app::init_top_level_parser(top_level_parser);
 
         sliding_window::app::try_parsing(top_level_parser);
 
         seqan3::argument_parser & sub_parser = top_level_parser.get_sub_parser();
+        if (sub_parser.info.app_name == std::string_view{"sliding_window-split"})
+            sliding_window::app::run_split(sub_parser);
         if (sub_parser.info.app_name == std::string_view{"sliding_window-build"})
             sliding_window::app::run_build(sub_parser);
         if (sub_parser.info.app_name == std::string_view{"sliding_window-search"})
