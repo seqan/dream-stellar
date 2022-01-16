@@ -1,20 +1,19 @@
 #pragma once
 
-#include <chrono>
 #include <seqan3/std/filesystem>
 
-#include <sliding_window/shared.hpp>
+#include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 
 namespace sliding_window
 {
 
-template <typename t>
-void load_ibf(t & ibf, search_arguments const & arguments)
+template <seqan3::data_layout ibf_data_layout>
+void load_ibf(seqan3::interleaved_bloom_filter<ibf_data_layout> & ibf, std::filesystem::path const & ibf_file)
 {
     static uint8_t kmer_size{};
     static uint32_t window_size{};
 
-    std::ifstream is{arguments.ibf_file, std::ios::binary};
+    std::ifstream is{ibf_file, std::ios::binary};
     cereal::BinaryInputArchive iarchive{is};
 
     iarchive(kmer_size);
