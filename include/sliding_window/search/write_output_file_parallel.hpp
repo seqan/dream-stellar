@@ -27,7 +27,7 @@ inline void write_output_file_parallel(worker_t && worker, ibf_t const & ibf, se
     for (size_t i = 0; i < arguments.threads; ++i)
     {
         size_t const start = records_per_thread * i;
-        size_t const end = i == (arguments.threads-1) ? num_records: records_per_thread * (i+1);
+        size_t const end = std::min(start + records_per_thread, num_records);
         tasks.emplace_back(std::async(std::launch::async, worker, start, end, records, ibf, arguments, threshold_data));
     }
     
