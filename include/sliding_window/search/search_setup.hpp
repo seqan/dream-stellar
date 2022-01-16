@@ -6,6 +6,7 @@
 #include <sliding_window/search/compute_simple_model.hpp>
 #include <sliding_window/search/write_output_file_parallel.hpp>
 #include <sliding_window/search/load_ibf.hpp>
+#include <sliding_window/search/query_record.hpp>
 #include <sliding_window/search/query_result.hpp>
 #include <sliding_window/search/sync_out.hpp>
 
@@ -72,10 +73,10 @@ struct pattern_bounds
 };
 
 template <typename span_vec_t>
-pattern_bounds make_pattern_bounds(size_t const & begin, 
-                                   search_arguments const & arguments, 
-                                   span_vec_t const & window_span_begin, 
-                                   span_vec_t const & window_span_end, 
+pattern_bounds make_pattern_bounds(size_t const & begin,
+                                   search_arguments const & arguments,
+                                   span_vec_t const & window_span_begin,
+                                   span_vec_t const & window_span_end,
                                    threshold const & threshold_data)
 {
     auto pattern = pattern_bounds{};
@@ -91,10 +92,10 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
 
     size_t const minimiser_count = pattern.last_index - pattern.first_index + 1;
 
-    pattern.threshold = arguments.treshold_was_set ? 
-                            static_cast<size_t>(minimiser_count * arguments.threshold) : threshold_data.kmers_per_window == 1 ? 
-                            threshold_data.kmer_lemma : threshold_data.precomp_thresholds[std::min(minimiser_count < threshold_data.min_number_of_minimisers ? 
-                            0 : minimiser_count - threshold_data.min_number_of_minimisers,  
+    pattern.threshold = arguments.treshold_was_set ?
+                            static_cast<size_t>(minimiser_count * arguments.threshold) : threshold_data.kmers_per_window == 1 ?
+                            threshold_data.kmer_lemma : threshold_data.precomp_thresholds[std::min(minimiser_count < threshold_data.min_number_of_minimisers ?
+                            0 : minimiser_count - threshold_data.min_number_of_minimisers,
                             threshold_data.max_number_of_minimisers - threshold_data.min_number_of_minimisers)] + 2; // enrico recommended decreasing this value
 
     return pattern;
@@ -134,10 +135,10 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
 //
 // TODO: pass slice of records directly instead of start, end and records
 //-----------------------------
-template <seqan3::data_layout ibf_data_layout, typename rec_vec_t>
+template <seqan3::data_layout ibf_data_layout>
 std::vector<query_result> worker(size_t const start,
                                  size_t const end,
-                                 rec_vec_t const & records,
+                                 std::vector<query_record> const & records,
                                  seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
                                  search_arguments const & arguments,
                                  threshold const & threshold_data)
@@ -157,8 +158,11 @@ std::vector<query_result> worker(size_t const start,
                                                     window_size{arguments.window_size},
                                                     seed{adjust_seed(arguments.kmer_size)});
 
-    for (auto &&[id, seq] : records | seqan3::views::slice(start, end))
+    for (query_record const & record : records | seqan3::views::slice(start, end))
     {
+        std::string const & id = record.sequence_id;
+        std::vector<seqan3::dna4> const & seq = record.sequence;
+
         minimiser = seq | hash_tuple_view | seqan3::views::to<minimiser_vec_t>;
 
         //-----------------------------

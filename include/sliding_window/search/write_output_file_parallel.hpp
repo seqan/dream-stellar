@@ -8,6 +8,7 @@
 
 #include <sliding_window/shared.hpp>
 #include <sliding_window/search/compute_simple_model.hpp>
+#include <sliding_window/search/query_record.hpp>
 #include <sliding_window/search/query_result.hpp>
 #include <sliding_window/search/sync_out.hpp>
 
@@ -17,11 +18,11 @@ namespace sliding_window::app
 
 // && worker means only r-value references (temporary objects) can be passed
 // which means the memory can be reallocated after the function exits
-template <typename worker_t, seqan3::data_layout ibf_data_layout, typename rec_vec_t>
+template <typename worker_t, seqan3::data_layout ibf_data_layout>
 inline void write_output_file_parallel(worker_t && worker,
                                        seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
                                        search_arguments const & arguments,
-                                       rec_vec_t const & records,
+                                       std::vector<query_record> const & records,
                                        threshold const & threshold_data,
                                        sync_out & synced_out)
 {
