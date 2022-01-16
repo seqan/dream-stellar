@@ -132,14 +132,11 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
 
 //-----------------------------
 //
-// Search a batch of reads (start; end) in the IBF
+// Search a batch of reads in the IBF
 //
-// TODO: pass slice of records directly instead of start, end and records
 //-----------------------------
 template <seqan3::data_layout ibf_data_layout>
-std::vector<query_result> worker(size_t const start,
-                                 size_t const end,
-                                 std::vector<query_record> const & records,
+std::vector<query_result> worker(std::span<query_record const> const & records,
                                  seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
                                  search_arguments const & arguments,
                                  threshold const & threshold_data)
@@ -159,8 +156,7 @@ std::vector<query_result> worker(size_t const start,
                                                     window_size{arguments.window_size},
                                                     seed{adjust_seed(arguments.kmer_size)});
 
-    std::span<query_record const> record_slice{&records[start], &records[end]};
-    for (query_record const & record : record_slice)
+    for (query_record const & record : records)
     {
         std::string const & id = record.sequence_id;
         std::vector<seqan3::dna4> const & seq = record.sequence;

@@ -28,7 +28,7 @@ inline void write_output_file_parallel(worker_t && worker,
 {
     using task_future_t = std::future<std::vector<sliding_window::query_result>>;
     static_assert(std::same_as<task_future_t,
-                               decltype(std::async(std::launch::async, worker, size_t{}, size_t{}, records, ibf, arguments, threshold_data))>);
+                               decltype(std::async(std::launch::async, worker, std::span<query_record const>{}, ibf, arguments, threshold_data))>);
 
     std::vector<task_future_t> tasks;
     size_t const num_records = records.size();
@@ -38,7 +38,8 @@ inline void write_output_file_parallel(worker_t && worker,
     {
         size_t const start = records_per_thread * i;
         size_t const end = std::min(start + records_per_thread, num_records);
-        tasks.emplace_back(std::async(std::launch::async, worker, start, end, records, ibf, arguments, threshold_data));
+        std::span<query_record const> records_slice{&records[start], &records[end]};
+        tasks.emplace_back(std::async(std::launch::async, worker, records_slice, ibf, arguments, threshold_data));
     }
 
     for (task_future_t & task : tasks)
