@@ -16,10 +16,8 @@ void run_program(split_arguments const & arguments)
     reference_metadata reference(arguments.ref_file);
     reference.to_file(arguments.ref_out);
 
-    // Decide on number of bins and default length of segment (last segment of a reference sequence can have different length)
-    uint32_t segment_len = arguments.min_len; 
-    if (uint32_t(std::ceil(reference.total_len / arguments.min_bins)) <= arguments.min_len)
-        segment_len = std::ceil(reference.total_len / arguments.min_bins); // divide reference into min nr of segments
+    // Divide reference to segments that have at least min_len (doesn't take overlap into account)
+    size_t segment_len = std::max(reference.total_len / arguments.min_bins, arguments.min_len);
 
     // For each segment assign start, length and bin number
     reference_segments segments(segment_len, arguments.overlap, reference.sequences);

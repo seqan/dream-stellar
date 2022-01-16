@@ -14,11 +14,11 @@ class reference_segments {
         class segment {
             public:
                 std::string ref_id;
-                uint32_t start;
-                uint32_t len;
+                size_t start;
+                size_t len;
                 size_t bin;
 
-            segment(std::string id, uint32_t s, uint32_t l, size_t b) { // Constructor with parameters
+            segment(std::string id, size_t s, size_t l, size_t b) { // Constructor with parameters
                 ref_id = id;
                 start = s;
                 len = l;
@@ -27,21 +27,21 @@ class reference_segments {
         };
 
         std::vector<segment> members;
-        uint32_t default_len;
+        size_t default_len;
 
-        void add_segment(std::string id, uint32_t s, uint32_t l, size_t b)
+        void add_segment(std::string id, size_t s, size_t l, size_t b)
         {
             segment seg(id, s, l, b);
             members.push_back(seg);
         }
 
-        reference_segments(uint32_t segment_len, size_t overlap, auto & reference_sequences)
+        reference_segments(size_t segment_len, size_t overlap, auto & reference_sequences)
         {
             default_len = segment_len;
-            int i = 0;
+            size_t i = 0;
             for (const auto & seq : reference_sequences)
             {
-                uint32_t start = 0;
+                size_t start = 0;
 
                 // only one segment per reference sequence
                 if (start + segment_len >= seq.len)

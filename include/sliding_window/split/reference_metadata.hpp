@@ -15,10 +15,10 @@ class reference_metadata
         struct sequence_stats 
         {
             std::string id;             
-            uint32_t len;        
+            size_t len;        
         };
 
-        uint64_t total_len;
+        size_t total_len;
         std::vector<sequence_stats> sequences;
 
         reference_metadata(std::string filename) 

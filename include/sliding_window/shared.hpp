@@ -37,7 +37,7 @@ struct split_arguments
 
     size_t overlap{150};
     size_t min_bins{64};
-    uint32_t min_len{1000000};
+    size_t min_len{1000000};
 };
 
 struct build_arguments
