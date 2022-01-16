@@ -12,8 +12,8 @@ template <bool compressed>
 void run_program(search_arguments const &arguments, search_time_statistics & time_statistics)
 {
     constexpr seqan3::data_layout ibf_data_layout = compressed ? seqan3::data_layout::compressed : seqan3::data_layout::uncompressed;
-    auto ibf = seqan3::interleaved_bloom_filter<ibf_data_layout>{};
-    using ibf_t = decltype(ibf);
+    using ibf_t = seqan3::interleaved_bloom_filter<ibf_data_layout>;
+    ibf_t ibf{};
 
     auto cereal_worker = [&]()
     {
