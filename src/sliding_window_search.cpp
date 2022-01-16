@@ -8,10 +8,9 @@ namespace sliding_window::app
 // Setup IBF and launch multithreaded search.
 //
 //-----------------------------
-template <bool compressed>
+template <seqan3::data_layout ibf_data_layout>
 void run_program(search_arguments const &arguments, search_time_statistics & time_statistics)
 {
-    constexpr seqan3::data_layout ibf_data_layout = compressed ? seqan3::data_layout::compressed : seqan3::data_layout::uncompressed;
     seqan3::interleaved_bloom_filter<ibf_data_layout> ibf{};
 
     auto cereal_worker = [&]()
@@ -56,9 +55,9 @@ void sliding_window_search(search_arguments const & arguments)
     search_time_statistics time_statistics{};
 
     if (arguments.compressed)
-        run_program<true>(arguments, time_statistics);
+        run_program<seqan3::data_layout::compressed>(arguments, time_statistics);
     else
-        run_program<false>(arguments, time_statistics);
+        run_program<seqan3::data_layout::uncompressed>(arguments, time_statistics);
 
     if (arguments.write_time)
         write_time_statistics(time_statistics, arguments);
