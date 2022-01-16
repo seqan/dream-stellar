@@ -17,7 +17,10 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     auto cereal_worker = [&]()
     {
-        load_ibf(ibf, arguments, time_statistics.ibf_io_time);
+        auto start = std::chrono::high_resolution_clock::now();
+        load_ibf(ibf, arguments);
+        auto end = std::chrono::high_resolution_clock::now();
+        time_statistics.ibf_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     };
 
     auto cereal_handle = std::async(std::launch::async, cereal_worker);
