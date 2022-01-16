@@ -1,7 +1,8 @@
 #pragma once
 
+#include <seqan3/std/span>
+
 #include <seqan3/core/debug_stream.hpp>
-#include <seqan3/utility/views/slice.hpp> // provides views::slice
 
 #include <sliding_window/search/compute_simple_model.hpp>
 #include <sliding_window/search/write_output_file_parallel.hpp>
@@ -158,7 +159,8 @@ std::vector<query_result> worker(size_t const start,
                                                     window_size{arguments.window_size},
                                                     seed{adjust_seed(arguments.kmer_size)});
 
-    for (query_record const & record : records | seqan3::views::slice(start, end))
+    std::span<query_record const> record_slice{&records[start], &records[end]};
+    for (query_record const & record : record_slice)
     {
         std::string const & id = record.sequence_id;
         std::vector<seqan3::dna4> const & seq = record.sequence;
