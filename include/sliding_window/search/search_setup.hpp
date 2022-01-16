@@ -7,6 +7,7 @@
 #include <sliding_window/search/compute_simple_model.hpp>
 #include <sliding_window/search/write_output_file_parallel.hpp>
 #include <sliding_window/search/load_ibf.hpp>
+#include <sliding_window/search/local_prefilter.hpp>
 #include <sliding_window/search/query_record.hpp>
 #include <sliding_window/search/query_result.hpp>
 #include <sliding_window/search/sync_out.hpp>
@@ -136,10 +137,12 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
 //
 //-----------------------------
 template <seqan3::data_layout ibf_data_layout>
-std::vector<query_result> worker(std::span<query_record const> const & records,
-                                 seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
-                                 search_arguments const & arguments,
-                                 threshold const & threshold_data)
+std::vector<query_result>
+local_prefilter_fn::operator()(
+    std::span<query_record const> const & records,
+    seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
+    search_arguments const & arguments,
+    threshold const & threshold_data) const
 {
     // concurrent invocations of the membership agent are not thread safe
     // agent has to be created for each thread

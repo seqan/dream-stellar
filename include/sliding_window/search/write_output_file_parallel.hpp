@@ -8,6 +8,7 @@
 
 #include <sliding_window/shared.hpp>
 #include <sliding_window/search/compute_simple_model.hpp>
+#include <sliding_window/search/local_prefilter.hpp>
 #include <sliding_window/search/query_record.hpp>
 #include <sliding_window/search/query_result.hpp>
 #include <sliding_window/search/sync_out.hpp>
@@ -16,10 +17,8 @@
 namespace sliding_window::app
 {
 
-// && worker means only r-value references (temporary objects) can be passed
-// which means the memory can be reallocated after the function exits
-template <typename worker_t, seqan3::data_layout ibf_data_layout>
-inline void write_output_file_parallel(worker_t && worker,
+template <seqan3::data_layout ibf_data_layout>
+inline void write_output_file_parallel(local_prefilter_fn const local_prefilter,
                                        seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
                                        search_arguments const & arguments,
                                        std::vector<query_record> const & records,
@@ -28,7 +27,7 @@ inline void write_output_file_parallel(worker_t && worker,
 {
     using task_future_t = std::future<std::vector<sliding_window::query_result>>;
     static_assert(std::same_as<task_future_t,
-                               decltype(std::async(std::launch::async, worker, std::span<query_record const>{}, ibf, arguments, threshold_data))>);
+                               decltype(std::async(std::launch::async, local_prefilter, std::span<query_record const>{}, ibf, arguments, threshold_data))>);
 
     std::vector<task_future_t> tasks;
     size_t const num_records = records.size();
@@ -39,7 +38,10 @@ inline void write_output_file_parallel(worker_t && worker,
         size_t const start = records_per_thread * i;
         size_t const end = std::min(start + records_per_thread, num_records);
         std::span<query_record const> records_slice{&records[start], &records[end]};
-        tasks.emplace_back(std::async(std::launch::async, worker, records_slice, ibf, arguments, threshold_data));
+        
+        // The following calls `local_prefilter(records_slice, ibf, arguments, threshold_data)` on a thread.
+        // Note: local_prefilter is a function object which is created from the local_function_fn struct
+        tasks.emplace_back(std::async(std::launch::async, local_prefilter, records_slice, ibf, arguments, threshold_data));
     }
 
     for (task_future_t & task : tasks)

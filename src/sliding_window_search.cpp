@@ -49,7 +49,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         // not allowed to pass template functions to other functions, 
         // BUT allowed to pass specific instances of template functions to other functions
         start = std::chrono::high_resolution_clock::now();
-        write_output_file_parallel(worker<ibf_data_layout>, ibf, arguments, query_records, threshold_data, synced_out);
+        write_output_file_parallel(local_prefilter, ibf, arguments, query_records, threshold_data, synced_out);
         end = std::chrono::high_resolution_clock::now();
         time_statistics.compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
