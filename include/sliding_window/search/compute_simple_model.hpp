@@ -29,7 +29,7 @@ struct threshold
 {
     size_t kmers_per_window;
     size_t kmers_per_pattern;
-    size_t min_number_of_minimisers;;
+    size_t min_number_of_minimisers;
     size_t kmer_lemma;
     size_t max_number_of_minimisers;
     std::vector<size_t> precomp_thresholds;
