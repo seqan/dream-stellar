@@ -46,3 +46,7 @@ binary_*
 
 # Presentation files
 visualisations/*
+
+# VisualStudio files
+.idea/*
+.vscode/*

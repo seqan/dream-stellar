@@ -24,6 +24,20 @@ TEST_F(sliding_window, no_options)
     EXPECT_EQ(result.err, std::string{});
 }
 
+TEST_F(sliding_window_split, no_options)
+{
+    cli_test_result const result = execute_app("sliding_window", "split");
+    std::string const expected
+    {
+        "sliding_window - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
+	"=========================================================================================================\n"
+	"    Try -h or --help for more information.\n"
+    };
+    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_EQ(result.out, expected);
+    EXPECT_EQ(result.err, std::string{});
+}
+
 TEST_F(sliding_window_build, no_options)
 {
     cli_test_result const result = execute_app("sliding_window", "build");
@@ -58,7 +72,7 @@ TEST_F(sliding_window, no_subparser)
     std::string const expected
     {
         "[Error] You either forgot or misspelled the subcommand! Please specify which sub-program you want to use: one "
-        "of [build,search]. Use -h/--help for more information.\n"
+        "of [split,build,search]. Use -h/--help for more information.\n"
     };
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
@@ -71,11 +85,32 @@ TEST_F(sliding_window, unknown_option)
     std::string const expected
     {
         "[Error] You either forgot or misspelled the subcommand! Please specify which sub-program you want to use: one "
-        "of [build,search]. Use -h/--help for more information.\n"
+        "of [split,build,search]. Use -h/--help for more information.\n"
     };
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, expected);
+}
+
+TEST_F(sliding_window_split, input_missing)
+{
+    cli_test_result const result = execute_app("sliding_window", "split",
+                                                         "--segment-output seg",
+                                                         "--reference-output ref");
+    EXPECT_NE(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    EXPECT_EQ(result.err, std::string{"[Error] Not enough positional arguments provided (Need at least 1). See -h/--help for more information.\n"});
+}
+
+TEST_F(sliding_window_split, input_invalid)
+{
+    cli_test_result const result = execute_app("sliding_window", "split",
+                                                         "nonexistent",
+                                                         "--segment-output seg",
+                                                         "--reference-output ref");
+    EXPECT_NE(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    EXPECT_EQ(result.err, std::string{"[Error] Validation failed for positional option 1: The file \"nonexistent\" does not exist!\n"});
 }
 
 TEST_F(sliding_window_build, input_missing)
