@@ -12,8 +12,7 @@ template <bool compressed>
 void run_program(search_arguments const &arguments, search_time_statistics & time_statistics)
 {
     constexpr seqan3::data_layout ibf_data_layout = compressed ? seqan3::data_layout::compressed : seqan3::data_layout::uncompressed;
-    using ibf_t = seqan3::interleaved_bloom_filter<ibf_data_layout>;
-    ibf_t ibf{};
+    seqan3::interleaved_bloom_filter<ibf_data_layout> ibf{};
 
     auto cereal_worker = [&]()
     {
@@ -45,7 +44,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
         // not allowed to pass template functions to other functions, 
         // BUT allowed to pass specific instances of template functions to other functions
-        write_output_file_parallel(worker<ibf_t, std::vector<record_type>>, ibf, arguments, records, threshold_data, synced_out, time_statistics.compute_time);
+        write_output_file_parallel(worker<ibf_data_layout, std::vector<record_type>>, ibf, arguments, records, threshold_data, synced_out, time_statistics.compute_time);
     }
 }
 

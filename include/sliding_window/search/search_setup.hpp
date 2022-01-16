@@ -134,12 +134,12 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
 //
 // TODO: pass slice of records directly instead of start, end and records
 //-----------------------------
-template <typename ibf_t, typename rec_vec_t>
-std::vector<query_result> worker(size_t const start, 
-                                 size_t const end, 
+template <seqan3::data_layout ibf_data_layout, typename rec_vec_t>
+std::vector<query_result> worker(size_t const start,
+                                 size_t const end,
                                  rec_vec_t const & records,
-                                 ibf_t const & ibf, 
-                                 search_arguments const & arguments,  
+                                 seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
+                                 search_arguments const & arguments,
                                  threshold const & threshold_data)
 {
     // concurrent invocations of the membership agent are not thread safe
