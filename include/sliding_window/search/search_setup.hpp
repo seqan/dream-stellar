@@ -1,6 +1,5 @@
 #pragma once
 
-#include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/core/debug_stream.hpp>
 #include <seqan3/utility/views/slice.hpp> // provides views::slice
 

@@ -18,7 +18,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     auto cereal_worker = [&]()
     {
         auto start = std::chrono::high_resolution_clock::now();
-        load_ibf(ibf, arguments);
+        load_ibf(ibf, arguments.ibf_file);
         auto end = std::chrono::high_resolution_clock::now();
         time_statistics.ibf_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     };
