@@ -23,11 +23,8 @@ inline void write_output_file_parallel(worker_t && worker,
                                        search_arguments const & arguments,
                                        rec_vec_t const & records,
                                        threshold const & threshold_data,
-                                       sync_out & synced_out,
-                                       double & compute_time)
+                                       sync_out & synced_out)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-
     using task_future_t = std::future<std::vector<sliding_window::query_result>>;
     static_assert(std::same_as<task_future_t,
                                decltype(std::async(std::launch::async, worker, size_t{}, size_t{}, records, ibf, arguments, threshold_data))>);
@@ -64,9 +61,6 @@ inline void write_output_file_parallel(worker_t && worker,
             synced_out.write(result_string);
         }
     }
-
-    auto end = std::chrono::high_resolution_clock::now();
-    compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 }
 
 } // namespace sliding_window::app
