@@ -144,8 +144,8 @@ std::vector<query_result> worker(size_t const start,
 {
     // concurrent invocations of the membership agent are not thread safe
     // agent has to be created for each thread
-    auto &&agent = ibf.membership_agent();
-    size_t bin_count = ibf.bin_count();
+    auto agent = ibf.membership_agent();
+    size_t const bin_count = ibf.bin_count();
 
     std::vector<query_result> thread_result{}; // set of query results processed by one thread
     std::set<size_t> sequence_hits{};          // bin hits for one sequence
@@ -197,7 +197,7 @@ std::vector<query_result> worker(size_t const start,
         {
             const auto &[min, start_pos] = minimiser[i];
             window_span_begin[i] = start_pos;
-            size_t end_pos = start_pos + arguments.window_size - 2;
+            size_t const end_pos = start_pos + arguments.window_size - 2;
             window_span_end[i - 1] = end_pos;
             counting_table[i].raw_data() |= agent.bulk_contains(min).raw_data();
         }
@@ -222,15 +222,14 @@ std::vector<query_result> worker(size_t const start,
         // AACG		AACGCGGC
         //
         //-----------------------------
-        for (size_t begin : begin_vector)
+        for (size_t const begin : begin_vector)
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, window_span_end, threshold_data);
             std::set<size_t> const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
             sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
         }
 
-        query_result query_result(id, sequence_hits);
-        thread_result.emplace_back(query_result);
+        thread_result.emplace_back(id, sequence_hits);
     }
 
     return thread_result;

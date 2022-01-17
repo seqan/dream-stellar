@@ -32,7 +32,7 @@ public:
         return bin_hits;
     }
 
-    std::string get_id()
+    const std::string & get_id() const
     {
         return id;
     }
