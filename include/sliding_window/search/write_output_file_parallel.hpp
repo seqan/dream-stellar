@@ -45,13 +45,13 @@ inline void write_output_file_parallel(worker_t && worker,
         // auto result_set = task.get();
         std::string result_string{};
         std::vector<query_result> thread_result = task.get();
-        for (auto query_result : thread_result)
+        for (query_result const & query_result : thread_result)
         {
             result_string.clear();
             result_string += query_result.get_id();
             result_string += '\t';
-                
-            for (auto bin : query_result.get_hits())
+
+            for (size_t const bin : query_result.get_hits())
             {
                 result_string += std::to_string(bin);
                 result_string += ',';
