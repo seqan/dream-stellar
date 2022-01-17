@@ -148,7 +148,6 @@ std::vector<query_result> worker(size_t const start,
     size_t const bin_count = ibf.bin_count();
 
     std::vector<query_result> thread_result{}; // set of query results processed by one thread
-    std::set<size_t> sequence_hits{};          // bin hits for one sequence
 
     // vector holding all the minimisers and their starting position for the read
     using minimiser_vec_t = std::vector<std::tuple<uint64_t, size_t>>;
@@ -160,8 +159,6 @@ std::vector<query_result> worker(size_t const start,
 
     for (auto &&[id, seq] : records | seqan3::views::slice(start, end))
     {
-        sequence_hits.clear();
-
         minimiser = seq | hash_tuple_view | seqan3::views::to<minimiser_vec_t>;
 
         //-----------------------------
@@ -222,6 +219,7 @@ std::vector<query_result> worker(size_t const start,
         // AACG		AACGCGGC
         //
         //-----------------------------
+        std::set<size_t> sequence_hits{};
         for (size_t const begin : begin_vector)
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, window_span_end, threshold_data);
@@ -229,7 +227,7 @@ std::vector<query_result> worker(size_t const start,
             sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
         }
 
-        thread_result.emplace_back(id, sequence_hits);
+        thread_result.emplace_back(id, std::move(sequence_hits));
     }
 
     return thread_result;
