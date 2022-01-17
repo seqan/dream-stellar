@@ -21,11 +21,9 @@ public:
     query_result & operator=(query_result &&) = default;
     ~query_result() = default;
 
-    query_result(std::string const query_id, std::set<size_t> const & query_hits)
-    {
-        id = query_id;
-        bin_hits = query_hits; 
-    }
+    query_result(std::string query_id, std::set<size_t> query_hits)
+        : id{std::move(query_id)}, bin_hits{std::move(query_hits)}
+    {}
 
     const std::set<size_t>& get_hits() const
     {
@@ -36,7 +34,6 @@ public:
     {
         return id;
     }
-    
 };
 
 } // namespace sliding_window
