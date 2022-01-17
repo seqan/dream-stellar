@@ -24,6 +24,7 @@ public:
     template <typename view_t = int>
     [[nodiscard]] auto operator()(view_t && hash_filter_view = 0) const
     {
+        // add parameter to construct from unclustered sequences
         auto tmp = construct(std::move(hash_filter_view));
 
         if constexpr (!compressed)
@@ -43,7 +44,7 @@ private:
         assert(arguments != nullptr);
 
         seqan3::interleaved_bloom_filter<> ibf{seqan3::bin_count{arguments->bins},
-                                               seqan3::bin_size{arguments->bits / arguments->parts},
+                                               seqan3::bin_size{arguments->bits},
                                                seqan3::hash_function_count{arguments->hash}};
 
         auto hash_view = [&] ()

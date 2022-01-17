@@ -10,7 +10,7 @@ template <bool compressed>
 void build_from_minimiser(build_arguments const & arguments)
 {
     seqan3::interleaved_bloom_filter<> ibf{seqan3::bin_count{arguments.bins},
-                                           seqan3::bin_size{arguments.bits / arguments.parts},
+                                           seqan3::bin_size{arguments.bits},
                                            seqan3::hash_function_count{arguments.hash}};
 
     auto worker = [&] (auto && zipped_view, auto &&)

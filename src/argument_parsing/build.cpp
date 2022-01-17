@@ -49,6 +49,17 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
                     "compute-minimiser",
                     "Computes minimisers using cutoffs from Mantis (Pandey et al.). Does not create the index.",
                     seqan3::option_spec::standard);
+    parser.add_flag(arguments.from_segments,
+                    '\0',
+                    "from-segments",
+                    "Creates IBF from split reference database instead of reference clusters.",
+                    seqan3::option_spec::standard);
+    parser.add_option(arguments.seg_path,
+                    '\0',
+                    "seg-path",
+                    "Path to segment metadata file created by split.",
+                    seqan3::option_spec::standard,
+                    seqan3::input_file_validator{});
 }
 
 void run_build(seqan3::argument_parser & parser)

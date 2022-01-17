@@ -45,7 +45,6 @@ struct build_arguments
     uint32_t window_size{23u};
     uint8_t kmer_size{20u};
     uint8_t threads{1u};
-    uint8_t parts{1u};
 
     std::vector<std::vector<std::filesystem::path>> bin_path{};
     std::filesystem::path bin_file{};
@@ -56,6 +55,9 @@ struct build_arguments
     uint64_t hash{2};
     bool compute_minimiser{false};
     bool compressed{false};
+    
+    bool from_segments{false};
+    std::filesystem::path seg_path{};
 };
 
 struct search_arguments
@@ -63,7 +65,6 @@ struct search_arguments
     uint32_t window_size{23u};
     uint8_t kmer_size{20u};
     uint8_t threads{1u};
-    uint8_t parts{1u};
 
     std::filesystem::path query_file{};
     std::filesystem::path ibf_file{};
