@@ -1,6 +1,8 @@
 #include <sliding_window/argument_parsing/build.hpp>
 #include <sliding_window/build/build.hpp>
 
+#include <sliding_window/split/reference_segments.hpp>
+
 namespace sliding_window::app
 {
 
@@ -9,7 +11,8 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
     init_shared_meta(parser);
     init_shared_options(parser, arguments);
     parser.add_positional_option(arguments.bin_file,
-                                 "File containing one file per line per bin.",
+                                 "File containing one file per line per bin when building from clustered sequences. " 
+                                 "Input sequence file when building from overlapping segments.",
                                  seqan3::input_file_validator{});
     parser.add_option(arguments.window_size,
                       '\0',
@@ -60,6 +63,12 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
                     "Path to segment metadata file created by split.",
                     seqan3::option_spec::standard,
                     seqan3::input_file_validator{});
+    parser.add_option(arguments.ref_meta_path,
+                    '\0',
+                    "ref-meta",
+                    "Path to reference metadata file created by split.",
+                    seqan3::option_spec::standard,
+                    seqan3::input_file_validator{});
 }
 
 void run_build(seqan3::argument_parser & parser)
@@ -69,26 +78,36 @@ void run_build(seqan3::argument_parser & parser)
     try_parsing(parser);
 
     // ==========================================
-    // Process bin_path
+    // Process bin_path:
+    // if building from clustered sequences each line in input corresponds to a bin
+    // if building from overlapping segments all sequences in one reference file
     // ==========================================
-    std::ifstream istrm{arguments.bin_file};
-    std::string line;
-    auto sequence_file_validator{bin_validator{}.sequence_file_validator};
-
-    while (std::getline(istrm, line))
+    if (!arguments.from_segments)
     {
-        if (!line.empty())
+        std::ifstream istrm{arguments.bin_file};
+        std::string line;
+        auto sequence_file_validator{bin_validator{}.sequence_file_validator};
+
+        while (std::getline(istrm, line))
         {
-            sequence_file_validator(line);
-            arguments.bin_path.emplace_back(std::vector<std::filesystem::path>{line});
+            if (!line.empty())
+            {
+                sequence_file_validator(line);
+                arguments.bin_path.emplace_back(std::vector<std::filesystem::path>{line});
+            }
         }
+        arguments.bins = arguments.bin_path.size();
+    }
+    else
+    {
+        reference_segments seg(arguments.seg_path);
+        
+        arguments.bins = seg.members.size();
     }
 
     // ==========================================
     // Various checks.
     // ==========================================
-
-    arguments.bins = arguments.bin_path.size();
 
     if (parser.is_option_set("window"))
     {
@@ -151,6 +170,8 @@ void run_build(seqan3::argument_parser & parser)
     size_t size{};
     std::from_chars(arguments.size.data(), arguments.size.data() + arguments.size.size() - 1, size);
     size *= multiplier;
+
+    // !! core dumped
     arguments.bits = size / (((arguments.bins + 63) >> 6) << 6);
 
     // ==========================================

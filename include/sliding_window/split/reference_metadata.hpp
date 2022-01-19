@@ -21,33 +21,52 @@ class reference_metadata
         size_t total_len;
         std::vector<sequence_stats> sequences;
 
-        reference_metadata(std::string filename) 
+        reference_metadata(std::filesystem::path filepath, bool from_sequence) 
         { 
-            using traits_type = seqan3::sequence_file_input_default_traits_dna;
-            seqan3::sequence_file_input<traits_type> fin{filename};
-
-            total_len = 0;
-            for (auto & record : fin)
+            if (from_sequence)
             {
-                sequence_stats seq;
-                seq.id = record.id();
-                seq.len = record.sequence().size();
-                sequences.push_back(seq);
-                total_len += seq.len;
+                using traits_type = seqan3::sequence_file_input_default_traits_dna;
+                seqan3::sequence_file_input<traits_type> fin{filepath};
+
+                total_len = 0;
+                for (auto & record : fin)
+                {
+                    sequence_stats seq;
+                    seq.id = record.id();
+                    seq.len = record.sequence().size();
+                    sequences.push_back(seq);
+                    total_len += seq.len;
+                }
+            }
+            else // deserialize
+            {
+                std::ifstream in_file(filepath);
+
+                std::string seq_id;
+                size_t length;
+                total_len = 0;
+                if (in_file.is_open())
+                {
+                    while (in_file >> seq_id)
+                    {
+                        in_file >> length;
+                        total_len += length;
+                        sequences.push_back(sequence_stats(seq_id, length));
+                    }
+                }
+                in_file.close();
             }
         }
 
-        void to_file(std::string filepath)
+        // serialize
+        void to_file(std::filesystem::path filepath)
         {
             std::ofstream out_file;
             out_file.open(filepath);
-            out_file << "ID" << '\t' << "LEN" << '\n';
             for (sequence_stats & seq : sequences)
             {
                 out_file << seq.id << '\t' << seq.len << '\n';
             }
-
-            out_file << "TOTAL LEN: " << total_len << '\n';
             out_file.close();
         }
 

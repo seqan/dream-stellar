@@ -58,6 +58,7 @@ struct build_arguments
     
     bool from_segments{false};
     std::filesystem::path seg_path{};
+    std::filesystem::path ref_meta_path{};
 };
 
 struct search_arguments

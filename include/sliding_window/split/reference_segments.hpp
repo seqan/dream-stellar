@@ -13,25 +13,26 @@ class reference_segments {
     public: 
         class segment {
             public:
+                size_t bin;
                 std::string ref_id;
                 size_t start;
                 size_t len;
-                size_t bin;
 
-            segment(std::string id, size_t s, size_t l, size_t b) { // Constructor with parameters
+            segment(size_t b, std::string id, size_t s, size_t l) 
+            {
+                bin = b;
                 ref_id = id;
                 start = s;
                 len = l;
-                bin = b;
             }
         };
 
         std::vector<segment> members;
         size_t default_len;
 
-        void add_segment(std::string id, size_t s, size_t l, size_t b)
+        void add_segment(size_t b, std::string id, size_t s, size_t l)
         {
-            segment seg(id, s, l, b);
+            segment seg(b, id, s, l);
             members.push_back(seg);
         }
 
@@ -46,34 +47,56 @@ class reference_segments {
                 // only one segment per reference sequence
                 if (start + segment_len >= seq.len)
                 {
-                    add_segment(seq.id, start, seq.len, i);
+                    add_segment(i, seq.id, start, seq.len);
                     i++;
                 } 
                 
                 // many segments per reference sequence
                 else 
                 {
-                    add_segment(seq.id, start, segment_len, i);
+                    add_segment(i, seq.id, start, segment_len);
                     i++;
                     while (start + segment_len < seq.len)
                     {
                         start = start + segment_len - overlap;
-                        add_segment(seq.id, start, segment_len, i);
+                        add_segment(i, seq.id, start, segment_len);
                         i++;
                     }
-                    add_segment(seq.id, start, seq.len - start, i);
+                    add_segment(i, seq.id, start, seq.len - start);
                     i++;
                 }
             }
         }
 
-        void to_file(std::string filepath)
+        // deserialize
+        reference_segments(std::filesystem::path filepath)
+        {
+            std::ifstream in_file(filepath);
+
+            size_t bin, start, length;
+            std::string ref_id;
+            if (in_file.is_open())
+            {
+                in_file >> default_len;
+                while (in_file >> bin)
+                {
+                    in_file >> ref_id;
+                    in_file >> start;
+                    in_file >> length;
+
+                    add_segment(bin, ref_id, start, length);
+                }
+            }
+            in_file.close();
+        }
+
+        // serialize
+        void to_file(std::filesystem::path filepath)
         {
             std::ofstream out_file;
             out_file.open(filepath);
-            out_file << "(default) LENGTH: " << default_len << '\n';
 
-            out_file << "BIN" << '\t' << "REF ID" << '\t' << "START" << '\t' << "LEN" << '\n';
+            out_file << default_len << '\n';
             for (const auto & seg : members)
             {
                 out_file << seg.bin << '\t' << seg.ref_id << '\t' << seg.start << '\t' << seg.len << '\n';

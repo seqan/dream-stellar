@@ -13,7 +13,7 @@ namespace sliding_window::app
 void run_program(split_arguments const & arguments)
 {    
     // Linear scan over reference file to extract metadata
-    reference_metadata reference(arguments.ref_file);
+    reference_metadata reference(arguments.ref_file, true);
     reference.to_file(arguments.ref_out);
 
     // Divide reference to segments that have at least min_len (doesn't take overlap into account)
@@ -22,31 +22,6 @@ void run_program(split_arguments const & arguments)
     // For each segment assign start, length and bin number
     reference_segments segments(segment_len, arguments.overlap, reference.sequences);
     segments.to_file(arguments.seg_out);
-    
-
-    /* TODO: this belongs to IBF build subroutine
-
-    // Second linear scan over reference database
-    seqan3::sequence_file_input fin{filename};
-
-    int i = 0;
-    for (auto & record : fin)
-    {
-        // get the relevant segments for each reference
-        auto ref_seg = [&](reference_segments::segment & seg) {return reference.sequences.at(i).id == seg.ref_id;};
-        for (auto & seg : segments.members | std::views::filter(ref_seg))
-        {
-            // TODO: actually create the IBF and hash view first
-            
-            for (auto && value : record.sequence() | seqan3::views::chunk(seg.start, seg.len) | hash_view)
-            {
-                ibf.emplace(value, seg.bin);
-            }
-            
-        }
-        i++;
-    }
-    */
 }
 
 void sliding_window_split(split_arguments const & arguments)
