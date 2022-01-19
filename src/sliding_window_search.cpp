@@ -1,3 +1,4 @@
+#include <sliding_window/search/query_record.hpp>
 #include <sliding_window/search/search_setup.hpp>
 
 namespace sliding_window::app
@@ -24,27 +25,29 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     auto cereal_handle = std::async(std::launch::async, cereal_worker);
 
     seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>> fin{arguments.query_file};
-    using record_type = typename decltype(fin)::record_type;
-    std::vector<record_type> records{};
+    std::vector<query_record> query_records{};
 
     threshold const threshold_data = make_threshold_data(arguments);
 
     sync_out synced_out{arguments.out_file};
 
+    size_t record_id = 0u;
     for (auto &&chunked_records : fin | seqan3::views::chunk((1ULL << 20) * 10))
     {
-        records.clear();
+        query_records.clear();
         auto start = std::chrono::high_resolution_clock::now();
-        std::ranges::move(chunked_records, std::cpp20::back_inserter(records));
+        for (auto && query_record: chunked_records)
+        {
+            query_records.emplace_back(record_id, std::move(query_record.id()), std::move(query_record.sequence()));
+            ++record_id;
+        }
         auto end = std::chrono::high_resolution_clock::now();
         time_statistics.reads_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
         cereal_handle.wait();
 
-        // not allowed to pass template functions to other functions, 
-        // BUT allowed to pass specific instances of template functions to other functions
         start = std::chrono::high_resolution_clock::now();
-        write_output_file_parallel(worker<ibf_data_layout, std::vector<record_type>>, ibf, arguments, records, threshold_data, synced_out);
+        write_output_file_parallel(ibf, arguments, query_records, threshold_data, synced_out);
         end = std::chrono::high_resolution_clock::now();
         time_statistics.compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
