@@ -155,29 +155,6 @@ TEST_F(sliding_window_build, output_wrong)
     EXPECT_EQ(result.err, std::string{"[Error] Cannot write \"foo/out.ibf\"!\n"});
 }
 
-TEST_F(sliding_window_build, directory_missing)
-{
-    cli_test_result const result = execute_app("sliding_window", "build",
-                                                         "--size 8m",
-                                                         "--compute-minimiser",
-                                                         tmp_bin_list_file.file_path);
-    EXPECT_NE(result.exit_code, 0);
-    EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] Option --output is required but not set.\n"});
-}
-
-TEST_F(sliding_window_build, directory_wrong)
-{
-    cli_test_result const result = execute_app("sliding_window", "build",
-                                                         "--size 8m",
-                                                         "--compute-minimiser",
-                                                         "--output foo/bar",
-                                                         tmp_bin_list_file.file_path);
-    EXPECT_NE(result.exit_code, 0);
-    EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] Cannot create directory: \"foo/bar\"!\n"});
-}
-
 TEST_F(sliding_window_build, size_missing)
 {
     cli_test_result const result = execute_app("sliding_window", "build",

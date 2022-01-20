@@ -15,11 +15,8 @@ add_library ("${PROJECT_NAME}_split_lib" STATIC sliding_window_split.cpp)
 target_link_libraries ("${PROJECT_NAME}_split_lib" PUBLIC "${PROJECT_NAME}_interface")
 
 # Sliding window build
-add_library ("${PROJECT_NAME}_compute_minimiser_lib" STATIC build/compute_minimiser.cpp)
-target_link_libraries ("${PROJECT_NAME}_compute_minimiser_lib" PUBLIC "${PROJECT_NAME}_interface")
-
 add_library ("${PROJECT_NAME}_build_lib" STATIC sliding_window_build.cpp)
-target_link_libraries ("${PROJECT_NAME}_build_lib" PUBLIC "${PROJECT_NAME}_compute_minimiser_lib")
+target_link_libraries ("${PROJECT_NAME}_build_lib" PUBLIC "${PROJECT_NAME}_interface")
 
 # Sliding window search
 add_library ("${PROJECT_NAME}_search_helper_lib" STATIC search/detail/helper.cpp)

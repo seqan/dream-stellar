@@ -53,7 +53,6 @@ struct build_arguments
     uint64_t bins{64};
     uint64_t bits{4096};
     uint64_t hash{2};
-    bool compute_minimiser{false};
     bool compressed{false};
     
     bool from_segments{false};

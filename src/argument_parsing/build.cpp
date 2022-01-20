@@ -47,11 +47,6 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
                     '\0',
                     "compressed",
                     "Build a compressed IBF.");
-    parser.add_flag(arguments.compute_minimiser,
-                    '\0',
-                    "compute-minimiser",
-                    "Computes minimisers using cutoffs from Mantis (Pandey et al.). Does not create the index.",
-                    seqan3::option_spec::standard);
     parser.add_flag(arguments.from_segments,
                     '\0',
                     "from-segments",
@@ -101,7 +96,6 @@ void run_build(seqan3::argument_parser & parser)
     else
     {
         reference_segments seg(arguments.seg_path);
-        
         arguments.bins = seg.members.size();
     }
 
@@ -117,29 +111,14 @@ void run_build(seqan3::argument_parser & parser)
     else
         arguments.window_size = arguments.kmer_size;
 
-    if (parser.is_option_set("compute-minimiser"))
+    try
     {
-        try
-        {
-            seqan3::output_directory_validator{}(arguments.out_path);
-        }
-        catch (seqan3::argument_parser_error const & ext)
-        {
-            std::cerr << "[Error] " << ext.what() << '\n';
-            std::exit(-1);
-        }
+        seqan3::output_file_validator{}(arguments.out_path);
     }
-    else
+    catch (seqan3::argument_parser_error const & ext)
     {
-        try
-        {
-            seqan3::output_file_validator{}(arguments.out_path);
-        }
-        catch (seqan3::argument_parser_error const & ext)
-        {
-            std::cerr << "[Error] " << ext.what() << '\n';
-            std::exit(-1);
-        }
+        std::cerr << "[Error] " << ext.what() << '\n';
+        std::exit(-1);
     }
 
     // ==========================================
@@ -173,18 +152,6 @@ void run_build(seqan3::argument_parser & parser)
 
     // !! core dumped
     arguments.bits = size / (((arguments.bins + 63) >> 6) << 6);
-
-    // ==========================================
-    // Read w and k from minimiser header file
-    // ==========================================
-    if (std::filesystem::path header_file_path = arguments.bin_path[0][0]; header_file_path.extension() == ".minimiser")
-    {
-        header_file_path.replace_extension("header");
-        std::ifstream file_stream{header_file_path};
-        uint64_t kmer_size{};
-        file_stream >> kmer_size >> arguments.window_size;
-        arguments.kmer_size = kmer_size;
-    }
 
     // ==========================================
     // Dispatch

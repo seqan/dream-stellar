@@ -15,7 +15,13 @@ class reference_metadata
         struct sequence_stats 
         {
             std::string id;             
-            size_t len;        
+            size_t len;
+
+            sequence_stats(std::string ref_id, size_t ref_length)
+            {
+                id = ref_id;
+                len = ref_length;
+            }        
         };
 
         size_t total_len;
@@ -31,11 +37,9 @@ class reference_metadata
                 total_len = 0;
                 for (auto & record : fin)
                 {
-                    sequence_stats seq;
-                    seq.id = record.id();
-                    seq.len = record.sequence().size();
-                    sequences.push_back(seq);
+                    sequence_stats seq(record.id(), record.sequence().size());
                     total_len += seq.len;
+                    sequences.push_back(seq);
                 }
             }
             else // deserialize
