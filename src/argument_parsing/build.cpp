@@ -11,7 +11,7 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
     init_shared_meta(parser);
     init_shared_options(parser, arguments);
     parser.add_positional_option(arguments.bin_file,
-                                 "File containing one file per line per bin when building from clustered sequences. " 
+                                 "File containing one file per line per bin when building from clustered sequences. "
                                  "Input sequence file when building from overlapping segments.",
                                  seqan3::input_file_validator{});
     parser.add_option(arguments.window_size,
@@ -29,7 +29,7 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
     parser.add_option(arguments.out_path,
                       '\0',
                       "output",
-                      "Provide an output filepath or an output directory if --compute-minimiser is used.",
+                      "Provide an output filepath.",
                       seqan3::option_spec::required);
     parser.add_option(arguments.size,
                       '\0',
@@ -149,8 +149,6 @@ void run_build(seqan3::argument_parser & parser)
     size_t size{};
     std::from_chars(arguments.size.data(), arguments.size.data() + arguments.size.size() - 1, size);
     size *= multiplier;
-
-    // !! core dumped
     arguments.bits = size / (((arguments.bins + 63) >> 6) << 6);
 
     // ==========================================

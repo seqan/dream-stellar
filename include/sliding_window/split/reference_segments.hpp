@@ -10,7 +10,7 @@ namespace sliding_window
 {
 
 class reference_segments {
-    public: 
+    public:
         class segment {
             public:
                 size_t bin;
@@ -18,7 +18,7 @@ class reference_segments {
                 size_t start;
                 size_t len;
 
-            segment(size_t b, std::string id, size_t s, size_t l) 
+            segment(size_t b, std::string id, size_t s, size_t l)
             {
                 bin = b;
                 ref_id = id;
@@ -36,9 +36,8 @@ class reference_segments {
             members.push_back(seg);
         }
 
-        reference_segments(size_t segment_len, size_t overlap, auto & reference_sequences)
+        void construct_by_linear_scan(size_t segment_len, size_t overlap, auto & reference_sequences)
         {
-            default_len = segment_len;
             size_t i = 0;
             for (const auto & seq : reference_sequences)
             {
@@ -49,10 +48,10 @@ class reference_segments {
                 {
                     add_segment(i, seq.id, start, seq.len);
                     i++;
-                } 
-                
+                }
+
                 // many segments per reference sequence
-                else 
+                else
                 {
                     add_segment(i, seq.id, start, segment_len);
                     i++;
@@ -66,6 +65,12 @@ class reference_segments {
                     i++;
                 }
             }
+        }
+
+        reference_segments(size_t segment_len, size_t overlap, auto & reference_sequences)
+        {
+            default_len = segment_len;
+            construct_by_linear_scan(segment_len, overlap, reference_sequences);
         }
 
         // deserialize

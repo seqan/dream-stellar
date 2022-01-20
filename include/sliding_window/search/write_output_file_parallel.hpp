@@ -37,7 +37,7 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
         size_t const start = records_per_thread * i;
         size_t const end = std::min(start + records_per_thread, num_records);
         std::span<query_record const> records_slice{&records[start], &records[end]};
-        
+
         // The following calls `local_prefilter(records_slice, ibf, arguments, threshold_data)` on a thread.
         // Note: local_prefilter is a function object which is created from the local_function_fn struct
         tasks.emplace_back(std::async(std::launch::async, local_prefilter, records_slice, ibf, arguments, threshold_data));
@@ -45,7 +45,6 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
 
     for (task_future_t & task : tasks)
     {
-        // auto result_set = task.get();
         std::string result_string{};
         std::vector<query_result> thread_result = task.get();
         for (query_result const & query_result : thread_result)
@@ -59,7 +58,7 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
                 result_string += std::to_string(bin);
                 result_string += ',';
             }
-            
+
             result_string += '\n';
             synced_out.write(result_string);
         }
