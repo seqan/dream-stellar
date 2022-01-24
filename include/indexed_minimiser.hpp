@@ -22,6 +22,8 @@
 #include <seqan3/utility/tuple/common_tuple.hpp>
 #include <seqan3/utility/type_traits/lazy_conditional.hpp>
 
+#include <seqan3/search/views/minimiser.hpp>
+
 namespace valik
 {
 // ---------------------------------------------------------------------------------------------------------------------
@@ -50,38 +52,18 @@ template <std::ranges::view urng1_t,
 class indexed_minimiser_view : public std::ranges::view_interface<indexed_minimiser_view<urng1_t, urng2_t>>
 {
 private:
-    static_assert(std::ranges::forward_range<urng1_t>, "The indexed_minimiser_view only works on forward_ranges.");
-    static_assert(std::ranges::forward_range<urng2_t>, "The indexed_minimiser_view only works on forward_ranges.");
-    static_assert(std::totally_ordered<std::ranges::range_reference_t<urng1_t>>,
-                  "The reference type of the underlying range must model std::totally_ordered.");
-
-    //!\brief The default argument of the second range.
-    using default_urng2_t = std::ranges::empty_view<seqan3::detail::empty_type>;
-
-    //!\brief Boolean variable, which is true, when second range is not of empty type.
-    static constexpr bool second_range_is_given = !std::same_as<urng2_t, default_urng2_t>;
-
-    static_assert(!second_range_is_given || std::totally_ordered_with<std::ranges::range_reference_t<urng1_t>,
-                                                                      std::ranges::range_reference_t<urng2_t>>,
-                  "The reference types of the underlying ranges must model std::totally_ordered_with.");
+    using minimiser_view_t = seqan3::detail::minimiser_view<urng1_t, urng2_t>;
 
     //!\brief Whether the given ranges are const_iterable
-    static constexpr bool const_iterable = seqan3::const_iterable_range<urng1_t> &&
-                                           seqan3::const_iterable_range<urng2_t>;
-
-    //!\brief The first underlying range.
-    urng1_t urange1{};
-    //!\brief The second underlying range.
-    urng2_t urange2{};
-
-    //!\brief The number of values in one window.
-    size_t window_size{};
+    static constexpr bool const_iterable = seqan3::const_iterable_range<minimiser_view_t>;
 
     template <bool const_range>
     class basic_iterator;
 
     //!\brief The sentinel type of the indexed_minimiser_view.
     using sentinel = std::default_sentinel_t;
+
+    minimiser_view_t minimiser_view;
 
 public:
     /*!\name Constructors, destructor and assignment
@@ -100,7 +82,7 @@ public:
     * \param[in] window_size The number of values in one window.
     */
     indexed_minimiser_view(urng1_t urange1, size_t const window_size) :
-        indexed_minimiser_view{std::move(urange1), default_urng2_t{}, window_size}
+        minimiser_view{std::move(urange1), window_size}
     {}
 
     /*!\brief Construct from a non-view that can be view-wrapped and a given number of values in one window.
@@ -116,9 +98,7 @@ public:
                   std::constructible_from<urng1_t, ranges::ref_view<std::remove_reference_t<other_urng1_t>>>)
     //!\endcond
     indexed_minimiser_view(other_urng1_t && urange1, size_t const window_size) :
-        urange1{std::views::all(std::forward<other_urng1_t>(urange1))},
-        urange2{default_urng2_t{}},
-        window_size{window_size}
+        minimiser_view{std::move(urange1), window_size}
     {}
 
     /*!\brief Construct from two views and a given number of values in one window.
@@ -129,16 +109,8 @@ public:
     * \param[in] window_size The number of values in one window.
     */
     indexed_minimiser_view(urng1_t urange1, urng2_t urange2, size_t const window_size) :
-        urange1{std::move(urange1)},
-        urange2{std::move(urange2)},
-        window_size{window_size}
-    {
-        if constexpr (second_range_is_given)
-        {
-            if (std::ranges::distance(urange1) != std::ranges::distance(urange2))
-                throw std::invalid_argument{"The two ranges do not have the same size."};
-        }
-    }
+        minimiser_view{std::move(urange1), std::move(urange2), window_size}
+    {}
 
     /*!\brief Construct from two non-views that can be view-wrapped and a given number of values in one window.
     * \tparam other_urng1_t  The type of another urange. Must model std::ranges::viewable_range and be constructible
@@ -159,16 +131,8 @@ public:
                   std::constructible_from<urng2_t, std::views::all_t<other_urng2_t>>)
     //!\endcond
     indexed_minimiser_view(other_urng1_t && urange1, other_urng2_t && urange2, size_t const window_size) :
-        urange1{std::views::all(std::forward<other_urng1_t>(urange1))},
-        urange2{std::views::all(std::forward<other_urng2_t>(urange2))},
-        window_size{window_size}
-    {
-        if constexpr (second_range_is_given)
-        {
-            if (std::ranges::distance(urange1) != std::ranges::distance(urange2))
-                throw std::invalid_argument{"The two ranges do not have the same size."};
-        }
-    }
+        minimiser_view{std::forward<other_urng1_t>(urange1), std::forward<other_urng2_t>(urange2), window_size}
+    {}
     //!\}
 
     /*!\name Iterators
@@ -189,10 +153,7 @@ public:
      */
     basic_iterator<false> begin()
     {
-        return {std::ranges::begin(urange1),
-                std::ranges::end(urange1),
-                std::ranges::begin(urange2),
-                window_size};
+        return basic_iterator<false>{std::ranges::begin(minimiser_view)};
     }
 
     //!\copydoc begin()
@@ -201,10 +162,7 @@ public:
         requires const_iterable
     //!\endcond
     {
-        return {std::ranges::cbegin(urange1),
-                std::ranges::cend(urange1),
-                std::ranges::cbegin(urange2),
-                window_size};
+        return basic_iterator<true>{std::ranges::cbegin(minimiser_view)};
     }
 
     /*!\brief Returns an iterator to the element following the last element of the range.
@@ -235,33 +193,32 @@ template <bool const_range>
 class indexed_minimiser_view<urng1_t, urng2_t>::basic_iterator
 {
 private:
-    //!\brief The sentinel type of the first underlying range.
-    using urng1_sentinel_t = seqan3::detail::maybe_const_sentinel_t<const_range, urng1_t>;
-    //!\brief The iterator type of the first underlying range.
-    using urng1_iterator_t = seqan3::detail::maybe_const_iterator_t<const_range, urng1_t>;
-    //!\brief The iterator type of the second underlying range.
-    using urng2_iterator_t = seqan3::detail::maybe_const_iterator_t<const_range, urng2_t>;
+    using minimiser_iterator_t = std::ranges::iterator_t<std::conditional_t<const_range, minimiser_view_t const, minimiser_view_t>>;
+    minimiser_iterator_t minimiser_iterator;
 
-    // using pairwise_combine.hpp as an example
-    using underlying_val_t = std::iter_value_t<urng1_iterator_t>;
-    using underlying_ref_t = std::iter_reference_t<urng1_iterator_t>;
+    using underlying_iterator_t = std::remove_cvref_t<decltype(std::declval<minimiser_iterator_t &>().base())>;
+    underlying_iterator_t begin_iterator;
+
+    static_assert(std::sized_sentinel_for<underlying_iterator_t, underlying_iterator_t>, "We assume that the original hash-iterator have a difference operator.");
 
     template <bool>
     friend class basic_iterator;
+
+    using underlying_val_t = std::iter_value_t<minimiser_iterator_t>;
 
 public:
     /*!\name Associated types
      * \{
      */
-  
+
     //!\brief Type for distances between iterators.
-    using difference_type = std::ranges::range_difference_t<urng1_t>;
+    using difference_type = std::iter_difference_t<minimiser_iterator_t>;
     //!\brief Value type of this iterator.
     using value_type = std::tuple<underlying_val_t, size_t>;
-    
+
     //!\brief Reference to `value_type`.
     using reference = value_type;
-    
+
     //!\brief The pointer type.
     using pointer = void;
     //!\brief Tag this class as a forward iterator.
@@ -285,11 +242,8 @@ public:
     //!\cond
         requires const_range
     //!\endcond
-        : minimiser_value{std::move(it.minimiser_value)},  //TODO: this doesn't match the new value_type
-          urng1_iterator{std::move(it.urng1_iterator)},
-          urng1_sentinel{std::move(it.urng1_sentinel)},
-          urng2_iterator{std::move(it.urng2_iterator)},
-          window_values{std::move(it.window_values)}
+        : minimiser_iterator{it.minimiser_iterator},
+          begin_iterator{it.begin_iterator}
     {}
 
     /*!\brief Construct from begin and end iterators of a given range over std::totally_ordered values, and the number
@@ -305,19 +259,10 @@ public:
     * shifts then by one to repeat this action. If a minimiser in consecutive windows is the same, it is returned only
     * once.
     */
-    basic_iterator(urng1_iterator_t urng1_iterator,
-                   urng1_sentinel_t urng1_sentinel,
-                   urng2_iterator_t urng2_iterator,
-                   size_t window_size) :
-        urng1_iterator{std::move(urng1_iterator)},
-        urng1_sentinel{std::move(urng1_sentinel)},
-        urng2_iterator{std::move(urng2_iterator)}
-    {
-        size_t size = std::ranges::distance(urng1_iterator, urng1_sentinel);
-        window_size = std::min<size_t>(window_size, size);
-
-        window_first(window_size);
-    }
+    explicit basic_iterator(minimiser_iterator_t minimiser_iterator) :
+        minimiser_iterator{std::move(minimiser_iterator)},
+        begin_iterator{this->minimiser_iterator.base()}
+    {}
     //!\}
 
     //!\anchor basic_iterator_comparison
@@ -328,9 +273,7 @@ public:
     //!\brief Compare to another basic_iterator.
     friend bool operator==(basic_iterator const & lhs, basic_iterator const & rhs)
     {
-        return (lhs.urng1_iterator == rhs.urng1_iterator) &&
-               (rhs.urng2_iterator == rhs.urng2_iterator) &&
-               (lhs.window_values.size() == rhs.window_values.size());
+        return lhs.minimiser_iterator == rhs.minimiser_iterator;
     }
 
     //!\brief Compare to another basic_iterator.
@@ -340,9 +283,9 @@ public:
     }
 
     //!\brief Compare to the sentinel of the indexed_minimiser_view.
-    friend bool operator==(basic_iterator const & lhs, sentinel const &)
+    friend bool operator==(basic_iterator const & lhs, sentinel const & rhs)
     {
-        return lhs.urng1_iterator == lhs.urng1_sentinel;
+        return lhs.minimiser_iterator == rhs;
     }
 
     //!\brief Compare to the sentinel of the indexed_minimiser_view.
@@ -367,7 +310,7 @@ public:
     //!\brief Pre-increment.
     basic_iterator & operator++() noexcept
     {
-        next_unique_minimiser();
+        ++minimiser_iterator;
         return *this;
     }
 
@@ -375,123 +318,14 @@ public:
     basic_iterator operator++(int) noexcept
     {
         basic_iterator tmp{*this};
-        next_unique_minimiser();
+        ++(*this);
         return tmp;
     }
 
     //!\brief Return the minimiser.
     reference operator*() const noexcept
     {
-	return reference{minimiser_value, first_window_position};
-    }
-
-private:
-    //!\brief The minimiser value.
-    underlying_val_t minimiser_value{};
-
-    //!\brief The offset relative to the beginning of the window where the minimizer value is found.
-    size_t minimiser_position_offset{};
-
-    // Defining the span of a minimiser. Consecutive windows might have the same minimiser.
-    // The span is 
-    // -> from the beginning of the first window
-    // <- to the end of the last window that has this k-mer as its minimiser
-    size_t first_window_position{};
-
-    //!\brief Iterator to the rightmost value of one window.
-    urng1_iterator_t urng1_iterator{};
-    //!brief Iterator to last element in range.
-    urng1_sentinel_t urng1_sentinel{};
-    //!\brief Iterator to the rightmost value of one window of the second range.
-    urng2_iterator_t urng2_iterator{};
-
-    //!\brief Stored values per window. It is necessary to store them, because a shift can remove the current minimiser.
-    std::deque<underlying_val_t> window_values{};
-
-    //!\brief Increments iterator by 1.
-    void next_unique_minimiser()
-    {
-        while (!next_minimiser()) {}
-    }
-
-    //!\brief Returns new window value.
-    auto window_value() const
-    {
-        if constexpr (!second_range_is_given)
-            return *urng1_iterator;
-        else
-            return std::min(*urng1_iterator, *urng2_iterator);
-    }
-
-    //!\brief Advances the window to the next position.
-    void advance_window()
-    {
-        ++urng1_iterator;
-        if constexpr (second_range_is_given)
-            ++urng2_iterator;
-	first_window_position++;
-    }
-
-    //!\brief Calculates minimisers for the first window.
-    void window_first(size_t const window_size)
-    {
-        if (window_size == 0u)
-            return;
-
-        for (size_t i = 0u; i < window_size - 1u; ++i)
-        {
-            window_values.push_back(window_value());
-            advance_window();
-        }
-        window_values.push_back(window_value());
-        
-	auto minimiser_it = std::ranges::min_element(window_values, std::less_equal<underlying_val_t>{});
-        minimiser_value = *minimiser_it ;
-      
-	minimiser_position_offset = std::distance(std::begin(window_values), minimiser_it);
-	first_window_position = 0u;
-    }
-
-    /*!\brief Calculates the next minimiser value.
-     * \returns True, if new minimiser is found or end is reached. Otherwise returns false.
-     * \details
-     * For the following windows, we remove the first window value (is now not in window_values) and add the new
-     * value that results from the window shifting.
-     */
-    bool next_minimiser()
-    {
-        advance_window();
-
-	// End is reached
-        if (urng1_iterator == urng1_sentinel)
-            return true;
-
-        underlying_val_t const new_value = window_value();
-
-        window_values.pop_front();
-        window_values.push_back(new_value);
-
-	// Minimiser was first k-mer of window
-	// and is not in window after shifting
-        if (minimiser_position_offset == 0)
-        {
-            auto minimiser_it = std::ranges::min_element(window_values, std::less_equal<underlying_val_t>{});
-            minimiser_value = *minimiser_it;
-            minimiser_position_offset = std::distance(std::begin(window_values), minimiser_it);
-            return true;
-        }
-
-	// After shifting the last k-mer becomes the minimiser
-        if (new_value < minimiser_value)
-        {
-            minimiser_value = new_value;
-            minimiser_position_offset = window_values.size() - 1;
-            return true;
-        }
-
-	// Minimiser remains same after shifting
-        --minimiser_position_offset;
-        return false;
+        return reference{*minimiser_iterator, minimiser_iterator.base() - begin_iterator};
     }
 };
 
