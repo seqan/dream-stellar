@@ -3,6 +3,7 @@
 #include <seqan3/std/span>
 
 #include <seqan3/core/debug_stream.hpp>
+#include <seqan3/search/views/minimiser_hash.hpp>
 
 #include <valik/search/compute_simple_model.hpp>
 #include <valik/search/write_output_file_parallel.hpp>
@@ -11,8 +12,6 @@
 #include <valik/search/query_record.hpp>
 #include <valik/search/query_result.hpp>
 #include <valik/search/sync_out.hpp>
-
-#include <indexed_minimiser_hash.hpp>
 
 namespace valik
 {
@@ -175,12 +174,12 @@ local_prefilter_fn::operator()(
     std::vector<query_result> thread_result{}; // set of query results processed by one thread
 
     // vector holding all the minimisers and their starting position for the read
-    using minimiser_vec_t = std::vector<std::tuple<uint64_t, size_t>>;
-    minimiser_vec_t minimiser;
+    std::vector<std::tuple<uint64_t, size_t>> minimiser;
 
-    auto hash_tuple_view = indexed_minimiser_hash(arguments.shape,
-                                                    window_size{arguments.window_size},
-                                                    seed{adjust_seed(arguments.shape_weight)});
+    auto minimiser_hash_adaptor = seqan3::views::minimiser_hash(
+        arguments.shape,
+        seqan3::window_size{arguments.window_size},
+        seqan3::seed{adjust_seed(arguments.shape_weight)});
 
     for (query_record const & record : records)
     {
@@ -191,7 +190,15 @@ local_prefilter_fn::operator()(
         if (seq.size() < arguments.pattern_size)
             continue;
 
-        minimiser = seq | hash_tuple_view | seqan3::views::to<minimiser_vec_t>;
+        // basically: minimiser = seq | minimiser_hash_adaptor | seqan3::views::to<decltype(minimiser)>;
+        {
+            auto const minimiser_hash = minimiser_hash_adaptor(seq);
+            auto it = minimiser_hash.begin();
+            auto const sentinel = minimiser_hash.end();
+            auto const hash_begin = it.base();
+            for (; it != sentinel; ++it)
+                minimiser.emplace_back(*it, it.base() - hash_begin);
+        }
 
         //-----------------------------
         //
