@@ -19,25 +19,36 @@ namespace sliding_window
 
 //-----------------------------
 //
-// Precalculate vector with all pattern begin positions in read.
-// This adds a small computational overhead but makes the code much more readable.
+// Reports all pattern begin positions in read.
+//
+// For each read the begin_vector shows the beginning of each sliding window (pattern)
+//
+// If read_len = 150
+//   pattern_size = 50
+//   overlap = 20
+//
+//   begin_vector = {0, 30, 60, 90, 100}
 //
 //-----------------------------
-inline std::vector<size_t> precalculate_begin(size_t const read_len, uint64_t const pattern_size, uint64_t const overlap)
+template <typename functor_t>
+constexpr void pattern_begin_positions(size_t const read_len, uint64_t const pattern_size, uint64_t const overlap, functor_t && callback)
 {
-    std::vector<size_t> begin_vector;
-    for (size_t i = 0; i <= read_len - pattern_size;
-            i = i + pattern_size - overlap)
+    // TODO: what happens if sequences are smaller? currently the programs has undefined behaviour if it does
+    assert(read_len >= pattern_size);
+    assert(pattern_size >= overlap);
+
+    size_t last_begin{0u};
+    for (size_t i = 0; i <= read_len - pattern_size; i = i + pattern_size - overlap)
     {
-        begin_vector.push_back(i);
-    }
-    if (begin_vector.back() < read_len - pattern_size)
-    {
-        // last pattern might have a smaller overlap to make sure the end of the read is covered
-        begin_vector.push_back(read_len - pattern_size);
+        callback(i);
+        last_begin = i;
     }
 
-    return begin_vector;
+    if (last_begin < read_len - pattern_size)
+    {
+        // last pattern might have a smaller overlap to make sure the end of the read is covered
+        callback(read_len - pattern_size);
+    }
 }
 
 // TODO: make these generic for both build and search
@@ -168,19 +179,6 @@ local_prefilter_fn::operator()(
 
         //-----------------------------
         //
-        // For each read the begin_vector shows the beginning of each sliding window (pattern)
-        //
-        // If 	read_len = 150
-        // 	pattern_size = 50
-        // 	overlap = 30
-        //
-        // 	begin_vector = {0, 30, 60, 90, 100}
-        //
-        //-----------------------------
-        std::vector<size_t> begin_vector = precalculate_begin(seq.size(), arguments.pattern_size, arguments.overlap);
-
-        //-----------------------------
-        //
         // Table of counting vectors newly created for each read
         //	rows: each minimiser of read
         // 	columns: each bin of IBF
@@ -225,12 +223,12 @@ local_prefilter_fn::operator()(
         //
         //-----------------------------
         std::set<size_t> sequence_hits{};
-        for (size_t const begin : begin_vector)
+        pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.overlap, [&](size_t const begin)
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, window_span_end, threshold_data);
             std::set<size_t> const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
             sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
-        }
+        });
 
         thread_result.emplace_back(id, std::move(sequence_hits));
     }
