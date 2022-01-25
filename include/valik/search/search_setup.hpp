@@ -200,7 +200,7 @@ local_prefilter_fn::operator()(
         // 	columns: each bin of IBF
         //
         //-----------------------------
-        using binning_bitvector_t = typename std::remove_cvref_t<decltype(ibf)>::membership_agent::binning_bitvector;
+        using binning_bitvector_t = typename std::remove_cvref_t<decltype(ibf)>::membership_agent_type::binning_bitvector;
         std::vector<binning_bitvector_t> counting_table(minimiser.size(),
                                                         binning_bitvector_t(bin_count));
 
