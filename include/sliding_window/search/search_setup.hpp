@@ -31,9 +31,8 @@ namespace sliding_window
 //
 //-----------------------------
 template <typename functor_t>
-constexpr void pattern_begin_positions(size_t const read_len, uint64_t const pattern_size, uint64_t const overlap, functor_t && callback)
+constexpr void pattern_begin_positions(size_t const read_len, uint64_t pattern_size, uint64_t const overlap, functor_t && callback)
 {
-    // TODO: what happens if sequences are smaller? currently the programs has undefined behaviour if it does
     assert(read_len >= pattern_size);
     assert(pattern_size >= overlap);
 
@@ -170,7 +169,13 @@ local_prefilter_fn::operator()(
                                                     window_size{arguments.window_size},
                                                     seed{adjust_seed(arguments.kmer_size)});
 
-    for (query_record const & record : records)
+    // if sequence smaller than pattern length it can't contain local match
+    auto pattern_length_filter = std::views::filter([&] (auto const & rec)
+    {
+        return rec.sequence.size() >= arguments.pattern_size;
+    });
+
+    for (query_record const & record : records | pattern_length_filter)
     {
         std::string const & id = record.sequence_id;
         std::vector<seqan3::dna4> const & seq = record.sequence;
@@ -234,6 +239,6 @@ local_prefilter_fn::operator()(
     }
 
     return thread_result;
-};
+}
 
 } // namespace sliding_window

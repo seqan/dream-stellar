@@ -50,7 +50,7 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
     parser.add_option(arguments.pattern_size,
                       '\0',
                       "pattern",
-                      "Choose the pattern size. Default: Use median of sequence lengths in query file.",
+                      "Choose the pattern size. Default: half of first query sequence.",
                       seqan3::option_spec::standard);
     parser.add_option(arguments.overlap,
                       '\0',
@@ -98,29 +98,25 @@ void run_search(seqan3::argument_parser & parser)
     // ==========================================
     // Process --pattern.
     // ==========================================
-    
+
     if (parser.is_option_set("pattern"))
     {
         if (arguments.pattern_size < arguments.window_size)
             throw seqan3::argument_parser_error{"The minimiser window cannot be bigger than the sliding window."};
     }
     else
-        
-	// Default behaviour: local match
-	//arguments.pattern_size = arguments.window_size * 2;
-    
-	// Default behaviour: semiglobal match 
+
+    // ==========================================
+    // Set default pattern size.
+    // ==========================================
 	if (!arguments.pattern_size)
 	{
-            std::vector<uint64_t> sequence_lengths{};
-            seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>> query_in{arguments.query_file};
-            for (auto & [seq] : query_in | seqan3::views::async_input_buffer(16))
-            {
-                sequence_lengths.push_back(std::ranges::size(seq));
-            }
-            std::sort(sequence_lengths.begin(), sequence_lengths.end());
-            arguments.pattern_size = sequence_lengths[sequence_lengths.size()/2];
+        seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>> query_in{arguments.query_file};
+        for (auto & [seq] : query_in | std::views::take(1))
+        {
+            arguments.pattern_size = std::ranges::size(seq) / 2;
         }
+    }
 
     // ==========================================
     // More checks.
@@ -128,9 +124,8 @@ void run_search(seqan3::argument_parser & parser)
 
     if (parser.is_option_set("overlap"))
     {
-	if (arguments.overlap >= arguments.pattern_size)
-            throw seqan3::argument_parser_error{"The overlap size has to be smaller"
-		    "than the sliding window (i.e pattern) size."};
+	    if (arguments.overlap >= arguments.pattern_size)
+                throw seqan3::argument_parser_error{"The overlap size has to be smaller than the sliding window (i.e pattern) size."};
     }
     else
         arguments.overlap = arguments.pattern_size - 1;
@@ -139,6 +134,6 @@ void run_search(seqan3::argument_parser & parser)
     // Dispatch
     // ==========================================
     sliding_window_search(arguments);
-};
+}
 
 } // namespace sliding_window::app
