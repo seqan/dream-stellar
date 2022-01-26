@@ -100,7 +100,7 @@ struct sliding_window : public cli_test
         name += std::to_string(bins);
         name += "bins";
         name += std::to_string(length);
-        name += "len.txt";
+        name += "length.txt";
         return cli_test::data(name);
     }
 
@@ -114,7 +114,7 @@ struct sliding_window : public cli_test
         return cli_test::data(name);
     }
 
-    static inline std::filesystem::path const search_result_path(size_t const number_of_bins, size_t const window_size, 
+    static inline std::filesystem::path const search_result_path(size_t const number_of_bins, size_t const window_size,
 		    size_t const number_of_errors, size_t const pattern_size, size_t const overlap) noexcept
     {
         std::string name{};
@@ -145,5 +145,5 @@ struct sliding_window : public cli_test
 
 struct sliding_window_split : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
 struct sliding_window_build : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, bool>> {};
-struct sliding_window_search : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t, 
+struct sliding_window_search : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t,
 	size_t, size_t>> {};

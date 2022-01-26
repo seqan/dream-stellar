@@ -10,6 +10,6 @@ void init_top_level_parser(seqan3::argument_parser & parser)
                                          "What's a bin, how can it be used, etc.");
 
     parser.info.examples = {"./sliding_window split --help", "./sliding_window build --help", "./sliding_window search --help"};
-};
+}
 
 } // namespace sliding_window::app

@@ -6,6 +6,48 @@
 #include "cli_test.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////// sliding_window split tests ///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_P(sliding_window_split, split)
+{
+    auto const [overlap, bins, length] = GetParam();
+
+    cli_test_result const result = execute_app("sliding_window", "split",
+                                                         data("bin_0.fasta"),
+                                                         "--overlap ", std::to_string(overlap),
+                                                         "--bins ", std::to_string(bins),
+                                                         "--length ", std::to_string(length),
+                                                         "--reference-output reference_metadata.txt",
+                                                         "--segment-output reference_segments.txt");
+    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    EXPECT_EQ(result.err, std::string{});
+
+    std::string const expected_metadata = string_from_file(data("bin_0_metadata.txt"), std::ios::binary);
+    std::string const actual_metadata = string_from_file("reference_metadata.txt", std::ios::binary);
+
+    EXPECT_TRUE(expected_metadata == actual_metadata);
+
+    std::string const expected_segments = string_from_file(segment_metadata_path(overlap, bins, length), std::ios::binary);
+    std::string const actual_segments = string_from_file("reference_segments.txt", std::ios::binary);
+
+    EXPECT_TRUE(expected_segments == actual_segments);
+}
+
+
+INSTANTIATE_TEST_SUITE_P(split_suite,
+                         sliding_window_split,
+                         testing::Combine(testing::Values(0, 150), testing::Values(1, 8), testing::Values(1000)),
+                         [] (testing::TestParamInfo<sliding_window_split::ParamType> const & info)
+                         {
+                             std::string name = std::to_string(std::get<0>(info.param)) + "_overlap_" +
+                                                std::to_string(std::get<1>(info.param)) + "_bins_" +
+                                                std::to_string(std::get<2>(info.param)) + "_length";
+                             return name;
+                         });
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// sliding_window build tests ///////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,7 +117,7 @@ TEST_P(sliding_window_search, search)
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
-    std::string const expected = string_from_file(search_result_path(number_of_bins, window_size, number_of_errors, 
+    std::string const expected = string_from_file(search_result_path(number_of_bins, window_size, number_of_errors,
 			    pattern_size, overlap), std::ios::binary);
     std::string const actual = string_from_file("search.out");
 
@@ -84,7 +126,7 @@ TEST_P(sliding_window_search, search)
 
 INSTANTIATE_TEST_SUITE_P(search_suite,
                          sliding_window_search,
-                         testing::Combine(testing::Values(8), testing::Values(20, 23), testing::Values(0, 1), 
+                         testing::Combine(testing::Values(8), testing::Values(20, 23), testing::Values(0, 1),
 				 testing::Values(50, 100), testing::Values(1, 40)),
                          [] (testing::TestParamInfo<sliding_window_search::ParamType> const & info)
                          {

@@ -23,7 +23,7 @@ declare_datasource (FILE bin_2.fasta
                     URL_HASH SHA256=ef588e887403692bd770b2bc1f02eb66960552c963ea1ca1828356b8bbcbc38f)
 declare_datasource (FILE bin_3.fasta
                     URL ${CMAKE_SOURCE_DIR}/test/data/bins/bin_3.fasta
-		    URL_HASH SHA256=e1934131d117dc9a12ebef54c180eab7b580648265ad56928d8570a33bf1daa1)
+		            URL_HASH SHA256=e1934131d117dc9a12ebef54c180eab7b580648265ad56928d8570a33bf1daa1)
 declare_datasource (FILE bin_4.fasta
                     URL ${CMAKE_SOURCE_DIR}/test/data/bins/bin_4.fasta
                     URL_HASH SHA256=93f5a43a60c7beb175281f2f50674aa54e43320af8ac27976de8f96890c6d83b)
@@ -40,6 +40,23 @@ declare_datasource (FILE bin_7.fasta
 declare_datasource (FILE query.fq
                     URL ${CMAKE_SOURCE_DIR}/test/data/query.fq
                     URL_HASH SHA256=9eea085c8c36c6d1ff2d33ec6affe7382c78cc33c415072ad414c90060ed05d9)
+
+
+declare_datasource (FILE 0overlap1bins1000length.txt
+                    URL ${CMAKE_SOURCE_DIR}/test/data/0overlap1bins1000length.txt
+                    URL_HASH SHA256=943663cf37f2bdb39ed23f23b3887a7b8ae9b8379e7c3cc6f4ba2014d0ad7878)
+declare_datasource (FILE 0overlap8bins1000length.txt
+                    URL ${CMAKE_SOURCE_DIR}/test/data/0overlap8bins1000length.txt
+                    URL_HASH SHA256=15305e0d80769dbb37fea8b22ea88197284c8fa56b607f9cc17aef817f9e34e3)
+declare_datasource (FILE 150overlap1bins1000length.txt
+                    URL ${CMAKE_SOURCE_DIR}/test/data/150overlap1bins1000length.txt
+                    URL_HASH SHA256=943663cf37f2bdb39ed23f23b3887a7b8ae9b8379e7c3cc6f4ba2014d0ad7878)
+declare_datasource (FILE 150overlap8bins1000length.txt
+                    URL ${CMAKE_SOURCE_DIR}/test/data/150overlap8bins1000length.txt
+                    URL_HASH SHA256=a6bfc7eb27219d81c1c9d5f7c4491effd25c20b06091f38e2bcd464362c71cce)
+declare_datasource (FILE bin_0_metadata.txt
+                    URL ${CMAKE_SOURCE_DIR}/test/data/bin_0_metadata.txt
+                    URL_HASH SHA256=a11fe5ad4fb063a6146fee1434314dc1227645784b47a5ba7b12bfb3492a0f89)
 
 declare_datasource (FILE 8bins20window.ibf
                     URL ${CMAKE_SOURCE_DIR}/test/data/8bins20window.ibf
