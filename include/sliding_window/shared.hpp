@@ -29,12 +29,22 @@ struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
     using sequence_alphabet = seqan3::dna4;
 };
 
+struct split_arguments
+{
+    std::filesystem::path ref_file{};
+    std::filesystem::path ref_out{"reference_metadata.txt"};
+    std::filesystem::path seg_out{"reference_segments.txt"};
+
+    size_t overlap{150};
+    size_t min_bins{64};
+    size_t min_len{1000000};
+};
+
 struct build_arguments
 {
     uint32_t window_size{23u};
     uint8_t kmer_size{20u};
     uint8_t threads{1u};
-    uint8_t parts{1u};
 
     std::vector<std::vector<std::filesystem::path>> bin_path{};
     std::filesystem::path bin_file{};
@@ -43,8 +53,11 @@ struct build_arguments
     uint64_t bins{64};
     uint64_t bits{4096};
     uint64_t hash{2};
-    bool compute_minimiser{false};
     bool compressed{false};
+    
+    bool from_segments{false};
+    std::filesystem::path seg_path{};
+    std::filesystem::path ref_meta_path{};
 };
 
 struct search_arguments
@@ -52,7 +65,6 @@ struct search_arguments
     uint32_t window_size{23u};
     uint8_t kmer_size{20u};
     uint8_t threads{1u};
-    uint8_t parts{1u};
 
     std::filesystem::path query_file{};
     std::filesystem::path ibf_file{};

@@ -1,6 +1,8 @@
 #include <sliding_window/argument_parsing/build.hpp>
 #include <sliding_window/build/build.hpp>
 
+#include <sliding_window/split/reference_segments.hpp>
+
 namespace sliding_window::app
 {
 
@@ -9,7 +11,8 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
     init_shared_meta(parser);
     init_shared_options(parser, arguments);
     parser.add_positional_option(arguments.bin_file,
-                                 "File containing one file per line per bin.",
+                                 "File containing one file per line per bin when building from clustered sequences. "
+                                 "Input sequence file when building from overlapping segments.",
                                  seqan3::input_file_validator{});
     parser.add_option(arguments.window_size,
                       '\0',
@@ -26,7 +29,7 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
     parser.add_option(arguments.out_path,
                       '\0',
                       "output",
-                      "Provide an output filepath or an output directory if --compute-minimiser is used.",
+                      "Provide an output filepath.",
                       seqan3::option_spec::required);
     parser.add_option(arguments.size,
                       '\0',
@@ -44,11 +47,23 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
                     '\0',
                     "compressed",
                     "Build a compressed IBF.");
-    parser.add_flag(arguments.compute_minimiser,
+    parser.add_flag(arguments.from_segments,
                     '\0',
-                    "compute-minimiser",
-                    "Computes minimisers using cutoffs from Mantis (Pandey et al.). Does not create the index.",
+                    "from-segments",
+                    "Creates IBF from split reference database instead of reference clusters.",
                     seqan3::option_spec::standard);
+    parser.add_option(arguments.seg_path,
+                    '\0',
+                    "seg-path",
+                    "Path to segment metadata file created by split.",
+                    seqan3::option_spec::standard,
+                    seqan3::input_file_validator{});
+    parser.add_option(arguments.ref_meta_path,
+                    '\0',
+                    "ref-meta",
+                    "Path to reference metadata file created by split.",
+                    seqan3::option_spec::standard,
+                    seqan3::input_file_validator{});
 }
 
 void run_build(seqan3::argument_parser & parser)
@@ -58,26 +73,35 @@ void run_build(seqan3::argument_parser & parser)
     try_parsing(parser);
 
     // ==========================================
-    // Process bin_path
+    // Process bin_path:
+    // if building from clustered sequences each line in input corresponds to a bin
+    // if building from overlapping segments all sequences in one reference file
     // ==========================================
-    std::ifstream istrm{arguments.bin_file};
-    std::string line;
-    auto sequence_file_validator{bin_validator{}.sequence_file_validator};
-
-    while (std::getline(istrm, line))
+    if (!arguments.from_segments)
     {
-        if (!line.empty())
+        std::ifstream istrm{arguments.bin_file};
+        std::string line;
+        auto sequence_file_validator{bin_validator{}.sequence_file_validator};
+
+        while (std::getline(istrm, line))
         {
-            sequence_file_validator(line);
-            arguments.bin_path.emplace_back(std::vector<std::filesystem::path>{line});
+            if (!line.empty())
+            {
+                sequence_file_validator(line);
+                arguments.bin_path.emplace_back(std::vector<std::filesystem::path>{line});
+            }
         }
+        arguments.bins = arguments.bin_path.size();
+    }
+    else
+    {
+        reference_segments seg(arguments.seg_path);
+        arguments.bins = seg.members.size();
     }
 
     // ==========================================
     // Various checks.
     // ==========================================
-
-    arguments.bins = arguments.bin_path.size();
 
     if (parser.is_option_set("window"))
     {
@@ -87,29 +111,14 @@ void run_build(seqan3::argument_parser & parser)
     else
         arguments.window_size = arguments.kmer_size;
 
-    if (parser.is_option_set("compute-minimiser"))
+    try
     {
-        try
-        {
-            seqan3::output_directory_validator{}(arguments.out_path);
-        }
-        catch (seqan3::argument_parser_error const & ext)
-        {
-            std::cerr << "[Error] " << ext.what() << '\n';
-            std::exit(-1);
-        }
+        seqan3::output_file_validator{}(arguments.out_path);
     }
-    else
+    catch (seqan3::argument_parser_error const & ext)
     {
-        try
-        {
-            seqan3::output_file_validator{}(arguments.out_path);
-        }
-        catch (seqan3::argument_parser_error const & ext)
-        {
-            std::cerr << "[Error] " << ext.what() << '\n';
-            std::exit(-1);
-        }
+        std::cerr << "[Error] " << ext.what() << '\n';
+        std::exit(-1);
     }
 
     // ==========================================
@@ -141,18 +150,6 @@ void run_build(seqan3::argument_parser & parser)
     std::from_chars(arguments.size.data(), arguments.size.data() + arguments.size.size() - 1, size);
     size *= multiplier;
     arguments.bits = size / (((arguments.bins + 63) >> 6) << 6);
-
-    // ==========================================
-    // Read w and k from minimiser header file
-    // ==========================================
-    if (std::filesystem::path header_file_path = arguments.bin_path[0][0]; header_file_path.extension() == ".minimiser")
-    {
-        header_file_path.replace_extension("header");
-        std::ifstream file_stream{header_file_path};
-        uint64_t kmer_size{};
-        file_stream >> kmer_size >> arguments.window_size;
-        arguments.kmer_size = kmer_size;
-    }
 
     // ==========================================
     // Dispatch

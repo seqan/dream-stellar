@@ -1,9 +1,11 @@
 #pragma once
 
+#include <sliding_window/build/call_parallel_on_bins.hpp>
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/search/views/minimiser_hash.hpp>
+#include <sliding_window/split/reference_metadata.hpp>
+#include <sliding_window/split/reference_segments.hpp>
 
-#include <sliding_window/build/call_parallel_on_bins.hpp>
 
 namespace sliding_window
 {
@@ -43,7 +45,7 @@ private:
         assert(arguments != nullptr);
 
         seqan3::interleaved_bloom_filter<> ibf{seqan3::bin_count{arguments->bins},
-                                               seqan3::bin_size{arguments->bits / arguments->parts},
+                                               seqan3::bin_size{arguments->bits},
                                                seqan3::hash_function_count{arguments->hash}};
 
         auto hash_view = [&] ()
@@ -63,17 +65,38 @@ private:
             }
         };
 
-        auto worker = [&] (auto && zipped_view, auto &&)
+        if (arguments->from_segments)
         {
-            for (auto && [file_names, bin_number] : zipped_view)
-                for (auto && file_name : file_names)
-                    for (auto && [seq] : sequence_file_t{file_name})
-                        for (auto && value : seq | hash_view())
-                            ibf.emplace(value, seqan3::bin_index{bin_number});
-        };
+            reference_segments segments(arguments->seg_path);
+            reference_metadata reference(arguments->ref_meta_path, false);
 
-        call_parallel_on_bins(worker, *arguments);
+            seqan3::sequence_file_input fin{arguments->bin_file};
 
+            int i = 0;
+            for (auto & record : fin)
+            {
+                // get the relevant segments for each reference
+                auto ref_seg = [&](reference_segments::segment & seg) {return reference.sequences.at(i).id == seg.ref_id;};
+                for (auto & seg : segments.members | std::views::filter(ref_seg))
+                {
+                    for (auto && value : record.sequence() | seqan3::views::slice(seg.start, seg.start + seg.len) | hash_view())
+                        ibf.emplace(value, seqan3::bin_index(seg.bin));
+                }
+                i++;
+            }
+        }
+        else
+        {
+            auto clustered_reference_worker = [&] (auto && zipped_view, auto &&)
+            {
+                for (auto && [file_names, bin_number] : zipped_view)
+                    for (auto && file_name : file_names)
+                        for (auto && [seq] : sequence_file_t{file_name})
+                            for (auto && value : seq | hash_view())
+                                ibf.emplace(value, seqan3::bin_index{bin_number});
+            };
+            call_parallel_on_bins(clustered_reference_worker, *arguments);
+        }
         return ibf;
     }
 };

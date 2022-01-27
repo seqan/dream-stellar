@@ -10,13 +10,13 @@ target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/robin-hood-hashing/src/include)
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
 
+# Sliding window split
+add_library ("${PROJECT_NAME}_split_lib" STATIC sliding_window_split.cpp)
+target_link_libraries ("${PROJECT_NAME}_split_lib" PUBLIC "${PROJECT_NAME}_interface")
 
 # Sliding window build
-add_library ("${PROJECT_NAME}_compute_minimiser_lib" STATIC build/compute_minimiser.cpp)
-target_link_libraries ("${PROJECT_NAME}_compute_minimiser_lib" PUBLIC "${PROJECT_NAME}_interface")
-
 add_library ("${PROJECT_NAME}_build_lib" STATIC sliding_window_build.cpp)
-target_link_libraries ("${PROJECT_NAME}_build_lib" PUBLIC "${PROJECT_NAME}_compute_minimiser_lib")
+target_link_libraries ("${PROJECT_NAME}_build_lib" PUBLIC "${PROJECT_NAME}_interface")
 
 # Sliding window search
 add_library ("${PROJECT_NAME}_search_helper_lib" STATIC search/detail/helper.cpp)
@@ -35,6 +35,9 @@ target_link_libraries ("${PROJECT_NAME}_search_lib" PUBLIC "${PROJECT_NAME}_simp
 add_library ("${PROJECT_NAME}_argument_parsing_shared_lib" STATIC argument_parsing/shared.cpp)
 target_link_libraries ("${PROJECT_NAME}_argument_parsing_shared_lib" PUBLIC "${PROJECT_NAME}_interface")
 
+add_library ("${PROJECT_NAME}_argument_parsing_split_lib" STATIC argument_parsing/split.cpp)
+target_link_libraries ("${PROJECT_NAME}_argument_parsing_split_lib" PUBLIC "${PROJECT_NAME}_argument_parsing_shared_lib")
+
 add_library ("${PROJECT_NAME}_argument_parsing_build_lib" STATIC argument_parsing/build.cpp)
 target_link_libraries ("${PROJECT_NAME}_argument_parsing_build_lib" PUBLIC "${PROJECT_NAME}_argument_parsing_shared_lib")
 
@@ -46,10 +49,12 @@ target_link_libraries ("${PROJECT_NAME}_argument_parsing_top_level_lib" PUBLIC "
 
 # Sliding window library
 add_library ("${PROJECT_NAME}_lib" INTERFACE)
+target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_split_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_build_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_search_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_shared_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_top_level_lib")
+target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_split_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_build_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_search_lib")
 
