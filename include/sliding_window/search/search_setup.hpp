@@ -33,7 +33,6 @@ namespace sliding_window
 template <typename functor_t>
 constexpr void pattern_begin_positions(size_t const read_len, uint64_t const pattern_size, uint64_t const overlap, functor_t && callback)
 {
-    // TODO: what happens if sequences are smaller? currently the programs has undefined behaviour if it does
     assert(read_len >= pattern_size);
     assert(pattern_size >= overlap);
 
@@ -175,6 +174,10 @@ local_prefilter_fn::operator()(
         std::string const & id = record.sequence_id;
         std::vector<seqan3::dna4> const & seq = record.sequence;
 
+        // sequence can't contain local match if it's shorter than pattern length
+        if (seq.size() < arguments.pattern_size)
+            continue;
+
         minimiser = seq | hash_tuple_view | seqan3::views::to<minimiser_vec_t>;
 
         //-----------------------------
@@ -234,6 +237,6 @@ local_prefilter_fn::operator()(
     }
 
     return thread_result;
-};
+}
 
 } // namespace sliding_window
