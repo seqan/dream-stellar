@@ -4,7 +4,7 @@
 
 #include <seqan3/alphabet/nucleotide/dna4.hpp>
 
-namespace sliding_window
+namespace valik
 {
 
 struct query_record
@@ -23,4 +23,4 @@ struct query_record
     std::vector<seqan3::dna4> sequence;
 };
 
-} // namespace sliding_window
+} // namespace valik

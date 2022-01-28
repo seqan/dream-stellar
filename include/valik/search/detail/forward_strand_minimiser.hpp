@@ -6,9 +6,9 @@
 #include <seqan3/alphabet/nucleotide/dna4.hpp>
 #include <seqan3/search/views/kmer_hash.hpp>
 
-#include <sliding_window/shared.hpp>
+#include <valik/shared.hpp>
 
-namespace sliding_window::detail
+namespace valik::detail
 {
 
 // Minimiser without looking at reverse complement
@@ -153,5 +153,5 @@ public:
     }
 };
 
-} // namespace sliding_window::detail
+} // namespace valik::detail
 

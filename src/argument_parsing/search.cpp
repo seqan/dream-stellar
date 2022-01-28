@@ -50,11 +50,7 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
     parser.add_option(arguments.pattern_size,
                       '\0',
                       "pattern",
-<<<<<<< HEAD
-                      "Choose the pattern size. Default: half of first query sequence.",
-=======
                       "Choose the pattern size i.e minimum local match length. Default: Use median of sequence lengths in query file.",
->>>>>>> Rename src
                       seqan3::option_spec::standard);
     parser.add_option(arguments.overlap,
                       '\0',
@@ -128,14 +124,9 @@ void run_search(seqan3::argument_parser & parser)
 
     if (parser.is_option_set("overlap"))
     {
-<<<<<<< HEAD
-	    if (arguments.overlap >= arguments.pattern_size)
-                throw seqan3::argument_parser_error{"The overlap size has to be smaller than the sliding window (i.e pattern) size."};
-=======
 	if (arguments.overlap >= arguments.pattern_size)
             throw seqan3::argument_parser_error{"The overlap size has to be smaller"
 		    "than the pattern size."};
->>>>>>> Rename src
     }
     else
         arguments.overlap = arguments.pattern_size - 1;
@@ -143,12 +134,7 @@ void run_search(seqan3::argument_parser & parser)
     // ==========================================
     // Dispatch
     // ==========================================
-<<<<<<< HEAD
-    sliding_window_search(arguments);
-}
-=======
     valik_search(arguments);
 };
->>>>>>> Rename src
 
 } // namespace valik::app

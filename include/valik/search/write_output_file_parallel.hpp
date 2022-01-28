@@ -6,15 +6,15 @@
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 
-#include <sliding_window/shared.hpp>
-#include <sliding_window/search/compute_simple_model.hpp>
-#include <sliding_window/search/local_prefilter.hpp>
-#include <sliding_window/search/query_record.hpp>
-#include <sliding_window/search/query_result.hpp>
-#include <sliding_window/search/sync_out.hpp>
+#include <valik/shared.hpp>
+#include <valik/search/compute_simple_model.hpp>
+#include <valik/search/local_prefilter.hpp>
+#include <valik/search/query_record.hpp>
+#include <valik/search/query_result.hpp>
+#include <valik/search/sync_out.hpp>
 
 
-namespace sliding_window::app
+namespace valik::app
 {
 
 template <seqan3::data_layout ibf_data_layout>
@@ -24,7 +24,7 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
                                        threshold const & threshold_data,
                                        sync_out & synced_out)
 {
-    using task_future_t = std::future<std::vector<sliding_window::query_result>>;
+    using task_future_t = std::future<std::vector<valik::query_result>>;
     static_assert(std::same_as<task_future_t,
                                decltype(std::async(std::launch::async, local_prefilter, std::span<query_record const>{}, ibf, arguments, threshold_data))>);
 
@@ -65,4 +65,4 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
     }
 }
 
-} // namespace sliding_window::app
+} // namespace valik::app

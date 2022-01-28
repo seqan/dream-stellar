@@ -2,9 +2,9 @@
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 
-#include <sliding_window/shared.hpp>
+#include <valik/shared.hpp>
 
-namespace sliding_window
+namespace valik
 {
 
 template <auto layout>
@@ -19,5 +19,5 @@ static inline void store_index(std::filesystem::path const & path,
     oarchive(ibf);
 }
 
-} // namespace sliding_window
+} // namespace valik
 

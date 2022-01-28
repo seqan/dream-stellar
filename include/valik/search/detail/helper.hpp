@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace sliding_window::detail
+namespace valik::detail
 {
 
 std::vector<size_t> pascal_row(size_t n);
@@ -23,4 +23,4 @@ std::vector<double> destroyed_indirectly_by_error(size_t const pattern_size,
                                                   size_t const window_size,
                                                   uint8_t const kmer_size);
 
-} // namespace sliding_window::detail
+} // namespace valik::detail

@@ -4,24 +4,24 @@
 
 #include <seqan3/core/debug_stream.hpp>
 
-#include <sliding_window/search/compute_simple_model.hpp>
-#include <sliding_window/search/write_output_file_parallel.hpp>
-#include <sliding_window/search/load_ibf.hpp>
-#include <sliding_window/search/local_prefilter.hpp>
-#include <sliding_window/search/query_record.hpp>
-#include <sliding_window/search/query_result.hpp>
-#include <sliding_window/search/sync_out.hpp>
+#include <valik/search/compute_simple_model.hpp>
+#include <valik/search/write_output_file_parallel.hpp>
+#include <valik/search/load_ibf.hpp>
+#include <valik/search/local_prefilter.hpp>
+#include <valik/search/query_record.hpp>
+#include <valik/search/query_result.hpp>
+#include <valik/search/sync_out.hpp>
 
 #include <indexed_minimiser_hash.hpp>
 
-namespace sliding_window
+namespace valik
 {
 
 //-----------------------------
 //
-// Reports all pattern begin positions in read.
+// Reports all pattern begin positions on read.
 //
-// For each read the begin_vector shows the beginning of each sliding window (pattern)
+// For each query the begin_vector shows the beginning of each pattern.
 //
 // If read_len = 150
 //   pattern_size = 50
@@ -74,7 +74,7 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
 
 //-----------------------------
 //
-// Position of a sliding window (i.e pattern) on the read and threshold for local match.
+// Position of a pattern on the read and threshold for local match.
 //
 //-----------------------------
 struct pattern_bounds
@@ -93,7 +93,7 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
 {
     auto pattern = pattern_bounds{};
 
-    // indices for the first and last minimiser of the current sliding window
+    // indices for the first and last minimiser of the current pattern
     // std::vector<size_t>::iterator lower_it, upper_it;
     auto lower_it = std::lower_bound(window_span_begin.begin(), window_span_begin.end(), begin);
     auto upper_it = std::upper_bound(window_span_end.begin(), window_span_end.end(),
@@ -117,11 +117,13 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
 //
 // Count matching k-mers and return matching bins for one pattern.
 //
+// Patterns are infixes of the query that are searched for matches.
+//
 //-----------------------------
 template <typename binning_bitvector_t>
 std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const & bin_count, binning_bitvector_t const & counting_table)
 {
-    std::set<size_t> pattern_hits{};    // bin hits for one pattern i.e sliding window
+    std::set<size_t> pattern_hits{};
 
     // counting vector for the current pattern
     seqan3::counting_vector<uint8_t> total_counts(bin_count, 0);
@@ -133,7 +135,7 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
         auto &&count = total_counts[current_bin];
         if (count >= pattern.threshold)
         {
-            // the result_set is a union of results from all sliding windows of a read
+            // the result_set is a union of results from all patterns of a read
             pattern_hits.insert(current_bin);
         }
     }
@@ -143,8 +145,12 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
 
 //-----------------------------
 //
-// Search a batch of reads in the IBF
+// Search a batch of queries in the IBF.
 //
+// The queries are searched for local matches but depending on the overlap parameter
+// only a subset of query positions are considered for matches.
+// The search positions are determined by sliding a window with minimum match length
+// over the query. The potentially matching positions are called patterns
 //-----------------------------
 template <seqan3::data_layout ibf_data_layout>
 std::vector<query_result>
@@ -239,4 +245,4 @@ local_prefilter_fn::operator()(
     return thread_result;
 }
 
-} // namespace sliding_window
+} // namespace valik

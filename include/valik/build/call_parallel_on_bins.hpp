@@ -3,9 +3,9 @@
 #include <seqan3/core/algorithm/detail/execution_handler_parallel.hpp>
 #include <seqan3/utility/views/chunk.hpp>
 
-#include <sliding_window/shared.hpp>
+#include <valik/shared.hpp>
 
-namespace sliding_window
+namespace valik
 {
 
 template <typename algorithm_t>
@@ -20,4 +20,4 @@ void call_parallel_on_bins(algorithm_t && worker, build_arguments const & argume
     executioner.bulk_execute(std::move(worker), std::move(chunked_view), [](){});
 }
 
-} // namespace sliding_window
+} // namespace valik

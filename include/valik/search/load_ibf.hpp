@@ -4,7 +4,7 @@
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 
-namespace sliding_window
+namespace valik
 {
 
 template <seqan3::data_layout ibf_data_layout>
@@ -21,4 +21,4 @@ void load_ibf(seqan3::interleaved_bloom_filter<ibf_data_layout> & ibf, std::file
     iarchive(ibf);
 }
 
-} // namespace sliding_window
+} // namespace valik

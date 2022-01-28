@@ -1,9 +1,9 @@
 #pragma once
 
-#include <sliding_window/search/minimiser_model.hpp>
-#include <sliding_window/shared.hpp>
+#include <valik/search/minimiser_model.hpp>
+#include <valik/shared.hpp>
 
-namespace sliding_window
+namespace valik
 {
 
 inline std::vector<size_t> compute_simple_model(search_arguments const & arguments)
@@ -51,4 +51,4 @@ inline threshold make_threshold_data(search_arguments const & arguments)
     return threshold_data;
 }
 
-} // namespace sliding_window
+} // namespace valik

@@ -22,7 +22,7 @@
 #include <seqan3/utility/tuple/common_tuple.hpp>
 #include <seqan3/utility/type_traits/lazy_conditional.hpp>
 
-namespace sliding_window
+namespace valik
 {
 // ---------------------------------------------------------------------------------------------------------------------
 // indexed_minimiser_view class
@@ -544,4 +544,4 @@ struct minimiser_fn
 
 inline constexpr auto minimiser = minimiser_fn{};
 
-} // namespace sliding_window
+} // namespace valik

@@ -5,17 +5,17 @@
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 
-#include <sliding_window/search/compute_simple_model.hpp> // threshold
-#include <sliding_window/search/query_record.hpp>
-#include <sliding_window/search/query_result.hpp>
-#include <sliding_window/shared.hpp> // search_arguments
+#include <valik/search/compute_simple_model.hpp> // threshold
+#include <valik/search/query_record.hpp>
+#include <valik/search/query_result.hpp>
+#include <valik/shared.hpp> // search_arguments
 
-namespace sliding_window
+namespace valik
 {
 
 struct local_prefilter_fn
 {
-    // NOTE: definition is in include/sliding_window/search/search_setup.hpp
+    // NOTE: definition is in include/valik/search/search_setup.hpp
     // TODO: move definition into this file
     template <seqan3::data_layout ibf_data_layout>
     std::vector<query_result>
@@ -27,4 +27,4 @@ struct local_prefilter_fn
 
 static constexpr local_prefilter_fn local_prefilter{};
 
-} // namespace sliding_window
+} // namespace valik

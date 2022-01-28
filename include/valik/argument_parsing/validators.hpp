@@ -3,7 +3,7 @@
 #include <seqan3/argument_parser/all.hpp>
 #include <seqan3/io/sequence_file/input.hpp>
 
-namespace sliding_window::app
+namespace valik::app
 {
 
 struct power_of_two_validator
@@ -190,4 +190,4 @@ public:
     seqan3::input_file_validator<> sequence_file_validator{{combined_extensions}};
 };
 
-} // namespace sliding_window::app
+} // namespace valik::app

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <sliding_window/search/detail/helper.hpp>
-#include <sliding_window/shared.hpp>
+#include <valik/search/detail/helper.hpp>
+#include <valik/shared.hpp>
 
-namespace sliding_window
+namespace valik
 {
 
 void do_cerealisation_out(std::vector<size_t> const & vec, search_arguments const & arguments);
@@ -14,4 +14,4 @@ std::vector<size_t> precompute_threshold(size_t const pattern_size,
                                          size_t const errors,
                                          double const tau);
 
-} // namespace sliding_window
+} // namespace valik

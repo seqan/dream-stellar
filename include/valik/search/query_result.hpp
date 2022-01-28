@@ -3,7 +3,7 @@
 #include <set>
 #include <string>
 
-namespace sliding_window
+namespace valik
 {
 
 // "query" is a noun not a verb
@@ -36,4 +36,4 @@ public:
     }
 };
 
-} // namespace sliding_window
+} // namespace valik

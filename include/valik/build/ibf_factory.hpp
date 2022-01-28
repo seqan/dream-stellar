@@ -1,13 +1,13 @@
 #pragma once
 
-#include <sliding_window/build/call_parallel_on_bins.hpp>
+#include <valik/build/call_parallel_on_bins.hpp>
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/search/views/minimiser_hash.hpp>
-#include <sliding_window/split/reference_metadata.hpp>
-#include <sliding_window/split/reference_segments.hpp>
+#include <valik/split/reference_metadata.hpp>
+#include <valik/split/reference_segments.hpp>
 
 
-namespace sliding_window
+namespace valik
 {
 
 template <bool compressed>
@@ -101,4 +101,4 @@ private:
     }
 };
 
-} // namespace sliding_window
+} // namespace valik

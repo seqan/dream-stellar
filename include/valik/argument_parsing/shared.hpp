@@ -1,9 +1,9 @@
 #pragma once
 
-#include <sliding_window/argument_parsing/validators.hpp>
-#include <sliding_window/shared.hpp>
+#include <valik/argument_parsing/validators.hpp>
+#include <valik/shared.hpp>
 
-namespace sliding_window::app
+namespace valik::app
 {
 
 void init_shared_meta(seqan3::argument_parser & parser);
@@ -23,4 +23,4 @@ void init_shared_options(seqan3::argument_parser & parser, arguments_t & argumen
                       positive_integer_validator{});
 }
 
-} // namespace sliding_window::app
+} // namespace valik::app

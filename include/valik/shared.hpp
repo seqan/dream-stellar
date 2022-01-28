@@ -5,7 +5,7 @@
 
 #include <seqan3/io/sequence_file/input.hpp>
 
-namespace sliding_window
+namespace valik
 {
 
 inline constexpr static uint64_t adjust_seed(uint8_t const kmer_size, uint64_t const seed = 0x8F3F73B5CF1C9ADEULL) noexcept
@@ -79,4 +79,4 @@ struct search_arguments
     bool write_time{false};
 };
 
-} // namespace sliding_window
+} // namespace valik

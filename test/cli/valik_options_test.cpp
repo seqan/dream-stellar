@@ -16,8 +16,8 @@ TEST_F(valik, no_options)
     std::string const expected
     {
         "valik - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
-	"=========================================================================================================\n"
-	"    Try -h or --help for more information.\n"
+        "================================================================================================\n"
+        "    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
@@ -44,8 +44,8 @@ TEST_F(valik_build, no_options)
     std::string const expected
     {
         "valik - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
-	"=========================================================================================================\n"
-	"    Try -h or --help for more information.\n"
+        "================================================================================================\n"
+        "    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
@@ -58,8 +58,8 @@ TEST_F(valik_search, no_options)
     std::string const expected
     {
         "valik - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
-	"=========================================================================================================\n"
-	"    Try -h or --help for more information.\n"
+        "================================================================================================\n"
+        "    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
