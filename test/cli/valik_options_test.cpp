@@ -10,12 +10,12 @@ seqan3::test::create_temporary_snippet_file tmp_bin_list_file{"all_bins.txt", st
 
 #include "cli_test.hpp"
 
-TEST_F(sliding_window, no_options)
+TEST_F(valik, no_options)
 {
-    cli_test_result const result = execute_app("sliding_window");
+    cli_test_result const result = execute_app("valik");
     std::string const expected
     {
-        "sliding_window - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
+        "valik - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
 	"=========================================================================================================\n"
 	"    Try -h or --help for more information.\n"
     };
@@ -24,12 +24,12 @@ TEST_F(sliding_window, no_options)
     EXPECT_EQ(result.err, std::string{});
 }
 
-TEST_F(sliding_window_split, no_options)
+TEST_F(valik_split, no_options)
 {
-    cli_test_result const result = execute_app("sliding_window", "split");
+    cli_test_result const result = execute_app("valik", "split");
     std::string const expected
     {
-        "sliding_window - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
+        "valik - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
 	"=========================================================================================================\n"
 	"    Try -h or --help for more information.\n"
     };
@@ -38,12 +38,12 @@ TEST_F(sliding_window_split, no_options)
     EXPECT_EQ(result.err, std::string{});
 }
 
-TEST_F(sliding_window_build, no_options)
+TEST_F(valik_build, no_options)
 {
-    cli_test_result const result = execute_app("sliding_window", "build");
+    cli_test_result const result = execute_app("valik", "build");
     std::string const expected
     {
-        "sliding_window - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
+        "valik - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
 	"=========================================================================================================\n"
 	"    Try -h or --help for more information.\n"
     };
@@ -52,12 +52,12 @@ TEST_F(sliding_window_build, no_options)
     EXPECT_EQ(result.err, std::string{});
 }
 
-TEST_F(sliding_window_search, no_options)
+TEST_F(valik_search, no_options)
 {
-    cli_test_result const result = execute_app("sliding_window", "search");
+    cli_test_result const result = execute_app("valik", "search");
     std::string const expected
     {
-        "sliding_window - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
+        "valik - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
 	"=========================================================================================================\n"
 	"    Try -h or --help for more information.\n"
     };
@@ -66,9 +66,9 @@ TEST_F(sliding_window_search, no_options)
     EXPECT_EQ(result.err, std::string{});
 }
 
-TEST_F(sliding_window, no_subparser)
+TEST_F(valik, no_subparser)
 {
-    cli_test_result const result = execute_app("sliding_window", "foo");
+    cli_test_result const result = execute_app("valik", "foo");
     std::string const expected
     {
         "[Error] You either forgot or misspelled the subcommand! Please specify which sub-program you want to use: one "
@@ -79,9 +79,9 @@ TEST_F(sliding_window, no_subparser)
     EXPECT_EQ(result.err, expected);
 }
 
-TEST_F(sliding_window, unknown_option)
+TEST_F(valik, unknown_option)
 {
-    cli_test_result const result = execute_app("sliding_window", "-v");
+    cli_test_result const result = execute_app("valik", "-v");
     std::string const expected
     {
         "[Error] You either forgot or misspelled the subcommand! Please specify which sub-program you want to use: one "
@@ -92,9 +92,9 @@ TEST_F(sliding_window, unknown_option)
     EXPECT_EQ(result.err, expected);
 }
 
-TEST_F(sliding_window_split, input_missing)
+TEST_F(valik_split, input_missing)
 {
-    cli_test_result const result = execute_app("sliding_window", "split",
+    cli_test_result const result = execute_app("valik", "split",
                                                          "--segment-output seg",
                                                          "--reference-output ref");
     EXPECT_NE(result.exit_code, 0);
@@ -102,9 +102,9 @@ TEST_F(sliding_window_split, input_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Not enough positional arguments provided (Need at least 1). See -h/--help for more information.\n"});
 }
 
-TEST_F(sliding_window_split, input_invalid)
+TEST_F(valik_split, input_invalid)
 {
-    cli_test_result const result = execute_app("sliding_window", "split",
+    cli_test_result const result = execute_app("valik", "split",
                                                          "nonexistent",
                                                          "--segment-output seg",
                                                          "--reference-output ref");
@@ -113,9 +113,9 @@ TEST_F(sliding_window_split, input_invalid)
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for positional option 1: The file \"nonexistent\" does not exist!\n"});
 }
 
-TEST_F(sliding_window_split, too_short)
+TEST_F(valik_split, too_short)
 {
-    cli_test_result const result = execute_app("sliding_window", "split",
+    cli_test_result const result = execute_app("valik", "split",
                                                          data("bin_0.fasta"),
                                                          "--segment-output seg",
                                                          "--reference-output ref",
@@ -126,9 +126,9 @@ TEST_F(sliding_window_split, too_short)
     EXPECT_EQ(result.err, std::string{"[Error] The overlap size has to be smaller than the segment length.\n"});
 }
 
-TEST_F(sliding_window_split, too_long)
+TEST_F(valik_split, too_long)
 {
-    cli_test_result const result = execute_app("sliding_window", "split",
+    cli_test_result const result = execute_app("valik", "split",
                                                          data("bin_1.fasta"),
                                                          "--segment-output seg",
                                                          "--reference-output ref",
@@ -138,9 +138,9 @@ TEST_F(sliding_window_split, too_long)
     EXPECT_EQ(result.err, std::string{"[Error] The segment length is greater than the total length of the reference.\n"});
 }
 
-TEST_F(sliding_window_split, no_bins)
+TEST_F(valik_split, no_bins)
 {
-    cli_test_result const result = execute_app("sliding_window", "split",
+    cli_test_result const result = execute_app("valik", "split",
                                                          "dummy.fasta",
                                                          "--segment-output seg",
                                                          "--reference-output ref",
@@ -150,9 +150,9 @@ TEST_F(sliding_window_split, no_bins)
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --bins: Value 0 is not in range [1,30000].\n"});
 }
 
-TEST_F(sliding_window_build, input_missing)
+TEST_F(valik_build, input_missing)
 {
-    cli_test_result const result = execute_app("sliding_window", "build",
+    cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8m",
                                                          "--output ./ibf.out");
     EXPECT_NE(result.exit_code, 0);
@@ -160,9 +160,9 @@ TEST_F(sliding_window_build, input_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Not enough positional arguments provided (Need at least 1). See -h/--help for more information.\n"});
 }
 
-TEST_F(sliding_window_build, input_invalid)
+TEST_F(valik_build, input_invalid)
 {
-    cli_test_result const result = execute_app("sliding_window", "build",
+    cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8m",
                                                          "--output ./ibf.out",
                                                          "nonexistent");
@@ -171,9 +171,9 @@ TEST_F(sliding_window_build, input_invalid)
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for positional option 1: The file \"nonexistent\" does not exist!\n"});
 }
 
-TEST_F(sliding_window_build, output_missing)
+TEST_F(valik_build, output_missing)
 {
-    cli_test_result const result = execute_app("sliding_window", "build",
+    cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8m",
                                                          tmp_bin_list_file.file_path);
     EXPECT_NE(result.exit_code, 0);
@@ -181,9 +181,9 @@ TEST_F(sliding_window_build, output_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Option --output is required but not set.\n"});
 }
 
-TEST_F(sliding_window_build, output_wrong)
+TEST_F(valik_build, output_wrong)
 {
-    cli_test_result const result = execute_app("sliding_window", "build",
+    cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8m",
                                                          "--output foo/out.ibf",
                                                          tmp_bin_list_file.file_path);
@@ -192,9 +192,9 @@ TEST_F(sliding_window_build, output_wrong)
     EXPECT_EQ(result.err, std::string{"[Error] Cannot write \"foo/out.ibf\"!\n"});
 }
 
-TEST_F(sliding_window_build, size_missing)
+TEST_F(valik_build, size_missing)
 {
-    cli_test_result const result = execute_app("sliding_window", "build",
+    cli_test_result const result = execute_app("valik", "build",
                                                          "--output ./ibf.out",
                                                          tmp_bin_list_file.file_path);
     EXPECT_NE(result.exit_code, 0);
@@ -202,9 +202,9 @@ TEST_F(sliding_window_build, size_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Option --size is required but not set.\n"});
 }
 
-TEST_F(sliding_window_build, size_wrong_space)
+TEST_F(valik_build, size_wrong_space)
 {
-    cli_test_result const result = execute_app("sliding_window", "build",
+    cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8 m",
                                                          "--output ./ibf.out",
                                                          tmp_bin_list_file.file_path);
@@ -214,9 +214,9 @@ TEST_F(sliding_window_build, size_wrong_space)
                                       "followed by [k,m,g,t] (case insensitive).\n"});
 }
 
-TEST_F(sliding_window_build, size_wrong_suffix)
+TEST_F(valik_build, size_wrong_suffix)
 {
-    cli_test_result const result = execute_app("sliding_window", "build",
+    cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8x",
                                                          "--output ibf.out",
                                                          tmp_bin_list_file.file_path);
@@ -226,9 +226,9 @@ TEST_F(sliding_window_build, size_wrong_suffix)
                                       "followed by [k,m,g,t] (case insensitive).\n"});
 }
 
-TEST_F(sliding_window_build, kmer_window)
+TEST_F(valik_build, kmer_window)
 {
-    cli_test_result const result = execute_app("sliding_window", "build",
+    cli_test_result const result = execute_app("valik", "build",
                                                          "--kmer 20",
                                                          "--window 19",
                                                          "--size 8m",
@@ -239,9 +239,9 @@ TEST_F(sliding_window_build, kmer_window)
     EXPECT_EQ(result.err, std::string{"[Error] The k-mer size cannot be bigger than the window size.\n"});
 }
 
-TEST_F(sliding_window_search, ibf_missing)
+TEST_F(valik_search, ibf_missing)
 {
-    cli_test_result const result = execute_app("sliding_window", "search",
+    cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
                                                          "--output search.out");
     EXPECT_NE(result.exit_code, 0);
@@ -249,9 +249,9 @@ TEST_F(sliding_window_search, ibf_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Option --index is required but not set.\n"});
 }
 
-TEST_F(sliding_window_search, ibf_wrong)
+TEST_F(valik_search, ibf_wrong)
 {
-    cli_test_result const result = execute_app("sliding_window", "search",
+    cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
                                                          "--index foo.ibf",
                                                          "--output search.out");
@@ -261,9 +261,9 @@ TEST_F(sliding_window_search, ibf_wrong)
                                       "exist!\n"});
 }
 
-TEST_F(sliding_window_search, query_missing)
+TEST_F(valik_search, query_missing)
 {
-    cli_test_result const result = execute_app("sliding_window", "search",
+    cli_test_result const result = execute_app("valik", "search",
                                                          "--index ", tmp_ibf_file.file_path,
                                                          "--output search.out");
     EXPECT_NE(result.exit_code, 0);
@@ -271,9 +271,9 @@ TEST_F(sliding_window_search, query_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Option --query is required but not set.\n"});
 }
 
-TEST_F(sliding_window_search, query_wrong)
+TEST_F(valik_search, query_wrong)
 {
-    cli_test_result const result = execute_app("sliding_window", "search",
+    cli_test_result const result = execute_app("valik", "search",
                                                          "--query foo.fasta",
                                                          "--index ", tmp_ibf_file.file_path,
                                                          "--output search.out");
@@ -283,9 +283,9 @@ TEST_F(sliding_window_search, query_wrong)
                                       "exist!\n"});
 }
 
-TEST_F(sliding_window_search, output_missing)
+TEST_F(valik_search, output_missing)
 {
-    cli_test_result const result = execute_app("sliding_window", "search",
+    cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
                                                          "--index ", tmp_ibf_file.file_path);
     EXPECT_NE(result.exit_code, 0);
@@ -293,9 +293,9 @@ TEST_F(sliding_window_search, output_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Option --output is required but not set.\n"});
 }
 
-TEST_F(sliding_window_search, output_wrong)
+TEST_F(valik_search, output_wrong)
 {
-    cli_test_result const result = execute_app("sliding_window", "search",
+    cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
                                                          "--index ", tmp_ibf_file.file_path,
                                                          "--output foo/search.out");
@@ -305,16 +305,16 @@ TEST_F(sliding_window_search, output_wrong)
                                       "\"foo/search.out\"!\n"});
 }
 
-TEST_F(sliding_window_search, pattern_window)
+TEST_F(valik_search, pattern_window)
 {
-    cli_test_result const result = execute_app("sliding_window", "search",
+    cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
                                                          "--index ", tmp_ibf_file.file_path,
                                                          "--output search.out",
 							                             "--pattern 12");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] The minimiser window cannot be bigger than the sliding window.\n"});
+    EXPECT_EQ(result.err, std::string{"[Error] The minimiser window cannot be bigger than the pattern size.\n"});
 }
 
 

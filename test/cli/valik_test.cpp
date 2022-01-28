@@ -6,14 +6,14 @@
 #include "cli_test.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////// sliding_window split tests ///////////////////////////////////////////////////
+///////////////////////////////////////////////// valik split tests ///////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_P(sliding_window_split, split)
+TEST_P(valik_split, split)
 {
     auto const [overlap, bins, length] = GetParam();
 
-    cli_test_result const result = execute_app("sliding_window", "split",
+    cli_test_result const result = execute_app("valik", "split",
                                                          data("bin_0.fasta"),
                                                          "--overlap ", std::to_string(overlap),
                                                          "--bins ", std::to_string(bins),
@@ -37,9 +37,9 @@ TEST_P(sliding_window_split, split)
 
 
 INSTANTIATE_TEST_SUITE_P(split_suite,
-                         sliding_window_split,
+                         valik_split,
                          testing::Combine(testing::Values(0, 150), testing::Values(1, 8), testing::Values(1000)),
-                         [] (testing::TestParamInfo<sliding_window_split::ParamType> const & info)
+                         [] (testing::TestParamInfo<valik_split::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_overlap_" +
                                                 std::to_string(std::get<1>(info.param)) + "_bins_" +
@@ -48,10 +48,10 @@ INSTANTIATE_TEST_SUITE_P(split_suite,
                          });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////// sliding_window build tests ///////////////////////////////////////////////////
+///////////////////////////////////////////////// valik build tests ///////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_P(sliding_window_build, build_with_file)
+TEST_P(valik_build, build_with_file)
 {
     auto const [number_of_bins, window_size, run_parallel_tmp] = GetParam();
     bool const run_parallel = run_parallel_tmp && number_of_bins >= 32;
@@ -66,7 +66,7 @@ TEST_P(sliding_window_build, build_with_file)
         file << '\n';
     }
 
-    cli_test_result const result = execute_app("sliding_window", "build",
+    cli_test_result const result = execute_app("valik", "build",
                                                          "--kmer 20",
                                                          "--window ", std::to_string(window_size),
                                                          "--size 100k",
@@ -85,9 +85,9 @@ TEST_P(sliding_window_build, build_with_file)
 
 
 INSTANTIATE_TEST_SUITE_P(build_suite,
-                         sliding_window_build,
+                         valik_build,
                          testing::Combine(testing::Values(8), testing::Values(20, 23), testing::Values(true, false)),
-                         [] (testing::TestParamInfo<sliding_window_build::ParamType> const & info)
+                         [] (testing::TestParamInfo<valik_build::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +
                                                 std::to_string(std::get<1>(info.param)) + "_window_" +
@@ -96,17 +96,17 @@ INSTANTIATE_TEST_SUITE_P(build_suite,
                          });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////// sliding_window search tests //////////////////////////////////////////////////
+///////////////////////////////////////////////// valik search tests //////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_P(sliding_window_search, search)
+TEST_P(valik_search, search)
 {
     auto const [number_of_bins, window_size, number_of_errors, pattern_size, overlap] = GetParam();
 
     if (window_size == 23 && number_of_errors == 0)
         GTEST_SKIP() << "Needs dynamic threshold correction";
 
-    cli_test_result const result = execute_app("sliding_window", "search",
+    cli_test_result const result = execute_app("valik", "search",
                                                          "--output search.out",
 							 "--pattern", std::to_string(pattern_size),
 							 "--overlap", std::to_string(overlap),
@@ -125,10 +125,10 @@ TEST_P(sliding_window_search, search)
 }
 
 INSTANTIATE_TEST_SUITE_P(search_suite,
-                         sliding_window_search,
+                         valik_search,
                          testing::Combine(testing::Values(8), testing::Values(20, 23), testing::Values(0, 1),
-				 testing::Values(50, 100), testing::Values(1, 40)),
-                         [] (testing::TestParamInfo<sliding_window_search::ParamType> const & info)
+				                 testing::Values(50, 100), testing::Values(1, 40)),
+                         [] (testing::TestParamInfo<valik_search::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +
                                                 std::to_string(std::get<1>(info.param)) + "_window_" +

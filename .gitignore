@@ -34,6 +34,10 @@
 /build/
 /debug
 
+# VS files
+.idea
+.vscode
+
 # Metadata files
 all_bin_paths.txt
 bin_paths*.txt
