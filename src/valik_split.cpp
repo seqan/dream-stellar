@@ -1,9 +1,9 @@
-#include <sliding_window/argument_parsing/shared.hpp>
-#include <sliding_window/shared.hpp>
-#include <sliding_window/split/reference_metadata.hpp>
-#include <sliding_window/split/reference_segments.hpp>
+#include <valik/argument_parsing/shared.hpp>
+#include <valik/shared.hpp>
+#include <valik/split/reference_metadata.hpp>
+#include <valik/split/reference_segments.hpp>
 
-namespace sliding_window::app
+namespace valik::app
 {
 
 //-----------------------------
@@ -11,7 +11,7 @@ namespace sliding_window::app
 // Divide reference database into partially overlapping segments and write metadata files.
 //
 //-----------------------------
-void sliding_window_split(split_arguments const & arguments)
+void valik_split(split_arguments const & arguments)
 {
     // Linear scan over reference file to extract metadata
     reference_metadata reference(arguments.ref_file, true);
@@ -31,4 +31,4 @@ void sliding_window_split(split_arguments const & arguments)
     segments.to_file(arguments.seg_out);
 }
 
-} // namespace sliding_window::app
+} // namespace valik::app

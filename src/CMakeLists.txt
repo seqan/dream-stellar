@@ -11,11 +11,11 @@ target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/robin-h
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
 
 # Sliding window split
-add_library ("${PROJECT_NAME}_split_lib" STATIC sliding_window_split.cpp)
+add_library ("${PROJECT_NAME}_split_lib" STATIC valik_split.cpp)
 target_link_libraries ("${PROJECT_NAME}_split_lib" PUBLIC "${PROJECT_NAME}_interface")
 
 # Sliding window build
-add_library ("${PROJECT_NAME}_build_lib" STATIC sliding_window_build.cpp)
+add_library ("${PROJECT_NAME}_build_lib" STATIC valik_build.cpp)
 target_link_libraries ("${PROJECT_NAME}_build_lib" PUBLIC "${PROJECT_NAME}_interface")
 
 # Sliding window search
@@ -28,7 +28,7 @@ target_link_libraries ("${PROJECT_NAME}_minimiser_model_lib" PUBLIC "${PROJECT_N
 add_library ("${PROJECT_NAME}_simple_model_lib" STATIC search/compute_simple_model.cpp)
 target_link_libraries ("${PROJECT_NAME}_simple_model_lib" PUBLIC "${PROJECT_NAME}_minimiser_model_lib")
 
-add_library ("${PROJECT_NAME}_search_lib" STATIC sliding_window_search.cpp)
+add_library ("${PROJECT_NAME}_search_lib" STATIC valik_search.cpp)
 target_link_libraries ("${PROJECT_NAME}_search_lib" PUBLIC "${PROJECT_NAME}_simple_model_lib")
 
 # Sliding window argument parsing
@@ -59,5 +59,5 @@ target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_build_li
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_search_lib")
 
 # Sliding window executable
-add_executable ("${PROJECT_NAME}" sliding_window_main.cpp)
+add_executable ("${PROJECT_NAME}" valik_main.cpp)
 target_link_libraries ("${PROJECT_NAME}" PUBLIC "${PROJECT_NAME}_lib")

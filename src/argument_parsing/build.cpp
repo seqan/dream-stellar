@@ -1,9 +1,9 @@
-#include <sliding_window/argument_parsing/build.hpp>
-#include <sliding_window/build/build.hpp>
+#include <valik/argument_parsing/build.hpp>
+#include <valik/build/build.hpp>
 
-#include <sliding_window/split/reference_segments.hpp>
+#include <valik/split/reference_segments.hpp>
 
-namespace sliding_window::app
+namespace valik::app
 {
 
 void init_build_parser(seqan3::argument_parser & parser, build_arguments & arguments)
@@ -154,7 +154,7 @@ void run_build(seqan3::argument_parser & parser)
     // ==========================================
     // Dispatch
     // ==========================================
-    sliding_window_build(arguments);
+    valik_build(arguments);
 };
 
-} // namespace sliding_window::app
+} // namespace valik::app

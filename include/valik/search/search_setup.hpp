@@ -21,8 +21,6 @@ namespace valik
 //
 // Reports all pattern begin positions in read.
 //
-// For each read the begin_vector shows the beginning of each sliding window (pattern)
-//
 // If read_len = 150
 //   pattern_size = 50
 //   overlap = 20
@@ -74,7 +72,7 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
 
 //-----------------------------
 //
-// Position of a sliding window (i.e pattern) on the read and threshold for local match.
+// Position of a pattern on the read and threshold for local match.
 //
 //-----------------------------
 struct pattern_bounds
@@ -93,7 +91,7 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
 {
     auto pattern = pattern_bounds{};
 
-    // indices for the first and last minimiser of the current sliding window
+    // indices for the first and last minimiser of the current pattern
     // std::vector<size_t>::iterator lower_it, upper_it;
     auto lower_it = std::lower_bound(window_span_begin.begin(), window_span_begin.end(), begin);
     auto upper_it = std::upper_bound(window_span_end.begin(), window_span_end.end(),
@@ -121,7 +119,7 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
 template <typename binning_bitvector_t>
 std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const & bin_count, binning_bitvector_t const & counting_table)
 {
-    std::set<size_t> pattern_hits{};    // bin hits for one pattern i.e sliding window
+    std::set<size_t> pattern_hits{};
 
     // counting vector for the current pattern
     seqan3::counting_vector<uint8_t> total_counts(bin_count, 0);
@@ -133,7 +131,7 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
         auto &&count = total_counts[current_bin];
         if (count >= pattern.threshold)
         {
-            // the result_set is a union of results from all sliding windows of a read
+            // the result_set is a union of results from all pattern of a read
             pattern_hits.insert(current_bin);
         }
     }
@@ -143,7 +141,10 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
 
 //-----------------------------
 //
-// Search a batch of reads in the IBF
+// Search a batch of queries in the IBF:
+// - the IBF is searched for local matches of length pattern size
+// - not all local match positions are considered
+// - overlap shows how much consequtive patterns overlap
 //
 //-----------------------------
 template <seqan3::data_layout ibf_data_layout>
