@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <sliding_window/search/search_setup.hpp>
+#include <valik/search/search_setup.hpp>
 
 TEST(pattern_begin_positions, read_length_and_pattern_size_are_equal)
 {
@@ -12,7 +12,7 @@ TEST(pattern_begin_positions, read_length_and_pattern_size_are_equal)
     std::vector<size_t> begin_positions{};
     std::vector<size_t> expected{0u}; // pattern interval [0, 150]
 
-    sliding_window::pattern_begin_positions(read_len, pattern_size, overlap, [&](size_t const begin)
+    valik::pattern_begin_positions(read_len, pattern_size, overlap, [&](size_t const begin)
     {
         begin_positions.push_back(begin);
     });
@@ -38,7 +38,7 @@ TEST(pattern_begin_positions, overlaps_are_evenly)
         100u // ends here, because read_len - pattern_size = 100u
     };
 
-    sliding_window::pattern_begin_positions(read_len, pattern_size, overlap, [&](size_t const begin)
+    valik::pattern_begin_positions(read_len, pattern_size, overlap, [&](size_t const begin)
     {
         begin_positions.push_back(begin);
     });
@@ -63,7 +63,7 @@ TEST(pattern_begin_positions, extra_overlap)
         100u // ends here, because read_len - pattern_size = 110u
     };
 
-    sliding_window::pattern_begin_positions(read_len, pattern_size, overlap, [&](size_t const begin)
+    valik::pattern_begin_positions(read_len, pattern_size, overlap, [&](size_t const begin)
     {
         begin_positions.push_back(begin);
     });
