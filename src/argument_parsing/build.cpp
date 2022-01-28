@@ -155,6 +155,6 @@ void run_build(seqan3::argument_parser & parser)
     // Dispatch
     // ==========================================
     valik_build(arguments);
-};
+}
 
 } // namespace valik::app

@@ -90,7 +90,7 @@ protected:
     }
 };
 
-struct sliding_window : public cli_test
+struct valik : public cli_test
 {
     static inline std::filesystem::path const segment_metadata_path(size_t const overlap, size_t const bins, size_t const length) noexcept
     {
@@ -143,7 +143,7 @@ struct sliding_window : public cli_test
     }
 };
 
-struct sliding_window_split : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
-struct sliding_window_build : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, bool>> {};
-struct sliding_window_search : public sliding_window, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t,
+struct valik_split : public valik, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
+struct valik_build : public valik, public testing::WithParamInterface<std::tuple<size_t, size_t, bool>> {};
+struct valik_search : public valik, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t,
 	size_t, size_t>> {};
