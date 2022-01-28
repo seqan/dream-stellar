@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.8)
 ## CUSTOMISE
 
 # Define the application name and version.
-project (sliding_window VERSION 1.0)
+project (valik VERSION 1.0)
 
 ## BUILD
 
