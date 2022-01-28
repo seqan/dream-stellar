@@ -1,10 +1,10 @@
 #include <seqan3/io/views/async_input_buffer.hpp>
 #include <seqan3/core/debug_stream.hpp>
 
-#include <sliding_window/argument_parsing/search.hpp>
-#include <sliding_window/search/search.hpp>
+#include <valik/argument_parsing/search.hpp>
+#include <valik/search/search.hpp>
 
-namespace sliding_window::app
+namespace valik::app
 {
 
 void init_search_parser(seqan3::argument_parser & parser, search_arguments & arguments)
@@ -50,12 +50,16 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
     parser.add_option(arguments.pattern_size,
                       '\0',
                       "pattern",
+<<<<<<< HEAD
                       "Choose the pattern size. Default: half of first query sequence.",
+=======
+                      "Choose the pattern size i.e minimum local match length. Default: Use median of sequence lengths in query file.",
+>>>>>>> Rename src
                       seqan3::option_spec::standard);
     parser.add_option(arguments.overlap,
                       '\0',
                       "overlap",
-                      "Choose how much sequential sliding windows overlap. Default: pattern size - 1.",
+                      "Choose how much sequential patterns overlap. Default: pattern size - 1.",
                       seqan3::option_spec::standard);
     parser.add_flag(arguments.compressed,
                     '\0',
@@ -102,7 +106,7 @@ void run_search(seqan3::argument_parser & parser)
     if (parser.is_option_set("pattern"))
     {
         if (arguments.pattern_size < arguments.window_size)
-            throw seqan3::argument_parser_error{"The minimiser window cannot be bigger than the sliding window."};
+            throw seqan3::argument_parser_error{"The minimiser window cannot be bigger than the pattern size."};
     }
     else
 
@@ -124,8 +128,14 @@ void run_search(seqan3::argument_parser & parser)
 
     if (parser.is_option_set("overlap"))
     {
+<<<<<<< HEAD
 	    if (arguments.overlap >= arguments.pattern_size)
                 throw seqan3::argument_parser_error{"The overlap size has to be smaller than the sliding window (i.e pattern) size."};
+=======
+	if (arguments.overlap >= arguments.pattern_size)
+            throw seqan3::argument_parser_error{"The overlap size has to be smaller"
+		    "than the pattern size."};
+>>>>>>> Rename src
     }
     else
         arguments.overlap = arguments.pattern_size - 1;
@@ -133,7 +143,12 @@ void run_search(seqan3::argument_parser & parser)
     // ==========================================
     // Dispatch
     // ==========================================
+<<<<<<< HEAD
     sliding_window_search(arguments);
 }
+=======
+    valik_search(arguments);
+};
+>>>>>>> Rename src
 
-} // namespace sliding_window::app
+} // namespace valik::app
