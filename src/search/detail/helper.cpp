@@ -1,7 +1,7 @@
-#include <sliding_window/search/detail/forward_strand_minimiser.hpp>
-#include <sliding_window/search/detail/helper.hpp>
+#include <valik/search/detail/forward_strand_minimiser.hpp>
+#include <valik/search/detail/helper.hpp>
 
-namespace sliding_window::detail
+namespace valik::detail
 {
 
 std::vector<size_t> pascal_row(size_t n)
@@ -146,4 +146,4 @@ std::vector<double> destroyed_indirectly_by_error(size_t const pattern_size,
     return result;
 }
 
-} // namespace sliding_window::detail
+} // namespace valik::detail

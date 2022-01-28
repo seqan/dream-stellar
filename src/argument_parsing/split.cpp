@@ -1,9 +1,9 @@
 #include <seqan3/core/debug_stream.hpp>
 
-#include <sliding_window/argument_parsing/split.hpp>
-#include <sliding_window/split/split.hpp>
+#include <valik/argument_parsing/split.hpp>
+#include <valik/split/split.hpp>
 
-namespace sliding_window::app
+namespace valik::app
 {
 
 void init_split_parser(seqan3::argument_parser & parser, split_arguments & arguments)
@@ -59,7 +59,7 @@ void run_split(seqan3::argument_parser & parser)
     // ==========================================
     // Dispatch
     // ==========================================
-    sliding_window_split(arguments);
+    valik_split(arguments);
 }
 
-} // namespace sliding_window::app
+} // namespace valik::app

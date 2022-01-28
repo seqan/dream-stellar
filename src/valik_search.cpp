@@ -1,7 +1,7 @@
-#include <sliding_window/search/query_record.hpp>
-#include <sliding_window/search/search_setup.hpp>
+#include <valik/search/query_record.hpp>
+#include <valik/search/search_setup.hpp>
 
-namespace sliding_window::app
+namespace valik::app
 {
 
 //-----------------------------
@@ -53,7 +53,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     }
 }
 
-void sliding_window_search(search_arguments const & arguments)
+void valik_search(search_arguments const & arguments)
 {
     search_time_statistics time_statistics{};
 
@@ -68,4 +68,4 @@ void sliding_window_search(search_arguments const & arguments)
     return;
 }
 
-} // namespace sliding_window::app
+} // namespace valik::app

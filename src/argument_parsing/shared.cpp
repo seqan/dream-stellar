@@ -1,11 +1,11 @@
-#include <sliding_window/argument_parsing/shared.hpp>
+#include <valik/argument_parsing/shared.hpp>
 
-namespace sliding_window::app
+namespace valik::app
 {
 
 void init_shared_meta(seqan3::argument_parser & parser)
 {
-    parser.info.app_name = "sliding_window";
+    parser.info.app_name = "valik";
     parser.info.author = "Evelin Aasna";
     parser.info.email = "evelin.aasna@fu-berlin.de";
     parser.info.long_copyright = R"(BSD 3-Clause License
@@ -39,7 +39,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)";
     parser.info.short_copyright = "BSD 3-Clause License";
     parser.info.short_description = "Pre-filter for querying databases of nucleotide sequences for approximate local matches.";
-    parser.info.url = "https://github.com/eaasna/new-sliding-window";
+    parser.info.url = "https://github.com/eaasna/valik";
     parser.info.version = "1.0";
 }
 
@@ -56,4 +56,4 @@ void try_parsing(seqan3::argument_parser & parser)
     }
 }
 
-} // namespace sliding_window::app
+} // namespace valik::app
