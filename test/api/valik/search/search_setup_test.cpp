@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <valik/search/search_setup.hpp>
+#include <valik/shared.hpp>
+#include <valik/search/compute_simple_model.hpp>
 
 TEST(pattern_begin_positions, read_length_and_pattern_size_are_equal)
 {
@@ -69,4 +71,84 @@ TEST(pattern_begin_positions, extra_overlap)
     });
 
     EXPECT_EQ(begin_positions, expected); // seen all positions
+}
+
+TEST(make_pattern_bounds, from_beginning)
+{
+    valik::search_arguments arguments{};
+    arguments.pattern_size = 12;
+    arguments.window_size = 8;
+    arguments.kmer_size = 4;
+    arguments.errors = 1;
+
+    //-----------------------------
+    //
+    // If seq = CGCAAAACGCGGC
+    // 	p = 12
+    // 	w = 8
+    // 	k = 4
+    //
+    // minimiser 		= (AAAA; 3), (AAAC; 4), (AACG, 5)
+    // window_span_begin 	=     0		4	   5
+    // window_span_end 	=     10	11	   12
+    //
+    // minimiser	span
+    // AAAA		CGCAAAACGCG
+    // AAAC		AAACGCGG
+    // AACG		AACGCGGC
+    //
+    //-----------------------------
+
+    // {minimiser} is the {index in window_span_begin} minimiser and it's span starts at the {value in window_span_begin} position of the query
+    std::vector<size_t> const & window_span_begin{0, // span for minimiser AAAA starts with window CGCAAAAC
+                                                     // AAAA is the 0th minimiser and it's span starts at the 0th position of the query
+                                                  4, // span for minimiser AAAC starts with window AAACGCGG
+                                                     // AAAC is the 1st minimiser and it's span starts at the 4th position of the query
+                                                  5};// span for minimiser AACG starts with window AACGCGGC
+                                                     // AACG is the 2nd minimiser and it's span starts at the 5th position of the query
+
+
+    // the end of the last window this minimiser is in
+    std::vector<size_t> const & window_span_end{10, // index in window_span_end == index in minimiser range
+                                                11, // value in window_span_end == end position of span on the query
+                                                12};
+
+    valik::threshold threshold_data = valik::make_threshold_data(arguments);
+
+    size_t const pattern_begin = 0; // |CGCAAAACGCGG|C pattern span (0,11)
+    valik::pattern_bounds expected{};
+    expected.first_index = 0;   // span for 0th minimiser (0, 10)
+    expected.last_index = 1;    // span for 1st minimiser (4, 12)
+
+    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, window_span_end, threshold_data);
+
+    EXPECT_EQ(bounds.first_index, expected.first_index);
+    EXPECT_EQ(bounds.last_index, expected.last_index);
+}
+
+// TEST FAILS
+// incorrect first index when pattern starts after the first of multiple consecutive minimisers
+TEST(make_pattern_bounds, shifted)
+{
+    valik::search_arguments arguments{};
+    arguments.pattern_size = 12;
+    arguments.window_size = 8;
+    arguments.kmer_size = 4;
+    arguments.errors = 1;
+
+
+    std::vector<size_t> const & window_span_begin{0, 4, 5};
+    std::vector<size_t> const & window_span_end{10, 11, 12};
+
+    valik::threshold threshold_data = valik::make_threshold_data(arguments);
+
+    size_t const pattern_begin = 1; // C|GCAAAACGCGGC| pattern span (1,12)
+    valik::pattern_bounds expected{};
+    expected.first_index = 0;   // span for 0th minimiser (0, 10)
+    expected.last_index = 2;    // span for 2nd minimiser (5, 12)
+
+    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, window_span_end, threshold_data);
+
+    EXPECT_EQ(bounds.first_index, expected.first_index);
+    EXPECT_EQ(bounds.last_index, expected.last_index);
 }

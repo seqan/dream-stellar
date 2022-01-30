@@ -82,6 +82,13 @@ struct pattern_bounds
     size_t threshold;
 };
 
+//-----------------------------
+//
+// Match a pattern to the corresponding range of minimisers in the minimiser vector &
+// find the threshold based on the number of minimisers in that range.
+// NB: for winnowing minimisers patterns of the same length can contain a varying number of minimisers.
+//
+//-----------------------------
 template <typename span_vec_t>
 pattern_bounds make_pattern_bounds(size_t const & begin,
                                    search_arguments const & arguments,
@@ -131,7 +138,7 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
         auto &&count = total_counts[current_bin];
         if (count >= pattern.threshold)
         {
-            // the result_set is a union of results from all pattern of a read
+            // the result_set is a union of results from all patterns of a read
             pattern_hits.insert(current_bin);
         }
     }
