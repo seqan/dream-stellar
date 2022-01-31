@@ -99,18 +99,17 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
     auto pattern = pattern_bounds{};
 
     // lower bound returns the first element of window_span_begin that is >= begin
-    auto lower_it = std::lower_bound(window_span_begin.begin(), window_span_begin.end(), begin);
+    auto begin_it = std::lower_bound(window_span_begin.begin(), window_span_begin.end(), begin);
     // case where element == begin
-    pattern.first_index = lower_it - window_span_begin.begin();     // the bound element is the first one in the pattern
+    pattern.first_index = begin_it - window_span_begin.begin();     // the bound element is the first one in the pattern
     // case where element > begin
-    if ((*lower_it) > begin)
+    if ((*begin_it) > begin)
         pattern.first_index--;      // the bound element is the second element in the pattern
 
-    auto upper_it = std::upper_bound(window_span_end.begin(), window_span_end.end(),
-                                begin + arguments.pattern_size - 1); // - 1 because of 0 based indexing
-    pattern.last_index = upper_it - window_span_end.begin() - 1; // - 1 because the upper bound returns the first el that is greater
+    auto end_it = std::lower_bound(window_span_end.begin(), window_span_end.end(), begin + arguments.pattern_size);
+    pattern.last_index = end_it - window_span_end.begin() + 1; // + 1 because last position is excluded
 
-    size_t const minimiser_count = pattern.last_index - pattern.first_index + 1;
+    size_t const minimiser_count = pattern.last_index - pattern.first_index;
 
     pattern.threshold = arguments.treshold_was_set ?
                             static_cast<size_t>(minimiser_count * arguments.threshold) : threshold_data.kmers_per_window == 1 ?
@@ -134,7 +133,7 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
     // counting vector for the current pattern
     seqan3::counting_vector<uint8_t> total_counts(bin_count, 0);
 
-    for (size_t i = pattern.first_index; i <= pattern.last_index; i++)
+    for (size_t i = pattern.first_index; i < pattern.last_index; i++)
         total_counts += counting_table[i];
     for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
     {
@@ -202,40 +201,23 @@ local_prefilter_fn::operator()(
         std::vector<binning_bitvector_t> counting_table(minimiser.size(),
                                                         binning_bitvector_t(bin_count));
 
-        // the beginning of the first window this minimiser is in
+        // the beginning of the first window this minimiser is in (inclusive)
         std::vector<size_t> window_span_begin(minimiser.size(), 0);
-        // the end of the last window this minimiser is in
+        // the end of the last window this minimiser is in (exclusive)
         std::vector<size_t> window_span_end(minimiser.size(), 0);
 
         for (size_t i{1}; i < minimiser.size(); i++)
         {
             const auto &[min, start_pos] = minimiser[i];
             window_span_begin[i] = start_pos;
-            size_t const end_pos = start_pos + arguments.window_size - 2;
+            size_t const end_pos = start_pos + arguments.window_size - 1;
             window_span_end[i - 1] = end_pos;
             counting_table[i].raw_data() |= agent.bulk_contains(min).raw_data();
         }
 
-        window_span_end[minimiser.size() - 1] = seq.size() - 1;
+        window_span_end[minimiser.size() - 1] = seq.size();
         minimiser.clear();
 
-        //-----------------------------
-        //
-        // If seq = CGCAAAACGCGGC
-        // 	p = 12
-        // 	w = 8
-        // 	k = 4
-        //
-        // minimiser 		= (AAAA; 3), (AAAC; 4), (AACG, 5)
-        // window_span_begin 	=     0		4	   5
-        // window_span_end 	=     10	11	   12
-        //
-        // minimiser	span
-        // AAAA		CGCAAAACGCG
-        // AAAC		AAACGCGG
-        // AACG		AACGCGGC
-        //
-        //-----------------------------
         std::set<size_t> sequence_hits{};
         pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.overlap, [&](size_t const begin)
         {
