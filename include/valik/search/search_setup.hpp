@@ -98,13 +98,16 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
 {
     auto pattern = pattern_bounds{};
 
-    // indices for the first and last minimiser of the current pattern
-    // std::vector<size_t>::iterator lower_it, upper_it;
+    // lower bound returns the first element of window_span_begin that is >= begin
     auto lower_it = std::lower_bound(window_span_begin.begin(), window_span_begin.end(), begin);
+    // case where element == begin
+    pattern.first_index = lower_it - window_span_begin.begin();     // the bound element is the first one in the pattern
+    // case where element > begin
+    if ((*lower_it) > begin)
+        pattern.first_index--;      // the bound element is the second element in the pattern
+
     auto upper_it = std::upper_bound(window_span_end.begin(), window_span_end.end(),
                                 begin + arguments.pattern_size - 1); // - 1 because of 0 based indexing
-
-    pattern.first_index = lower_it - window_span_begin.begin();
     pattern.last_index = upper_it - window_span_end.begin() - 1; // - 1 because the upper bound returns the first el that is greater
 
     size_t const minimiser_count = pattern.last_index - pattern.first_index + 1;

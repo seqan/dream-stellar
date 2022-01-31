@@ -73,7 +73,7 @@ TEST(pattern_begin_positions, extra_overlap)
     EXPECT_EQ(begin_positions, expected); // seen all positions
 }
 
-TEST(make_pattern_bounds, from_beginning)
+TEST(make_pattern_bounds, first_pattern_of_query)
 {
     valik::search_arguments arguments{};
     arguments.pattern_size = 12;
@@ -126,10 +126,9 @@ TEST(make_pattern_bounds, from_beginning)
     EXPECT_EQ(bounds.last_index, expected.last_index);
 }
 
-// TEST FAILS
-// incorrect first index when pattern starts after the first of multiple consecutive minimisers
-TEST(make_pattern_bounds, shifted)
+TEST(make_pattern_bounds, same_minimiser_consecutive_windows)
 {
+    // special case where pattern starts after the first of multiple consecutive minimisers
     valik::search_arguments arguments{};
     arguments.pattern_size = 12;
     arguments.window_size = 8;
