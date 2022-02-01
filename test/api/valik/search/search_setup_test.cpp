@@ -74,9 +74,7 @@ TEST(pattern_begin_positions, extra_overlap)
 }
 
 // ====================================================================================
-//
-// seq = CGCAAAACGCGGC
-// 	p = 12
+// seq = CGCAAAACGCGGC      minimisers = [AAAA, AAAC, AACG]
 // 	w = 8
 // 	k = 4
 //
@@ -101,13 +99,17 @@ TEST(make_pattern_bounds, first_pattern_of_query)
     size_t const pattern_begin = 0;
     valik::pattern_bounds expected{};
 
+
+    // |CGCAAAACGCGG|C
     //
-    // |CGCA*AAACGCGG|C
+    // 0: |[CGCAAAAC]GCGG|C     consider
+    // 1: |C[GCAAAACG]CGG|C     consider
+    // 2: |CG[CAAAACGC]GG|C     consider
+    // 3: |CGC[AAAACGCG]G|C     consider
+    // 4: |CGCA[AAACGCGG]|C     consider
+    // 5: |CGCAA[AACGCGG |C]     don't consider
     //
-    // last window of the pattern start at (0 + 12 - 8) = 4 (*)
-    // pattern windows start at 0, 1, 2, 3, 4
-    //
-    // minimisers [0, 1] = [0; 2)
+    // minimisers[0, 2)
     expected.begin_position = 0;
     expected.end_position = 2;
 
@@ -134,13 +136,16 @@ TEST(make_pattern_bounds, same_minimiser_consecutive_windows_begin)
     size_t const pattern_begin = 1;
     valik::pattern_bounds expected{};
 
+    // C|GCAAAACGCGGC|
     //
-    // C|GCAA*AACGCGGC|
+    // 0: [C|GCAAAAC]GCGGC |     don't consider
+    // 1:  C|[GCAAAACG]CGGC|     consider
+    // 2:  C|G[CAAAACGC]GGC|     consider
+    // 3:  C|GC[AAAACGCG]GC|     consider
+    // 4:  C|GCA[AAACGCGG]C|     consider
+    // 5:  C|GCAA[AACGCGGC]|     consider
     //
-    // last window of the pattern start at (1 + 12 - 8) = 5 (*)
-    // pattern windows start at 1, 2, 3, 4, 5
-    //
-    // minimisers [0, 2] = [0; 3)
+    // minimisers[0, 3)
     expected.begin_position = 0;
     expected.end_position = 3;
 
@@ -166,13 +171,16 @@ TEST(make_pattern_bounds, pattern_equals_window)
     size_t const pattern_begin = 1;
     valik::pattern_bounds expected{};
 
+    // C|GCAAAACG|CGGC
     //
-    // C|*GCAAAACG|CGGC
+    // 0: [C|GCAAAAC]G |CGGC    don't consider
+    // 1: C |[GCAAAACG]|CGGC    consider
+    // 2: C |G[CAAAACG |C]GGC   don't consider
+    // 3: C |GC[AAAACG |CG]GC   don't consider
+    // 4: C |GCA[AAACG |CGG]C   don't consider
+    // 5: C |GCAA[AACG |CGGC]   don't consider
     //
-    // last window of the pattern start at (1 + 8 - 8) = 1 (*)
-    // pattern windows start at 1
-    //
-    // minimisers [0] = [0; 1)
+    // minimisers[0, 1)
     expected.begin_position = 0;
     expected.end_position = 1;
 
@@ -184,9 +192,7 @@ TEST(make_pattern_bounds, pattern_equals_window)
 }
 
 // ====================================================================================
-//
-// seq = CCACGTCGAAGGTT
-// 	p = 12
+// seq = CCACGTCGAAGGTT     minimisers = [ACGT, CGAA, AAGG, aacc]
 // 	w = 8
 // 	k = 4
 //
@@ -211,13 +217,17 @@ TEST(make_pattern_bounds, same_minimiser_consecutive_windows_end)
     size_t const pattern_begin = 0;
     valik::pattern_bounds expected{};
 
+    // |CCACGTCGAAGG|TT
     //
-    // |CCAC*GTCGAAGG|TT
+    // 0: |[CCACGTCG]AAGG|TT    consider
+    // 1: |C[CACGTCGA]AGG|TT    consider
+    // 2: |CC[ACGTCGAA]GG|TT    consider
+    // 3: |CCA[CGTCGAAG]G|TT    consider
+    // 4: |CCAC[GTCGAAGG]|TT    consider
+    // 5: |CCACG[TCGAAGG |T]T   don't consider
+    // 6: |CCACGT[CGAAGG |TT]   don't consider
     //
-    // last window of the pattern start at (0 + 12 - 8) = 4 (*)
-    // pattern windows start at 0, 1, 2, 3, 4
-    //
-    // minimisers [0, 2] = [0; 3)
+    // minimisers[0, 3)
     expected.begin_position = 0;
     expected.end_position = 3;
 
@@ -229,9 +239,8 @@ TEST(make_pattern_bounds, same_minimiser_consecutive_windows_end)
 }
 
 // ====================================================================================
-// seq = CCACGTCGAAGGTT
-// 	p = 12
-// 	w = 8
+// seq = CCACGTCGAAGGTT     minimisers = [ACGT, CGAA, AAGG, aacc]
+// 	w = 7
 // 	k = 4
 //
 // minimiser	             span_begin     minimiser belongs to windows starting at
@@ -255,13 +264,18 @@ TEST(make_pattern_bounds, odd_lengths)
     size_t const pattern_begin = 2;
     valik::pattern_bounds expected{};
 
+    // CC|ACGTCGAAGGT|T
     //
-    // CC|ACGT*CGAAGGT|T
+    // 0: [CC|ACGTC]GAAGGT |T   don't consider
+    // 1: C[C|ACGTCG]AAGGT |T   don't consider
+    // 2: CC |[ACGTCGA]AGGT|T   consider
+    // 3: CC |A[CGTCGAA]GGT|T   consider
+    // 4: CC |AC[GTCGAAG]GT|T   consider
+    // 5: CC |ACG[TCGAAGG]T|T   consider
+    // 6: CC |ACGT[CGAAGGT]|T   consider
+    // 7: CC |ACGTC[GAAGGT |T]  don't consider
     //
-    // last window of the pattern start at (2 + 11 - 7) = 6 (*)
-    // pattern windows start at 2, 3, 4, 5, 6
-    //
-    // minimisers [0, 2] = [0; 3)
+    // minimisers[0, 3)
     expected.begin_position = 0;
     expected.end_position = 3;
 

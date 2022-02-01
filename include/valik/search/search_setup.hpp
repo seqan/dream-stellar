@@ -95,25 +95,22 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
                                    span_vec_t const & window_span_begin,
                                    threshold const & threshold_data)
 {
+    assert(window_span_begin.size() >= 1);
+    assert(window_span_begin[0] == 0);
+
     auto pattern = pattern_bounds{};
 
-    // lower bound returns the first element of window_span_begin that is >= begin
-    auto begin_it = std::lower_bound(window_span_begin.begin(), window_span_begin.end(), begin);
-    // case where element == begin
-    pattern.begin_position = begin_it - window_span_begin.begin();     // the bound element is the first one in the pattern
-    // case where element > begin
-    if ((*begin_it) > begin)
-        pattern.begin_position--;      // the bound element is the second element in the pattern
+    // upper bound returns the first element of window_span_begin that is > begin
+    // the bound element is the second minimiser of the pattern
+    auto begin_it = std::upper_bound(window_span_begin.begin(), window_span_begin.end(), begin);
+    assert(begin_it != window_span_begin.end());
+    pattern.begin_position = begin_it - window_span_begin.begin() - 1;  // -1 to find the first minimiser of the pattern
 
     size_t last_window_of_pattern = begin + arguments.pattern_size - arguments.window_size;
-    auto end_it = std::lower_bound(window_span_begin.begin(), window_span_begin.end(), last_window_of_pattern);
-    // case where element > last_window_of_pattern
-    pattern.end_position = end_it - window_span_begin.begin();      // the bound element is the first one after the pattern
-
-    // case where element == last_window_of_pattern
-    if ((*end_it) == last_window_of_pattern)
-        pattern.end_position++;        // the bound element is the last one in the pattern
-                                       // + 1 because end position should be excluded from the half open interval
+    // the bound element is the first minimiser after the pattern
+    auto end_it = std::upper_bound(window_span_begin.begin(), window_span_begin.end(), last_window_of_pattern);
+    assert(end_it != window_span_begin.begin());
+    pattern.end_position = end_it - window_span_begin.begin();
 
     size_t const minimiser_count = pattern.end_position - pattern.begin_position;
 
