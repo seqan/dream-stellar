@@ -73,19 +73,19 @@ TEST(pattern_begin_positions, extra_overlap)
     EXPECT_EQ(begin_positions, expected); // seen all positions
 }
 
-//----------------------------------------------------------
+// ====================================================================================
 //
 // seq = CGCAAAACGCGGC
 // 	p = 12
 // 	w = 8
 // 	k = 4
 //
-// minimiser	             span
-// AAAA		CGCAAAACGCG     [0, 11)
-// AAAC		    AAACGCGG    [4, 12)
-// AACG		     AACGCGGC   [5, 13)
+// minimiser	             span_begin    minimiser belongs to windows starting at
+// AAAA		CGCAAAACGCG          0                      0, 1, 2, 3
+// AAAC		    AAACGCGG         4                          4
+// AACG		     AACGCGGC        5                          5
 //
-//----------------------------------------------------------
+// ====================================================================================
 
 TEST(make_pattern_bounds, first_pattern_of_query)
 {
@@ -97,27 +97,31 @@ TEST(make_pattern_bounds, first_pattern_of_query)
     arguments.errors = 1;
 
     std::vector<size_t> const & window_span_begin{0, 4, 5};
-    std::vector<size_t> const & window_span_end{11, 12, 13};
 
-    valik::threshold threshold_data = valik::make_threshold_data(arguments);
-
-
-    size_t const pattern_begin = 0; // |CGCAAAACGCGG|C pattern span [0,12)
+    size_t const pattern_begin = 0;
     valik::pattern_bounds expected{};
 
-    // minimisers [0; 2) = [0, 1]
-    expected.first_index = 0;   // span for 0th minimiser [0, 11)
-    expected.last_index = 2;    // span for 1st minimiser [4, 12)
+    //
+    // |CGCA*AAACGCGG|C
+    //
+    // last window of the pattern start at (0 + 12 - 8) = 4 (*)
+    // pattern windows start at 0, 1, 2, 3, 4
+    //
+    // minimisers [0, 1] = [0; 2)
+    expected.begin_position = 0;
+    expected.end_position = 2;
 
-    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, window_span_end, threshold_data);
+    valik::threshold threshold_data = valik::make_threshold_data(arguments);
+    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, threshold_data);
 
-    EXPECT_EQ(bounds.first_index, expected.first_index);
-    EXPECT_EQ(bounds.last_index, expected.last_index);
+    EXPECT_EQ(bounds.begin_position, expected.begin_position);
+    EXPECT_EQ(bounds.end_position, expected.end_position);
 }
 
 TEST(make_pattern_bounds, same_minimiser_consecutive_windows_begin)
 {
     // special case where pattern starts after the first of multiple consecutive minimisers
+    // and pattern ends at the end of the query
     valik::search_arguments arguments{};
     arguments.pattern_size = 12;
     arguments.window_size = 8;
@@ -126,21 +130,25 @@ TEST(make_pattern_bounds, same_minimiser_consecutive_windows_begin)
 
 
     std::vector<size_t> const & window_span_begin{0, 4, 5};
-    std::vector<size_t> const & window_span_end{11, 12, 13};
 
-    valik::threshold threshold_data = valik::make_threshold_data(arguments);
-
-    size_t const pattern_begin = 1; // C|GCAAAACGCGGC| pattern span [1,13)
+    size_t const pattern_begin = 1;
     valik::pattern_bounds expected{};
 
-    // minimisers [0; 3)
-    expected.first_index = 0;   // span for 0th minimiser [0, 11)
-    expected.last_index = 3;    // span for 2nd minimiser [5, 13)
+    //
+    // C|GCAA*AACGCGGC|
+    //
+    // last window of the pattern start at (1 + 12 - 8) = 5 (*)
+    // pattern windows start at 1, 2, 3, 4, 5
+    //
+    // minimisers [0, 2] = [0; 3)
+    expected.begin_position = 0;
+    expected.end_position = 3;
 
-    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, window_span_end, threshold_data);
+    valik::threshold threshold_data = valik::make_threshold_data(arguments);
+    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, threshold_data);
 
-    EXPECT_EQ(bounds.first_index, expected.first_index);
-    EXPECT_EQ(bounds.last_index, expected.last_index);
+    EXPECT_EQ(bounds.begin_position, expected.begin_position);
+    EXPECT_EQ(bounds.end_position, expected.end_position);
 }
 
 TEST(make_pattern_bounds, pattern_equals_window)
@@ -154,36 +162,40 @@ TEST(make_pattern_bounds, pattern_equals_window)
 
 
     std::vector<size_t> const & window_span_begin{0, 4, 5};
-    std::vector<size_t> const & window_span_end{11, 12, 13};
 
-    valik::threshold threshold_data = valik::make_threshold_data(arguments);
-
-    size_t const pattern_begin = 1; // C|GCAAAACG|CGGC pattern span [1,9)
+    size_t const pattern_begin = 1;
     valik::pattern_bounds expected{};
 
-    // minimisers [0; 1)
-    expected.first_index = 0;   // span for 0th minimiser [0, 11)
-    expected.last_index = 1;
+    //
+    // C|*GCAAAACG|CGGC
+    //
+    // last window of the pattern start at (1 + 8 - 8) = 1 (*)
+    // pattern windows start at 1
+    //
+    // minimisers [0] = [0; 1)
+    expected.begin_position = 0;
+    expected.end_position = 1;
 
-    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, window_span_end, threshold_data);
+    valik::threshold threshold_data = valik::make_threshold_data(arguments);
+    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, threshold_data);
 
-    EXPECT_EQ(bounds.first_index, expected.first_index);
-    EXPECT_EQ(bounds.last_index, expected.last_index);
+    EXPECT_EQ(bounds.begin_position, expected.begin_position);
+    EXPECT_EQ(bounds.end_position, expected.end_position);
 }
 
-//----------------------------------------------------------
+// ====================================================================================
 //
 // seq = CCACGTCGAAGGTT
 // 	p = 12
 // 	w = 8
 // 	k = 4
 //
-// minimiser	             span
-// ACGT		CCACGTCGAA       [0, 10)
-// CGAA        CGTCGAAG      [3, 11)
-// AAGG         GTCGAAGGT    [4, 13)
-// aacc           CGAAGGTT   [6, 14)
-//----------------------------------------------------------
+// minimiser	             span_begin     minimiser belongs to windows starting at
+// ACGT		CCACGTCGAA           0                           0, 1, 2
+// CGAA        CGTCGAAG          3                              3
+// AAGG         GTCGAAGGT        4                             4, 5
+// aacc           CGAAGGTT       6                              6
+// ====================================================================================
 
 TEST(make_pattern_bounds, same_minimiser_consecutive_windows_end)
 {
@@ -195,35 +207,39 @@ TEST(make_pattern_bounds, same_minimiser_consecutive_windows_end)
     arguments.errors = 1;
 
     std::vector<size_t> const & window_span_begin{0, 3, 4, 6};
-    std::vector<size_t> const & window_span_end{10, 11, 13, 14};
 
-    valik::threshold threshold_data = valik::make_threshold_data(arguments);
-
-    size_t const pattern_begin = 0; // |CCACGTCGAAGG|TT pattern span [0,12)
+    size_t const pattern_begin = 0;
     valik::pattern_bounds expected{};
 
-    // minimisers [0; 3)
-    expected.first_index = 0;   // span for 0th minimiser [0, 10)
-    expected.last_index = 3;    // span for 2nd minimiser [4, 13)
+    //
+    // |CCAC*GTCGAAGG|TT
+    //
+    // last window of the pattern start at (0 + 12 - 8) = 4 (*)
+    // pattern windows start at 0, 1, 2, 3, 4
+    //
+    // minimisers [0, 2] = [0; 3)
+    expected.begin_position = 0;
+    expected.end_position = 3;
 
-    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, window_span_end, threshold_data);
+    valik::threshold threshold_data = valik::make_threshold_data(arguments);
+    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, threshold_data);
 
-    EXPECT_EQ(bounds.first_index, expected.first_index);
-    EXPECT_EQ(bounds.last_index, expected.last_index);
+    EXPECT_EQ(bounds.begin_position, expected.begin_position);
+    EXPECT_EQ(bounds.end_position, expected.end_position);
 }
 
-//----------------------------------------------------------
+// ====================================================================================
 // seq = CCACGTCGAAGGTT
 // 	p = 12
 // 	w = 8
 // 	k = 4
 //
-// minimiser	             span
-// ACGT		CCACGTCGA        [0, 9)
-// CGAA        CGTCGAAG      [3, 11)
-// AAGG          TCGAAGGT    [5, 13)
-// aacc            GAAGGTT   [7, 14)
-//----------------------------------------------------------
+// minimiser	             span_begin     minimiser belongs to windows starting at
+// ACGT		CCACGTCGA            0                          0, 1, 2
+// CGAA        CGTCGAAG          3                            3, 4
+// AAGG          TCGAAGGT        5                            5, 6
+// aacc            GAAGGTT       7                              7
+// ====================================================================================
 
 TEST(make_pattern_bounds, odd_lengths)
 {
@@ -235,19 +251,23 @@ TEST(make_pattern_bounds, odd_lengths)
     arguments.errors = 1;
 
     std::vector<size_t> const & window_span_begin{0, 3, 5, 7};
-    std::vector<size_t> const & window_span_end{9, 11, 13, 14};
 
-    valik::threshold threshold_data = valik::make_threshold_data(arguments);
-
-    size_t const pattern_begin = 2; // CC|ACGTCGAAGGT|T pattern span [2,13)
+    size_t const pattern_begin = 2;
     valik::pattern_bounds expected{};
 
-    // minimisers [0; 3)
-    expected.first_index = 0;   // span for 0th minimiser [0, 9)
-    expected.last_index = 3;    // span for 2nd minimiser [5, 13)
+    //
+    // CC|ACGT*CGAAGGT|T
+    //
+    // last window of the pattern start at (2 + 11 - 7) = 6 (*)
+    // pattern windows start at 2, 3, 4, 5, 6
+    //
+    // minimisers [0, 2] = [0; 3)
+    expected.begin_position = 0;
+    expected.end_position = 3;
 
-    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, window_span_end, threshold_data);
+    valik::threshold threshold_data = valik::make_threshold_data(arguments);
+    valik::pattern_bounds bounds = valik::make_pattern_bounds(pattern_begin, arguments, window_span_begin, threshold_data);
 
-    EXPECT_EQ(bounds.first_index, expected.first_index);
-    EXPECT_EQ(bounds.last_index, expected.last_index);
+    EXPECT_EQ(bounds.begin_position, expected.begin_position);
+    EXPECT_EQ(bounds.end_position, expected.end_position);
 }

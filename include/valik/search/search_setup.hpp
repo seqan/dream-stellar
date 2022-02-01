@@ -72,13 +72,13 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
 
 //-----------------------------
 //
-// Position of a pattern on the read and threshold for local match.
-//
+// Half open interval [begin; end) on the minimiser vector that shows minimisers belonging to the current pattern
+// & the threshold for a local match.
 //-----------------------------
 struct pattern_bounds
 {
-    size_t first_index;
-    size_t last_index;
+    size_t begin_position;
+    size_t end_position;
     size_t threshold;
 };
 
@@ -93,7 +93,6 @@ template <typename span_vec_t>
 pattern_bounds make_pattern_bounds(size_t const & begin,
                                    search_arguments const & arguments,
                                    span_vec_t const & window_span_begin,
-                                   span_vec_t const & window_span_end,
                                    threshold const & threshold_data)
 {
     auto pattern = pattern_bounds{};
@@ -101,15 +100,22 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
     // lower bound returns the first element of window_span_begin that is >= begin
     auto begin_it = std::lower_bound(window_span_begin.begin(), window_span_begin.end(), begin);
     // case where element == begin
-    pattern.first_index = begin_it - window_span_begin.begin();     // the bound element is the first one in the pattern
+    pattern.begin_position = begin_it - window_span_begin.begin();     // the bound element is the first one in the pattern
     // case where element > begin
     if ((*begin_it) > begin)
-        pattern.first_index--;      // the bound element is the second element in the pattern
+        pattern.begin_position--;      // the bound element is the second element in the pattern
 
-    auto end_it = std::lower_bound(window_span_end.begin(), window_span_end.end(), begin + arguments.pattern_size);
-    pattern.last_index = end_it - window_span_end.begin() + 1; // + 1 because last position is excluded
+    size_t last_window_of_pattern = begin + arguments.pattern_size - arguments.window_size;
+    auto end_it = std::lower_bound(window_span_begin.begin(), window_span_begin.end(), last_window_of_pattern);
+    // case where element > last_window_of_pattern
+    pattern.end_position = end_it - window_span_begin.begin();      // the bound element is the first one after the pattern
 
-    size_t const minimiser_count = pattern.last_index - pattern.first_index;
+    // case where element == last_window_of_pattern
+    if ((*end_it) == last_window_of_pattern)
+        pattern.end_position++;        // the bound element is the last one in the pattern
+                                       // + 1 because end position should be excluded from the half open interval
+
+    size_t const minimiser_count = pattern.end_position - pattern.begin_position;
 
     pattern.threshold = arguments.treshold_was_set ?
                             static_cast<size_t>(minimiser_count * arguments.threshold) : threshold_data.kmers_per_window == 1 ?
@@ -133,7 +139,7 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
     // counting vector for the current pattern
     seqan3::counting_vector<uint8_t> total_counts(bin_count, 0);
 
-    for (size_t i = pattern.first_index; i < pattern.last_index; i++)
+    for (size_t i = pattern.begin_position; i < pattern.end_position; i++)
         total_counts += counting_table[i];
     for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
     {
@@ -201,27 +207,22 @@ local_prefilter_fn::operator()(
         std::vector<binning_bitvector_t> counting_table(minimiser.size(),
                                                         binning_bitvector_t(bin_count));
 
-        // the beginning of the first window this minimiser is in (inclusive)
+        // the beginning of the first window this minimiser is in
         std::vector<size_t> window_span_begin(minimiser.size(), 0);
-        // the end of the last window this minimiser is in (exclusive)
-        std::vector<size_t> window_span_end(minimiser.size(), 0);
 
         for (size_t i{1}; i < minimiser.size(); i++)
         {
             const auto &[min, start_pos] = minimiser[i];
             window_span_begin[i] = start_pos;
-            size_t const end_pos = start_pos + arguments.window_size - 1;
-            window_span_end[i - 1] = end_pos;
             counting_table[i].raw_data() |= agent.bulk_contains(min).raw_data();
         }
 
-        window_span_end[minimiser.size() - 1] = seq.size();
         minimiser.clear();
 
         std::set<size_t> sequence_hits{};
         pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.overlap, [&](size_t const begin)
         {
-            pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, window_span_end, threshold_data);
+            pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, threshold_data);
             std::set<size_t> const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
             sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
         });
