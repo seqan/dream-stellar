@@ -46,6 +46,8 @@ class reference_segments {
                 // only one segment per reference sequence
                 if (start + segment_len >= seq.len)
                 {
+                    // TODO: if multiple very short sequences in a row
+                    // they should be one bin
                     add_segment(i, seq.id, start, seq.len);
                     i++;
                 }
