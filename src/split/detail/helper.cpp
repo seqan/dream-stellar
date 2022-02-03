@@ -19,22 +19,20 @@ size_t next_power_of_two(size_t n)
     return 1U << (lg + 1);
 }
 
-size_t find_segment_length(size_t total_len, size_t min_len, size_t min_bins)
+void set_segment_arguments(size_t total_len, split_arguments & arguments)
 {
-    assert(min_bins > 0);
-    assert(min_len > 0);
+    assert(arguments.bins > 0);
+    assert(arguments.seg_len > 0);
 
     // Divide reference into segments that have at least minimum length
     // Initial estimates based on user input
-    size_t segment_len_estimate = std::max(total_len / min_bins, min_len);
+    size_t segment_len_estimate = std::max(total_len / arguments.bins, arguments.seg_len);
     assert(segment_len_estimate > 0);
     size_t num_bins_estimate = total_len / segment_len_estimate;
 
     // Round up number of bins to next power of two
-    size_t num_bins = next_power_of_two(num_bins_estimate);
-    size_t segment_len = total_len / num_bins + 1;
-
-    return segment_len;
+    arguments.bins = next_power_of_two(num_bins_estimate);
+    arguments.seg_len = total_len / arguments.bins + 1;
 }
 
 } // namespace valik::detail

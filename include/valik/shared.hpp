@@ -36,8 +36,8 @@ struct split_arguments
     std::filesystem::path seg_out{"reference_segments.txt"};
 
     size_t overlap{150};
-    size_t min_bins{64};
-    size_t min_len{1000000};
+    size_t bins{64};
+    size_t seg_len{1000000};
 };
 
 struct build_arguments
@@ -54,7 +54,7 @@ struct build_arguments
     uint64_t bits{4096};
     uint64_t hash{2};
     bool compressed{false};
-    
+
     bool from_segments{false};
     std::filesystem::path seg_path{};
     std::filesystem::path ref_meta_path{};

@@ -12,20 +12,16 @@ namespace valik::app
 // Divide reference database into partially overlapping segments and write metadata files.
 //
 //-----------------------------
-void valik_split(split_arguments const & arguments)
+void valik_split(split_arguments & arguments)
 {
     // Linear scan over reference file to extract metadata
     reference_metadata reference(arguments.ref_file, true);
     reference.to_file(arguments.ref_out);
 
-    size_t segment_len = detail::find_segment_length(reference.total_len, arguments.min_len, arguments.min_bins);
-    if (reference.total_len < segment_len)
-    {
-        throw seqan3::argument_parser_error{"The segment length is greater than the total length of the reference."};
-    }
+    detail::set_segment_arguments(reference.total_len, arguments);
 
     // For each segment assign start, length and bin number
-    reference_segments segments(segment_len, arguments.overlap, reference.sequences);
+    reference_segments segments(arguments.seg_len, arguments.bins, arguments.overlap, reference);
     segments.to_file(arguments.seg_out);
 }
 

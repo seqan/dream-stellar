@@ -9,6 +9,6 @@ namespace valik::detail
 
 size_t next_power_of_two(size_t n);
 
-size_t find_segment_length(size_t total_len, size_t min_len, size_t min_bins);
+void set_segment_arguments(size_t total_len, split_arguments & arguments);
 
 } // namespace valik::detail
