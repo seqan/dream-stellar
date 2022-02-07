@@ -102,12 +102,12 @@ TEST(make_pattern_bounds, first_pattern_of_query)
 
     // |CGCAAAACGCGG|C
     //
-    // 0: |[CGCAAAAC]GCGG|C     consider
-    // 1: |C[GCAAAACG]CGG|C     consider
-    // 2: |CG[CAAAACGC]GG|C     consider
-    // 3: |CGC[AAAACGCG]G|C     consider
-    // 4: |CGCA[AAACGCGG]|C     consider
-    // 5: |CGCAA[AACGCGG |C]     don't consider
+    // 0: |[CGC{AAAA}C]GCGG|C     consider (minimiser[0])
+    // 1: |C[GC{AAAA}CG]CGG|C     consider
+    // 2: |CG[C{AAAA}CGC]GG|C     consider
+    // 3: |CGC[{AAAA}CGCG]G|C     consider
+    // 4: |CGCA[{AAAC}GCGG]|C     consider (minimiser[1])
+    // 5: |CGCAA[{AACG}CGG |C]    don't consider (minimiser[2])
     //
     // minimisers[0, 2)
     expected.begin_position = 0;
@@ -138,12 +138,12 @@ TEST(make_pattern_bounds, same_minimiser_consecutive_windows_begin)
 
     // C|GCAAAACGCGGC|
     //
-    // 0: [C|GCAAAAC]GCGGC |     don't consider
-    // 1:  C|[GCAAAACG]CGGC|     consider
-    // 2:  C|G[CAAAACGC]GGC|     consider
-    // 3:  C|GC[AAAACGCG]GC|     consider
-    // 4:  C|GCA[AAACGCGG]C|     consider
-    // 5:  C|GCAA[AACGCGGC]|     consider
+    // 0: [C|GC{AAAA}C]GCGGC |     don't consider (minimiser[0])
+    // 1:  C|[GC{AAAA}CG]CGGC|     consider (still minimiser[0])
+    // 2:  C|G[C{AAAA}CGC]GGC|     consider
+    // 3:  C|GC[{AAAA}CGCG]GC|     consider
+    // 4:  C|GCA[{AAAC}GCGG]C|     consider (minimiser[1])
+    // 5:  C|GCAA[{AACG}CGGC]|     consider (minimiser[2])
     //
     // minimisers[0, 3)
     expected.begin_position = 0;
@@ -173,12 +173,12 @@ TEST(make_pattern_bounds, pattern_equals_window)
 
     // C|GCAAAACG|CGGC
     //
-    // 0: [C|GCAAAAC]G |CGGC    don't consider
-    // 1: C |[GCAAAACG]|CGGC    consider
-    // 2: C |G[CAAAACG |C]GGC   don't consider
-    // 3: C |GC[AAAACG |CG]GC   don't consider
-    // 4: C |GCA[AAACG |CGG]C   don't consider
-    // 5: C |GCAA[AACG |CGGC]   don't consider
+    // 0: [C|GC{AAAA}C]G |CGGC    don't consider (minimiser[0])
+    // 1: C |[GC{AAAA}CG]|CGGC    consider (still minimiser[0])
+    // 2: C |G[C{AAAA}CG |C]GGC   don't consider
+    // 3: C |GC[{AAAA}CG |CG]GC   don't consider
+    // 4: C |GCA[{AAAC}G |CGG]C   don't consider (minimiser[1])
+    // 5: C |GCAA[{AACG} |CGGC]   don't consider (minimiser[2])
     //
     // minimisers[0, 1)
     expected.begin_position = 0;
@@ -219,13 +219,13 @@ TEST(make_pattern_bounds, same_minimiser_consecutive_windows_end)
 
     // |CCACGTCGAAGG|TT
     //
-    // 0: |[CCACGTCG]AAGG|TT    consider
-    // 1: |C[CACGTCGA]AGG|TT    consider
-    // 2: |CC[ACGTCGAA]GG|TT    consider
-    // 3: |CCA[CGTCGAAG]G|TT    consider
-    // 4: |CCAC[GTCGAAGG]|TT    consider
-    // 5: |CCACG[TCGAAGG |T]T   don't consider
-    // 6: |CCACGT[CGAAGG |TT]   don't consider
+    // 0: |[CC{ACGT}CG]AAGG|TT    consider (minimiser[0])
+    // 1: |C[C{ACGT}CGA]AGG|TT    consider
+    // 2: |CC[{ACGT}CGAA]GG|TT    consider
+    // 3: |CCA[CGT{CGAA}G]G|TT    consider (minimiser[1])
+    // 4: |CCAC[GTCG{AAGG}]|TT    consider (minimiser[2])
+    // 5: |CCACG[TCG{AAGG} |T]T   don't consider
+    // 6: |CCACGT[CGAA{GG  |TT}]  don't consider (minimiser[3] = aacc)
     //
     // minimisers[0, 3)
     expected.begin_position = 0;
@@ -266,14 +266,14 @@ TEST(make_pattern_bounds, odd_lengths)
 
     // CC|ACGTCGAAGGT|T
     //
-    // 0: [CC|ACGTC]GAAGGT |T   don't consider
-    // 1: C[C|ACGTCG]AAGGT |T   don't consider
-    // 2: CC |[ACGTCGA]AGGT|T   consider
-    // 3: CC |A[CGTCGAA]GGT|T   consider
-    // 4: CC |AC[GTCGAAG]GT|T   consider
-    // 5: CC |ACG[TCGAAGG]T|T   consider
-    // 6: CC |ACGT[CGAAGGT]|T   consider
-    // 7: CC |ACGTC[GAAGGT |T]  don't consider
+    // 0: [CC|{ACGT}C]GAAGGT |T   don't consider (minimiser[0])
+    // 1: C[C|{ACGT}CG]AAGGT |T   don't consider
+    // 2: CC |[{ACGT}CGA]AGGT|T   consider (still minimiser[0])
+    // 3: CC |A[CGT{CGAA}]GGT|T   consider (minimiser[1])
+    // 4: CC |AC[GT{CGAA}G]GT|T   consider
+    // 5: CC |ACG[TCG{AAGG}]T|T   consider (minimiser[2])
+    // 6: CC |ACGT[CG{AAGG}T]|T   consider
+    // 7: CC |ACGTC[GAA{GGT  |T}] don't consider (minimiser[3] = aacc)
     //
     // minimisers[0, 3)
     expected.begin_position = 0;
