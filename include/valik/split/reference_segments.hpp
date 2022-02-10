@@ -50,7 +50,7 @@ class reference_segments {
                 size_t start = 0;
                 if (seq.len < (default_len / 2))
                 {
-                    seqan3::debug_stream << "Reference sequence: " << seq.id << " is too short and will be skipped.";
+                    seqan3::debug_stream << "Reference sequence: " << seq.id << " is too short and will be skipped.\n";
                     remaining_ref_len -= seq.len;
                 }
                 else if ((seq.len >= default_len / 2) & (seq.len <= default_len * 1.5))
@@ -61,7 +61,7 @@ class reference_segments {
                 }
                 else
                 {
-                    // sequences that are contained in a single segment might not have exact segment length
+                    // sequences that are contained in a single segment might not have the exact segment length
                     // dynamically update segment length to divide the rest of the remaining reference as equally as possible along bins
                     size_t remaining_bins = bins - members.size();
                     size_t updated_seg_len = remaining_ref_len / remaining_bins;

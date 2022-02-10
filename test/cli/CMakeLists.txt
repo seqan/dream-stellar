@@ -15,6 +15,7 @@ target_use_datasources (valik_options_test FILES bin_1.fasta)
 target_use_datasources (valik_options_test FILES bin_2.fasta)
 target_use_datasources (valik_options_test FILES bin_3.fasta)
 target_use_datasources (valik_options_test FILES query.fq)
+target_use_datasources (valik_options_test FILES various_chromosome_lengths.fasta)
 
 add_cli_test (valik_test.cpp)
 target_use_datasources (valik_test FILES bin_0.fasta)

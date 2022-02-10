@@ -43,16 +43,16 @@ declare_datasource (FILE query.fq
 
 declare_datasource (FILE various_chromosome_lengths.fasta
                     URL ${CMAKE_SOURCE_DIR}/test/data/split/various_chromosome_lengths.fasta
-                    URL_HASH SHA256=ba80bbb1f7468ae4425e94245974b3a9f56db99e566bae35cdcc1432d0f167e2)
+                    URL_HASH SHA256=fee23d48b6f9a3c4073a8177b46a8f429e1dd12b688df448d3dcc74357b391ec)
 declare_datasource (FILE reference_metadata.txt
                     URL ${CMAKE_SOURCE_DIR}/test/data/split/reference_metadata.txt
-                    URL_HASH SHA256=f90c43c96b4e7229193e4694883b616163490228f31bb82bee0c7575363d6c09)
+                    URL_HASH SHA256=33eb2e3617d4717d965d1a2e655ee4bce8faef46388034b19ca1e9d7bcc24166)
 declare_datasource (FILE 0overlap4bins.txt
                     URL ${CMAKE_SOURCE_DIR}/test/data/split/0overlap4bins.txt
-                    URL_HASH SHA256=ab8649edcaa19ff7625bec306f0bb399912667e0c4ccd5b6a12bfc4f4b41bf7d)
+                    URL_HASH SHA256=88ee7061dc9dd86e7bd4cd8e37424bd73c3a74a7574d0b93d5519580d7cf1470)
 declare_datasource (FILE 20overlap4bins.txt
                     URL ${CMAKE_SOURCE_DIR}/test/data/split/20overlap4bins.txt
-                    URL_HASH SHA256=ab8649edcaa19ff7625bec306f0bb399912667e0c4ccd5b6a12bfc4f4b41bf7d)
+                    URL_HASH SHA256=88ee7061dc9dd86e7bd4cd8e37424bd73c3a74a7574d0b93d5519580d7cf1470)
 declare_datasource (FILE 0overlap16bins.txt
                     URL ${CMAKE_SOURCE_DIR}/test/data/split/0overlap16bins.txt
                     URL_HASH SHA256=39b3c960ce05e23d3208ab766388819a1e82b8036ae303e0eae37b425f66ef36)

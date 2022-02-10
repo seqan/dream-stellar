@@ -2,3 +2,4 @@ chr1	210
 chr2	490
 chr3	420
 chr4	280
+chr5	4

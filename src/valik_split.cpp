@@ -11,7 +11,7 @@ namespace valik::app
 // Divide reference database into partially overlapping segments and write metadata files.
 //
 //-----------------------------
-void valik_split(split_arguments & arguments)
+void valik_split(split_arguments const & arguments)
 {
     // Linear scan over reference file to extract metadata
     reference_metadata reference(arguments.ref_file, true);
