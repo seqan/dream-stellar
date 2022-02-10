@@ -37,7 +37,6 @@ struct split_arguments
 
     size_t overlap{150};
     size_t bins{64};
-    size_t seg_len{1000000};
 };
 
 struct build_arguments

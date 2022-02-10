@@ -11,25 +11,24 @@
 
 TEST_P(valik_split, split)
 {
-    auto const [overlap, bins, length] = GetParam();
+    auto const [overlap, bins] = GetParam();
 
     cli_test_result const result = execute_app("valik", "split",
-                                                         data("bin_0.fasta"),
+                                                         data("various_chromosome_lengths.fasta"),
                                                          "--overlap ", std::to_string(overlap),
                                                          "--bins ", std::to_string(bins),
-                                                         "--length ", std::to_string(length),
                                                          "--reference-output reference_metadata.txt",
                                                          "--segment-output reference_segments.txt");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
-    std::string const expected_metadata = string_from_file(data("bin_0_metadata.txt"), std::ios::binary);
+    std::string const expected_metadata = string_from_file(data("reference_metadata.txt"), std::ios::binary);
     std::string const actual_metadata = string_from_file("reference_metadata.txt", std::ios::binary);
 
     EXPECT_TRUE(expected_metadata == actual_metadata);
 
-    std::string const expected_segments = string_from_file(segment_metadata_path(overlap, bins, length), std::ios::binary);
+    std::string const expected_segments = string_from_file(segment_metadata_path(overlap, bins), std::ios::binary);
     std::string const actual_segments = string_from_file("reference_segments.txt", std::ios::binary);
 
     EXPECT_TRUE(expected_segments == actual_segments);
@@ -38,12 +37,11 @@ TEST_P(valik_split, split)
 
 INSTANTIATE_TEST_SUITE_P(split_suite,
                          valik_split,
-                         testing::Combine(testing::Values(0, 150), testing::Values(1, 8), testing::Values(1000)),
+                         testing::Combine(testing::Values(0, 20), testing::Values(4, 16)),
                          [] (testing::TestParamInfo<valik_split::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_overlap_" +
-                                                std::to_string(std::get<1>(info.param)) + "_bins_" +
-                                                std::to_string(std::get<2>(info.param)) + "_length";
+                                                std::to_string(std::get<1>(info.param)) + "_bins";
                              return name;
                          });
 

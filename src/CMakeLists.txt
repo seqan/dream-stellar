@@ -11,11 +11,8 @@ target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/robin-h
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
 
 # Sliding window split
-add_library ("${PROJECT_NAME}_split_helper_lib" STATIC split/detail/helper.cpp)
-target_link_libraries ("${PROJECT_NAME}_split_helper_lib" PUBLIC "${PROJECT_NAME}_interface")
-
 add_library ("${PROJECT_NAME}_split_lib" STATIC valik_split.cpp)
-target_link_libraries ("${PROJECT_NAME}_split_lib" PUBLIC "${PROJECT_NAME}_split_helper_lib")
+target_link_libraries ("${PROJECT_NAME}_split_lib" PUBLIC "${PROJECT_NAME}_interface")
 
 # Sliding window build
 add_library ("${PROJECT_NAME}_build_lib" STATIC valik_build.cpp)

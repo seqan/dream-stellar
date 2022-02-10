@@ -113,31 +113,6 @@ TEST_F(valik_split, input_invalid)
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for positional option 1: The file \"nonexistent\" does not exist!\n"});
 }
 
-TEST_F(valik_split, too_short)
-{
-    cli_test_result const result = execute_app("valik", "split",
-                                                         data("bin_0.fasta"),
-                                                         "--segment-output seg",
-                                                         "--reference-output ref",
-                                                         "--length 0",
-                                                         "--overlap 0");
-    EXPECT_NE(result.exit_code, 0);
-    EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] The overlap size has to be smaller than the segment length.\n"});
-}
-
-TEST_F(valik_split, too_long)
-{
-    cli_test_result const result = execute_app("valik", "split",
-                                                         data("bin_1.fasta"),
-                                                         "--segment-output seg",
-                                                         "--reference-output ref",
-                                                         "--length 1000000");
-    EXPECT_NE(result.exit_code, 0);
-    EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] The segment length is greater than the total length of the reference.\n"});
-}
-
 TEST_F(valik_split, no_bins)
 {
     cli_test_result const result = execute_app("valik", "split",
@@ -147,7 +122,7 @@ TEST_F(valik_split, no_bins)
                                                          "--bins 0");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --bins: Value 0 is not in range [1,30000].\n"});
+    EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --bins: Value 0 is not in range [4,29952].\n"});
 }
 
 TEST_F(valik_build, input_missing)

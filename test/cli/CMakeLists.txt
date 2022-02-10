@@ -26,12 +26,12 @@ target_use_datasources (valik_test FILES bin_5.fasta)
 target_use_datasources (valik_test FILES bin_6.fasta)
 target_use_datasources (valik_test FILES bin_7.fasta)
 
-
-target_use_datasources (valik_test FILES 0overlap1bins1000length.txt)
-target_use_datasources (valik_test FILES 0overlap8bins1000length.txt)
-target_use_datasources (valik_test FILES 150overlap1bins1000length.txt)
-target_use_datasources (valik_test FILES 150overlap8bins1000length.txt)
-target_use_datasources (valik_test FILES bin_0_metadata.txt)
+target_use_datasources (valik_test FILES various_chromosome_lengths.fasta)
+target_use_datasources (valik_test FILES 0overlap4bins.txt)
+target_use_datasources (valik_test FILES 20overlap4bins.txt)
+target_use_datasources (valik_test FILES 0overlap16bins.txt)
+target_use_datasources (valik_test FILES 20overlap16bins.txt)
+target_use_datasources (valik_test FILES reference_metadata.txt)
 
 target_use_datasources (valik_test FILES 8bins20window.ibf)
 target_use_datasources (valik_test FILES 8bins23window.ibf)
