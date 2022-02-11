@@ -44,7 +44,7 @@ declare_datasource (FILE query.fq
 declare_datasource (FILE various_chromosome_lengths.fasta
                     URL ${CMAKE_SOURCE_DIR}/test/data/split/various_chromosome_lengths.fasta
                     URL_HASH SHA256=a6dccb2c5f434bea9a7afce246e2f50a6f59f96eeca126284274ea1581b7249a)
-declare_datasource (FILE reference_metadata.txt
+declare_datasource (FILE chromosome_metadata.txt
                     URL ${CMAKE_SOURCE_DIR}/test/data/split/chromosome_metadata.txt
                     URL_HASH SHA256=435e36bbdb0d481070aca7a86d3b264359bc0c5029fbdaa48f17b9e0f8ad306b)
 declare_datasource (FILE 0overlap4bins.txt
