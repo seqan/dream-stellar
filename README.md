@@ -26,7 +26,7 @@
         `&label=App-Template%20CI` - text on the badge
         `"Open GitHub actions page"` - this text will be shown on hover
 -->
-[1]: https://img.shields.io/github/workflow/status/eaasna/valik/CI%20on%20Linux/master?style=flat&logo=github&label=Sliging%20Window%20CI "Open GitHub actions page"
+[1]: https://img.shields.io/github/workflow/status/eaasna/valik/CI%20on%20Linux/master?style=flat&logo=github&label=valik%20CI "Open GitHub actions page"
 <!--
     This is the CI badge link:
         `https://github.com/seqan/app-template/actions` - actions page of owner(seqan)/repository(app-template)
@@ -40,7 +40,7 @@
         Copy the image part of the markdown badge here.
     `"Open Codecov page"` - this text will be shown on hover
 -->
-[3]: https://codecov.io/gh/eaasna/valik/branch/master/graph/badge.svg?token=ZKGJTQ55MF "Open Codecov page"
+[3]: https://codecov.io/gh/eaasna/valik/branch/master/graph/badge.svg?token=ZKGJTQ55MF
 <!--
     This is the Codecov badge link:
         Codecov offers badges: https://app.codecov.io/gh/seqan/app-template/settings/badge
