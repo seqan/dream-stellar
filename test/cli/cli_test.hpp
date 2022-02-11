@@ -92,15 +92,13 @@ protected:
 
 struct valik : public cli_test
 {
-    static inline std::filesystem::path const segment_metadata_path(size_t const overlap, size_t const bins, size_t const length) noexcept
+    static inline std::filesystem::path const segment_metadata_path(size_t const overlap, size_t const bins) noexcept
     {
         std::string name{};
         name += std::to_string(overlap);
         name += "overlap";
         name += std::to_string(bins);
-        name += "bins";
-        name += std::to_string(length);
-        name += "length.txt";
+        name += "bins.txt";
         return cli_test::data(name);
     }
 
@@ -143,7 +141,7 @@ struct valik : public cli_test
     }
 };
 
-struct valik_split : public valik, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
+struct valik_split : public valik, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
 struct valik_build : public valik, public testing::WithParamInterface<std::tuple<size_t, size_t, bool>> {};
 struct valik_search : public valik, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t,
 	size_t, size_t>> {};

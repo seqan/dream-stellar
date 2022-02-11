@@ -3,6 +3,8 @@
 #include <seqan3/core/debug_stream.hpp>
 #include <seqan3/io/sequence_file/all.hpp>
 
+#include <valik/split/reference_metadata.hpp>
+
 #include <iostream>
 #include <fstream>
 
@@ -36,41 +38,56 @@ class reference_segments {
             members.push_back(seg);
         }
 
-        void construct_by_linear_scan(size_t segment_len, size_t overlap, auto & reference_sequences)
+        void construct_by_linear_scan(size_t bins, size_t overlap, reference_metadata const & reference)
         {
-            size_t i = 0;
-            for (const auto & seq : reference_sequences)
+            assert(bins > 0);
+            default_len = reference.total_len / bins + 1;
+            assert(default_len > overlap);
+
+            size_t remaining_ref_len = reference.total_len;
+            for (const auto & seq : reference.sequences)
             {
                 size_t start = 0;
-
-                // only one segment per reference sequence
-                if (start + segment_len >= seq.len)
+                if (seq.len < (default_len / 2))
                 {
-                    add_segment(i, seq.id, start, seq.len);
-                    i++;
+                    seqan3::debug_stream << "Reference sequence: " << seq.id << " is too short and will be skipped.\n";
+                    remaining_ref_len -= seq.len;
                 }
-
-                // many segments per reference sequence
+                else if ((seq.len >= default_len / 2) & (seq.len <= default_len * 1.5))
+                {
+                    // reference sequence is single segment
+                    add_segment(members.size(), seq.id, start, seq.len);
+                    remaining_ref_len -= seq.len;
+                }
                 else
                 {
-                    add_segment(i, seq.id, start, segment_len);
-                    i++;
-                    while (start + segment_len < seq.len)
+                    // sequences that are contained in a single segment might not have the exact segment length
+                    // dynamically update segment length to divide the rest of the remaining reference as equally as possible along bins
+                    size_t remaining_bins = bins - members.size();
+                    size_t updated_seg_len = remaining_ref_len / remaining_bins;
+
+                    size_t bins_per_seq = std::round( (double) seq.len / (double) updated_seg_len);
+                    size_t actual_seg_len = seq.len / bins_per_seq + overlap + 1; // + 1 because integer division always rounded down
+
+                    // divide reference sequence into multiple segments
+                    add_segment(members.size(), seq.id, start, actual_seg_len);
+                    start = start + actual_seg_len - overlap;
+                    while (start + actual_seg_len - overlap < seq.len)
                     {
-                        start = start + segment_len - overlap;
-                        add_segment(i, seq.id, start, segment_len);
-                        i++;
+                        add_segment(members.size(), seq.id, start, actual_seg_len);
+                        start = start + actual_seg_len - overlap;
                     }
-                    add_segment(i, seq.id, start, seq.len - start);
-                    i++;
+                    add_segment(members.size(), seq.id, start, seq.len - start);
+
+                    remaining_ref_len -= seq.len;
                 }
             }
+            assert(members.size() == bins);
         }
 
-        reference_segments(size_t segment_len, size_t overlap, auto & reference_sequences)
+        reference_segments(size_t bins, size_t overlap, reference_metadata const & reference)
         {
-            default_len = segment_len;
-            construct_by_linear_scan(segment_len, overlap, reference_sequences);
+            construct_by_linear_scan(bins, overlap, reference);
         }
 
         // deserialize

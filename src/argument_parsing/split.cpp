@@ -30,18 +30,12 @@ void init_split_parser(seqan3::argument_parser & parser, split_arguments & argum
                       "Choose how much consecutive segments overlap.",
                       seqan3::option_spec::standard,
                       positive_integer_validator{true});
-    parser.add_option(arguments.min_bins,
+    parser.add_option(arguments.bins,
                       '\0',
                       "bins",
-                      "How many bins should the IBF contain at a minimum.",
+                      "Number of bins in the IBF. Multiples of 64 lead to better performance.",
                       seqan3::option_spec::standard,
-                      seqan3::arithmetic_range_validator{1, 30000});
-    parser.add_option(arguments.min_len,
-                      '\0',
-                      "length",
-                      "The minimum length of a reference segment.",
-                      seqan3::option_spec::standard,
-                      positive_integer_validator{true});
+                      seqan3::arithmetic_range_validator{4, 29952});
 }
 
 void run_split(seqan3::argument_parser & parser)
@@ -49,12 +43,6 @@ void run_split(seqan3::argument_parser & parser)
     split_arguments arguments{};
     init_split_parser(parser, arguments);
     try_parsing(parser);
-
-    if (parser.is_option_set("overlap") & parser.is_option_set("length"))
-    {
-        if (arguments.overlap >= arguments.min_len)
-            throw seqan3::argument_parser_error{"The overlap size has to be smaller than the segment length."};
-    }
 
     // ==========================================
     // Dispatch
