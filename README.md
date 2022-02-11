@@ -1,4 +1,4 @@
-# Sliding window [![build status][1]][2] [![codecov][3]][4]
+# valik [![build status][1]][2] [![codecov][3]][4]
 <!--
     Above uses reference-style links with numbers.
     See also https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links.
@@ -50,18 +50,19 @@
 [4]: https://codecov.io/gh/eaasna/sliding-window
 
 ## Quick run
+`valik split example_data/64/bins/bin_00.fasta --overlap 150 --bins 64`
 
-`sliding_window build bin_paths.txt --threads 8 --output index.out --size 80m`
+`valik build bin_paths.txt --threads 8 --output index.out --size 80m`
 
-`sliding_window search --index index.out --query example_data/64/reads/all.fastq --pattern 50 --output matches.out --overlap 10`
+`valik search --index index.out --query example_data/64/reads/all.fastq --pattern 50 --output matches.out --overlap 10`
 
-### A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences
-The aim of this repository is to develop an IBF based prefilter for metagenomics read mapping. The IBF is created from the (k,k)-minimiser content of the reference database. The filter excludes parts of the reference datbase for each query read. Only reference sequences where an approximate local match for the query sequence was found are retained.
+### Distributed local search
+The valik application employs an IBF based prefilter (Estonian: _valik_) for searching approximate local matches in a nucleotide sequence database. The IBF is created from the (w,k)-minimiser content of the reference database. The filter excludes parts of the reference database for each query read. Only reference sequences where an approximate local match for the query sequence was found are retained.
 A local match is defined as:
-* length >= w
-* errors <= e
+* length >= `pattern`
+* errors <= `errors`
 
-where w is the window length and e is the allowed number of errors. Each read is divided into multiple possibly overlapping windows. The (k, k)-minimiser content of each window is then queried in the IBF.
+where `pattern` is the pattern size and `errors` the allowed number of errors. Each read is divided into multiple possibly overlapping pattern. The (w, k)-minimiser content of each window is then queried in the IBF.
 
 ## Download and Installation
 
@@ -77,7 +78,7 @@ Refer to the [Seqan3 Setup Tutorial](https://docs.seqan.de/seqan/3-master-user/s
 <details><summary>Download current master branch (click to expand)</summary>
 
 ```bash
-git clone --recurse-submodules https://github.com/eaasna/sliding-window
+git clone --recurse-submodules https://github.com/eaasna/valik
 ```
 
 </details>
@@ -85,7 +86,7 @@ git clone --recurse-submodules https://github.com/eaasna/sliding-window
 <details><summary>Building (click to expand)</summary>
 
 ```bash
-cd sliding-window
+cd valik
 mkdir -p build
 cd build
 cmake ..
@@ -97,12 +98,12 @@ The binary can be found in `bin`.
 You may want to add the executable to your PATH:
 ```
 export PATH=$(pwd)/bin:$PATH
-raptor --version
+valik --version
 ```
 
 </details>
 
-## Example Data and Usage
+## Example Metagenomic Data and Usage
 A toy data set can be found [here](https://ftp.imp.fu-berlin.de/pub/seiler/raptor/).
 
 ```bash
@@ -133,7 +134,7 @@ To build an index over all bins, we first prepare a file that contains one file 
 (a line corresponds to a bin) and use this file as input:
 ```
 seq -f "example_data/64/bins/bin_%02g.fasta" 0 1 63 > bin_paths.txt
-sliding_window build bin_paths.txt --threads 8 --output index.out --size 80m
+valik build bin_paths.txt --threads 8 --output index.out --size 80m
 ```
 
 You may be prompted to enable or disable automatic update notifications. For questions, please consult
@@ -142,7 +143,7 @@ You may be prompted to enable or disable automatic update notifications. For que
 Afterwards, we can search for all reads from bin 1:
 
 ```
-sliding_window search --index index.out --query example_data/64/reads/mini.fastq --errors 2 --pattern 50 --output matches.out --overlap 10
+valik search --index index.out --query example_data/64/reads/mini.fastq --errors 2 --pattern 50 --output matches.out --overlap 10
 ```
 
 Each line of the output consists of the read ID (in the toy example these are numbers) and the corresponding bins in
@@ -165,13 +166,14 @@ which they were found:
 
 For a list of options, see the help pages:
 ```console
-sliding_window --help
-sliding_window build --help
-sliding_window search --help
+valik --help
+valik split --help
+valik build --help
+valik search --help
 ```
 
 ## Authorship and Copyright
-The sliding window filter is based on Raptor. Raptor is being developed by [Enrico Seiler](mailto:enrico.seiler@fu-berlin.de), but also incorporates much work from
+The valik application is based on Raptor. Raptor is being developed by [Enrico Seiler](mailto:enrico.seiler@fu-berlin.de), but also incorporates much work from
 other members of [SeqAn](https://www.seqan.de).
 
 ### Citation
