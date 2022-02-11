@@ -26,13 +26,13 @@
         `&label=App-Template%20CI` - text on the badge
         `"Open GitHub actions page"` - this text will be shown on hover
 -->
-[1]: https://img.shields.io/github/workflow/status/eaasna/sliding-window/CI%20on%20Linux/master?style=flat&logo=github&label=Sliging%20Window%20CI "Open GitHub actions page"
+[1]: https://img.shields.io/github/workflow/status/eaasna/valik/CI%20on%20Linux/master?style=flat&logo=github&label=Sliging%20Window%20CI "Open GitHub actions page"
 <!--
     This is the CI badge link:
         `https://github.com/seqan/app-template/actions` - actions page of owner(seqan)/repository(app-template)
         `?query=branch%3Amaster` - only show actions that ran on the mater branch
 -->
-[2]: https://github.com/eaasna/sliding-window/actions?query=branch%3Amaster
+[2]: https://github.com/eaasna/valik/actions?query=branch%3Amaster
 <!--
     This is the Codecov badge image:
         Codecov offers badges: https://app.codecov.io/gh/seqan/app-template/settings/badge
@@ -40,14 +40,14 @@
         Copy the image part of the markdown badge here.
     `"Open Codecov page"` - this text will be shown on hover
 -->
-[3]: https://codecov.io/gh/eaasna/sliding-window/branch/master/graph/badge.svg?token=ZKGJTQ55MF "Open Codecov page"
+[3]: https://codecov.io/gh/eaasna/valik/branch/master/graph/badge.svg?token=ZKGJTQ55MF "Open Codecov page"
 <!--
     This is the Codecov badge link:
         Codecov offers badges: https://app.codecov.io/gh/seqan/app-template/settings/badge
         While being logged in into Codecov, navigate to Settings->Badge and copy the markdown badge.
         Copy the URL part of the markdown badge here.
 -->
-[4]: https://codecov.io/gh/eaasna/sliding-window
+[4]: https://codecov.io/gh/eaasna/valik
 
 ## Quick run
 `valik split example_data/64/bins/bin_00.fasta --overlap 150 --bins 64`
