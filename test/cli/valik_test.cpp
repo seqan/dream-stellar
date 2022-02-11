@@ -23,7 +23,7 @@ TEST_P(valik_split, split)
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"Reference sequence: chr5 is too short and will be skipped.\n"});
 
-    std::string const expected_metadata = string_from_file(data("reference_metadata.txt"), std::ios::binary);
+    std::string const expected_metadata = string_from_file(data("chromosome_metadata.txt"), std::ios::binary);
     std::string const actual_metadata = string_from_file("reference_metadata.txt", std::ios::binary);
 
     EXPECT_TRUE(expected_metadata == actual_metadata);

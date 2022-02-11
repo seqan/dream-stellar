@@ -32,7 +32,7 @@ target_use_datasources (valik_test FILES 0overlap4bins.txt)
 target_use_datasources (valik_test FILES 20overlap4bins.txt)
 target_use_datasources (valik_test FILES 0overlap16bins.txt)
 target_use_datasources (valik_test FILES 20overlap16bins.txt)
-target_use_datasources (valik_test FILES reference_metadata.txt)
+target_use_datasources (valik_test FILES chromosome_metadata.txt)
 
 target_use_datasources (valik_test FILES 8bins20window.ibf)
 target_use_datasources (valik_test FILES 8bins23window.ibf)
