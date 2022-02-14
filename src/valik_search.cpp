@@ -1,3 +1,4 @@
+#include <valik/search/load_index.hpp>
 #include <valik/search/query_record.hpp>
 #include <valik/search/search_setup.hpp>
 
@@ -9,15 +10,16 @@ namespace valik::app
 // Setup IBF and launch multithreaded search.
 //
 //-----------------------------
-template <seqan3::data_layout ibf_data_layout>
+template <bool compressed>
 void run_program(search_arguments const &arguments, search_time_statistics & time_statistics)
 {
-    seqan3::interleaved_bloom_filter<ibf_data_layout> ibf{};
+    using index_structure_t = std::conditional_t<compressed, index_structure::ibf_compressed, index_structure::ibf>;
+    auto index = valik_index<index_structure_t>{};
 
     auto cereal_worker = [&]()
     {
         auto start = std::chrono::high_resolution_clock::now();
-        load_ibf(ibf, arguments.ibf_file);
+        load_index(index, arguments.index_file);
         auto end = std::chrono::high_resolution_clock::now();
         time_statistics.ibf_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     };
@@ -47,7 +49,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         cereal_handle.wait();
 
         start = std::chrono::high_resolution_clock::now();
-        write_output_file_parallel(ibf, arguments, query_records, threshold_data, synced_out);
+        write_output_file_parallel(index.ibf(), arguments, query_records, threshold_data, synced_out);
         end = std::chrono::high_resolution_clock::now();
         time_statistics.compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }

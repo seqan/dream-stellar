@@ -2,6 +2,7 @@
 #include <seqan3/core/debug_stream.hpp>
 
 #include <valik/argument_parsing/search.hpp>
+#include <valik/index.hpp>
 #include <valik/search/search.hpp>
 
 namespace valik::app
@@ -11,7 +12,7 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
 {
     init_shared_meta(parser);
     init_shared_options(parser, arguments);
-    parser.add_option(arguments.ibf_file,
+    parser.add_option(arguments.index_file,
                       '\0',
                       "index",
                       "Provide a valid path to an IBF.",
@@ -84,15 +85,18 @@ void run_search(seqan3::argument_parser & parser)
     seqan3::input_file_validator<seqan3::sequence_file_input<>>{}(arguments.query_file);
     arguments.treshold_was_set = parser.is_option_set("threshold");
 
-
     // ==========================================
-    // Read window and kmer size.
+    // Read window and kmer size, and the bin paths.
     // ==========================================
     {
-        std::ifstream is{arguments.ibf_file, std::ios::binary};
+        std::ifstream is{arguments.index_file.string(),std::ios::binary};
         cereal::BinaryInputArchive iarchive{is};
-        iarchive(arguments.kmer_size);
-        iarchive(arguments.window_size);
+        valik_index<> tmp{};
+        tmp.load_parameters(iarchive);
+        arguments.shape = tmp.shape();
+        arguments.window_size = tmp.window_size();
+        arguments.compressed = tmp.compressed();
+        arguments.bin_path = tmp.bin_path();
     }
 
     // ==========================================

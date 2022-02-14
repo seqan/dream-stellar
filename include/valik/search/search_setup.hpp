@@ -6,7 +6,7 @@
 
 #include <valik/search/compute_simple_model.hpp>
 #include <valik/search/write_output_file_parallel.hpp>
-#include <valik/search/load_ibf.hpp>
+#include <valik/search/load_index.hpp>
 #include <valik/search/local_prefilter.hpp>
 #include <valik/search/query_record.hpp>
 #include <valik/search/query_result.hpp>
@@ -178,9 +178,9 @@ local_prefilter_fn::operator()(
     using minimiser_vec_t = std::vector<std::tuple<uint64_t, size_t>>;
     minimiser_vec_t minimiser;
 
-    auto hash_tuple_view = indexed_minimiser_hash(seqan3::ungapped{arguments.kmer_size},
+    auto hash_tuple_view = indexed_minimiser_hash(arguments.shape,
                                                     window_size{arguments.window_size},
-                                                    seed{adjust_seed(arguments.kmer_size)});
+                                                    seed{adjust_seed(arguments.shape.count())});
 
     for (query_record const & record : records)
     {
