@@ -51,7 +51,7 @@ constexpr void pattern_begin_positions(size_t const read_len, uint64_t const pat
 // TODO: make these generic for both build and search
 struct search_time_statistics
 {
-    double ibf_io_time{0.0};
+    double index_io_time{0.0};
     double reads_io_time{0.0};
     double compute_time{0.0};
 };
@@ -64,7 +64,7 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
     file_handle << "IBF I/O\tReads I/O\tCompute\n";
     file_handle << std::fixed
                 << std::setprecision(2)
-                << time_statistics.ibf_io_time << '\t'
+                << time_statistics.index_io_time << '\t'
                 << time_statistics.reads_io_time << '\t'
                 << time_statistics.compute_time;
 
@@ -180,7 +180,7 @@ local_prefilter_fn::operator()(
 
     auto hash_tuple_view = indexed_minimiser_hash(arguments.shape,
                                                     window_size{arguments.window_size},
-                                                    seed{adjust_seed(arguments.shape.count())});
+                                                    seed{adjust_seed(arguments.shape_weight)});
 
     for (query_record const & record : records)
     {

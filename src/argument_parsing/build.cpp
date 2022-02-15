@@ -108,6 +108,7 @@ void run_build(seqan3::argument_parser & parser)
     // ==========================================
     if (parser.is_option_set("kmer")){
         arguments.shape = seqan3::shape{seqan3::ungapped{arguments.kmer_size}};
+        arguments.shape_weight = arguments.shape.count();
     }
 
     if (parser.is_option_set("window"))

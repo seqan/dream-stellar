@@ -54,13 +54,13 @@ private:
             {
                 return seqan3::views::minimiser_hash(arguments->shape,
                                                      seqan3::window_size{arguments->window_size},
-                                                     seqan3::seed{adjust_seed(arguments->shape.count())});
+                                                     seqan3::seed{adjust_seed(arguments->shape_weight)});
             }
             else
             {
                 return seqan3::views::minimiser_hash(arguments->shape,
                                                      seqan3::window_size{arguments->window_size},
-                                                     seqan3::seed{adjust_seed(arguments->shape.count())})
+                                                     seqan3::seed{adjust_seed(arguments->shape_weight)})
                        | hash_filter_view;
             }
         };

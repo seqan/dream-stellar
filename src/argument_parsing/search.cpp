@@ -94,6 +94,8 @@ void run_search(seqan3::argument_parser & parser)
         valik_index<> tmp{};
         tmp.load_parameters(iarchive);
         arguments.shape = tmp.shape();
+        arguments.shape_size = arguments.shape.size();
+        arguments.shape_weight = arguments.shape.count();
         arguments.window_size = tmp.window_size();
         arguments.compressed = tmp.compressed();
         arguments.bin_path = tmp.bin_path();

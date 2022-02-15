@@ -21,7 +21,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         auto start = std::chrono::high_resolution_clock::now();
         load_index(index, arguments.index_file);
         auto end = std::chrono::high_resolution_clock::now();
-        time_statistics.ibf_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+        time_statistics.index_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     };
 
     auto cereal_handle = std::async(std::launch::async, cereal_worker);
@@ -49,6 +49,8 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         cereal_handle.wait();
 
         start = std::chrono::high_resolution_clock::now();
+
+        //TODO: pass index and overlap instead of ibf and all parameters
         write_output_file_parallel(index.ibf(), arguments, query_records, threshold_data, synced_out);
         end = std::chrono::high_resolution_clock::now();
         time_statistics.compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
