@@ -1,22 +1,17 @@
 #pragma once
 
-#include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
-
-#include <valik/shared.hpp>
+#include <valik/index.hpp>
 
 namespace valik
 {
 
-template <auto layout>
+template <typename data_t>
 static inline void store_index(std::filesystem::path const & path,
-                               seqan3::interleaved_bloom_filter<layout> const & ibf,
-                               build_arguments const & arguments)
+                               valik_index<data_t> const & index)
 {
     std::ofstream os{path, std::ios::binary};
     cereal::BinaryOutputArchive oarchive{os};
-    oarchive(arguments.kmer_size);
-    oarchive(arguments.window_size);
-    oarchive(ibf);
+    oarchive(index);
 }
 
 } // namespace valik

@@ -75,10 +75,7 @@ TEST_P(valik_build, build_with_file)
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
-    std::string const expected = string_from_file(ibf_path(number_of_bins, window_size), std::ios::binary);
-    std::string const actual = string_from_file("index.ibf", std::ios::binary);
-
-    EXPECT_TRUE(expected == actual);
+    compare_index(ibf_path(number_of_bins, window_size), "index.ibf");
 }
 
 

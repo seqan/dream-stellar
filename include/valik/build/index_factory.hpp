@@ -1,27 +1,29 @@
 #pragma once
 
 #include <valik/build/call_parallel_on_bins.hpp>
-#include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
-#include <seqan3/search/views/minimiser_hash.hpp>
+#include <valik/index.hpp>
 #include <valik/split/reference_metadata.hpp>
 #include <valik/split/reference_segments.hpp>
+
+#include <seqan3/search/views/minimiser_hash.hpp>
+
 
 
 namespace valik
 {
 
 template <bool compressed>
-class ibf_factory
+class index_factory
 {
 public:
-    ibf_factory() = default;
-    ibf_factory(ibf_factory const &) = default;
-    ibf_factory(ibf_factory &&) = default;
-    ibf_factory & operator=(ibf_factory const &) = default;
-    ibf_factory & operator=(ibf_factory &&) = default;
-    ~ibf_factory() = default;
+    index_factory() = default;
+    index_factory(index_factory const &) = default;
+    index_factory(index_factory &&) = default;
+    index_factory & operator=(index_factory const &) = default;
+    index_factory & operator=(index_factory &&) = default;
+    ~index_factory() = default;
 
-    explicit ibf_factory(build_arguments const & args) : arguments{std::addressof(args)} {}
+    explicit index_factory(build_arguments const & args) : arguments{std::addressof(args)} {}
 
     template <typename view_t = int>
     [[nodiscard]] auto operator()(view_t && hash_filter_view = 0) const
@@ -31,7 +33,7 @@ public:
         if constexpr (!compressed)
             return tmp;
         else
-            return seqan3::interleaved_bloom_filter<seqan3::data_layout::compressed>{std::move(tmp)};
+            return valik_index<index_structure::ibf_compressed>{std::move(tmp)};
     }
 
 private:
@@ -44,23 +46,21 @@ private:
 
         assert(arguments != nullptr);
 
-        seqan3::interleaved_bloom_filter<> ibf{seqan3::bin_count{arguments->bins},
-                                               seqan3::bin_size{arguments->bits},
-                                               seqan3::hash_function_count{arguments->hash}};
+        valik_index<> index{*arguments};
 
         auto hash_view = [&] ()
         {
             if constexpr (!std::ranges::view<view_t>)
             {
-                return seqan3::views::minimiser_hash(seqan3::ungapped{arguments->kmer_size},
+                return seqan3::views::minimiser_hash(arguments->shape,
                                                      seqan3::window_size{arguments->window_size},
-                                                     seqan3::seed{adjust_seed(arguments->kmer_size)});
+                                                     seqan3::seed{adjust_seed(arguments->shape_weight)});
             }
             else
             {
-                return seqan3::views::minimiser_hash(seqan3::ungapped{arguments->kmer_size},
+                return seqan3::views::minimiser_hash(arguments->shape,
                                                      seqan3::window_size{arguments->window_size},
-                                                     seqan3::seed{adjust_seed(arguments->kmer_size)})
+                                                     seqan3::seed{adjust_seed(arguments->shape_weight)})
                        | hash_filter_view;
             }
         };
@@ -72,6 +72,7 @@ private:
 
             seqan3::sequence_file_input fin{arguments->bin_file};
 
+            auto & ibf = index.ibf();
             int i = 0;
             for (auto & record : fin)
             {
@@ -89,6 +90,8 @@ private:
         {
             auto clustered_reference_worker = [&] (auto && zipped_view, auto &&)
             {
+                auto & ibf = index.ibf();
+
                 for (auto && [file_names, bin_number] : zipped_view)
                     for (auto && file_name : file_names)
                         for (auto && [seq] : sequence_file_t{file_name})
@@ -97,7 +100,7 @@ private:
             };
             call_parallel_on_bins(clustered_reference_worker, *arguments);
         }
-        return ibf;
+        return index;
     }
 };
 

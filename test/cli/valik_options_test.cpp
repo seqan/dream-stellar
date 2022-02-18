@@ -10,7 +10,12 @@ seqan3::test::create_temporary_snippet_file tmp_bin_list_file{"all_bins.txt", st
 
 #include "cli_test.hpp"
 
-TEST_F(valik, no_options)
+struct argparse : public valik_base {};
+struct argparse_split : public valik_base {};
+struct argparse_build : public valik_base {};
+struct argparse_search : public valik_base {};
+
+TEST_F(argparse, no_options)
 {
     cli_test_result const result = execute_app("valik");
     std::string const expected
@@ -24,7 +29,7 @@ TEST_F(valik, no_options)
     EXPECT_EQ(result.err, std::string{});
 }
 
-TEST_F(valik_split, no_options)
+TEST_F(argparse_split, no_options)
 {
     cli_test_result const result = execute_app("valik", "split");
     std::string const expected
@@ -38,7 +43,7 @@ TEST_F(valik_split, no_options)
     EXPECT_EQ(result.err, std::string{});
 }
 
-TEST_F(valik_build, no_options)
+TEST_F(argparse_build, no_options)
 {
     cli_test_result const result = execute_app("valik", "build");
     std::string const expected
@@ -52,7 +57,7 @@ TEST_F(valik_build, no_options)
     EXPECT_EQ(result.err, std::string{});
 }
 
-TEST_F(valik_search, no_options)
+TEST_F(argparse_search, no_options)
 {
     cli_test_result const result = execute_app("valik", "search");
     std::string const expected
@@ -66,7 +71,7 @@ TEST_F(valik_search, no_options)
     EXPECT_EQ(result.err, std::string{});
 }
 
-TEST_F(valik, no_subparser)
+TEST_F(argparse, no_subparser)
 {
     cli_test_result const result = execute_app("valik", "foo");
     std::string const expected
@@ -79,7 +84,7 @@ TEST_F(valik, no_subparser)
     EXPECT_EQ(result.err, expected);
 }
 
-TEST_F(valik, unknown_option)
+TEST_F(argparse, unknown_option)
 {
     cli_test_result const result = execute_app("valik", "-v");
     std::string const expected
@@ -92,7 +97,7 @@ TEST_F(valik, unknown_option)
     EXPECT_EQ(result.err, expected);
 }
 
-TEST_F(valik_split, input_missing)
+TEST_F(argparse_split, input_missing)
 {
     cli_test_result const result = execute_app("valik", "split",
                                                          "--segment-output seg",
@@ -102,7 +107,7 @@ TEST_F(valik_split, input_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Not enough positional arguments provided (Need at least 1). See -h/--help for more information.\n"});
 }
 
-TEST_F(valik_split, input_invalid)
+TEST_F(argparse_split, input_invalid)
 {
     cli_test_result const result = execute_app("valik", "split",
                                                          "nonexistent",
@@ -113,7 +118,7 @@ TEST_F(valik_split, input_invalid)
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for positional option 1: The file \"nonexistent\" does not exist!\n"});
 }
 
-TEST_F(valik_split, no_bins)
+TEST_F(argparse_split, no_bins)
 {
     cli_test_result const result = execute_app("valik", "split",
                                                          "dummy.fasta",
@@ -125,7 +130,7 @@ TEST_F(valik_split, no_bins)
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --bins: Value 0 is not in range [4,29952].\n"});
 }
 
-TEST_F(valik_build, input_missing)
+TEST_F(argparse_build, input_missing)
 {
     cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8m",
@@ -135,7 +140,7 @@ TEST_F(valik_build, input_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Not enough positional arguments provided (Need at least 1). See -h/--help for more information.\n"});
 }
 
-TEST_F(valik_build, input_invalid)
+TEST_F(argparse_build, input_invalid)
 {
     cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8m",
@@ -146,7 +151,7 @@ TEST_F(valik_build, input_invalid)
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for positional option 1: The file \"nonexistent\" does not exist!\n"});
 }
 
-TEST_F(valik_build, output_missing)
+TEST_F(argparse_build, output_missing)
 {
     cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8m",
@@ -156,7 +161,7 @@ TEST_F(valik_build, output_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Option --output is required but not set.\n"});
 }
 
-TEST_F(valik_build, output_wrong)
+TEST_F(argparse_build, output_wrong)
 {
     cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8m",
@@ -167,7 +172,7 @@ TEST_F(valik_build, output_wrong)
     EXPECT_EQ(result.err, std::string{"[Error] Cannot write \"foo/out.ibf\"!\n"});
 }
 
-TEST_F(valik_build, size_missing)
+TEST_F(argparse_build, size_missing)
 {
     cli_test_result const result = execute_app("valik", "build",
                                                          "--output ./ibf.out",
@@ -177,7 +182,7 @@ TEST_F(valik_build, size_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Option --size is required but not set.\n"});
 }
 
-TEST_F(valik_build, size_wrong_space)
+TEST_F(argparse_build, size_wrong_space)
 {
     cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8 m",
@@ -189,7 +194,7 @@ TEST_F(valik_build, size_wrong_space)
                                       "followed by [k,m,g,t] (case insensitive).\n"});
 }
 
-TEST_F(valik_build, size_wrong_suffix)
+TEST_F(argparse_build, size_wrong_suffix)
 {
     cli_test_result const result = execute_app("valik", "build",
                                                          "--size 8x",
@@ -201,7 +206,7 @@ TEST_F(valik_build, size_wrong_suffix)
                                       "followed by [k,m,g,t] (case insensitive).\n"});
 }
 
-TEST_F(valik_build, kmer_window)
+TEST_F(argparse_build, kmer_window)
 {
     cli_test_result const result = execute_app("valik", "build",
                                                          "--kmer 20",
@@ -214,7 +219,7 @@ TEST_F(valik_build, kmer_window)
     EXPECT_EQ(result.err, std::string{"[Error] The k-mer size cannot be bigger than the window size.\n"});
 }
 
-TEST_F(valik_search, ibf_missing)
+TEST_F(argparse_search, ibf_missing)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
@@ -224,7 +229,7 @@ TEST_F(valik_search, ibf_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Option --index is required but not set.\n"});
 }
 
-TEST_F(valik_search, ibf_wrong)
+TEST_F(argparse_search, ibf_wrong)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
@@ -236,7 +241,7 @@ TEST_F(valik_search, ibf_wrong)
                                       "exist!\n"});
 }
 
-TEST_F(valik_search, query_missing)
+TEST_F(argparse_search, query_missing)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                          "--index ", tmp_ibf_file.file_path,
@@ -246,7 +251,7 @@ TEST_F(valik_search, query_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Option --query is required but not set.\n"});
 }
 
-TEST_F(valik_search, query_wrong)
+TEST_F(argparse_search, query_wrong)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query foo.fasta",
@@ -258,7 +263,7 @@ TEST_F(valik_search, query_wrong)
                                       "exist!\n"});
 }
 
-TEST_F(valik_search, output_missing)
+TEST_F(argparse_search, output_missing)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
@@ -268,7 +273,7 @@ TEST_F(valik_search, output_missing)
     EXPECT_EQ(result.err, std::string{"[Error] Option --output is required but not set.\n"});
 }
 
-TEST_F(valik_search, output_wrong)
+TEST_F(argparse_search, output_wrong)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
@@ -280,16 +285,14 @@ TEST_F(valik_search, output_wrong)
                                       "\"foo/search.out\"!\n"});
 }
 
-TEST_F(valik_search, pattern_window)
+TEST_F(argparse_search, pattern_window)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
-                                                         "--index ", tmp_ibf_file.file_path,
+                                                         "--index ", data("8bins20window.ibf"),
                                                          "--output search.out",
 							                             "--pattern 12");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] The minimiser window cannot be bigger than the pattern.\n"});
 }
-
-

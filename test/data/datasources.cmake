@@ -62,10 +62,10 @@ declare_datasource (FILE 20overlap16bins.txt
 
 declare_datasource (FILE 8bins20window.ibf
                     URL ${CMAKE_SOURCE_DIR}/test/data/8bins20window.ibf
-                    URL_HASH SHA256=47c9367e1be29ed40adc58a9cf72052375037562ae0e293bc07375b34042ca66)
+                    URL_HASH SHA256=5ba1b39ff4a7c9e820b3cf738116d507f65c5d50c91221d77ff173d4297cb13b)
 declare_datasource (FILE 8bins23window.ibf
                     URL ${CMAKE_SOURCE_DIR}/test/data/8bins23window.ibf
-                    URL_HASH SHA256=f0e3debd5f34f2392b0c7163cbc5be9642f4f95a4b4c017670992b8e78f56eb4)
+                    URL_HASH SHA256=2c528498ef692dde084c9d26b0583eb5bb74d640a1b777193764c3d667014c3d)
 
 declare_datasource (FILE 8bins20window0error50pattern1overlap.out
                     URL ${CMAKE_SOURCE_DIR}/test/data/8bins20window0error50pattern1overlap.out

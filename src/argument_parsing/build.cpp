@@ -77,18 +77,19 @@ void run_build(seqan3::argument_parser & parser)
     // if building from clustered sequences each line in input corresponds to a bin
     // if building from overlapping segments all sequences in one reference file
     // ==========================================
+    auto sequence_file_validator{bin_validator{}.sequence_file_validator};
+
     if (!arguments.from_segments)
     {
         std::ifstream istrm{arguments.bin_file};
         std::string line;
-        auto sequence_file_validator{bin_validator{}.sequence_file_validator};
 
         while (std::getline(istrm, line))
         {
             if (!line.empty())
             {
                 sequence_file_validator(line);
-                arguments.bin_path.emplace_back(std::vector<std::filesystem::path>{line});
+                arguments.bin_path.emplace_back(std::vector<std::string>{line});
             }
         }
         arguments.bins = arguments.bin_path.size();
@@ -97,11 +98,18 @@ void run_build(seqan3::argument_parser & parser)
     {
         reference_segments seg(arguments.seg_path);
         arguments.bins = seg.members.size();
+        sequence_file_validator(arguments.bin_file);
+        std::string bin_string{arguments.bin_file.string()};
+        arguments.bin_path.emplace_back(std::vector<std::string>{bin_string});
     }
 
     // ==========================================
     // Various checks.
     // ==========================================
+    if (parser.is_option_set("kmer")){
+        arguments.shape = seqan3::shape{seqan3::ungapped{arguments.kmer_size}};
+        arguments.shape_weight = arguments.shape.count();
+    }
 
     if (parser.is_option_set("window"))
     {
@@ -109,7 +117,7 @@ void run_build(seqan3::argument_parser & parser)
             throw seqan3::argument_parser_error{"The k-mer size cannot be bigger than the window size."};
     }
     else
-        arguments.window_size = arguments.kmer_size;
+        arguments.window_size = arguments.shape.size();
 
     try
     {

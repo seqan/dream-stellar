@@ -5,7 +5,6 @@
 #include <vector>
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
-
 #include <valik/shared.hpp>
 #include <valik/search/compute_simple_model.hpp>
 #include <valik/search/local_prefilter.hpp>

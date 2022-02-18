@@ -14,7 +14,7 @@ inline std::vector<size_t> compute_simple_model(search_arguments const & argumen
     {
         precomp_thresholds = precompute_threshold(arguments.pattern_size,
                                                   arguments.window_size,
-                                                  arguments.kmer_size,
+                                                  arguments.shape_size,
                                                   arguments.errors,
                                                   arguments.tau);
 
@@ -38,13 +38,14 @@ struct threshold
 inline threshold make_threshold_data(search_arguments const & arguments)
 {
     auto threshold_data = threshold{};
-    
-    threshold_data.kmers_per_window = arguments.window_size - arguments.kmer_size + 1;
-    threshold_data.kmers_per_pattern = arguments.pattern_size - arguments.kmer_size + 1;
-    threshold_data.min_number_of_minimisers = threshold_data.kmers_per_window == 1 ? 
+
+    uint8_t kmer_size = arguments.shape_size;
+    threshold_data.kmers_per_window = arguments.window_size - kmer_size + 1;
+    threshold_data.kmers_per_pattern = arguments.pattern_size - kmer_size + 1;
+    threshold_data.min_number_of_minimisers = threshold_data.kmers_per_window == 1 ?
                     threshold_data.kmers_per_pattern : std::ceil(threshold_data.kmers_per_pattern / static_cast<double>(threshold_data.kmers_per_window));
-    threshold_data.kmer_lemma = arguments.pattern_size + 1u > (arguments.errors + 1u) * arguments.kmer_size ? 
-                    arguments.pattern_size + 1u - (arguments.errors + 1u) * arguments.kmer_size : 0;
+    threshold_data.kmer_lemma = arguments.pattern_size + 1u > (arguments.errors + 1u) * kmer_size ?
+                    arguments.pattern_size + 1u - (arguments.errors + 1u) * kmer_size : 0;
     threshold_data.max_number_of_minimisers = arguments.pattern_size - arguments.window_size + 1;
     threshold_data.precomp_thresholds = compute_simple_model(arguments);
 

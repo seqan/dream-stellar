@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <seqan3/io/sequence_file/input.hpp>
+#include <seqan3/search/kmer_index/shape.hpp>
 
 namespace valik
 {
@@ -42,10 +43,12 @@ struct split_arguments
 struct build_arguments
 {
     uint32_t window_size{23u};
-    uint8_t kmer_size{20u};
+    uint8_t kmer_size{20};
+    seqan3::shape shape{seqan3::ungapped{20u}};
+    uint8_t shape_weight{shape.count()};
     uint8_t threads{1u};
 
-    std::vector<std::vector<std::filesystem::path>> bin_path{};
+    std::vector<std::vector<std::string>> bin_path{};
     std::filesystem::path bin_file{};
     std::filesystem::path out_path{"./"};
     std::string size{};
@@ -62,11 +65,15 @@ struct build_arguments
 struct search_arguments
 {
     uint32_t window_size{23u};
-    uint8_t kmer_size{20u};
+    seqan3::shape shape{seqan3::ungapped{20u}};
+    uint8_t shape_size{shape.size()};
+    uint8_t shape_weight{shape.count()};
+
     uint8_t threads{1u};
 
+    std::vector<std::vector<std::string>> bin_path{};
     std::filesystem::path query_file{};
-    std::filesystem::path ibf_file{};
+    std::filesystem::path index_file{};
     std::filesystem::path out_file{"search.out"};
     double tau{0.99};
     double threshold{};
