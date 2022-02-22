@@ -1,6 +1,7 @@
 #include <valik/search/load_index.hpp>
 #include <valik/search/query_record.hpp>
-#include <valik/search/search_setup.hpp>
+#include <valik/search/search_time_statistics.hpp>
+#include <valik/search/write_output_file_parallel.hpp>
 
 namespace valik::app
 {
