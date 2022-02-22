@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <valik/search/search_setup.hpp>
+#include <valik/search/local_prefilter.hpp>
 #include <valik/shared.hpp>
 #include <valik/search/compute_simple_model.hpp>
 

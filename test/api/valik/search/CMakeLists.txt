@@ -1,1 +1,1 @@
-add_api_test (search_setup_test.cpp)
+add_api_test (local_prefilter_test.cpp)
