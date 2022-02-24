@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include <valik/shared.hpp>
+
 namespace valik::app
 {
 
