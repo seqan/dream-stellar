@@ -3,6 +3,8 @@
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/search/write_output_file_parallel.hpp>
 
+#include <raptor/threshold/threshold.hpp>
+
 namespace valik::app
 {
 
@@ -30,7 +32,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>> fin{arguments.query_file};
     std::vector<query_record> query_records{};
 
-    threshold const threshold_data = make_threshold_data(arguments);
+    raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
 
     sync_out synced_out{arguments.out_file};
 
@@ -52,7 +54,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         start = std::chrono::high_resolution_clock::now();
 
         //TODO: pass index and overlap instead of ibf and all parameters
-        write_output_file_parallel(index.ibf(), arguments, query_records, threshold_data, synced_out);
+        write_output_file_parallel(index.ibf(), arguments, query_records, thresholder, synced_out);
         end = std::chrono::high_resolution_clock::now();
         time_statistics.compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
