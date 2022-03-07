@@ -39,13 +39,19 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
     parser.add_option(arguments.tau,
                       '\0',
                       "tau",
-                      "Threshold for probabilistic models.",
+                      "Used in the dynamic thresholding. The higher tau, the lower the threshold.",
                       seqan3::option_spec::standard,
                       seqan3::arithmetic_range_validator{0, 1});
     parser.add_option(arguments.threshold,
                       '\0',
                       "threshold",
                       "If set, this threshold is used instead of the probabilistic models.",
+                      seqan3::option_spec::standard,
+                      seqan3::arithmetic_range_validator{0, 1});
+    parser.add_option(arguments.p_max,
+                      '\0',
+                      "p_max",
+                      "Used in the dynamic thresholding. The higher p_max, the lower the threshold.",
                       seqan3::option_spec::standard,
                       seqan3::arithmetic_range_validator{0, 1});
     parser.add_option(arguments.pattern_size,
@@ -62,6 +68,14 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
                     '\0',
                     "compressed",
                     "Build a compressed IBF.");
+     parser.add_flag(arguments.cache_thresholds,
+                    '\0',
+                    "cache-thresholds",
+                    "Stores the computed thresholds with an unique name next to the index. In the next search call "
+                    "using this option, the stored thresholds are re-used.\n"
+                    "Two files are stored:\n"
+                    "\\fBthreshold_*.bin\\fP: Depends on pattern, window, kmer/shape, errors, and tau.\n"
+                    "\\fBcorrection_*.bin\\fP: Depends on pattern, window, kmer/shape, p_max, and fpr.");
     parser.add_flag(arguments.write_time,
                     '\0',
                     "time",

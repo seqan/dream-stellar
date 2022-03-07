@@ -6,7 +6,8 @@
 #include <seqan3/search/views/minimiser_hash.hpp>
 #include <seqan3/std/span>
 
-#include <valik/search/compute_simple_model.hpp> // threshold
+#include <raptor/threshold/threshold.hpp>
+
 #include <valik/search/query_record.hpp>
 #include <valik/search/query_result.hpp>
 #include <valik/shared.hpp> // search_arguments
@@ -68,7 +69,7 @@ template <typename span_vec_t>
 pattern_bounds make_pattern_bounds(size_t const & begin,
                                    search_arguments const & arguments,
                                    span_vec_t const & window_span_begin,
-                                   threshold const & threshold_data)
+                                   raptor::threshold::threshold const & thresholder)
 {
     assert(window_span_begin.size() >= 1);
     assert(window_span_begin[0] == 0);
@@ -89,11 +90,7 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
 
     size_t const minimiser_count = pattern.end_position - pattern.begin_position;
 
-    pattern.threshold = arguments.treshold_was_set ?
-                            static_cast<size_t>(minimiser_count * arguments.threshold) : threshold_data.kmers_per_window == 1 ?
-                            threshold_data.kmer_lemma : threshold_data.precomp_thresholds[std::min(minimiser_count < threshold_data.min_number_of_minimisers ?
-                            0 : minimiser_count - threshold_data.min_number_of_minimisers,
-                            threshold_data.max_number_of_minimisers - threshold_data.min_number_of_minimisers)] + 2; // enrico recommended decreasing this value
+    pattern.threshold = thresholder.get(minimiser_count);
 
     return pattern;
 }
@@ -142,7 +139,7 @@ struct local_prefilter_fn
         std::span<query_record const> const & records,
         seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
         search_arguments const & arguments,
-        threshold const & threshold_data) const
+        raptor::threshold::threshold const & thresholder) const
     {
         // concurrent invocations of the membership agent are not thread safe
         // agent has to be created for each thread
@@ -204,7 +201,7 @@ struct local_prefilter_fn
             std::set<size_t> sequence_hits{};
             pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.overlap, [&](size_t const begin)
             {
-                pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, threshold_data);
+                pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
                 std::set<size_t> const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
                 sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
             });
