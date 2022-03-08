@@ -7,7 +7,6 @@ cmake_minimum_required (VERSION 3.8)
 add_library ("${PROJECT_NAME}_interface" INTERFACE)
 target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE seqan3::seqan3)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)
-target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/raptor/src)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/raptor/include)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/robin-hood-hashing/src/include)
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
@@ -21,8 +20,17 @@ add_library ("${PROJECT_NAME}_build_lib" STATIC valik_build.cpp)
 target_link_libraries ("${PROJECT_NAME}_build_lib" PUBLIC "${PROJECT_NAME}_interface")
 
 # Sliding window search
+add_library ("raptor_threshold" STATIC
+             ../lib/raptor/src/threshold/one_indirect_error_model.cpp
+             ../lib/raptor/src/threshold/multiple_error_model.cpp
+             ../lib/raptor/src/threshold/pascal_row.cpp
+             ../lib/raptor/src/threshold/one_error_model.cpp
+             ../lib/raptor/src/threshold/precompute_correction.cpp
+             ../lib/raptor/src/threshold/precompute_threshold.cpp
+)
+target_link_libraries ("raptor_threshold" PUBLIC "${PROJECT_NAME}_interface")
 add_library ("${PROJECT_NAME}_search_lib" STATIC valik_search.cpp)
-target_link_libraries ("${PROJECT_NAME}_search_lib" PUBLIC "${PROJECT_NAME}_interface")
+target_link_libraries ("${PROJECT_NAME}_search_lib" PUBLIC "raptor_threshold")
 
 # Sliding window argument parsing
 add_library ("${PROJECT_NAME}_argument_parsing_shared_lib" STATIC argument_parsing/shared.cpp)
