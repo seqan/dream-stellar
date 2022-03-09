@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cstdlib>               // system calls
-#include <seqan3/std/filesystem> // test directory creation
+#include <filesystem> // test directory creation
 #include <seqan3/test/expect_range_eq.hpp>
 #include <sstream>               // ostringstream
 #include <string>                // strings
