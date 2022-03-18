@@ -93,7 +93,7 @@ TEST(make_pattern_bounds, first_pattern_of_query)
     valik::search_arguments arguments{};
     arguments.pattern_size = 12;
     arguments.window_size = 8;
-    arguments.shape = seqan3::ungapped(4);
+    arguments.shape = seqan3::ungapped{4};
     arguments.errors = 1;
 
     std::vector<size_t> const & window_span_begin{0, 4, 5};
@@ -130,7 +130,7 @@ TEST(make_pattern_bounds, same_minimiser_consecutive_windows_begin)
     valik::search_arguments arguments{};
     arguments.pattern_size = 12;
     arguments.window_size = 8;
-    arguments.shape = seqan3::ungapped(4);
+    arguments.shape = seqan3::ungapped{4};
     arguments.errors = 1;
 
 
@@ -165,7 +165,7 @@ TEST(make_pattern_bounds, pattern_equals_window)
     valik::search_arguments arguments{};
     arguments.pattern_size = 8;
     arguments.window_size = 8;
-    arguments.shape = seqan3::ungapped(4);;
+    arguments.shape = seqan3::ungapped{4};
     arguments.errors = 1;
 
 
@@ -212,7 +212,7 @@ TEST(make_pattern_bounds, same_minimiser_consecutive_windows_end)
     valik::search_arguments arguments{};
     arguments.pattern_size = 12;
     arguments.window_size = 8;
-    arguments.shape = seqan3::ungapped(4);;
+    arguments.shape = seqan3::ungapped{4};
     arguments.errors = 1;
 
     std::vector<size_t> const & window_span_begin{0, 3, 4, 6};
@@ -259,7 +259,7 @@ TEST(make_pattern_bounds, odd_lengths)
     valik::search_arguments arguments{};
     arguments.pattern_size = 11;
     arguments.window_size = 7;
-    arguments.shape = seqan3::ungapped(4);;
+    arguments.shape = seqan3::ungapped{4};
     arguments.errors = 1;
 
     std::vector<size_t> const & window_span_begin{0, 3, 5, 7};
