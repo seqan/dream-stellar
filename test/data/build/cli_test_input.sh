@@ -7,10 +7,10 @@ set -e
 # raptor_data_simulation has to be built from source
 # github.com/eseiler/raptor_data_simulation
 BINARY_DIR="${1}"
-LENGTH=81920  # 80*2^10 = 100KiB
+LENGTH=8192 # 8*2^10 = 8KiB
 SEED=${2}
 BIN_NUMBER=${3}
-HAPLOTYPE_COUNT=${4}
+HAPLOTYPE_COUNT=${4}    # each haplotype is 1024bp
 
 bin_length=$((LENGTH / BIN_NUMBER))
 echo "Simulating $BIN_NUMBER bins with reference length of $LENGTH and bin_length of $bin_length"
@@ -41,4 +41,4 @@ do
 done
 
 # Create metadata list of bin file names
-seq -f "bin_%0g.fasta" 0 7 > bin_paths.txt
+seq -f "bin_%0g.fasta" 0 $((BIN_NUMBER-1)) > bin_paths.txt

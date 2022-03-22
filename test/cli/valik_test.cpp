@@ -65,9 +65,9 @@ TEST_P(valik_build, build_with_file)
     }
 
     cli_test_result const result = execute_app("valik", "build",
-                                                         "--kmer 20",
+                                                         "--kmer 19",
                                                          "--window ", std::to_string(window_size),
-                                                         "--size 100k",
+                                                         "--size 32k",
                                                          "--threads ", run_parallel ? "2" : "1",
                                                          "--output index.ibf",
                                                          "bin_paths.txt");
@@ -81,7 +81,7 @@ TEST_P(valik_build, build_with_file)
 
 INSTANTIATE_TEST_SUITE_P(build_suite,
                          valik_build,
-                         testing::Combine(testing::Values(8), testing::Values(20, 23), testing::Values(true, false)),
+                         testing::Combine(testing::Values(8), testing::Values(19, 23), testing::Values(true, false)),
                          [] (testing::TestParamInfo<valik_build::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +
@@ -121,14 +121,14 @@ TEST_P(valik_search, search)
 
 INSTANTIATE_TEST_SUITE_P(search_suite,
                          valik_search,
-                         testing::Combine(testing::Values(8), testing::Values(20, 23), testing::Values(0, 1),
+                         testing::Combine(testing::Values(8), testing::Values(19, 23), testing::Values(0, 1),
 				 testing::Values(50, 100), testing::Values(1, 40)),
                          [] (testing::TestParamInfo<valik_search::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +
                                                 std::to_string(std::get<1>(info.param)) + "_window_" +
                                                 std::to_string(std::get<2>(info.param)) + "_error_" +
-						std::to_string(std::get<3>(info.param)) + "_pattern_" +
-						std::to_string(std::get<4>(info.param)) + "_overlap";
+						                        std::to_string(std::get<3>(info.param)) + "_pattern_" +
+						                        std::to_string(std::get<4>(info.param)) + "_overlap";
                              return name;
                          });

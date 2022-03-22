@@ -36,7 +36,6 @@
 
 # Metadata files
 all_bin_paths.txt
-bin_paths*.txt
 example_data/*
 
 

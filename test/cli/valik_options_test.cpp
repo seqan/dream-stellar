@@ -289,7 +289,7 @@ TEST_F(argparse_search, pattern_window)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
-                                                         "--index ", data("8bins20window.ibf"),
+                                                         "--index ", data("8bins19window.ibf"),
                                                          "--output search.out",
 							                             "--pattern 12");
     EXPECT_NE(result.exit_code, 0);
