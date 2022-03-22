@@ -1,0 +1,8 @@
+bin_0.fasta
+bin_1.fasta
+bin_2.fasta
+bin_3.fasta
+bin_4.fasta
+bin_5.fasta
+bin_6.fasta
+bin_7.fasta

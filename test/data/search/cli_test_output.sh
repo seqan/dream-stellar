@@ -2,7 +2,7 @@
 
 cd search
 
-for w in 20 23
+for w in 19 23
 do
     for e in 0 1
     do
