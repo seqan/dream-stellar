@@ -83,28 +83,28 @@ declare_datasource (FILE 8bins19window1error50pattern40overlap.out
                 URL_HASH SHA256=48ca1b1f6191ceb46f15cd98c2526e5ecba551e88722b97a713aff0e774ec3ac)
 declare_datasource (FILE 8bins23window0error100pattern1overlap.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window0error100pattern1overlap.out
-                URL_HASH SHA256=a2b5c56fcfaa0d6cb0b1ba9f0178521884dd1fbcfad3cac78423dd015f2b1fe0)
+                URL_HASH SHA256=ad6f7c5dd1c4d49d8a48b1d8f77c603259eade6d202418c5030d00de3731e408)
 declare_datasource (FILE 8bins23window0error100pattern40overlap.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window0error100pattern40overlap.out
-                URL_HASH SHA256=a2b5c56fcfaa0d6cb0b1ba9f0178521884dd1fbcfad3cac78423dd015f2b1fe0)
+                URL_HASH SHA256=8ebbabb2a12b0da5547bc2011e8c957e958f265a1d35a3f5b38c0f1f5a495b84)
 declare_datasource (FILE 8bins23window0error50pattern1overlap.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window0error50pattern1overlap.out
-                URL_HASH SHA256=a2b5c56fcfaa0d6cb0b1ba9f0178521884dd1fbcfad3cac78423dd015f2b1fe0)
+                URL_HASH SHA256=c3ae42444715b8d86a1d9d093c91ab1a70180280a40d8ca7bba6c9ff9081c18b)
 declare_datasource (FILE 8bins23window0error50pattern40overlap.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window0error50pattern40overlap.out
-                URL_HASH SHA256=a2b5c56fcfaa0d6cb0b1ba9f0178521884dd1fbcfad3cac78423dd015f2b1fe0)
+                URL_HASH SHA256=bf5051a2e2408243e07efb15880e86c96d61d2778ae8ba33b0860f0e4edcea8e)
 declare_datasource (FILE 8bins23window1error100pattern1overlap.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window1error100pattern1overlap.out
-                URL_HASH SHA256=bf5051a2e2408243e07efb15880e86c96d61d2778ae8ba33b0860f0e4edcea8e)
+                URL_HASH SHA256=379659b14a583cb0f2811a288b96f7d3c939ef920f9a50f843dcd780b7766e0f)
 declare_datasource (FILE 8bins23window1error100pattern40overlap.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window1error100pattern40overlap.out
-                URL_HASH SHA256=bf5051a2e2408243e07efb15880e86c96d61d2778ae8ba33b0860f0e4edcea8e)
+                URL_HASH SHA256=17cc03873b85833003a6fca673b43d85801f4c25f5500cd69518d62ad5a3a587)
 declare_datasource (FILE 8bins23window1error50pattern1overlap.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window1error50pattern1overlap.out
-                URL_HASH SHA256=0e81de4c0a79c41af209b7ad67c72313992827b4269e1d8fec0eb44b2af0e6c8)
+                URL_HASH SHA256=bf5051a2e2408243e07efb15880e86c96d61d2778ae8ba33b0860f0e4edcea8e)
 declare_datasource (FILE 8bins23window1error50pattern40overlap.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window1error50pattern40overlap.out
-                URL_HASH SHA256=bab9417794c5ec9d1ea075094c6b00f7f5d304784a2998c8b0b17e83fd9a2242)
+                URL_HASH SHA256=e861caf3ae78bc7b72ecf364fccf9e40e3fff43bfe2ab12bfc0950f60dfed2b9)
 declare_datasource (FILE query.fq
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/query.fq
                 URL_HASH SHA256=f6c340b25877d6cf9836ac17c1d28437a9a8d54ebdd6d4c035d14827d883fc3b)
