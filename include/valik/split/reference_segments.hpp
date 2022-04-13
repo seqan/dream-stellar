@@ -99,7 +99,6 @@ class reference_segments {
             std::string ref_id;
             if (in_file.is_open())
             {
-                in_file >> default_len;
                 while (in_file >> bin)
                 {
                     in_file >> ref_id;
@@ -118,7 +117,6 @@ class reference_segments {
             std::ofstream out_file;
             out_file.open(filepath);
 
-            out_file << default_len << '\n';
             for (const auto & seg : members)
             {
                 out_file << seg.bin << '\t' << seg.ref_id << '\t' << seg.start << '\t' << seg.len << '\n';
