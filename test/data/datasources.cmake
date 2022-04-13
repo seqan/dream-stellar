@@ -4,16 +4,16 @@ include (cmake/app_datasources.cmake)
 
 declare_datasource (FILE 0overlap16bins.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/0overlap16bins.txt
-                URL_HASH SHA256=39b3c960ce05e23d3208ab766388819a1e82b8036ae303e0eae37b425f66ef36)
+                URL_HASH SHA256=3276af856698d382535c9a0e26327cd8a98eae7f5c755a7bc715d5268bdba7df)
 declare_datasource (FILE 0overlap4bins.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/0overlap4bins.txt
-                URL_HASH SHA256=88ee7061dc9dd86e7bd4cd8e37424bd73c3a74a7574d0b93d5519580d7cf1470)
+                URL_HASH SHA256=ea2bca47c7be05c1498fca725d58baf6b7220a2f7369cd5059f809283cf95c08)
 declare_datasource (FILE 20overlap16bins.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/20overlap16bins.txt
-                URL_HASH SHA256=b4d1c624381a18f120ecda7c4b7330fe34051503119ddefd8e08732fc20dca9f)
+                URL_HASH SHA256=abb165981f471b6f86cd49003895c2eaf5438f1d9b7a5ba21b57547a778309fd)
 declare_datasource (FILE 20overlap4bins.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/20overlap4bins.txt
-                URL_HASH SHA256=88ee7061dc9dd86e7bd4cd8e37424bd73c3a74a7574d0b93d5519580d7cf1470)
+                URL_HASH SHA256=ea2bca47c7be05c1498fca725d58baf6b7220a2f7369cd5059f809283cf95c08)
 declare_datasource (FILE chromosome_metadata.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/chromosome_metadata.txt
                 URL_HASH SHA256=435e36bbdb0d481070aca7a86d3b264359bc0c5029fbdaa48f17b9e0f8ad306b)
