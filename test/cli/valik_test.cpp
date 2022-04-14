@@ -46,10 +46,10 @@ INSTANTIATE_TEST_SUITE_P(split_suite,
                          });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////// valik build tests ///////////////////////////////////////////////////
+///////////////////////////////////////////////// valik build clusters /////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_P(valik_build, build_with_file)
+TEST_P(valik_build_clusters, build_from_clusters)
 {
     auto const [number_of_bins, window_size, run_parallel_tmp] = GetParam();
     bool const run_parallel = run_parallel_tmp && number_of_bins >= 32;
@@ -79,14 +79,57 @@ TEST_P(valik_build, build_with_file)
 }
 
 
-INSTANTIATE_TEST_SUITE_P(build_suite,
-                         valik_build,
+INSTANTIATE_TEST_SUITE_P(cluster_build_suite,
+                         valik_build_clusters,
                          testing::Combine(testing::Values(8), testing::Values(19, 23), testing::Values(true, false)),
-                         [] (testing::TestParamInfo<valik_build::ParamType> const & info)
+                         [] (testing::TestParamInfo<valik_build_clusters::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +
                                                 std::to_string(std::get<1>(info.param)) + "_window_" +
                                                 (std::get<2>(info.param) ? "parallel" : "serial");
+                             return name;
+                         });
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////// valik build segments /////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_P(valik_build_segments, build_from_segments)
+{
+    auto const [overlap, number_of_bins, window_size, run_parallel_tmp] = GetParam();
+    bool const run_parallel = run_parallel_tmp && number_of_bins >= 32;
+
+    std::string seg_input = cli_test::data("single_reference.fasta");
+    std::string ref_meta_path = cli_test::data("reference_metadata.txt");
+    std::string seg_meta_path = cli_test::data(std::to_string(overlap) + "overlap" + std::to_string(number_of_bins) + "bins.txt");
+
+    cli_test_result const result = execute_app("valik", "build",
+                                                         "--kmer 13",
+                                                         "--window ", std::to_string(window_size),
+                                                         "--size 100k",
+                                                         "--threads ", run_parallel ? "2" : "1",
+                                                         "--output index.ibf",
+                                                         "--from-segments",
+                                                         "--ref-meta", ref_meta_path,
+                                                         "--seg-path", seg_meta_path,
+                                                         seg_input);
+    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    EXPECT_EQ(result.err, std::string{});
+
+    compare_index(ibf_path(overlap, number_of_bins, window_size), "index.ibf");
+}
+
+
+INSTANTIATE_TEST_SUITE_P(segment_build_suite,
+                         valik_build_segments,
+                         testing::Combine(testing::Values(150), testing::Values(4, 16), testing::Values(15, 13), testing::Values(true, false)),
+                         [] (testing::TestParamInfo<valik_build_segments::ParamType> const & info)
+                         {
+                             std::string name = std::to_string(std::get<0>(info.param)) + "_overlap_" +
+                                                std::to_string(std::get<1>(info.param)) + "_bins_" +
+                                                std::to_string(std::get<2>(info.param)) + "_window_" +
+                                                (std::get<3>(info.param) ? "parallel" : "serial");
                              return name;
                          });
 
