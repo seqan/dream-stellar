@@ -189,7 +189,7 @@ struct local_prefilter_fn
             // the beginning of the first window this minimiser is in
             std::vector<size_t> window_span_begin(minimiser.size(), 0);
 
-            for (size_t i{1}; i < minimiser.size(); i++)
+            for (size_t i{0}; i < minimiser.size(); i++)
             {
                 const auto &[min, start_pos] = minimiser[i];
                 window_span_begin[i] = start_pos;
