@@ -28,11 +28,27 @@ target_use_datasources (valik_test FILES bin_6.fasta)
 target_use_datasources (valik_test FILES bin_7.fasta)
 
 target_use_datasources (valik_test FILES various_chromosome_lengths.fasta)
+target_use_datasources (valik_test FILES chromosome_metadata.txt)
 target_use_datasources (valik_test FILES 0overlap4bins.txt)
 target_use_datasources (valik_test FILES 20overlap4bins.txt)
 target_use_datasources (valik_test FILES 0overlap16bins.txt)
 target_use_datasources (valik_test FILES 20overlap16bins.txt)
-target_use_datasources (valik_test FILES chromosome_metadata.txt)
+
+target_use_datasources (valik_test FILES single_reference.fasta)
+target_use_datasources (valik_test FILES single_query.fq)
+target_use_datasources (valik_test FILES reference_metadata.txt)
+
+target_use_datasources (valik_test FILES 150overlap4bins.txt)
+target_use_datasources (valik_test FILES 150overlap4bins13window.ibf)
+target_use_datasources (valik_test FILES 150overlap4bins15window.ibf)
+target_use_datasources (valik_test FILES 150overlap4bins13window1errors.out)
+target_use_datasources (valik_test FILES 150overlap4bins15window1errors.out)
+
+target_use_datasources (valik_test FILES 150overlap16bins.txt)
+target_use_datasources (valik_test FILES 150overlap16bins13window.ibf)
+target_use_datasources (valik_test FILES 150overlap16bins15window.ibf)
+target_use_datasources (valik_test FILES 150overlap16bins13window1errors.out)
+target_use_datasources (valik_test FILES 150overlap16bins15window1errors.out)
 
 target_use_datasources (valik_test FILES 8bins19window.ibf)
 target_use_datasources (valik_test FILES 8bins23window.ibf)
