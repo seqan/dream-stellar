@@ -134,10 +134,10 @@ INSTANTIATE_TEST_SUITE_P(segment_build_suite,
                          });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////// valik search tests //////////////////////////////////////////////////
+///////////////////////////////////////////////// valik search clusters ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_P(valik_search, search)
+TEST_P(valik_search_clusters, search)
 {
     auto const [number_of_bins, window_size, number_of_errors, pattern_size, overlap] = GetParam();
 
@@ -145,14 +145,14 @@ TEST_P(valik_search, search)
         GTEST_SKIP() << "Needs dynamic threshold correction";
 
     cli_test_result const result = execute_app("valik", "search",
-                                                         "--output search.out",
-							 "--pattern", std::to_string(pattern_size),
-							 "--overlap", std::to_string(overlap),
-                                                         "--error ", std::to_string(number_of_errors),
-                                                         "--index ", ibf_path(number_of_bins, window_size),
-                                                         "--query ", data("query.fq"),
-							 "--tau 0.75",
-							 "--p_max 0.75");
+                                                        "--output search.out",
+                                                        "--pattern", std::to_string(pattern_size),
+							                            "--overlap", std::to_string(overlap),
+                                                        "--error ", std::to_string(number_of_errors),
+                                                        "--index ", ibf_path(number_of_bins, window_size),
+                                                        "--query ", data("query.fq"),
+							                            "--tau 0.75",
+							                            "--p_max 0.75");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
@@ -164,16 +164,61 @@ TEST_P(valik_search, search)
     EXPECT_EQ(expected, actual);
 }
 
-INSTANTIATE_TEST_SUITE_P(search_suite,
-                         valik_search,
+INSTANTIATE_TEST_SUITE_P(cluster_search_suite,
+                         valik_search_clusters,
                          testing::Combine(testing::Values(8), testing::Values(19, 23), testing::Values(0, 1),
 				 testing::Values(50, 100), testing::Values(1, 40)),
-                         [] (testing::TestParamInfo<valik_search::ParamType> const & info)
+                         [] (testing::TestParamInfo<valik_search_clusters::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +
                                                 std::to_string(std::get<1>(info.param)) + "_window_" +
                                                 std::to_string(std::get<2>(info.param)) + "_error_" +
 						                        std::to_string(std::get<3>(info.param)) + "_pattern_" +
 						                        std::to_string(std::get<4>(info.param)) + "_overlap";
+                             return name;
+                         });
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////// valik search segments ////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_P(valik_search_segments, search)
+{
+    auto const [segment_overlap, number_of_bins, window_size, number_of_errors, pattern_size, overlap] = GetParam();
+
+    if (window_size == 23 && number_of_errors == 0)
+        GTEST_SKIP() << "Needs dynamic threshold correction";
+
+    cli_test_result const result = execute_app("valik", "search",
+                                                        "--output search.out",
+                                                        "--pattern", std::to_string(pattern_size),
+							                            "--overlap", std::to_string(overlap),
+                                                        "--error ", std::to_string(number_of_errors),
+                                                        "--index ", ibf_path(segment_overlap, number_of_bins, window_size),
+                                                        "--query ", data("single_query.fq"),
+							                            "--tau 0.75",
+							                            "--p_max 0.75");
+    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    EXPECT_EQ(result.err, std::string{});
+
+    std::string const expected = string_from_file(search_result_path(segment_overlap, number_of_bins, window_size, number_of_errors,
+			    pattern_size, overlap), std::ios::binary);
+    std::string const actual = string_from_file("search.out");
+
+    EXPECT_EQ(expected, actual);
+}
+
+INSTANTIATE_TEST_SUITE_P(segment_search_suite,
+                         valik_search_segments,
+                         testing::Combine(testing::Values(150), testing::Values(4, 16), testing::Values(15, 13), testing::Values(1),
+                         testing::Values(50), testing::Values(49)),
+                         [] (testing::TestParamInfo<valik_search_segments::ParamType> const & info)
+                         {
+                             std::string name = std::to_string(std::get<1>(info.param)) + "_bins_" +
+                                                std::to_string(std::get<2>(info.param)) + "_window_" +
+                                                std::to_string(std::get<3>(info.param)) + "_error_" +
+						                        std::to_string(std::get<4>(info.param)) + "_pattern_" +
+						                        std::to_string(std::get<5>(info.param)) + "_overlap";
                              return name;
                          });
