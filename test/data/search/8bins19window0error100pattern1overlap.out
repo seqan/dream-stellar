@@ -1,4 +1,4 @@
-read-0	
+read-0	0,
 read-1	
 read-2	
 read-3	
@@ -6,27 +6,27 @@ read-4
 read-5	
 read-6	
 read-7	
-read-8	4,
+read-8	
 read-9	
 read-10	
-read-11	
+read-11	5,
 read-12	
 read-13	
 read-14	
 read-15	
-read-16	
+read-16	0,
 read-17	0,
-read-18	
-read-19	
+read-18	1,
+read-19	1,
 read-20	2,
-read-21	2,
-read-22	
+read-21	
+read-22	3,
 read-23	3,
 read-24	4,
-read-25	
-read-26	
-read-27	
-read-28	
+read-25	4,
+read-26	5,
+read-27	5,
+read-28	6,
 read-29	6,
 read-30	
-read-31	
+read-31	7,
