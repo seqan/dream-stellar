@@ -1,4 +1,20 @@
-# CLI Test
+# Setting up ground truth
+The data folder contains scripts to set up the ground truth for the CLI test output.
+
+* `./simulate_input.sh`
+* `./create_output.sh`
+* `./update_datasources.sh`
+
+# Running tests
+
+In the build (or debug) folder run a single test with:
+* `make valik_test`
+* `test/cli/valik_test`
+
+Or run all tests using 8 threads with:
+* `ctest . -j 8`
+
+# About CLI Tests
 
 Here are test files for command line interface tests, i.e. the app is executed with defined input files and parameters.
 The test then validates whether the output is correct.
