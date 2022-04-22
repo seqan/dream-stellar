@@ -33,7 +33,7 @@ k=13
 ibf_size="100k"
 
 # Search parameters
-errors=1              # max allowed errors
+errors=2              # max allowed errors
 pattern=50            # min local match length
 pat_overlap=49        # how much adjacent patterns overlap
 tau=0.75

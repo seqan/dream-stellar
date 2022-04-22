@@ -4,7 +4,7 @@ include (cmake/app_datasources.cmake)
 
 declare_datasource (FILE single_query.fq
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/single_query.fq
-                URL_HASH SHA256=cff4b19c35deaf6de3a55e15c334f5427ffda192eaadedb7094346ed72391122)
+                URL_HASH SHA256=9a8225cc7d4a125dcd6b6030cf19228f64452f6da2f1bd81a14178c21adb4e08)
 declare_datasource (FILE single_reference.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/single_reference.fasta
                 URL_HASH SHA256=53d633474b01a68927d3ab1fd970b200e96403bb1fdcc53feb0367a2093be273)
@@ -144,7 +144,7 @@ declare_datasource (FILE 8bins23window1error100pattern40overlap.out
                 URL_HASH SHA256=4a1507e9e4664b8718d13924d6f0ab689bf8a92686c706a8b5c743c606f9748d)
 declare_datasource (FILE 8bins23window1error50pattern1overlap.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window1error50pattern1overlap.out
-                URL_HASH SHA256=bf5051a2e2408243e07efb15880e86c96d61d2778ae8ba33b0860f0e4edcea8e)
+                URL_HASH SHA256=a1321ea6b1bafd114a6292247958fe8802c695a2aa29669a4f295220ceb99c70)
 declare_datasource (FILE 8bins23window1error50pattern40overlap.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window1error50pattern40overlap.out
                 URL_HASH SHA256=b063e2ab2c9c5466e5df20a3c246544a6b188dcb2f0737e242d5bc20e9e88bb6)
