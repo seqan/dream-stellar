@@ -70,18 +70,16 @@ private:
             reference_segments segments(arguments->seg_path);
             reference_metadata reference(arguments->ref_meta_path, false);
 
-            seqan3::sequence_file_input fin{arguments->bin_file};
-
             auto & ibf = index.ibf();
             int i = 0;
-            for (auto & record : fin)
+            for (auto && [seq] : sequence_file_t{arguments->bin_file})
             {
                 // get the relevant segments for each reference
                 auto ref_seg = [&](reference_segments::segment & seg) {return reference.sequences.at(i).id == seg.ref_id;};
                 for (auto & seg : segments.members | std::views::filter(ref_seg))
                 {
-                    for (auto && value : record.sequence() | seqan3::views::slice(seg.start, seg.start + seg.len) | hash_view())
-                        ibf.emplace(value, seqan3::bin_index(seg.bin));
+                    for (auto && value : seq | seqan3::views::slice(seg.start, seg.start + seg.len) | hash_view())
+                        ibf.emplace(value, seqan3::bin_index{seg.bin});
                 }
                 i++;
             }

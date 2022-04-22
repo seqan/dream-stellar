@@ -167,7 +167,7 @@ public:
         }
         else
         {
-            throw seqan3::argument_parser_error{"Unsupported index version. Check raptor upgrade."}; // GCOVR_EXCL_LINE
+            throw seqan3::argument_parser_error{"Unsupported index version. Check valik upgrade."}; // GCOVR_EXCL_LINE
         }
     }
 
