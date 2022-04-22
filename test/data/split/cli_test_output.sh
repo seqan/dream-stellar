@@ -30,14 +30,14 @@ seg_overlap="150"     # how much adjacent segments overlap
 
 # Build parameters
 k=13
-ibf_size="100k"
+ibf_size="32k"
 
 # Search parameters
-errors=2              # max allowed errors
+errors=1              # max allowed errors
 pattern=50            # min local match length
 pat_overlap=49        # how much adjacent patterns overlap
 tau=0.75
-p_max=0.75
+p_max=0.25
 
 ref_input="single_reference.fasta"
 query="single_query.fq"
@@ -63,3 +63,4 @@ done
 # avoid creating multiple identical reference metadata output files
 rm single/ref_"$seg_overlap"overlap4bins.txt
 mv "$ref_meta" single/reference_metadata.txt
+

@@ -1,4 +1,0 @@
-bin_0.fasta
-bin_1.fasta
-bin_2.fasta
-bin_3.fasta
