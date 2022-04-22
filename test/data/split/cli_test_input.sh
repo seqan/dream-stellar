@@ -24,28 +24,29 @@ cat chr*.fasta > various_chromosome_lengths.fasta
 rm chr*.fasta
 
 #----------- Simulate a single long reference sequence -----------
-
 ref_len=10240
+
+echo "Simulating single reference with length $ref_len"
 ref_out="single_reference.fasta"
 $BINARY_DIR/mason_genome -l $ref_len -o $ref_out -s $SEED &>/dev/null
 
 #----------- Sample reads from reference sequence -----------
 
-errors=2
-read_length="150"
+error_rate=0.025
+read_length=150
 read_count=10
-haplotype_count=1
 
-echo "Generating $read_count reads of length $read_length with $errors errors"
+echo "Generating $read_count reads of length $read_length with error rate $error_rate"
 read_dir=reads_$read_length
 mkdir -p $read_dir
-$BINARY_DIR/generate_reads \
+$BINARY_DIR/generate_local_matches \
     --output $read_dir \
-    --max_errors $errors \
-    --number_of_reads $read_count \
-    --read_length $read_length \
-    --number_of_haplotypes $haplotype_count \
-    $ref_out > /dev/null
+    --max-error-rate $error_rate \
+    --num-matches $read_count \
+    --min-match-length $read_length \
+    --max-match-length $read_length \
+    --verbose-ids \
+    $ref_out
 
 mv $read_dir/single_reference.fastq single_query.fq
 rm -r $read_dir

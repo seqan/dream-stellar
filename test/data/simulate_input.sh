@@ -1,6 +1,8 @@
 #!/bin/bash
 
-BINARY_DIR=/home/evelin/metagenomics/raptor_data_simulation/build/bin
+# build raptor_data_simulation submodule from source
+# might need to move mason_genome binary
+BINARY_DIR=../../../lib/raptor_data_simulation/build/bin
 SEED=42 # was 20181406 before, but was hardcoded to 42 in seqan
 BIN_NUMBER=8
 HAPLOTYPE_COUNT=2

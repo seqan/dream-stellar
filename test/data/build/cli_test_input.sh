@@ -5,7 +5,7 @@ cd build
 set -e
 
 # raptor_data_simulation has to be built from source
-# github.com/eseiler/raptor_data_simulation
+# git@github.com:eaasna/raptor_data_simulation.git
 BINARY_DIR="${1}"
 LENGTH=8192 # 8*2^10 = 8KiB
 SEED=${2}
