@@ -23,7 +23,8 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
                                        raptor::threshold::threshold const & thresholder,
                                        sync_out & synced_out)
 {
-    using task_future_t = std::future<std::vector<valik::query_result>>;
+    using query_list = std::vector<std::pair<std::string, std::vector<seqan3::dna4>>>;
+    using task_future_t = std::future<std::pair<std::vector<query_result>, std::map<size_t, query_list>>>;
     static_assert(std::same_as<task_future_t,
                                decltype(std::async(std::launch::async, local_prefilter, std::span<query_record const>{}, ibf, arguments, thresholder))>);
 
@@ -42,11 +43,16 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
         tasks.emplace_back(std::async(std::launch::async, local_prefilter, records_slice, ibf, arguments, thresholder));
     }
 
+
+    std::filesystem::create_directories("matches");
     for (task_future_t & task : tasks)
     {
         std::string result_string{};
-        std::vector<query_result> thread_result = task.get();
-        for (query_result const & query_result : thread_result)
+        std::pair<std::vector<query_result>, std::map<size_t, query_list>> const & thread_result = task.get();
+        auto const & thread_query_result = thread_result.first;
+        auto const & thread_bin_result = thread_result.second;
+
+        for (query_result const & query_result : thread_query_result)
         {
             result_string.clear();
             result_string += query_result.get_id();
@@ -61,6 +67,29 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
             result_string += '\n';
             synced_out.write(result_string);
         }
+
+        // TODO: open multiple bin-query synced_out to write all bin-query to file
+        for (auto & [bin_id, matches] : thread_bin_result)
+        {
+            std::string result_string{};
+            std::filesystem::path bin_query_path = "matches/" + std::to_string(bin_id);
+            sync_out synced_out{bin_query_path};
+
+            for (auto & [id, seq] : matches)
+            {
+                result_string += ">";
+                result_string += id;
+                result_string += '\n';
+                for (auto & c : seq)
+                {
+                    result_string += c.to_char();
+                }
+                result_string += '\n';
+                synced_out.write(result_string);
+                result_string.clear();
+            }
+        }
+
     }
 }
 
