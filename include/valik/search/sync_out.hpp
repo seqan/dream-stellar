@@ -13,8 +13,13 @@ public:
     sync_out() = default;
     sync_out(sync_out const &) = default;
     sync_out & operator=(sync_out const &) = default;
-    sync_out(sync_out &&) = default;
-    sync_out & operator=(sync_out &&) = default;
+
+    sync_out(sync_out && other) noexcept : file{std::move(other.file)} {}
+    sync_out & operator=(sync_out && other) noexcept
+    {
+        file = std::move(other.file);
+        return *this;
+    }
     ~sync_out() = default;
 
     sync_out(std::filesystem::path const & path) : file{path} {}
@@ -26,6 +31,7 @@ public:
         file << std::forward<t>(data);
     }
     // outfile gets unlocked as soon as the current thread exits the write function
+
 
 private:
     std::ofstream file;

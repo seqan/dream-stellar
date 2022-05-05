@@ -21,7 +21,8 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
                                        search_arguments const & arguments,
                                        std::vector<query_record> const & records,
                                        raptor::threshold::threshold const & thresholder,
-                                       sync_out & synced_out)
+                                       sync_out & synced_out,
+                                       std::vector<sync_out> & bin_query_writers)
 {
     using query_list = std::vector<std::pair<std::string, std::vector<seqan3::dna4>>>;
     using task_future_t = std::future<std::pair<std::vector<query_result>, std::map<size_t, query_list>>>;
@@ -44,7 +45,6 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
     }
 
 
-    std::filesystem::create_directories("matches");
     for (task_future_t & task : tasks)
     {
         std::string result_string{};
@@ -68,24 +68,22 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
             synced_out.write(result_string);
         }
 
-        // TODO: open multiple bin-query synced_out to write all bin-query to file
         for (auto & [bin_id, matches] : thread_bin_result)
         {
             std::string result_string{};
-            std::filesystem::path bin_query_path = "matches/" + std::to_string(bin_id);
-            sync_out synced_out{bin_query_path};
+            sync_out & bin_query_out = bin_query_writers[bin_id];
 
-            for (auto & [id, seq] : matches)
+            for (auto & [query_id, seq] : matches)
             {
                 result_string += ">";
-                result_string += id;
+                result_string += query_id;
                 result_string += '\n';
                 for (auto & c : seq)
                 {
                     result_string += c.to_char();
                 }
                 result_string += '\n';
-                synced_out.write(result_string);
+                bin_query_out.write(result_string);
                 result_string.clear();
             }
         }
