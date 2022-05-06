@@ -213,7 +213,7 @@ struct local_prefilter_fn
             {
                 thread_bin_result[bin].emplace_back(id, seq);
             }
-            thread_query_result.emplace_back(id, std::move(sequence_hits)); // can I move from const reference?
+            thread_query_result.emplace_back(id, std::move(sequence_hits));
         }
 
 

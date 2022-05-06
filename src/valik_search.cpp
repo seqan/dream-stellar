@@ -72,7 +72,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         start = std::chrono::high_resolution_clock::now();
 
         //TODO: pass index and overlap instead of ibf and all parameters
-        write_output_file_parallel(index.ibf(), arguments, query_records, thresholder, synced_out, bin_query_writers);
+        write_output_file_parallel(index.ibf(), arguments, query_records, thresholder, synced_out, bin_query_writers, time_statistics);
         end = std::chrono::high_resolution_clock::now();
         time_statistics.compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }

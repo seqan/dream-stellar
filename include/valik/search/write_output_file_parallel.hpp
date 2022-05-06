@@ -9,6 +9,7 @@
 #include <valik/search/local_prefilter.hpp>
 #include <valik/search/query_record.hpp>
 #include <valik/search/query_result.hpp>
+#include <valik/search/search_time_statistics.hpp>
 #include <valik/search/sync_out.hpp>
 
 #include <raptor/threshold/threshold.hpp>
@@ -22,7 +23,8 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
                                        std::vector<query_record> const & records,
                                        raptor::threshold::threshold const & thresholder,
                                        sync_out & synced_out,
-                                       std::vector<sync_out> & bin_query_writers)
+                                       std::vector<sync_out> & bin_query_writers,
+                                       search_time_statistics & time_statistics)
 {
     using query_list = std::vector<std::pair<std::string, std::vector<seqan3::dna4>>>;
     using task_future_t = std::future<std::pair<std::vector<query_result>, std::map<size_t, query_list>>>;
@@ -50,7 +52,6 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
         std::string result_string{};
         std::pair<std::vector<query_result>, std::map<size_t, query_list>> const & thread_result = task.get();
         auto const & thread_query_result = thread_result.first;
-        auto const & thread_bin_result = thread_result.second;
 
         for (query_result const & query_result : thread_query_result)
         {
@@ -68,6 +69,8 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
             synced_out.write(result_string);
         }
 
+        auto start = std::chrono::high_resolution_clock::now();
+        auto const & thread_bin_result = thread_result.second;
         for (auto & [bin_id, matches] : thread_bin_result)
         {
             std::string result_string{};
@@ -87,6 +90,8 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
                 result_string.clear();
             }
         }
+        auto end = std::chrono::high_resolution_clock::now();
+        time_statistics.bin_queries_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
     }
 }
