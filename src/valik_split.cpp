@@ -6,11 +6,12 @@
 namespace valik::app
 {
 
+template <typename dna_t>
 void write_seg_sequences(reference_metadata const & reference, reference_segments & segments, std::filesystem::path const & ref_path)
 {
     using sequence_file_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>>;
 
-    using types = seqan3::type_list<std::vector<seqan3::dna4>, std::string>;
+    using types = seqan3::type_list<std::vector<dna_t>, std::string>;
     using fields = seqan3::fields<seqan3::field::seq, seqan3::field::id>;
     using sequence_record_type = seqan3::sequence_record<types, fields>;
 
@@ -65,7 +66,7 @@ void valik_split(split_arguments const & arguments)
     reference_segments segments(arguments.bins, arguments.overlap, reference);
     segments.to_file(arguments.seg_out);
 
-    write_seg_sequences(reference, segments, arguments.ref_file);
+    write_seg_sequences<seqan3::dna4>(reference, segments, arguments.ref_file);
 }
 
 } // namespace valik::app
