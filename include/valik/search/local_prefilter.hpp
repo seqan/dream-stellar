@@ -1,10 +1,10 @@
 #pragma once
 
+#include <span>
 #include <vector>
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/search/views/minimiser_hash.hpp>
-#include <seqan3/std/span>
 
 #include <raptor/threshold/threshold.hpp>
 
