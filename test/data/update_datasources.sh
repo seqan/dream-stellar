@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -e "cmake_minimum_required (VERSION 3.8)\n" > datasources.cmake
+echo -e "cmake_minimum_required (VERSION 3.16)\n" > datasources.cmake
 
 echo -e "include (cmake/app_datasources.cmake)\n" >> datasources.cmake
 
