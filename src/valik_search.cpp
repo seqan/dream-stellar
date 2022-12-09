@@ -5,6 +5,8 @@
 
 #include <raptor/threshold/threshold.hpp>
 
+#include <future>
+
 namespace valik::app
 {
 
