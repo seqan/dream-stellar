@@ -32,7 +32,7 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
         size_t const end = std::min(start + records_per_thread, num_records);
         std::span<query_record const> records_slice{&records[start], &records[end]};
 
-        /** This lambda writes the bin_hits into a five
+        /** This lambda writes the bin_hits into a file
          *
          * Caution, it creates a `result_string` of type `std::string` which it reuses for more efficiency
          */
@@ -53,7 +53,6 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
         };
 
         // The following calls `local_prefilter(records, ibf, arguments, threshold)` on a thread.
-        // Note: local_prefilter is a function object which is created from the local_function_fn struct
         tasks.emplace_back([=, &ibf, &arguments, &thresholder]()
         {
             local_prefilter(records_slice, ibf, arguments, thresholder, result_cb);
