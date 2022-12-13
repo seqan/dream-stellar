@@ -49,12 +49,36 @@
 -->
 [4]: https://codecov.io/gh/eaasna/valik
 
-## Quick run
-`valik split example_data/64/bins/bin_00.fasta --overlap 150 --bins 64`
+## Quick run: split and search single reference sequence
+`valik split test/data/split/single_reference.fasta --reference-output reference_metadata.txt --segment-output segment_metadata.txt --bins 4`
 
-`valik build bin_paths.txt --threads 8 --output index.out --size 80m`
+`valik build test/data/split/seg_files.txt --window 15 --kmer 13 --output seg_file_index.ibf  --size 100k`
 
-`valik search --index index.out --query example_data/64/reads/all.fastq --pattern 50 --output matches.out --overlap 10`
+`valik search --index seg_file_index.ibf --threads 4 --query test/data/search/query.fq --pattern 50 --overlap 49 --error 1 --output search.out`
+
+```text
+read-0  0,
+read-1  0,
+read-2  0,
+read-3  0,
+read-4  0,
+read-5  1,
+read-6  1,
+read-7  1,
+read-8  1,
+read-9  1,
+read-10 1,2,
+```
+
+Each line of the search output consists of a read ID and matching bin IDs.
+
+For a detailed list of options, see the help pages:
+```console
+valik --help
+valik split --help
+valik build --help
+valik search --help
+```
 
 ### Distributed local search
 The valik application employs an IBF based prefilter (Estonian: _valik_) for searching approximate local matches in a nucleotide sequence database. The IBF is created from the (w,k)-minimiser content of the reference database. The filter excludes parts of the reference database for each query read. Only reference sequences where an approximate local match for the query sequence was found are retained.
@@ -68,8 +92,8 @@ where `pattern` is the pattern size and `errors` the allowed number of errors. E
 
 <details><summary>Prerequisites (click to expand)</summary>
 
-* CMake >= 3.8
-* GCC 9, 10 or 11 (most recent minor version)
+* CMake >= 3.16.9
+* GCC 10, 11 or 12 (most recent minor version)
 * git
 
 Refer to the [Seqan3 Setup Tutorial](https://docs.seqan.de/seqan/3-master-user/setup.html) for more in depth information.
@@ -103,85 +127,5 @@ valik --version
 
 </details>
 
-## Example Metagenomic Data and Usage
-A toy data set can be found [here](https://ftp.imp.fu-berlin.de/pub/seiler/raptor/).
-
-```bash
-wget https://ftp.imp.fu-berlin.de/pub/seiler/raptor/example_data.tar.gz
-tar xfz example_data.tar.gz
-```
-
-After extraction, the `example_data` will look like:
-
-```console
-$ tree -L 2 example_data
-example_data
-├── 1024
-│   ├── bins
-│   └── reads
-└── 64
-    ├── bins
-    └── reads
-```
-
-The `bins` folder contains a FASTA file for each bin and the `reads` directory contains a FASTQ file for each bin
-containing reads from the respective bin (with 2 errors).
-Additionally, `mini.fastq` (5 reads of all bins), `all.fastq` (concatenation of all FASTQ files) and `all10.fastq`
-(`all.fastq` repeated 10 times) are provided in the `reads` folder.
-
-In the following, we will use the `64` data set.
-To build an index over all bins, we first prepare a file that contains one file path per line
-(a line corresponds to a bin) and use this file as input:
-```
-seq -f "example_data/64/bins/bin_%02g.fasta" 0 1 63 > bin_paths.txt
-valik build bin_paths.txt --threads 8 --output index.out --size 80m
-```
-
-You may be prompted to enable or disable automatic update notifications. For questions, please consult
-[the SeqAn documentation](https://github.com/seqan/seqan3/wiki/Update-Notifications).
-
-Afterwards, we can search for all reads from bin 1:
-
-```
-valik search --index index.out --query example_data/64/reads/mini.fastq --errors 2 --pattern 50 --output matches.out --overlap 10
-```
-
-Each line of the output consists of the read ID (in the toy example these are numbers) and the corresponding bins in
-which they were found:
-```text
-0       0,
-1       0,
-2       0,
-3       0,
-4       0,
-16384   1,
-...
-1015812 62,
-1032192 63,
-1032193 63,
-1032194 63,
-1032195 63,
-1032196 63,
-```
-
-For a list of options, see the help pages:
-```console
-valik --help
-valik split --help
-valik build --help
-valik search --help
-```
-
 ## Authorship and Copyright
-The valik application is based on Raptor. Raptor is being developed by [Enrico Seiler](mailto:enrico.seiler@fu-berlin.de), but also incorporates much work from
-other members of [SeqAn](https://www.seqan.de).
-
-### Citation
-In your academic works (also comparisons and pipelines) please cite:
-  * Seiler, E. et al. (2020). Raptor: A fast and space-efficient pre-filter for querying very large collections of nucleotide sequences. bioRxiv 2020.10.08.330985. doi: https://doi.org/10.1101/2020.10.08.330985
-
-### Supplementary
-The subdirectory `util` contains applications and scripts related to the paper.
-
-### License
-Raptor is open source software. However, certain conditions apply when you (re-)distribute and/or modify Raptor, please see the [license](https://github.com/seqan/raptor/blob/master/LICENSE.md).
+The Valik application is an offshoot of Raptor [license](https://github.com/seqan/raptor/blob/master/LICENSE.md).
