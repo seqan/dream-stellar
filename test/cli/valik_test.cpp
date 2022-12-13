@@ -154,11 +154,11 @@ TEST_P(valik_search_clusters, search)
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
-    std::string const expected = string_from_file(search_result_path(number_of_bins, window_size, number_of_errors,
+    auto expected = read_valik_output(search_result_path(number_of_bins, window_size, number_of_errors,
 			    pattern_size, overlap), std::ios::binary);
-    std::string const actual = string_from_file("search.out");
+    auto actual = read_valik_output("search.out");
 
-    EXPECT_EQ(expected, actual);
+    compare_search_out(expected, actual);
 }
 
 INSTANTIATE_TEST_SUITE_P(cluster_search_suite,
@@ -196,11 +196,11 @@ TEST_P(valik_search_segments, search)
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
-    std::string const expected = string_from_file(search_result_path(segment_overlap, number_of_bins, window_size, number_of_errors,
+    auto expected = read_valik_output(search_result_path(segment_overlap, number_of_bins, window_size, number_of_errors,
 			    pattern_size, overlap), std::ios::binary);
-    std::string const actual = string_from_file("search.out");
+    auto actual = read_valik_output("search.out");
 
-    EXPECT_EQ(expected, actual);
+    compare_search_out(expected, actual);
 }
 
 INSTANTIATE_TEST_SUITE_P(segment_search_suite,
