@@ -9,7 +9,6 @@
 #include <raptor/threshold/threshold.hpp>
 
 #include <valik/search/query_record.hpp>
-#include <valik/search/query_result.hpp>
 #include <valik/shared.hpp> // search_arguments
 
 namespace valik
@@ -123,96 +122,87 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
     return pattern_hits;
 }
 
-struct local_prefilter_fn
+//-----------------------------
+//
+// Search a batch of queries in the IBF:
+// - the IBF is searched for local matches of length pattern size
+// - not all local match positions are considered
+// - overlap shows how much consequtive patterns overlap
+//
+//-----------------------------
+template <seqan3::data_layout ibf_data_layout, typename result_cb_t>
+void local_prefilter(
+    std::span<query_record const> const & records,
+    seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
+    search_arguments const & arguments,
+    raptor::threshold::threshold const & thresholder,
+    result_cb_t result_cb)
 {
-    //-----------------------------
-    //
-    // Search a batch of queries in the IBF:
-    // - the IBF is searched for local matches of length pattern size
-    // - not all local match positions are considered
-    // - overlap shows how much consequtive patterns overlap
-    //
-    //-----------------------------
-    template <seqan3::data_layout ibf_data_layout>
-    std::vector<query_result>
-    operator()(
-        std::span<query_record const> const & records,
-        seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
-        search_arguments const & arguments,
-        raptor::threshold::threshold const & thresholder) const
+    // concurrent invocations of the membership agent are not thread safe
+    // agent has to be created for each thread
+    auto agent = ibf.membership_agent();
+    size_t const bin_count = ibf.bin_count();
+
+    // vector holding all the minimisers and their starting position for the read
+    std::vector<std::tuple<uint64_t, size_t>> minimiser;
+
+    auto minimiser_hash_adaptor = seqan3::views::minimiser_hash(
+        arguments.shape,
+        seqan3::window_size{arguments.window_size},
+        seqan3::seed{adjust_seed(arguments.shape_weight)});
+
+    for (query_record const & record : records)
     {
-        // concurrent invocations of the membership agent are not thread safe
-        // agent has to be created for each thread
-        auto agent = ibf.membership_agent();
-        size_t const bin_count = ibf.bin_count();
+        std::string const & id = record.sequence_id;
+        std::vector<seqan3::dna4> const & seq = record.sequence;
 
-        std::vector<query_result> thread_result{}; // set of query results processed by one thread
+        // sequence can't contain local match if it's shorter than pattern length
+        if (seq.size() < arguments.pattern_size)
+            continue;
 
-        // vector holding all the minimisers and their starting position for the read
-        std::vector<std::tuple<uint64_t, size_t>> minimiser;
-
-        auto minimiser_hash_adaptor = seqan3::views::minimiser_hash(
-            arguments.shape,
-            seqan3::window_size{arguments.window_size},
-            seqan3::seed{adjust_seed(arguments.shape_weight)});
-
-        for (query_record const & record : records)
+        // basically: minimiser = seq | minimiser_hash_adaptor | seqan3::views::to<decltype(minimiser)>;
         {
-            std::string const & id = record.sequence_id;
-            std::vector<seqan3::dna4> const & seq = record.sequence;
-
-            // sequence can't contain local match if it's shorter than pattern length
-            if (seq.size() < arguments.pattern_size)
-                continue;
-
-            // basically: minimiser = seq | minimiser_hash_adaptor | seqan3::views::to<decltype(minimiser)>;
-            {
-                auto const minimiser_hash = minimiser_hash_adaptor(seq);
-                auto it = minimiser_hash.begin();
-                auto const sentinel = minimiser_hash.end();
-                auto const hash_begin = it.base();
-                for (; it != sentinel; ++it)
-                    minimiser.emplace_back(*it, it.base() - hash_begin);
-            }
-
-            //-----------------------------
-            //
-            // Table of counting vectors newly created for each read
-            //	rows: each minimiser of read
-            // 	columns: each bin of IBF
-            //
-            //-----------------------------
-            using binning_bitvector_t = typename std::remove_cvref_t<decltype(ibf)>::membership_agent_type::binning_bitvector;
-            std::vector<binning_bitvector_t> counting_table(minimiser.size(),
-                                                            binning_bitvector_t(bin_count));
-
-            // the beginning of the first window this minimiser is in
-            std::vector<size_t> window_span_begin(minimiser.size(), 0);
-
-            for (size_t i{0}; i < minimiser.size(); i++)
-            {
-                const auto &[min, start_pos] = minimiser[i];
-                window_span_begin[i] = start_pos;
-                counting_table[i].raw_data() |= agent.bulk_contains(min).raw_data();
-            }
-
-            minimiser.clear();
-
-            std::set<size_t> sequence_hits{};
-            pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.overlap, [&](size_t const begin)
-            {
-                pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
-                std::set<size_t> const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
-                sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
-            });
-
-            thread_result.emplace_back(id, std::move(sequence_hits));
+            auto const minimiser_hash = minimiser_hash_adaptor(seq);
+            auto it = minimiser_hash.begin();
+            auto const sentinel = minimiser_hash.end();
+            auto const hash_begin = it.base();
+            for (; it != sentinel; ++it)
+                minimiser.emplace_back(*it, it.base() - hash_begin);
         }
 
-        return thread_result;
-    }
-};
+        //-----------------------------
+        //
+        // Table of counting vectors newly created for each read
+        // rows: each minimiser of read
+        // columns: each bin of IBF
+        //
+        //-----------------------------
+        using binning_bitvector_t = typename std::remove_cvref_t<decltype(ibf)>::membership_agent_type::binning_bitvector;
+        std::vector<binning_bitvector_t> counting_table(minimiser.size(),
+                                                        binning_bitvector_t(bin_count));
 
-static constexpr local_prefilter_fn local_prefilter{};
+        // the beginning of the first window this minimiser is in
+        std::vector<size_t> window_span_begin(minimiser.size(), 0);
+
+        for (size_t i{0}; i < minimiser.size(); i++)
+        {
+            const auto &[min, start_pos] = minimiser[i];
+            window_span_begin[i] = start_pos;
+            counting_table[i].raw_data() |= agent.bulk_contains(min).raw_data();
+        }
+
+        minimiser.clear();
+
+        std::set<size_t> sequence_hits{};
+        pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.overlap, [&](size_t const begin)
+        {
+            pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
+            std::set<size_t> const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
+            sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
+        });
+
+        result_cb(id, sequence_hits);
+    }
+}
 
 } // namespace valik

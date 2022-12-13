@@ -1,14 +1,13 @@
 #pragma once
 
 #include <chrono>
-#include <future>
+#include <thread>
 #include <vector>
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <valik/shared.hpp>
 #include <valik/search/local_prefilter.hpp>
 #include <valik/search/query_record.hpp>
-#include <valik/search/query_result.hpp>
 #include <valik/search/sync_out.hpp>
 
 #include <raptor/threshold/threshold.hpp>
@@ -23,11 +22,7 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
                                        raptor::threshold::threshold const & thresholder,
                                        sync_out & synced_out)
 {
-    using task_future_t = std::future<std::vector<valik::query_result>>;
-    static_assert(std::same_as<task_future_t,
-                               decltype(std::async(std::launch::async, local_prefilter, std::span<query_record const>{}, ibf, arguments, thresholder))>);
-
-    std::vector<task_future_t> tasks;
+    std::vector<std::jthread> tasks;
     size_t const num_records = records.size();
     size_t const records_per_thread = num_records / arguments.threads;
 
@@ -37,22 +32,17 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
         size_t const end = std::min(start + records_per_thread, num_records);
         std::span<query_record const> records_slice{&records[start], &records[end]};
 
-        // The following calls `local_prefilter(records, ibf, arguments, threshold)` on a thread.
-        // Note: local_prefilter is a function object which is created from the local_function_fn struct
-        tasks.emplace_back(std::async(std::launch::async, local_prefilter, records_slice, ibf, arguments, thresholder));
-    }
-
-    for (task_future_t & task : tasks)
-    {
-        std::string result_string{};
-        std::vector<query_result> thread_result = task.get();
-        for (query_result const & query_result : thread_result)
+        /** This lambda writes the bin_hits into a file
+         *
+         * Caution, it creates a `result_string` of type `std::string` which it reuses for more efficiency
+         */
+        auto result_cb = [&, result_string=std::string{}](std::string const& id, std::set<size_t> const& bin_hits) mutable
         {
             result_string.clear();
-            result_string += query_result.get_id();
+            result_string += id;
             result_string += '\t';
 
-            for (size_t const bin : query_result.get_hits())
+            for (size_t const bin : bin_hits)
             {
                 result_string += std::to_string(bin);
                 result_string += ',';
@@ -60,7 +50,13 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
 
             result_string += '\n';
             synced_out.write(result_string);
-        }
+        };
+
+        // The following calls `local_prefilter(records, ibf, arguments, threshold)` on a thread.
+        tasks.emplace_back([=, &ibf, &arguments, &thresholder]()
+        {
+            local_prefilter(records_slice, ibf, arguments, thresholder, result_cb);
+        });
     }
 }
 
