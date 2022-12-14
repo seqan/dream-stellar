@@ -3,7 +3,6 @@
 #include <cstdlib>               // system calls
 #include <filesystem> // test directory creation
 #include <seqan3/test/expect_range_eq.hpp>
-#include <seqan3/core/debug_stream.hpp>
 #include <sstream>               // ostringstream
 #include <string>                // strings
 
