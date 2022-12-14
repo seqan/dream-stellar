@@ -95,6 +95,29 @@ protected:
 
 struct valik_base : public cli_test
 {
+    struct valik_match
+    {
+        std::string id;
+        std::unordered_set<uint16_t> matches;
+
+        valik_match(std::string query_id, std::unordered_set<uint16_t> match_set) : id(query_id), matches(match_set) {};
+
+        bool operator==(valik_match other)
+        {
+            if (id != other.id)
+                return false;
+
+            if (matches.size() != other.matches.size())
+                return false;
+
+            for (auto match : matches)
+                if (other.matches.count(match) == 0)
+                    return false;
+
+            return true;
+        }
+    };
+
     static inline std::filesystem::path const segment_metadata_path(size_t const overlap, size_t const bins) noexcept
     {
         std::string name{};
@@ -173,6 +196,51 @@ struct valik_base : public cli_test
         std::stringstream file_buffer;
         file_buffer << file_stream.rdbuf();
         return {file_buffer.str()};
+    }
+
+    static inline std::vector<valik_match> read_valik_output(std::filesystem::path const & path,
+                                                            std::ios_base::openmode const mode = std::ios_base::in)
+    {
+        std::vector<valik_match> valik_matches;
+        std::ifstream infile(path, mode);
+        std::string line;
+        while (std::getline(infile, line))
+        {
+            std::unordered_set<uint16_t> query_matches;
+
+            std::istringstream line_stream(line);
+            std::vector<std::string> cols;
+            std::string col;
+
+            while (std::getline(line_stream, col, '\t'))
+                cols.push_back(col);
+
+            EXPECT_TRUE(cols.size() > 0);
+            EXPECT_TRUE(cols.size() < 3);
+
+            if (cols.size() == 2)
+            {
+                std::istringstream match_stream(cols[1]);
+                std::string match;
+                while (std::getline(match_stream, match, ','))
+                    query_matches.insert(std::stoi(match));
+            }
+
+            valik_matches.push_back(valik_match(cols[0], query_matches));
+        }
+
+        return valik_matches;
+    }
+
+    static inline void const compare_search_out(std::vector<valik_match> expected,
+                                                std::vector<valik_match> actual)
+    {
+        EXPECT_EQ(expected.size(), actual.size());
+
+        for (auto match : expected)
+        {
+            EXPECT_TRUE(std::find(actual.begin(), actual.end(), match) != actual.end());
+        }
     }
 
     struct strong_bool

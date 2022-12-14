@@ -5,6 +5,8 @@
 #include <vector>
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
+#include <seqan3/core/debug_stream.hpp>
+
 #include <valik/shared.hpp>
 #include <valik/search/local_prefilter.hpp>
 #include <valik/search/query_record.hpp>
@@ -29,7 +31,8 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
     for (size_t i = 0; i < arguments.threads; ++i)
     {
         size_t const start = records_per_thread * i;
-        size_t const end = std::min(start + records_per_thread, num_records);
+        size_t const end = i == (arguments.threads - 1) ? num_records : records_per_thread * (i + 1);
+
         std::span<query_record const> records_slice{&records[start], &records[end]};
 
         /** This lambda writes the bin_hits into a file

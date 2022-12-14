@@ -148,17 +148,18 @@ TEST_P(valik_search_clusters, search)
                                                         "--error ", std::to_string(number_of_errors),
                                                         "--index ", ibf_path(number_of_bins, window_size),
                                                         "--query ", data("query.fq"),
+                                                        "--threads 3",
 							                            "--tau 0.75",
 							                            "--p_max 0.75");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
-    std::string const expected = string_from_file(search_result_path(number_of_bins, window_size, number_of_errors,
+    auto expected = read_valik_output(search_result_path(number_of_bins, window_size, number_of_errors,
 			    pattern_size, overlap), std::ios::binary);
-    std::string const actual = string_from_file("search.out");
+    auto actual = read_valik_output("search.out");
 
-    EXPECT_EQ(expected, actual);
+    compare_search_out(expected, actual);
 }
 
 INSTANTIATE_TEST_SUITE_P(cluster_search_suite,
@@ -190,17 +191,18 @@ TEST_P(valik_search_segments, search)
                                                         "--error ", std::to_string(number_of_errors),
                                                         "--index ", ibf_path(segment_overlap, number_of_bins, window_size),
                                                         "--query ", data("single_query.fq"),
+                                                        "--threads 3",
 							                            "--tau 0.75",
 							                            "--p_max 0.25");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
-    std::string const expected = string_from_file(search_result_path(segment_overlap, number_of_bins, window_size, number_of_errors,
+    auto expected = read_valik_output(search_result_path(segment_overlap, number_of_bins, window_size, number_of_errors,
 			    pattern_size, overlap), std::ios::binary);
-    std::string const actual = string_from_file("search.out");
+    auto actual = read_valik_output("search.out");
 
-    EXPECT_EQ(expected, actual);
+    compare_search_out(expected, actual);
 }
 
 INSTANTIATE_TEST_SUITE_P(segment_search_suite,
