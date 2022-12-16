@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <thread>
-#include <vector>
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/core/debug_stream.hpp>
@@ -39,7 +38,7 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
          *
          * Caution, it creates a `result_string` of type `std::string` which it reuses for more efficiency
          */
-        auto result_cb = [&, result_string=std::string{}](std::string const& id, std::set<size_t> const& bin_hits) mutable
+        auto result_cb = [&, result_string=std::string{}](std::string const& id, std::unordered_set<size_t> const& bin_hits) mutable
         {
             result_string.clear();
             result_string += id;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <span>
-#include <vector>
 
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/search/views/minimiser_hash.hpp>
@@ -100,10 +99,11 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
 //
 //-----------------------------
 template <typename binning_bitvector_t>
-std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const & bin_count, binning_bitvector_t const & counting_table)
+void find_pattern_bins(pattern_bounds const & pattern,
+                        size_t const & bin_count,
+                        binning_bitvector_t const & counting_table,
+                        std::unordered_set<size_t> & sequence_hits)
 {
-    std::set<size_t> pattern_hits{};
-
     // counting vector for the current pattern
     seqan3::counting_vector<uint8_t> total_counts(bin_count, 0);
 
@@ -115,11 +115,9 @@ std::set<size_t> find_pattern_bins(pattern_bounds const & pattern, size_t const 
         if (count >= pattern.threshold)
         {
             // the result_set is a union of results from all patterns of a read
-            pattern_hits.insert(current_bin);
+            sequence_hits.insert(current_bin);
         }
     }
-
-    return pattern_hits;
 }
 
 //-----------------------------
@@ -193,12 +191,11 @@ void local_prefilter(
 
         minimiser.clear();
 
-        std::set<size_t> sequence_hits{};
+        std::unordered_set<size_t> sequence_hits{};
         pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.overlap, [&](size_t const begin)
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
-            std::set<size_t> const pattern_hits = find_pattern_bins(pattern, bin_count, counting_table);
-            sequence_hits.insert(pattern_hits.begin(), pattern_hits.end());
+            find_pattern_bins(pattern, bin_count, counting_table, sequence_hits);
         });
 
         result_cb(id, sequence_hits);
