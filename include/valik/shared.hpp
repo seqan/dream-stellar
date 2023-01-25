@@ -40,6 +40,7 @@ struct split_arguments
 
     size_t overlap{150};
     size_t bins{64};
+    bool write_seg{false};
 };
 
 struct build_arguments

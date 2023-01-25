@@ -66,7 +66,8 @@ void valik_split(split_arguments const & arguments)
     reference_segments segments(arguments.bins, arguments.overlap, reference);
     segments.to_file(arguments.seg_out);
 
-    write_seg_sequences<seqan3::dna4>(reference, segments, arguments.ref_file);
+    if (arguments.write_seg)
+        write_seg_sequences<seqan3::dna4>(reference, segments, arguments.ref_file);
 }
 
 } // namespace valik::app

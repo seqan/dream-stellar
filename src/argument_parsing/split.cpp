@@ -36,6 +36,10 @@ void init_split_parser(seqan3::argument_parser & parser, split_arguments & argum
                       "Number of bins in the IBF. Multiples of 64 lead to better performance.",
                       seqan3::option_spec::standard,
                       seqan3::arithmetic_range_validator{4, 29952});
+    parser.add_flag(arguments.write_seg,
+                      '\0',
+                      "write-out",
+                      "Write segment sequences to disk.");
 }
 
 void run_split(seqan3::argument_parser & parser)
