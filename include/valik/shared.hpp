@@ -109,6 +109,9 @@ struct search_arguments
             .output_directory{index_file.parent_path()}
         };
     }
+
+    bool call_stellar{false};
+    std::filesystem::path seg_path{};
 };
 
 } // namespace valik

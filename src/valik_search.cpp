@@ -36,6 +36,24 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
 
+    if (arguments.call_stellar)
+    {
+        reference_segments segments(arguments.seg_path);
+
+        /* call stellar:
+        double er_rate = arguments.errors / arguments.pattern_size;
+        stellar index.bin_path()[0][0]
+                query.fasta
+                --sequenceOfInterest 0
+                --segmentBegin 600
+                --segmentEnd 721
+                -e er_rate
+                -l arguments.pattern_size
+                -a dna
+                -o out.gff
+        */
+    }
+
     sync_out synced_out{arguments.out_file};
 
     size_t record_id = 0u;
