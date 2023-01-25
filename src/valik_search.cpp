@@ -3,6 +3,8 @@
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/search/write_output_file_parallel.hpp>
 
+#include <valik/split/reference_segments.hpp>
+
 #include <raptor/threshold/threshold.hpp>
 
 #include <future>
@@ -40,13 +42,18 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     {
         reference_segments segments(arguments.seg_path);
 
-        /* call stellar:
-        double er_rate = arguments.errors / arguments.pattern_size;
+        /* call stellar on bin 2
+        double er_rate = (double) arguments.errors / (double) arguments.pattern_size;
+        auto seg = segments.segment_from_bin(2);
         stellar index.bin_path()[0][0]
                 query.fasta
-                --sequenceOfInterest 0
-                --segmentBegin 600
-                --segmentEnd 721
+                --sequenceOfInterest seg.ref_ind;
+                --segmentBegin seg.start;
+<<<<<<< HEAD
+                --segmentEnd seg.start + seg.length;
+=======
+                --segmentEnd seg.end;
+>>>>>>> 132f6d2... Get sequence of interest and segment parameters in search
                 -e er_rate
                 -l arguments.pattern_size
                 -a dna

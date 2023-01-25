@@ -30,7 +30,7 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
     for (size_t i = 0; i < arguments.threads; ++i)
     {
         size_t const start = records_per_thread * i;
-        size_t const end = i == (arguments.threads - 1) ? num_records : records_per_thread * (i + 1);
+        size_t const end = i == (unsigned) (arguments.threads - 1) ? num_records : records_per_thread * (i + 1);
 
         std::span<query_record const> records_slice{&records[start], &records[end]};
 

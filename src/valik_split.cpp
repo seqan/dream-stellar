@@ -25,7 +25,7 @@ void write_seg_sequences(reference_metadata const & reference, reference_segment
     for (auto && [seq] : sequence_file_t{ref_path})
     {
         // get the relevant segments for each reference
-        auto ref_seg = [&](reference_segments::segment & seg) {return reference.sequences.at(i).id == seg.ref_id;};
+        auto ref_seg = [&](reference_segments::segment & seg) {return reference.sequences.at(i).ind == seg.ref_ind;};
         for (auto & seg : segments.members | std::views::filter(ref_seg))
         {
             std::filesystem::path seg_file = ref_path;
@@ -36,7 +36,7 @@ void write_seg_sequences(reference_metadata const & reference, reference_segment
             seg_file.replace_filename(seg_stem);
             file_paths_out << seg_file.string() << '\n';
 
-            std::string id{seg.ref_id + "_" + std::to_string(seg.start) + "_" + std::to_string(seg.len)};
+            std::string id{seg.unique_id()};
             seqan3::dna4_vector seg_sequence(&seq[seg.start], &seq[seg.start+seg.len]);
             assert(seg_sequence.size() == seg.len);
 

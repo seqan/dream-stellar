@@ -1,5 +1,5 @@
-chr1	210
-chr2	490
-chr3	420
-chr4	280
-chr5	4
+chr1	0	210
+chr2	1	490
+chr3	2	420
+chr4	3	280
+chr5	4	4

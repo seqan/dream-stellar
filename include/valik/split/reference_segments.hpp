@@ -16,29 +16,34 @@ class reference_segments {
         class segment {
             public:
                 size_t bin;
-                std::string ref_id;
+                size_t ref_ind;
                 size_t start;
                 size_t len;
 
-            segment(size_t b, std::string id, size_t s, size_t l)
+            segment(size_t b, size_t ind, size_t s, size_t l)
             {
                 bin = b;
-                ref_id = id;
+                ref_ind = ind;
                 start = s;
                 len = l;
+            }
+
+            std::string unique_id()
+            {
+                return std::to_string(ref_ind) + "_" + std::to_string(start) + "_" + std::to_string(len);
             }
         };
 
         std::vector<segment> members;
         size_t default_len;
 
-        void add_segment(size_t b, std::string id, size_t s, size_t l)
+        void add_segment(size_t const b, size_t const ind, size_t const s, size_t const l)
         {
-            segment seg(b, id, s, l);
+            segment seg(b, ind, s, l);
             members.push_back(seg);
         }
 
-        void construct_by_linear_scan(size_t bins, size_t overlap, reference_metadata const & reference)
+        void construct_by_linear_scan(size_t const bins, size_t const overlap, reference_metadata const & reference)
         {
             assert(bins > 0);
             default_len = reference.total_len / bins + 1;
@@ -56,7 +61,7 @@ class reference_segments {
                 else if ((seq.len >= default_len / 2) & (seq.len <= default_len * 1.5))
                 {
                     // reference sequence is single segment
-                    add_segment(members.size(), seq.id, start, seq.len);
+                    add_segment(members.size(), seq.ind, start, seq.len);
                     remaining_ref_len -= seq.len;
                 }
                 else
@@ -70,14 +75,14 @@ class reference_segments {
                     size_t actual_seg_len = seq.len / bins_per_seq + overlap + 1; // + 1 because integer division always rounded down
 
                     // divide reference sequence into multiple segments
-                    add_segment(members.size(), seq.id, start, actual_seg_len);
+                    add_segment(members.size(), seq.ind, start, actual_seg_len);
                     start = start + actual_seg_len - overlap;
                     while (start + actual_seg_len - overlap < seq.len)
                     {
-                        add_segment(members.size(), seq.id, start, actual_seg_len);
+                        add_segment(members.size(), seq.ind, start, actual_seg_len);
                         start = start + actual_seg_len - overlap;
                     }
-                    add_segment(members.size(), seq.id, start, seq.len - start);
+                    add_segment(members.size(), seq.ind, start, seq.len - start);
 
                     remaining_ref_len -= seq.len;
                 }
@@ -95,20 +100,28 @@ class reference_segments {
         {
             std::ifstream in_file(filepath);
 
-            size_t bin, start, length;
-            std::string ref_id;
+            size_t bin, ref_ind, start, length;
             if (in_file.is_open())
             {
                 while (in_file >> bin)
                 {
-                    in_file >> ref_id;
+                    in_file >> ref_ind;
                     in_file >> start;
                     in_file >> length;
 
-                    add_segment(bin, ref_id, start, length);
+                    add_segment(bin, ref_ind, start, length);
                 }
             }
             in_file.close();
+        }
+
+        segment segment_from_bin(size_t const bin)
+        {
+            for (auto & seg : members)
+            {
+                if (seg.bin == bin)
+                    return seg;
+            }
         }
 
         // serialize
@@ -119,7 +132,7 @@ class reference_segments {
 
             for (const auto & seg : members)
             {
-                out_file << seg.bin << '\t' << seg.ref_id << '\t' << seg.start << '\t' << seg.len << '\n';
+                out_file << seg.bin << '\t' << seg.ref_ind << '\t' << seg.start << '\t' << seg.len << '\n';
             }
             out_file.close();
         }
