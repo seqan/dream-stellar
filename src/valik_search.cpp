@@ -3,6 +3,8 @@
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/search/write_output_file_parallel.hpp>
 
+#include <valik/split/reference_segments.hpp>
+
 #include <raptor/threshold/threshold.hpp>
 
 #include <future>
@@ -35,6 +37,25 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     std::vector<query_record> query_records{};
 
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
+
+    if (arguments.call_stellar)
+    {
+        reference_segments segments(arguments.seg_path);
+
+        /* call stellar on bin 2
+        double er_rate = (double) arguments.errors / (double) arguments.pattern_size;
+        auto seg = segments.segment_from_bin(2);
+        stellar index.bin_path()[0][0]
+                query.fasta
+                --sequenceOfInterest seg.ref_ind;
+                --segmentBegin seg.start;
+                --segmentEnd seg.start + seg.length;
+                -e er_rate
+                -l arguments.pattern_size
+                -a dna
+                -o out.gff
+        */
+    }
 
     sync_out synced_out{arguments.out_file};
 

@@ -51,7 +51,21 @@ done
 
 echo -e "\n" >> ../../datasources.cmake
 
-cd ../../build
+cd ../
+
+for relative_path in write_out_*_*/*
+do
+    filename=${relative_path/"/"/"_"}
+    echo -n "declare_datasource (FILE ${filename}
+                URL \${CMAKE_SOURCE_DIR}/test/data/split/${relative_path}
+                URL_HASH SHA256=" >> ../datasources.cmake
+
+    sha=($(shasum -a 256 $relative_path))
+    echo -n $sha >> ../datasources.cmake
+    echo ")" >> ../datasources.cmake
+done
+
+cd ../build
 
 for file in *
 do

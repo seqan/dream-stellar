@@ -68,7 +68,7 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
                     '\0',
                     "compressed",
                     "Build a compressed IBF.");
-     parser.add_flag(arguments.cache_thresholds,
+    parser.add_flag(arguments.cache_thresholds,
                     '\0',
                     "cache-thresholds",
                     "Stores the computed thresholds with an unique name next to the index. In the next search call "
@@ -81,6 +81,17 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
                     "time",
                     "Write timing file.",
                     seqan3::option_spec::advanced);
+    parser.add_flag(arguments.call_stellar,
+                    '\0',
+                    "call-stellar",
+                    "Call distributed stellar search.",
+                    seqan3::option_spec::standard);
+    parser.add_option(arguments.seg_path,
+                    '\0',
+                    "seg-path",
+                    "Path to segment metadata file created by split.",
+                    seqan3::option_spec::standard,
+                    seqan3::input_file_validator{});
 }
 
 // TODO: split creating seqan3::argument_parser and checks/validation of the arguments

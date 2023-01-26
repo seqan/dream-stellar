@@ -7,8 +7,6 @@
 
 #include <seqan3/search/views/minimiser_hash.hpp>
 
-
-
 namespace valik
 {
 
@@ -75,7 +73,7 @@ private:
             for (auto && [seq] : sequence_file_t{arguments->bin_file})
             {
                 // get the relevant segments for each reference
-                auto ref_seg = [&](reference_segments::segment & seg) {return reference.sequences.at(i).id == seg.ref_id;};
+                auto ref_seg = [&](reference_segments::segment & seg) {return reference.sequences.at(i).ind == seg.ref_ind;};
                 for (auto & seg : segments.members | std::views::filter(ref_seg))
                 {
                     for (auto && value : seq | seqan3::views::slice(seg.start, seg.start + seg.len) | hash_view())

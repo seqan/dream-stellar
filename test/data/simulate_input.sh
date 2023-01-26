@@ -7,6 +7,7 @@ SEED=42 # was 20181406 before, but was hardcoded to 42 in seqan
 BIN_NUMBER=8
 HAPLOTYPE_COUNT=2
 
+./split/api_test_input.sh $BINARY_DIR $SEED
 ./split/cli_test_input.sh $BINARY_DIR $SEED
 
 ./build/cli_test_input.sh $BINARY_DIR $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
