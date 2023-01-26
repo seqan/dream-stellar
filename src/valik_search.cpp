@@ -49,11 +49,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
                 query.fasta
                 --sequenceOfInterest seg.ref_ind;
                 --segmentBegin seg.start;
-<<<<<<< HEAD
                 --segmentEnd seg.start + seg.length;
-=======
-                --segmentEnd seg.end;
->>>>>>> 132f6d2... Get sequence of interest and segment parameters in search
                 -e er_rate
                 -l arguments.pattern_size
                 -a dna
