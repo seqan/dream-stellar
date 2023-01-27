@@ -28,17 +28,20 @@ call_stellar () {
 
 ${STELLAR} -e $errRate -l $minLen -v --suppress-runtime-printing -o full.gff $ref_file $query_file > full.stdout
 
-valik split $ref_file --reference-output reference_metadata.tsv --segment-output segment_metadata.tsv --bins 16 --overlap $minLen
+for bin in 4 16
+do
+        valik split $ref_file --reference-output reference_metadata.tsv --segment-output segment_metadata.tsv --bins 16 --overlap $minLen
 
-while read line; do
-        bin=$(echo "$line" | cut -f1)
-        seq_ind=$(echo "$line" | cut -f2)
-        start=$(echo "$line" | cut -f3)
-        len=$(echo "$line" | cut -f4)
-        end=$(expr $start + $len)
-        echo bin=$bin seq_ind=$seq_ind start=$start len=$len end=$end
+        while read line; do
+                bin=$(echo "$line" | cut -f1)
+                seq_ind=$(echo "$line" | cut -f2)
+                start=$(echo "$line" | cut -f3)
+                len=$(echo "$line" | cut -f4)
+                end=$(expr $start + $len)
+                echo bin=$bin seq_ind=$seq_ind start=$start len=$len end=$end
 
-        call_stellar $seq_ind $start $end
-done < segment_metadata.tsv
+                call_stellar $seq_ind $start $end
+        done < segment_metadata.tsv
 
-cat *_*_*.gff > dream_all.gff
+        cat *_*_*_$bin.gff > dream_all_$bin.gff
+done
