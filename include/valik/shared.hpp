@@ -114,11 +114,4 @@ struct search_arguments
     std::filesystem::path seg_path{};
 };
 
-struct consolidation_arguments
-{
-    std::filesystem::path matches_in{};
-    std::filesystem::path seg_path{};
-    std::filesystem::path matches_out{};
-};
-
 } // namespace valik

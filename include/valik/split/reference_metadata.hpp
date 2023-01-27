@@ -1,5 +1,6 @@
 #pragma once
 
+#include <seqan3/argument_parser/exceptions.hpp>
 #include <seqan3/core/debug_stream.hpp>
 #include <seqan3/io/sequence_file/all.hpp>
 
@@ -75,6 +76,18 @@ class reference_metadata
             {
                 construct_by_metadata_file(filepath); // deserialize
             }
+        }
+
+        inline size_t ind_from_id(std::string const & string_id) const
+        {
+            //!TODO: keep an auxilliary map instead of searching each time
+            for (auto & seq : sequences)
+            {
+                if (seq.id == string_id)
+                    return seq.ind;
+            }
+
+            throw seqan3::validation_error{"Reference metadata does not contain sequence from Stellar output."};
         }
 
         // serialize

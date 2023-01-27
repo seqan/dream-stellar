@@ -1,3 +1,0 @@
-1	Stellar	eps-matches	177	356	95.0276	+	.	1;seq2Range=1807,1986;eValue=1.1451e-74;cigar=92M1D1M1I86M;mutations=54C,70A,84T,94G,109A,139C,150G,163C
-1	Stellar	eps-matches	126	302	95.4802	+	.	1;seq2Range=204,378;eValue=3.76404e-74;cigar=2M1D2M1D171M;mutations=19A,24T,96G,159C,166A,170A
-1	Stellar	eps-matches	28	203	95.4545	+	.	1;seq2Range=1201,1376;eValue=1.23727e-73;cigar=176M;mutations=40T,54G,59T,105C,118A,135C,167T,170A
