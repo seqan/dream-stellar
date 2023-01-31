@@ -77,7 +77,7 @@ TEST_F(argparse, no_subparser)
     std::string const expected
     {
         "[Error] You either forgot or misspelled the subcommand! Please specify which sub-program you want to use: one "
-        "of [split,build,search]. Use -h/--help for more information.\n"
+        "of [split,build,search,consolidate]. Use -h/--help for more information.\n"
     };
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
@@ -90,7 +90,7 @@ TEST_F(argparse, unknown_option)
     std::string const expected
     {
         "[Error] You either forgot or misspelled the subcommand! Please specify which sub-program you want to use: one "
-        "of [split,build,search]. Use -h/--help for more information.\n"
+        "of [split,build,search,consolidate]. Use -h/--help for more information.\n"
     };
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});

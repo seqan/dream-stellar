@@ -7,6 +7,8 @@
 #include <string>                // strings
 
 #include <valik/index.hpp>
+#include <valik/split/reference_metadata.hpp>
+#include <utilities/consolidate/io.hpp>
 
 #pragma once
 
@@ -102,7 +104,7 @@ struct valik_base : public cli_test
 
         valik_match(std::string query_id, std::unordered_set<uint16_t> match_set) : id(query_id), matches(match_set) {};
 
-        bool operator==(valik_match other)
+        bool operator == (valik_match const & other) const
         {
             if (id != other.id)
                 return false;
@@ -232,8 +234,8 @@ struct valik_base : public cli_test
         return valik_matches;
     }
 
-    static inline void const compare_search_out(std::vector<valik_match> expected,
-                                                std::vector<valik_match> actual)
+    static inline void compare_search_out(std::vector<valik_match> const & expected,
+                                          std::vector<valik_match> const & actual)
     {
         EXPECT_EQ(expected.size(), actual.size());
 
@@ -422,6 +424,50 @@ struct valik_base : public cli_test
             EXPECT_RANGE_EQ(expected_filenames, actual_filenames);
         }
     }
+
+    static inline std::filesystem::path const consolidation_input_path(size_t const number_of_bins, size_t const overlap) noexcept
+    {
+        std::string name{};
+        name += std::to_string(number_of_bins);
+        name += "bins";
+        name += std::to_string(overlap);
+        name += "overlap_dream_all.gff";
+        return cli_test::data(name);
+    }
+
+    static inline std::filesystem::path const consolidation_meta_path(size_t const number_of_bins, size_t const overlap) noexcept
+    {
+        std::string name{};
+        name += std::to_string(number_of_bins);
+        name += "bins";
+        name += std::to_string(overlap);
+        name += "overlap_reference_metadata.tsv";
+        return cli_test::data(name);
+    }
+
+    static inline std::filesystem::path const stellar_gold_path(size_t const overlap) noexcept
+    {
+        std::string name{};
+        name += std::to_string(overlap);
+        name += "overlap_full.gff";
+        return cli_test::data(name);
+    }
+
+    static inline void compare_consolidation_out(std::vector<valik::stellar_match> const & expected,
+                                                std::vector<valik::stellar_match> const & actual)
+    {
+        EXPECT_EQ(expected.size(), actual.size());
+        for (auto & match : expected)
+        {
+            auto it = std::find(actual.begin(), actual.end(), match);
+            // operator == is defined to only compare the first 3 GFF fields
+            EXPECT_TRUE(it != actual.end());
+            EXPECT_EQ(match.is_forward_match, (*it).is_forward_match);
+            EXPECT_EQ(match.percid, (*it).percid);
+            EXPECT_EQ(match.attributes, (*it).attributes);
+        }
+    }
+
 };
 
 struct valik_split : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
@@ -431,4 +477,5 @@ struct valik_search_clusters : public valik_base, public testing::WithParamInter
 	size_t, size_t>> {};
 struct valik_search_segments : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t, size_t,
 	size_t, size_t>> {};
+struct valik_consolidate : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
 

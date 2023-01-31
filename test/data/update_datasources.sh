@@ -94,3 +94,19 @@ do
     echo -n $sha >> ../datasources.cmake
     echo ")" >> ../datasources.cmake
 done
+
+echo -e "\n" >> ../datasources.cmake
+
+cd ../consolidate
+
+for file in *
+do
+    [[ $file == *.sh ]] && continue
+    echo -n "declare_datasource (FILE ${file}
+                URL \${CMAKE_SOURCE_DIR}/test/data/consolidate/${file}
+                URL_HASH SHA256=" >> ../datasources.cmake
+
+    sha=($(shasum -a 256 $file))
+    echo -n $sha >> ../datasources.cmake
+    echo ")" >> ../datasources.cmake
+done

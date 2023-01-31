@@ -1,47 +1,56 @@
 #!/bin/bash
 
 STELLAR=/home/evelin/DREAM-Stellar/dream_stellar/build/bin/stellar
+VALIK=valik
 
 # ============================================================
 # Varying error rates
 # ============================================================
 
-rm *_*_*.gff
-rm *_*_*.stdout
-rm full.gff
-rm full.stdout
-rm segment_metadata.tsv
-rm reference_metadata.tsv
+cd consolidate
+
+rm *_full.gff
+rm *bins*overlap_segment_metadata.tsv
+rm *bins*overlap_reference_metadata.tsv
 
 errRate=0.05
-minLen=50
 ref_file=multi_seq_ref.fasta
 query_file=query_e${errRate}.fasta
 
 call_stellar () {
-   ${STELLAR} -e $errRate -l $minLen -v --sequenceOfInterest $1 \
-              --segmentBegin $2 --segmentEnd $3 \
+   $STELLAR -e $errRate -l $2 -v --sequenceOfInterest $3 \
+              --segmentBegin $4 --segmentEnd $5 \
               --suppress-runtime-printing \
-              -o $1_$2_$3.gff \
-              $ref_file $query_file > 0_$1_$2.stdout
+              -o $1bins$2overlap$3index$4start$5end.gff \
+              $ref_file $query_file > /dev/null
+        # $1bins$2overlap$3index$4start$5end.stdout
 }
 
-${STELLAR} -e $errRate -l $minLen -v --suppress-runtime-printing -o full.gff $ref_file $query_file > full.stdout
-
-for bin in 4 16
+for minLen in 10 50
 do
-        valik split $ref_file --reference-output reference_metadata.tsv --segment-output segment_metadata.tsv --bins 16 --overlap $minLen
+        ${STELLAR} -e $errRate -l $minLen -v --suppress-runtime-printing -o ${minLen}overlap_full.gff $ref_file $query_file > /dev/null
 
-        while read line; do
-                bin=$(echo "$line" | cut -f1)
-                seq_ind=$(echo "$line" | cut -f2)
-                start=$(echo "$line" | cut -f3)
-                len=$(echo "$line" | cut -f4)
-                end=$(expr $start + $len)
-                echo bin=$bin seq_ind=$seq_ind start=$start len=$len end=$end
+        for bin in 8 16
+        do
+                $VALIK split $ref_file --reference-output ${bin}bins${minLen}overlap_reference_metadata.tsv \
+                                      --segment-output ${bin}bins${minLen}overlap_segment_metadata.tsv \
+                                      --bins $bin --overlap $minLen
 
-                call_stellar $seq_ind $start $end
-        done < segment_metadata.tsv
+                while read line; do
+                        current_bin=$(echo "$line" | cut -f1)
+                        seq_ind=$(echo "$line" | cut -f2)
+                        start=$(echo "$line" | cut -f3)
+                        len=$(echo "$line" | cut -f4)
+                        end=$(expr $start + $len)
+                        echo current_bin=$current_bin seq_ind=$seq_ind start=$start len=$len end=$end
 
-        cat *_*_*_$bin.gff > dream_all_$bin.gff
+                        call_stellar $bin $minLen $seq_ind $start $end
+                done < ${bin}bins${minLen}overlap_segment_metadata.tsv
+
+                cat ${bin}bins${minLen}overlap*index*start*end.gff > ${bin}bins${minLen}overlap_dream_all.gff
+
+                rm ${bin}bins${minLen}overlap*index*start*end.gff
+                # rm ${bin}bins${minLen}overlap*index*start*end.stdout
+                rm ${bin}bins${minLen}overlap_segment_metadata.tsv
+        done
 done

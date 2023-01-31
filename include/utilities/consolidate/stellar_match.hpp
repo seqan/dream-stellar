@@ -36,7 +36,7 @@ struct stellar_match
         attributes = match_vec[8];
     }
 
-    bool operator==(stellar_match const & other)
+    bool operator == (stellar_match const & other) const
     {
         if (dname == other.dname &&
             dbegin == other.dbegin &&
