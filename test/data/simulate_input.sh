@@ -13,3 +13,5 @@ HAPLOTYPE_COUNT=2
 ./build/cli_test_input.sh $BINARY_DIR $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
 
 ./search/cli_test_input.sh $BINARY_DIR $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
+
+./consolidate/cli_test_input.sh
