@@ -80,14 +80,11 @@ class reference_metadata
 
         inline size_t ind_from_id(std::string const & string_id) const
         {
-            //!TODO: keep an auxilliary map instead of searching each time
-            for (auto & seq : sequences)
-            {
-                if (seq.id == string_id)
-                    return seq.ind;
-            }
-
-            throw seqan3::validation_error{"Reference metadata does not contain sequence from Stellar output."};
+            auto it = std::find_if(sequences.begin(), sequences.end(), [&](const sequence_stats& seq) { return seq.id == string_id;});
+            if (it == sequences.end())
+                throw seqan3::validation_error{"Reference metadata does not contain sequence from Stellar output."};
+            else
+                return (*it).ind;
         }
 
         // serialize

@@ -40,7 +40,8 @@ struct stellar_match
     {
         if (dname == other.dname &&
             dbegin == other.dbegin &&
-            dend == other.dend)
+            dend == other.dend &&
+            is_forward_match == other.is_forward_match)
             return true;
         else
             return false;
