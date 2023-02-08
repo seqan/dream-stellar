@@ -13,6 +13,8 @@
 
 #include <raptor/threshold/threshold.hpp>
 
+#include "utilities/cart_queue.hpp"
+
 namespace valik::app
 {
 
@@ -21,7 +23,7 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
                                        search_arguments const & arguments,
                                        std::vector<query_record> const & records,
                                        raptor::threshold::threshold const & thresholder,
-                                       sync_out & synced_out)
+                                       cart_queue<std::string> & queue)
 {
     std::vector<std::jthread> tasks;
     size_t const num_records = records.size();
@@ -38,20 +40,12 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
          *
          * Caution, it creates a `result_string` of type `std::string` which it reuses for more efficiency
          */
-        auto result_cb = [&, result_string=std::string{}](std::string const& id, std::unordered_set<size_t> const& bin_hits) mutable
+        auto result_cb = [&queue](std::string const& id, std::unordered_set<size_t> const& bin_hits)
         {
-            result_string.clear();
-            result_string += id;
-            result_string += '\t';
-
             for (size_t const bin : bin_hits)
             {
-                result_string += std::to_string(bin);
-                result_string += ',';
+                queue.insert(bin, id);
             }
-
-            result_string += '\n';
-            synced_out.write(result_string);
         };
 
         // The following calls `local_prefilter(records, ibf, arguments, threshold)` on a thread.
