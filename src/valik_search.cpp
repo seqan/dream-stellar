@@ -59,9 +59,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     sync_out synced_out{arguments.out_file};
 
-    size_t cart_max_capacity = 3; //!TODO determine suitable values
-    size_t max_queued_carts  = 10;  //!TODO determine suitable values
-    auto queue = cart_queue<std::string>{index.ibf().bin_count(), cart_max_capacity, max_queued_carts};
+    auto queue = cart_queue<std::string>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
 
 
     auto consumerThread = std::jthread{[&]() {
