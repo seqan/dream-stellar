@@ -58,6 +58,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     }
 
     sync_out synced_out{arguments.out_file};
+    cereal_handle.wait(); // We need the index to be loaded
 
     auto queue = cart_queue<std::string>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
 
@@ -90,8 +91,6 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         }
         auto end = std::chrono::high_resolution_clock::now();
         time_statistics.reads_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
-
-        cereal_handle.wait();
 
         start = std::chrono::high_resolution_clock::now();
 
