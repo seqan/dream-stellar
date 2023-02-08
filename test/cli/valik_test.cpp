@@ -157,7 +157,7 @@ TEST_P(valik_search_clusters, search)
 
     auto expected = read_valik_output(search_result_path(number_of_bins, window_size, number_of_errors,
 			    pattern_size, overlap), std::ios::binary);
-    auto actual = read_valik_output("search.out");
+    auto actual = read_new_valik_output("search.out");
 
     compare_search_out(expected, actual);
 }
@@ -200,7 +200,7 @@ TEST_P(valik_search_segments, search)
 
     auto expected = read_valik_output(search_result_path(segment_overlap, number_of_bins, window_size, number_of_errors,
 			    pattern_size, overlap), std::ios::binary);
-    auto actual = read_valik_output("search.out");
+    auto actual = read_new_valik_output("search.out");
 
     compare_search_out(expected, actual);
 }
