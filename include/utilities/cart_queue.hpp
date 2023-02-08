@@ -31,7 +31,6 @@ struct cart_queue {
     //!< Maximum number of elements that should be put into a cart before it is send of to be consumed
     size_t cart_max_capacity;
 
-
     std::mutex filled_carts_mutex;
     std::condition_variable filled_carts_process_ready_cv;
     std::condition_variable filled_carts_queue_ready_cv;
@@ -47,6 +46,11 @@ struct cart_queue {
     {
         for (auto& cart : carts_being_filled) {
             cart.basket.reserve(cart_max_capacity);
+        }
+    }
+    ~cart_queue() {
+        if (!finishing) {
+            finish();
         }
     }
 
