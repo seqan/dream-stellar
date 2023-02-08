@@ -4,13 +4,55 @@ include (cmake/app_datasources.cmake)
 
 declare_datasource (FILE single_query.fq
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/single_query.fq
-                URL_HASH SHA256=129a0da8803e169cc8f81c46da20e68e4ba8e251e4e979fbecf6466073bf184a)
+                URL_HASH SHA256=4c2987d0416a2bb76b14a37bd67d6c33a54a3c409ffe369007f0b66959f4dbd9)
 declare_datasource (FILE single_reference.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/single_reference.fasta
                 URL_HASH SHA256=53d633474b01a68927d3ab1fd970b200e96403bb1fdcc53feb0367a2093be273)
 declare_datasource (FILE various_chromosome_lengths.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/various_chromosome_lengths.fasta
                 URL_HASH SHA256=7c7a8fcdd52a932cda76219f24024c1624292377103d9fd5a55abd288c6072be)
+declare_datasource (FILE wget-log
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.1
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.1
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.10
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.10
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.11
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.11
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.12
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.12
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.13
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.13
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.2
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.2
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.3
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.3
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.4
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.4
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.5
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.5
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.6
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.6
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.7
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.7
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.8
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.8
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.9
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/wget-log.9
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
 
 
 declare_datasource (FILE 150overlap16bins13window1errors.out
@@ -134,6 +176,18 @@ declare_datasource (FILE bin_7.fasta
 declare_datasource (FILE bin_paths.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/build/bin_paths.txt
                 URL_HASH SHA256=614e23263b689c7b4cc0ae41e99aeb5b43b351f865b4604f892320f2cc4377c7)
+declare_datasource (FILE wget-log
+                URL ${CMAKE_SOURCE_DIR}/test/data/build/wget-log
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.1
+                URL ${CMAKE_SOURCE_DIR}/test/data/build/wget-log.1
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.2
+                URL ${CMAKE_SOURCE_DIR}/test/data/build/wget-log.2
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.3
+                URL ${CMAKE_SOURCE_DIR}/test/data/build/wget-log.3
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
 
 
 declare_datasource (FILE 8bins19window0error100pattern1overlap.out
@@ -186,36 +240,141 @@ declare_datasource (FILE 8bins23window1error50pattern40overlap.out
                 URL_HASH SHA256=faec5a0cb474076799d0bd8d754c55d043f99400c8abc294820d47282f86bc65)
 declare_datasource (FILE query.fq
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/query.fq
-                URL_HASH SHA256=4d684a7e4f8b2a9eceb927edaf1a17543c6bbab7efa6a5eedfeb90465caa37ed)
+                URL_HASH SHA256=70bce56dd6d9b28d14f414e4edaa70fbf848e997263e66742a9f2375a0508133)
+declare_datasource (FILE wget-log
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.1
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.1
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.10
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.10
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.11
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.11
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.12
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.12
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.13
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.13
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.14
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.14
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.15
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.15
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.16
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.16
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.17
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.17
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.18
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.18
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.19
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.19
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.2
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.2
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.20
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.20
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.21
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.21
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.22
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.22
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.23
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.23
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.24
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.24
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.25
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.25
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.26
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.26
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.27
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.27
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.28
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.28
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.29
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.29
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.3
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.3
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.30
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.30
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.4
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.4
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.5
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.5
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.6
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.6
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.7
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.7
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.8
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.8
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
+declare_datasource (FILE wget-log.9
+                URL ${CMAKE_SOURCE_DIR}/test/data/search/wget-log.9
+                URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
 
 
 declare_datasource (FILE 10overlap_full.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/10overlap_full.gff
-                URL_HASH SHA256=b9043f11a9dedb52123a8573f965b140e3fa5683de5471a93818240421bd44a8)
+                URL_HASH SHA256=48e79e6cd9c0672a0396eda3c3e27efdac980d6b1d77a7273e8a34859abb4c2a)
 declare_datasource (FILE 16bins10overlap_dream_all.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/16bins10overlap_dream_all.gff
-                URL_HASH SHA256=1ea90736d2ea59bc9933f75807fa033756823bd663a2e93d5cd7fb7a959ca1c7)
+                URL_HASH SHA256=955057f355600ec93a965fc9cfca6092f06e6ee3b3fd1f9e6590334381bbd1c5)
+declare_datasource (FILE 16bins10overlap_dream_consolidated.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/16bins10overlap_dream_consolidated.gff
+                URL_HASH SHA256=296b99ee23f03f859274b88f5f6ffe08ac15a41f419282bf2a608dfdbd0f6ac7)
 declare_datasource (FILE 16bins10overlap_reference_metadata.tsv
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/16bins10overlap_reference_metadata.tsv
                 URL_HASH SHA256=8ed578817aadb6390957047dad4d16e952325e48824d0a7041f6e6a59414ac3d)
 declare_datasource (FILE 16bins50overlap_dream_all.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/16bins50overlap_dream_all.gff
-                URL_HASH SHA256=bcd8ada8c90e04008b3df9df00859f205550a1a4b0f0f1c2e4a46388fec8e97c)
+                URL_HASH SHA256=e30f06f9076e45c3cad53fd7ca217f293a546f325fa3d0f448d654607048e44c)
+declare_datasource (FILE 16bins50overlap_dream_consolidated.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/16bins50overlap_dream_consolidated.gff
+                URL_HASH SHA256=e436b20ab0b35bc0c9bf973c4a609162c8b4247c5a93c9fb52a786ea8cccb4d4)
 declare_datasource (FILE 16bins50overlap_reference_metadata.tsv
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/16bins50overlap_reference_metadata.tsv
                 URL_HASH SHA256=8ed578817aadb6390957047dad4d16e952325e48824d0a7041f6e6a59414ac3d)
 declare_datasource (FILE 50overlap_full.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/50overlap_full.gff
-                URL_HASH SHA256=7b4524e5bece4fbb2269e169d46d5e9c728e60452748f6f9b63c8886186056fe)
+                URL_HASH SHA256=6a073b53e85d4e099dd3f875e1257fbccce866e5738763729818e6297c7cb4be)
 declare_datasource (FILE 8bins10overlap_dream_all.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/8bins10overlap_dream_all.gff
-                URL_HASH SHA256=0d104b2c3943ace7cac9c987c1e1aa8a3744b04c04148efe94dfa4f2a7f35c13)
+                URL_HASH SHA256=3644af79d5732c2d0d515db6733e5c13d67d4b0840176ee0e0d4058b1d3eafff)
+declare_datasource (FILE 8bins10overlap_dream_consolidated.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/8bins10overlap_dream_consolidated.gff
+                URL_HASH SHA256=296b99ee23f03f859274b88f5f6ffe08ac15a41f419282bf2a608dfdbd0f6ac7)
 declare_datasource (FILE 8bins10overlap_reference_metadata.tsv
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/8bins10overlap_reference_metadata.tsv
                 URL_HASH SHA256=8ed578817aadb6390957047dad4d16e952325e48824d0a7041f6e6a59414ac3d)
 declare_datasource (FILE 8bins50overlap_dream_all.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/8bins50overlap_dream_all.gff
-                URL_HASH SHA256=0c6f48c11cc165210a401952e3b6d040169dcdfd0449a55a228f588c11681b60)
+                URL_HASH SHA256=b03c92c88ad507b5a48111538552dd29cd491dc1eb365e3db739c5a99b4e8409)
+declare_datasource (FILE 8bins50overlap_dream_consolidated.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/8bins50overlap_dream_consolidated.gff
+                URL_HASH SHA256=e436b20ab0b35bc0c9bf973c4a609162c8b4247c5a93c9fb52a786ea8cccb4d4)
 declare_datasource (FILE 8bins50overlap_reference_metadata.tsv
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/8bins50overlap_reference_metadata.tsv
                 URL_HASH SHA256=8ed578817aadb6390957047dad4d16e952325e48824d0a7041f6e6a59414ac3d)

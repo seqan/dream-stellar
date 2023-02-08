@@ -461,8 +461,8 @@ struct valik_base : public cli_test
         {
             auto it = std::find(actual.begin(), actual.end(), match);
             EXPECT_TRUE(it != actual.end());
-            // EXPECT_EQ(match.percid, (*it).percid);
-            // EXPECT_EQ(match.attributes, (*it).attributes);
+            EXPECT_EQ(match.percid, (*it).percid);
+            EXPECT_EQ(match.attributes, (*it).attributes);
         }
     }
 };
