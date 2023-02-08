@@ -59,6 +59,28 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     sync_out synced_out{arguments.out_file};
 
+    size_t cart_max_capacity = 3; //!TODO determine suitable values
+    size_t max_queued_carts  = 10;  //!TODO determine suitable values
+    auto queue = cart_queue<std::string>{index.ibf().bin_count(), cart_max_capacity, max_queued_carts};
+
+
+    auto consumerThread = std::jthread{[&]() {
+        std::string result_string;
+
+        for (auto next = queue.dequeue(); next; next = queue.dequeue()) {
+            auto const& [bin_id, q_ids] = *next;
+            for (auto const& q_id : q_ids) {
+                result_string.clear();
+                result_string += q_id;
+                result_string += '\t';
+                result_string += std::to_string(bin_id);
+                result_string += '\n';
+                synced_out.write(result_string);
+            }
+        }
+    }};
+
+
     size_t record_id = 0u;
     for (auto &&chunked_records : fin | seqan3::views::chunk((1ULL << 20) * 10))
     {
@@ -77,10 +99,11 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         start = std::chrono::high_resolution_clock::now();
 
         //TODO: pass index and overlap instead of ibf and all parameters
-        write_output_file_parallel(index.ibf(), arguments, query_records, thresholder, synced_out);
+        write_output_file_parallel(index.ibf(), arguments, query_records, thresholder, queue);
         end = std::chrono::high_resolution_clock::now();
         time_statistics.compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
+    queue.finish(); // Flush carts that are not empty yet
 }
 
 void valik_search(search_arguments const & arguments)
