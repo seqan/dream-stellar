@@ -93,6 +93,9 @@ struct search_arguments
     bool compressed{false};
     bool write_time{false};
 
+    size_t cart_max_capacity{3}; //!TODO determine suitable values
+    size_t max_queued_carts{10}; //!TODO determine suitable values
+
     raptor::threshold::threshold_parameters make_threshold_parameters() const noexcept
     {
         return

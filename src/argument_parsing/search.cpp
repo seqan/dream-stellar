@@ -81,6 +81,14 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
                     "time",
                     "Write timing file.",
                     seqan3::option_spec::advanced);
+    parser.add_option(arguments.cart_max_capacity,
+                    '\0',
+                    "cart_max_capacity",
+                    "Number of elements to be stored in a single cart before it is send for processing.");
+    parser.add_option(arguments.max_queued_carts,
+                    '\0',
+                    "max_queued_carts",
+                    "Maximal number of carts that are full and are waiting to be processed.");
     parser.add_flag(arguments.call_stellar,
                     '\0',
                     "call-stellar",
