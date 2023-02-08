@@ -61,7 +61,6 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     auto queue = cart_queue<std::string>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
 
-
     auto consumerThread = std::jthread{[&]() {
         std::string result_string;
 
