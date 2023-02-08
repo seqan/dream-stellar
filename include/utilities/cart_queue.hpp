@@ -52,7 +52,7 @@ struct cart_queue {
 
     // Insert a query into a bin - thread safe
     void insert(size_t bin_id, value_t value) {
-        assert(carts_being_filled.size() < bin_id && "bin_id has to be between 0 and number_of_bins");
+        assert(bin_id < carts_being_filled.size() && "bin_id has to be between 0 and number_of_bins");
 
         auto& cart = carts_being_filled[bin_id];
 
@@ -77,7 +77,7 @@ struct cart_queue {
     }
 
     // Take a cart from the filled_carts list - thread safe
-    auto dequeue() -> std::optional<std::tuple<int ,cart>> {
+    auto dequeue() -> std::optional<std::tuple<int, cart>> {
         auto g = std::unique_lock{filled_carts_mutex};
 
         // if no cart is available, wait
