@@ -151,7 +151,6 @@ void local_prefilter(
 
     for (query_record const & record : records)
     {
-        std::string const & id = record.sequence_id;
         std::vector<seqan3::dna4> const & seq = record.sequence;
 
         // sequence can't contain local match if it's shorter than pattern length
@@ -198,7 +197,7 @@ void local_prefilter(
             find_pattern_bins(pattern, bin_count, counting_table, sequence_hits);
         });
 
-        result_cb(id, sequence_hits);
+        result_cb(record, sequence_hits);
     }
 }
 

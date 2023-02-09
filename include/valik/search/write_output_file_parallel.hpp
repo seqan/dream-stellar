@@ -23,7 +23,7 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
                                        search_arguments const & arguments,
                                        std::vector<query_record> const & records,
                                        raptor::threshold::threshold const & thresholder,
-                                       cart_queue<std::string> & queue)
+                                       cart_queue<query_record> & queue)
 {
     std::vector<std::jthread> tasks;
     size_t const num_records = records.size();
@@ -40,11 +40,11 @@ inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data
          *
          * Caution, it creates a `result_string` of type `std::string` which it reuses for more efficiency
          */
-        auto result_cb = [&queue](std::string const& id, std::unordered_set<size_t> const& bin_hits)
+        auto result_cb = [&queue](query_record const& record, std::unordered_set<size_t> const& bin_hits)
         {
             for (size_t const bin : bin_hits)
             {
-                queue.insert(bin, id);
+                queue.insert(bin, record);
             }
         };
 
