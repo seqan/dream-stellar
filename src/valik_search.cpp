@@ -60,16 +60,16 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     sync_out synced_out{arguments.out_file};
     cereal_handle.wait(); // We need the index to be loaded
 
-    auto queue = cart_queue<std::string>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
+    auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
 
     auto consumerThread = std::jthread{[&]() {
         std::string result_string;
 
         for (auto next = queue.dequeue(); next; next = queue.dequeue()) {
-            auto const& [bin_id, q_ids] = *next;
-            for (auto const& q_id : q_ids) {
+            auto const& [bin_id, records] = *next;
+            for (auto const& record : records) {
                 result_string.clear();
-                result_string += q_id;
+                result_string += record.sequence_id;
                 result_string += '\t';
                 result_string += std::to_string(bin_id);
                 result_string += '\n';
@@ -79,16 +79,13 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     }};
 
 
-    size_t record_id = 0u;
     for (auto &&chunked_records : fin | seqan3::views::chunk((1ULL << 20) * 10))
     {
         query_records.clear();
         auto start = std::chrono::high_resolution_clock::now();
         for (auto && query_record: chunked_records)
-        {
-            query_records.emplace_back(record_id, std::move(query_record.id()), std::move(query_record.sequence()));
-            ++record_id;
-        }
+            query_records.emplace_back(std::move(query_record.id()), std::move(query_record.sequence()));
+
         auto end = std::chrono::high_resolution_clock::now();
         time_statistics.reads_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
