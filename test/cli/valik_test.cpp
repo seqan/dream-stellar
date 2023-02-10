@@ -193,6 +193,7 @@ TEST_P(valik_search_segments, search)
                                                         "--query ", data("single_query.fq"),
                                                         "--threads 3",
 							                            "--tau 0.75",
+                                                        "--seg-path", segment_metadata_path(segment_overlap, number_of_bins),
 							                            "--p_max 0.25");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});

@@ -2,10 +2,13 @@
 #include <valik/search/query_record.hpp>
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/search/write_output_file_parallel.hpp>
-
 #include <valik/split/reference_segments.hpp>
 
+#include <utilities/external_process.hpp>
+
 #include <raptor/threshold/threshold.hpp>
+
+#include <seqan3/io/sequence_file/output.hpp>
 
 #include <future>
 
@@ -33,49 +36,85 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     auto cereal_handle = std::async(std::launch::async, cereal_worker);
 
-    seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>> fin{arguments.query_file};
+    using fields = seqan3::fields<seqan3::field::id, seqan3::field::seq>;
+    using types = seqan3::type_list<std::string, std::vector<seqan3::dna4>>;
+    using sequence_record_type = seqan3::sequence_record<types, fields>;
+
+    seqan3::sequence_file_input<dna4_traits, fields> fin{arguments.query_file};
     std::vector<query_record> query_records{};
 
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
 
-    if (arguments.call_stellar)
-    {
-        reference_segments segments(arguments.seg_path);
-
-        /* call stellar on bin 2
-        double er_rate = (double) arguments.errors / (double) arguments.pattern_size;
-        auto seg = segments.segment_from_bin(2);
-        stellar index.bin_path()[0][0]
-                query.fasta
-                --sequenceOfInterest seg.ref_ind;
-                --segmentBegin seg.start;
-                --segmentEnd seg.start + seg.length;
-                -e er_rate
-                -l arguments.pattern_size
-                -a dna
-                -o out.gff
-        */
-    }
+    std::filesystem::path tmp_path{std::filesystem::temp_directory_path() / "valik"};
+    //!TODO: this could require some error handling
+    std::filesystem::create_directories(tmp_path);
 
     sync_out synced_out{arguments.out_file};
     cereal_handle.wait(); // We need the index to be loaded
 
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
 
+
+    std::optional<reference_segments> segments;
+    if (!arguments.seg_path.empty())
+        segments = reference_segments(arguments.seg_path);
+
+    double er_rate = (double) arguments.errors / (double) arguments.pattern_size;
+
     auto consumerThread = std::jthread{[&]() {
         std::string result_string;
 
-        for (auto next = queue.dequeue(); next; next = queue.dequeue()) {
-            auto const& [bin_id, records] = *next;
-            for (auto const& record : records) {
-                result_string.clear();
-                result_string += record.sequence_id;
-                result_string += '\t';
-                result_string += std::to_string(bin_id);
-                result_string += '\n';
-                synced_out.write(result_string);
+        size_t count = 0;
+        for (auto next = queue.dequeue(); next; next = queue.dequeue())
+        {
+            auto & [bin_id, records] = *next;
+            std::filesystem::path path = tmp_path / std::string("query_" + std::to_string(bin_id) + "_" + std::to_string(count) + ".fasta");
+            {
+                seqan3::sequence_file_output fout{path, fields{}};
+
+                count++;
+                for (auto & record : records)
+                {
+                    sequence_record_type sequence_record{std::move(record.sequence_id), std::move(record.sequence)};
+                    fout.push_back(sequence_record);
+                }
             }
+
+            std::vector<std::string> process_args{"echo", "stellar"};
+            if (segments)
+            {
+                auto seg = segments->segment_from_bin(bin_id);
+                process_args.insert(process_args.end(), {index.bin_path()[0][0], std::string(path),
+                                                        "--sequenceOfInterest", std::to_string(seg.ref_ind),
+                                                        "--segmentBegin", std::to_string(seg.start),
+                                                        "--segmentEnd", std::to_string(seg.start + seg.len)});
+            }
+            else
+            {
+                process_args.insert(process_args.end(), {index.bin_path()[bin_id][0], std::string(path)});
+            }
+
+            process_args.insert(process_args.end(), {"-e", std::to_string(er_rate),
+                                                    "-l", std::to_string(arguments.pattern_size),
+                                                    "-a", "dna",
+                                                    "-o", std::string(path) + ".gff"});
+
+            external_process process(process_args);
+
+            std::cout << process.cout() << '\n';
+            std::cout << process.cerr() << '\n';
+
+    if (arguments.call_stellar)
+    {
+
+        /* call stellar on bin 2
+
+        */
+    }
+
+
         }
+
     }};
 
 
