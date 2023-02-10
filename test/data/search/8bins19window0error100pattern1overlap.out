@@ -1,32 +1,8 @@
-read-0	
-read-1	
-read-2	
-read-3	
-read-4	
-read-5	
-read-6	3,
-read-7	
-read-8	
-read-9	
-read-10	
-read-11	5,
-read-12	
-read-13	6,
-read-14	
-read-15	
-read-16	0,
-read-17	0,
-read-18	1,
-read-19	1,
-read-20	2,
-read-21	
-read-22	3,
-read-23	3,
-read-24	4,
-read-25	4,
-read-26	5,
-read-27	5,
-read-28	6,
-read-29	6,
-read-30	7,
-read-31	7,
+stellar bin_7.fasta /tmp/valik/my_dir/query_7_0.fasta -e 0.000000 -l 100 -a dna -o /tmp/valik/my_dir/query_7_0.fasta.gff
+stellar bin_4.fasta /tmp/valik/my_dir/query_4_0.fasta -e 0.000000 -l 100 -a dna -o /tmp/valik/my_dir/query_4_0.fasta.gff
+stellar bin_2.fasta /tmp/valik/my_dir/query_2_0.fasta -e 0.000000 -l 100 -a dna -o /tmp/valik/my_dir/query_2_0.fasta.gff
+stellar bin_1.fasta /tmp/valik/my_dir/query_1_0.fasta -e 0.000000 -l 100 -a dna -o /tmp/valik/my_dir/query_1_0.fasta.gff
+stellar bin_0.fasta /tmp/valik/my_dir/query_0_0.fasta -e 0.000000 -l 100 -a dna -o /tmp/valik/my_dir/query_0_0.fasta.gff
+stellar bin_6.fasta /tmp/valik/my_dir/query_6_0.fasta -e 0.000000 -l 100 -a dna -o /tmp/valik/my_dir/query_6_0.fasta.gff
+stellar bin_5.fasta /tmp/valik/my_dir/query_5_0.fasta -e 0.000000 -l 100 -a dna -o /tmp/valik/my_dir/query_5_0.fasta.gff
+stellar bin_3.fasta /tmp/valik/my_dir/query_3_0.fasta -e 0.000000 -l 100 -a dna -o /tmp/valik/my_dir/query_3_0.fasta.gff

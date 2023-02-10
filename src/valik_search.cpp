@@ -11,9 +11,34 @@
 #include <seqan3/io/sequence_file/output.hpp>
 
 #include <future>
+#include <cstdlib>
+#include <algorithm>
 
 namespace valik::app
 {
+
+/* Creates a temporary folder in the temporary path of the OS
+ *
+ * \param name: a name with 'XXXXXX' at the end, e.g.: valik/call_XXXXXX
+ * \return returns the name with the 'XXXXXX' replaced and the directory created
+ *
+ * throws if any errors occures
+ */
+static std::filesystem::path create_temporary_path(std::filesystem::path name) {
+    if (!name.is_relative()) {
+        throw std::runtime_error("Must be given a relative file");
+    }
+    auto path = std::filesystem::temp_directory_path() / name;
+    auto path_str = path.native();
+    create_directories(path.parent_path());
+    auto str = std::vector<char>(path_str.size()+1, '\0'); // Must include an extra character to include a 0
+    std::copy_n(path_str.data(), path_str.size(), str.data());
+    auto ptr = mkdtemp(str.data());
+    if (!ptr) {
+        throw std::runtime_error("Could not create temporary folder: " + path_str);
+    }
+    return str.data();
+}
 
 //-----------------------------
 //
@@ -45,9 +70,9 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
 
-    std::filesystem::path tmp_path{std::filesystem::temp_directory_path() / "valik"};
-    //!TODO: this could require some error handling
-    std::filesystem::create_directories(tmp_path);
+    std::filesystem::path tmp_path = std::getenv("VALIK_TMP");
+    if (tmp_path.empty())
+        tmp_path = create_temporary_path("valik/stellar_call_XXXXXX");
 
     sync_out synced_out{arguments.out_file};
     cereal_handle.wait(); // We need the index to be loaded
@@ -61,18 +86,20 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     double er_rate = (double) arguments.errors / (double) arguments.pattern_size;
 
+
+    std::ofstream text_out(arguments.out_file);
+
     auto consumerThread = std::jthread{[&]() {
         std::string result_string;
 
-        size_t count = 0;
+        std::unordered_map<size_t, size_t> bin_count;
         for (auto next = queue.dequeue(); next; next = queue.dequeue())
         {
             auto & [bin_id, records] = *next;
-            std::filesystem::path path = tmp_path / std::string("query_" + std::to_string(bin_id) + "_" + std::to_string(count) + ".fasta");
+            std::filesystem::path path = tmp_path / std::string("query_" + std::to_string(bin_id) + "_" + std::to_string(bin_count[bin_id]++) + ".fasta");
             {
                 seqan3::sequence_file_output fout{path, fields{}};
 
-                count++;
                 for (auto & record : records)
                 {
                     sequence_record_type sequence_record{std::move(record.sequence_id), std::move(record.sequence)};
@@ -101,18 +128,8 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
             external_process process(process_args);
 
-            std::cout << process.cout() << '\n';
-            std::cout << process.cerr() << '\n';
-
-    if (arguments.call_stellar)
-    {
-
-        /* call stellar on bin 2
-
-        */
-    }
-
-
+            text_out << process.cout();
+            text_out << process.cerr();
         }
 
     }};
