@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd search
+mkdir -p $VALIK_TMP
 
 tau=0.75
 p_max=0.75

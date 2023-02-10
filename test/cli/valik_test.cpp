@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 #include <ranges>     // range comparisons
 #include <string>                // strings
@@ -141,6 +142,8 @@ TEST_P(valik_search_clusters, search)
     if (window_size == 23 && number_of_errors == 0)
         GTEST_SKIP() << "Needs dynamic threshold correction";
 
+    setup_tmp_dir();
+
     cli_test_result const result = execute_app("valik", "search",
                                                         "--output search.out",
                                                         "--pattern", std::to_string(pattern_size),
@@ -183,6 +186,8 @@ INSTANTIATE_TEST_SUITE_P(cluster_search_suite,
 TEST_P(valik_search_segments, search)
 {
     auto const [segment_overlap, number_of_bins, window_size, number_of_errors, pattern_size, overlap] = GetParam();
+
+    setup_tmp_dir();
 
     cli_test_result const result = execute_app("valik", "search",
                                                         "--output search.out",

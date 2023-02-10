@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd split
+mkdir -p $VALIK_TMP
 
 #----------- Split multiple sequences of various lengths -----------
 

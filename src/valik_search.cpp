@@ -1,18 +1,18 @@
+#include <future>
+#include <cstdlib>
+#include <algorithm>
+
 #include <valik/search/load_index.hpp>
 #include <valik/search/query_record.hpp>
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/search/write_output_file_parallel.hpp>
 #include <valik/split/reference_segments.hpp>
-
 #include <utilities/external_process.hpp>
 
 #include <raptor/threshold/threshold.hpp>
 
 #include <seqan3/io/sequence_file/output.hpp>
 
-#include <future>
-#include <cstdlib>
-#include <algorithm>
 
 namespace valik::app
 {
@@ -70,9 +70,14 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
 
-    std::filesystem::path tmp_path = std::getenv("VALIK_TMP");
-    if (tmp_path.empty())
+    // the location of bin-query fasta files can be overwritten with an environment variable
+    // the $VALIK_TMP directory has to exist and write permission must be granted
+    const char* ev_val = std::getenv("VALIK_TMP");
+    std::filesystem::path tmp_path;
+    if (ev_val == nullptr)
         tmp_path = create_temporary_path("valik/stellar_call_XXXXXX");
+    else
+        tmp_path = std::string(ev_val);
 
     sync_out synced_out{arguments.out_file};
     cereal_handle.wait(); // We need the index to be loaded
