@@ -220,6 +220,16 @@ struct valik_base : public cli_test
         return line_vec;
     }
 
+    static inline void const setup_tmp_dir()
+    {
+        const char* tmp_dir = "tmp/valik/my_dir";
+        setenv("VALIK_TMP", tmp_dir, true);
+
+        std::filesystem::create_directory(std::string("tmp"));
+        std::filesystem::create_directory(std::string("tmp/valik"));
+        std::filesystem::create_directory(std::string("tmp/valik/my_dir"));
+    }
+
     static inline std::vector<valik_match> read_valik_output(std::filesystem::path const & path,
                                                             std::ios_base::openmode const mode = std::ios_base::in)
     {
