@@ -10,6 +10,9 @@
 #include <valik/split/reference_metadata.hpp>
 #include <utilities/consolidate/io.hpp>
 
+#include <ranges>
+#include <string_view>
+
 #pragma once
 
 // Provides functions for CLI test implementation.
@@ -198,6 +201,23 @@ struct valik_base : public cli_test
         std::stringstream file_buffer;
         file_buffer << file_stream.rdbuf();
         return {file_buffer.str()};
+    }
+
+    static inline std::vector<std::string> const string_list_from_file(std::filesystem::path const & path, std::ios_base::openmode const mode = std::ios_base::in)
+    {
+        std::string file_str = string_from_file(path, mode);
+        std::stringstream str(file_str);
+
+        std::vector<std::string> line_vec;
+
+        std::string tmp;
+        while(std::getline(str, tmp, '\n'))
+        {
+            line_vec.push_back(tmp);
+        }
+
+        std::ranges::sort(line_vec);
+        return line_vec;
     }
 
     static inline std::vector<valik_match> read_valik_output(std::filesystem::path const & path,

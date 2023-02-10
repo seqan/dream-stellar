@@ -1,10 +1,5 @@
-0 start_position=5774,length=150,errors=3,reference_id='1',reference_file='single_reference.fasta'	2,
-1 start_position=3250,length=150,errors=3,reference_id='1',reference_file='single_reference.fasta'	1,
-2 start_position=1596,length=150,errors=3,reference_id='1',reference_file='single_reference.fasta'	0,
-3 start_position=2384,length=150,errors=3,reference_id='1',reference_file='single_reference.fasta'	0,
-4 start_position=4161,length=150,errors=3,reference_id='1',reference_file='single_reference.fasta'	1,
-5 start_position=1533,length=150,errors=3,reference_id='1',reference_file='single_reference.fasta'	0,
-6 start_position=8246,length=150,errors=3,reference_id='1',reference_file='single_reference.fasta'	3,
-7 start_position=5249,length=150,errors=3,reference_id='1',reference_file='single_reference.fasta'	2,
-8 start_position=6673,length=150,errors=3,reference_id='1',reference_file='single_reference.fasta'	2,
-9 start_position=2245,length=150,errors=3,reference_id='1',reference_file='single_reference.fasta'	0,
+stellar single_reference.fasta /tmp/valik/my_dir/query_0_0.fasta --sequenceOfInterest 0 --segmentBegin 0 --segmentEnd 2711 -e 0.020000 -l 50 -a dna -o /tmp/valik/my_dir/query_0_0.fasta.gff
+stellar single_reference.fasta /tmp/valik/my_dir/query_3_0.fasta --sequenceOfInterest 0 --segmentBegin 7683 --segmentEnd 10240 -e 0.020000 -l 50 -a dna -o /tmp/valik/my_dir/query_3_0.fasta.gff
+stellar single_reference.fasta /tmp/valik/my_dir/query_1_0.fasta --sequenceOfInterest 0 --segmentBegin 2561 --segmentEnd 5272 -e 0.020000 -l 50 -a dna -o /tmp/valik/my_dir/query_1_0.fasta.gff
+stellar single_reference.fasta /tmp/valik/my_dir/query_0_1.fasta --sequenceOfInterest 0 --segmentBegin 0 --segmentEnd 2711 -e 0.020000 -l 50 -a dna -o /tmp/valik/my_dir/query_0_1.fasta.gff
+stellar single_reference.fasta /tmp/valik/my_dir/query_2_0.fasta --sequenceOfInterest 0 --segmentBegin 5122 --segmentEnd 7833 -e 0.020000 -l 50 -a dna -o /tmp/valik/my_dir/query_2_0.fasta.gff
