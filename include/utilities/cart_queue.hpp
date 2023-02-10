@@ -103,9 +103,12 @@ struct cart_queue {
             auto& cart = carts_being_filled[bin_id];
             auto g1 = std::unique_lock{cart.mutex};
             auto g2 = std::unique_lock{filled_carts_mutex};
-            filled_carts.emplace_back(bin_id, std::move(cart.basket));
-            cart.basket.reserve(cart_max_capacity);
-            filled_carts_process_ready_cv.notify_one();
+            if (!cart.basket.empty())
+            {
+                filled_carts.emplace_back(bin_id, std::move(cart.basket));
+                cart.basket.reserve(cart_max_capacity);
+                filled_carts_process_ready_cv.notify_one();
+            }
         }
 
         auto g2 = std::unique_lock{filled_carts_mutex};
