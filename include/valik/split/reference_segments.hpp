@@ -115,13 +115,15 @@ class reference_segments {
             in_file.close();
         }
 
-        segment segment_from_bin(size_t const bin)
+        segment segment_from_bin(size_t const bin) const
         {
             for (auto & seg : members)
             {
                 if (seg.bin == bin)
                     return seg;
             }
+
+            throw std::runtime_error{"Could not find segment"};
         }
 
         // serialize

@@ -276,7 +276,9 @@ struct valik_base : public cli_test
         for (auto match : expected)
         {
             if (match.matches.size() != 0)
+            {
                 EXPECT_TRUE(std::find(actual.begin(), actual.end(), match) != actual.end());
+            }
         }
     }
 
