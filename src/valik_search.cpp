@@ -51,15 +51,12 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     using index_structure_t = std::conditional_t<compressed, index_structure::ibf_compressed, index_structure::ibf>;
     auto index = valik_index<index_structure_t>{};
 
-    auto cereal_worker = [&]()
     {
         auto start = std::chrono::high_resolution_clock::now();
         load_index(index, arguments.index_file);
         auto end = std::chrono::high_resolution_clock::now();
         time_statistics.index_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
-    };
-
-    auto cereal_handle = std::async(std::launch::async, cereal_worker);
+    }
 
     using fields = seqan3::fields<seqan3::field::id, seqan3::field::seq>;
     using types = seqan3::type_list<std::string, std::vector<seqan3::dna4>>;
@@ -80,17 +77,13 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         tmp_path = std::string(ev_val);
 
     sync_out synced_out{arguments.out_file};
-    cereal_handle.wait(); // We need the index to be loaded
-
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
-
 
     std::optional<reference_segments> segments;
     if (!arguments.seg_path.empty())
         segments = reference_segments(arguments.seg_path);
 
     double er_rate = (double) arguments.errors / (double) arguments.pattern_size;
-
 
     std::ofstream text_out(arguments.out_file);
 
