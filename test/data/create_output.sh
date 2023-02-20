@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export VALIK_TMP=tmp/valik/my_dir
+export VALIK_STELLAR=echo
 
 ./split/cli_test_output.sh
 
