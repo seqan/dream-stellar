@@ -29,7 +29,7 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
                       "output",
                       "Please provide a valid path to the output.",
                       seqan3::option_spec::required,
-                      seqan3::output_file_validator{});
+                      seqan3::output_file_validator{seqan3::output_file_open_options::open_or_create, {"gff"}});
     parser.add_option(arguments.errors,
                       '\0',
                       "error",

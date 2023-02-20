@@ -90,7 +90,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     double er_rate = (double) arguments.errors / (double) arguments.pattern_size;
 
-    std::ofstream text_out(arguments.out_file);
+    std::ofstream text_out(arguments.out_file.string() + ".out");
 
     std::vector<std::string> output_files;
     auto consumerThread = std::jthread{[&]() {
@@ -159,13 +159,13 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     }
     queue.finish(); // Flush carts that are not empty yet
     consumerThread.join();
-    
+
     std::vector<std::string> merge_process_args{"cat"};
     for (auto & path : output_files)
         merge_process_args.push_back(path);
     external_process merge(merge_process_args);
 
-    std::ofstream matches_out("/home/evelin/DREAM-Stellar/valik/test/data/test_merged.gff");
+    std::ofstream matches_out(arguments.out_file);
     matches_out << merge.cout();
 }
 
