@@ -92,6 +92,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     std::ofstream text_out(arguments.out_file);
 
+    std::vector<std::string> output_files;
     auto consumerThread = std::jthread{[&]() {
         std::string result_string;
 
@@ -109,6 +110,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
                     fout.push_back(sequence_record);
                 }
             }
+            output_files.push_back(path.string() + ".gff");
 
             std::vector<std::string> process_args{stellar_exec};
             if (segments)
@@ -156,6 +158,15 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         time_statistics.compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
     queue.finish(); // Flush carts that are not empty yet
+    consumerThread.join();
+    
+    std::vector<std::string> merge_process_args{"cat"};
+    for (auto & path : output_files)
+        merge_process_args.push_back(path);
+    external_process merge(merge_process_args);
+
+    std::ofstream matches_out("/home/evelin/DREAM-Stellar/valik/test/data/test_merged.gff");
+    matches_out << merge.cout();
 }
 
 void valik_search(search_arguments const & arguments)
