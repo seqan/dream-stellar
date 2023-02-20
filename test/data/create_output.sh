@@ -10,10 +10,16 @@ fi
 export VALIK_TMP=tmp/valik/my_dir
 export VALIK_STELLAR=echo
 
+echo "### Running valik split ###"
 ./split/cli_test_output.sh
 
+echo "### Running valik build ###"
 ./build/cli_test_output.sh
 
+echo "### Running valik search ###"
 ./search/cli_test_output.sh
 
+echo "### Running valik consolidate ###"
 ./consolidate/cli_test_output.sh
+
+echo "### Finished ###"
