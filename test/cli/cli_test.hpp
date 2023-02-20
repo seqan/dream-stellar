@@ -123,7 +123,7 @@ struct valik_base : public cli_test
         }
     };
 
-    static inline std::filesystem::path const segment_metadata_path(size_t const overlap, size_t const bins) noexcept
+    static std::filesystem::path segment_metadata_path(size_t const overlap, size_t const bins) noexcept
     {
         std::string name{};
         name += std::to_string(overlap);
@@ -133,7 +133,7 @@ struct valik_base : public cli_test
         return cli_test::data(name);
     }
 
-    static inline std::filesystem::path const ibf_path(size_t const number_of_bins, size_t const window_size) noexcept
+    static std::filesystem::path ibf_path(size_t const number_of_bins, size_t const window_size) noexcept
     {
         std::string name{};
         name += std::to_string(number_of_bins);
@@ -143,7 +143,7 @@ struct valik_base : public cli_test
         return cli_test::data(name);
     }
 
-    static inline std::filesystem::path const ibf_path(size_t const overlap, size_t const number_of_bins, size_t const window_size) noexcept
+    static std::filesystem::path ibf_path(size_t const overlap, size_t const number_of_bins, size_t const window_size) noexcept
     {
         std::string name{};
         name += std::to_string(overlap);
@@ -155,7 +155,7 @@ struct valik_base : public cli_test
         return cli_test::data(name);
     }
 
-    static inline std::filesystem::path const search_result_path(size_t const number_of_bins, size_t const window_size,
+    static std::filesystem::path search_result_path(size_t const number_of_bins, size_t const window_size,
 		    size_t const number_of_errors, size_t const pattern_size, size_t const overlap) noexcept
     {
         std::string name{};
@@ -173,7 +173,7 @@ struct valik_base : public cli_test
         return cli_test::data(name);
     }
 
-    static inline std::filesystem::path const search_result_path(size_t const segment_overlap, size_t const number_of_bins, size_t const window_size,
+    static std::filesystem::path search_result_path(size_t const segment_overlap, size_t const number_of_bins, size_t const window_size,
 		    size_t const number_of_errors, size_t const pattern_size, size_t const overlap) noexcept
     {
         std::string name{};
@@ -193,7 +193,7 @@ struct valik_base : public cli_test
         return cli_test::data(name);
     }
 
-    static inline std::string const string_from_file(std::filesystem::path const & path, std::ios_base::openmode const mode = std::ios_base::in)
+    static std::string string_from_file(std::filesystem::path const & path, std::ios_base::openmode const mode = std::ios_base::in)
     {
         std::ifstream file_stream(path, mode);
         if (!file_stream.is_open())
@@ -203,7 +203,7 @@ struct valik_base : public cli_test
         return {file_buffer.str()};
     }
 
-    static inline std::vector<std::string> const string_list_from_file(std::filesystem::path const & path, std::ios_base::openmode const mode = std::ios_base::in)
+    static std::vector<std::string> string_list_from_file(std::filesystem::path const & path, std::ios_base::openmode const mode = std::ios_base::in)
     {
         std::string file_str = string_from_file(path, mode);
         std::stringstream str(file_str);
@@ -220,17 +220,15 @@ struct valik_base : public cli_test
         return line_vec;
     }
 
-    static inline void const setup_tmp_dir()
+    static void setup_tmp_dir()
     {
-        const char* tmp_dir = "tmp/valik/my_dir";
-        setenv("VALIK_TMP", tmp_dir, true);
+        std::filesystem::path tmp_dir = "tmp/valik/my_dir";
+        setenv("VALIK_TMP", tmp_dir.c_str(), true);
 
-        std::filesystem::create_directory(std::string("tmp"));
-        std::filesystem::create_directory(std::string("tmp/valik"));
-        std::filesystem::create_directory(std::string("tmp/valik/my_dir"));
+        std::filesystem::create_directories(tmp_dir);
     }
 
-    static inline std::vector<valik_match> read_valik_output(std::filesystem::path const & path,
+    static std::vector<valik_match> read_valik_output(std::filesystem::path const & path,
                                                             std::ios_base::openmode const mode = std::ios_base::in)
     {
         std::vector<valik_match> valik_matches;
@@ -264,7 +262,7 @@ struct valik_base : public cli_test
         return valik_matches;
     }
 
-    static inline std::vector<valik_match> read_new_valik_output(std::filesystem::path const & path,
+    static std::vector<valik_match> read_new_valik_output(std::filesystem::path const & path,
                                                             std::ios_base::openmode const mode = std::ios_base::in)
     {
         std::vector<valik_match> valik_matches;
@@ -298,7 +296,7 @@ struct valik_base : public cli_test
         return valik_matches;
     }
 
-    static inline void compare_search_out(std::vector<valik_match> const & expected,
+    static void compare_search_out(std::vector<valik_match> const & expected,
                                           std::vector<valik_match> const & actual)
     {
         //EXPECT_EQ(expected.size(), actual.size());
@@ -353,7 +351,7 @@ struct valik_base : public cli_test
 
         // Good example for printing tables: https://en.cppreference.com/w/cpp/io/ios_base/width
     template <seqan3::data_layout layout = seqan3::data_layout::uncompressed>
-    static inline std::string const debug_ibfs(seqan3::interleaved_bloom_filter<layout> const & expected_ibf,
+    static std::string debug_ibfs(seqan3::interleaved_bloom_filter<layout> const & expected_ibf,
                                                seqan3::interleaved_bloom_filter<layout> const & actual_ibf)
     {
         std::stringstream result{};
@@ -404,7 +402,7 @@ struct valik_base : public cli_test
     }
 
     template <typename data_t = valik::index_structure::ibf>
-    static inline void compare_index(std::filesystem::path const & expected_result,
+    static void compare_index(std::filesystem::path const & expected_result,
                                      std::filesystem::path const & actual_result,
                                      compare_extension const compare_ext = compare_extension::yes)
     {
@@ -492,7 +490,7 @@ struct valik_base : public cli_test
         }
     }
 
-    static inline std::filesystem::path const consolidation_input_path(size_t const number_of_bins, size_t const overlap) noexcept
+    static std::filesystem::path consolidation_input_path(size_t const number_of_bins, size_t const overlap) noexcept
     {
         std::string name{};
         name += std::to_string(number_of_bins);
@@ -502,7 +500,7 @@ struct valik_base : public cli_test
         return cli_test::data(name);
     }
 
-    static inline std::filesystem::path const consolidation_meta_path(size_t const number_of_bins, size_t const overlap) noexcept
+    static std::filesystem::path consolidation_meta_path(size_t const number_of_bins, size_t const overlap) noexcept
     {
         std::string name{};
         name += std::to_string(number_of_bins);
@@ -512,7 +510,7 @@ struct valik_base : public cli_test
         return cli_test::data(name);
     }
 
-    static inline std::filesystem::path const stellar_gold_path(size_t const overlap) noexcept
+    static std::filesystem::path stellar_gold_path(size_t const overlap) noexcept
     {
         std::string name{};
         name += std::to_string(overlap);
@@ -520,7 +518,7 @@ struct valik_base : public cli_test
         return cli_test::data(name);
     }
 
-    static inline void compare_consolidation_out(std::vector<valik::stellar_match> const & expected,
+    static void compare_consolidation_out(std::vector<valik::stellar_match> const & expected,
                                                 std::vector<valik::stellar_match> const & actual)
     {
         EXPECT_EQ(expected.size(), actual.size());
