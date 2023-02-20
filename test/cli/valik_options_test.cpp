@@ -223,7 +223,7 @@ TEST_F(argparse_search, ibf_missing)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
-                                                         "--output search.out");
+                                                         "--output search.gff");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] Option --index is required but not set.\n"});
@@ -234,7 +234,7 @@ TEST_F(argparse_search, ibf_wrong)
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
                                                          "--index foo.ibf",
-                                                         "--output search.out");
+                                                         "--output search.gff");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --index: The file \"foo.ibf\" does not "
@@ -245,7 +245,7 @@ TEST_F(argparse_search, query_missing)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                          "--index ", tmp_ibf_file.file_path,
-                                                         "--output search.out");
+                                                         "--output search.gff");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] Option --query is required but not set.\n"});
@@ -256,7 +256,7 @@ TEST_F(argparse_search, query_wrong)
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query foo.fasta",
                                                          "--index ", tmp_ibf_file.file_path,
-                                                         "--output search.out");
+                                                         "--output search.gff");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --query: The file \"foo.fasta\" does not "
@@ -278,11 +278,11 @@ TEST_F(argparse_search, output_wrong)
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
                                                          "--index ", tmp_ibf_file.file_path,
-                                                         "--output foo/search.out");
+                                                         "--output foo/search.gff");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --output: Cannot write "
-                                      "\"foo/search.out\"!\n"});
+                                      "\"foo/search.gff\"!\n"});
 }
 
 TEST_F(argparse_search, pattern_window)
@@ -290,7 +290,7 @@ TEST_F(argparse_search, pattern_window)
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
                                                          "--index ", data("8bins19window.ibf"),
-                                                         "--output search.out",
+                                                         "--output search.gff",
 							                             "--pattern 12");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});

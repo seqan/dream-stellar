@@ -88,7 +88,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     if (!arguments.seg_path.empty())
         segments = reference_segments(arguments.seg_path);
 
-    double er_rate = (double) arguments.errors / (double) arguments.pattern_size;
+    double er_rate = std::max((double) arguments.errors / (double) arguments.pattern_size, 0.00001);
 
     std::ofstream text_out(arguments.out_file.string() + ".out");
 

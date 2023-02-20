@@ -169,7 +169,7 @@ struct valik_base : public cli_test
         name += "pattern";
         name += std::to_string(overlap);
         name += "overlap";
-        name += ".out";
+        name += ".gff.out";
         return cli_test::data(name);
     }
 
@@ -189,7 +189,7 @@ struct valik_base : public cli_test
         name += "pattern";
         name += std::to_string(overlap);
         name += "overlap";                      */
-        name += ".out";
+        name += ".gff.out";
         return cli_test::data(name);
     }
 
