@@ -24,7 +24,7 @@ void init_consolidation_parser(seqan3::argument_parser & parser, consolidation_a
                       "output",
                       "Consolidated output.",
                       seqan3::option_spec::required,
-                      seqan3::output_file_validator{seqan3::output_file_open_options::create_new, {"gff"}});
+                      seqan3::output_file_validator{seqan3::output_file_open_options::open_or_create, {"gff"}});
 }
 
 void run_consolidation(seqan3::argument_parser & parser)

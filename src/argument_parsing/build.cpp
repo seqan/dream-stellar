@@ -121,7 +121,7 @@ void run_build(seqan3::argument_parser & parser)
 
     try
     {
-        seqan3::output_file_validator{}(arguments.out_path);
+        seqan3::output_file_validator{seqan3::output_file_open_options::open_or_create}(arguments.out_path);
     }
     catch (seqan3::argument_parser_error const & ext)
     {
