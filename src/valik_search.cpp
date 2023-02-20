@@ -69,12 +69,17 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     // the location of bin-query fasta files can be overwritten with an environment variable
     // the $VALIK_TMP directory has to exist and write permission must be granted
-    const char* ev_val = std::getenv("VALIK_TMP");
+    const char* dir_ev_val = std::getenv("VALIK_TMP");
     std::filesystem::path tmp_path;
-    if (ev_val == nullptr)
+    if (dir_ev_val == nullptr)
         tmp_path = create_temporary_path("valik/stellar_call_XXXXXX");
     else
-        tmp_path = std::string(ev_val);
+        tmp_path = std::string(dir_ev_val);
+
+    const char* exec_ev_val = std::getenv("VALIK_STELLAR");
+    std::string stellar_exec = "stellar";
+    if (exec_ev_val != nullptr)
+        stellar_exec = std::string(exec_ev_val);
 
     sync_out synced_out{arguments.out_file};
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
@@ -105,7 +110,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
                 }
             }
 
-            std::vector<std::string> process_args{"echo", "stellar"};
+            std::vector<std::string> process_args{stellar_exec};
             if (segments)
             {
                 auto seg = segments->segment_from_bin(bin_id);
