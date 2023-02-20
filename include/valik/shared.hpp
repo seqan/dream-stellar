@@ -78,7 +78,7 @@ struct search_arguments
     std::vector<std::vector<std::string>> bin_path{};
     std::filesystem::path query_file{};
     std::filesystem::path index_file{};
-    std::filesystem::path out_file{"search.out"};
+    std::filesystem::path out_file{"search.gff"};
 
     // Related to thresholding
     double tau{0.9999};
