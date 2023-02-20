@@ -1,6 +1,7 @@
 #!/bin/bash
-
 cd search
+set -Eeuo pipefail
+
 mkdir -p $VALIK_TMP
 
 tau=0.75
