@@ -69,17 +69,15 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     // the location of bin-query fasta files can be overwritten with an environment variable
     // the $VALIK_TMP directory has to exist and write permission must be granted
-    const char* dir_ev_val = std::getenv("VALIK_TMP");
     std::filesystem::path tmp_path;
-    if (dir_ev_val == nullptr)
-        tmp_path = create_temporary_path("valik/stellar_call_XXXXXX");
+    if (auto ptr = std::getenv("VALIK_TMP"); ptr != nullptr)
+        tmp_path = std::string(ptr);
     else
-        tmp_path = std::string(dir_ev_val);
+        tmp_path = create_temporary_path("valik/stellar_call_XXXXXX");
 
-    const char* exec_ev_val = std::getenv("VALIK_STELLAR");
     std::string stellar_exec = "stellar";
-    if (exec_ev_val != nullptr)
-        stellar_exec = std::string(exec_ev_val);
+    if (auto ptr = std::getenv("VALIK_STELLAR"); ptr != nullptr)
+        stellar_exec = std::string(ptr);
 
     sync_out synced_out{arguments.out_file};
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
@@ -88,6 +86,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     if (!arguments.seg_path.empty())
         segments = reference_segments(arguments.seg_path);
 
+    //!WORKAROUND: Stellar does not allow smaller error rates
     double er_rate = std::max((double) arguments.errors / (double) arguments.pattern_size, 0.00001);
 
     std::ofstream text_out(arguments.out_file.string() + ".out");
