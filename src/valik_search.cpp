@@ -91,15 +91,21 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     std::ofstream text_out(arguments.out_file.string() + ".out");
 
-    std::vector<std::string> output_files;
-    auto consumerThread = std::jthread{[&]() {
-        std::string result_string;
 
-        std::unordered_map<size_t, size_t> bin_count;
+    std::mutex mutex;
+    std::unordered_map<size_t, size_t> bin_count;
+    std::vector<std::string> output_files;
+
+    auto consumerThread = std::jthread{[&]() {
         for (auto next = queue.dequeue(); next; next = queue.dequeue())
         {
             auto & [bin_id, records] = *next;
+
+            std::unique_lock g(mutex);
             std::filesystem::path path = tmp_path / std::string("query_" + std::to_string(bin_id) + "_" + std::to_string(bin_count[bin_id]++) + ".fasta");
+            output_files.push_back(path.string() + ".gff");
+            g.unlock();
+
             {
                 seqan3::sequence_file_output fout{path, fields{}};
 
@@ -109,7 +115,6 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
                     fout.push_back(sequence_record);
                 }
             }
-            output_files.push_back(path.string() + ".gff");
 
             std::vector<std::string> process_args{stellar_exec};
             if (segments)
