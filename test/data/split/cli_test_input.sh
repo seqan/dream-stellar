@@ -43,6 +43,7 @@ generate_local_matches \
     --min-match-length $read_length \
     --max-match-length $read_length \
     --verbose-ids \
+    --seed $SEED \
     $ref_out
 
 mv $read_dir/single_reference.fastq single_query.fq

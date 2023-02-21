@@ -20,6 +20,7 @@ do
         --number_of_reads $READ_COUNT \
         --read_length $read_length \
         --number_of_haplotypes $HAPLOTYPE_COUNT \
+        --seed $SEED \
         $(seq -f "../build/bin_%0${#BIN_NUMBER}g.fasta" 0 1 $((BIN_NUMBER-1)))
 
     cat $read_dir/*.fastq >> all

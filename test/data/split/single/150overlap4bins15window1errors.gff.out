@@ -1,5 +1,4 @@
 single_reference.fasta tmp/valik/my_dir/query_0_0.fasta --sequenceOfInterest 0 --segmentBegin 0 --segmentEnd 2711 -e 0.020000 -l 50 -o tmp/valik/my_dir/query_0_0.fasta.gff
-single_reference.fasta tmp/valik/my_dir/query_2_0.fasta --sequenceOfInterest 0 --segmentBegin 5122 --segmentEnd 7833 -e 0.020000 -l 50 -o tmp/valik/my_dir/query_2_0.fasta.gff
 single_reference.fasta tmp/valik/my_dir/query_3_0.fasta --sequenceOfInterest 0 --segmentBegin 7683 --segmentEnd 10240 -e 0.020000 -l 50 -o tmp/valik/my_dir/query_3_0.fasta.gff
+single_reference.fasta tmp/valik/my_dir/query_2_0.fasta --sequenceOfInterest 0 --segmentBegin 5122 --segmentEnd 7833 -e 0.020000 -l 50 -o tmp/valik/my_dir/query_2_0.fasta.gff
 single_reference.fasta tmp/valik/my_dir/query_1_0.fasta --sequenceOfInterest 0 --segmentBegin 2561 --segmentEnd 5272 -e 0.020000 -l 50 -o tmp/valik/my_dir/query_1_0.fasta.gff
-single_reference.fasta tmp/valik/my_dir/query_0_1.fasta --sequenceOfInterest 0 --segmentBegin 0 --segmentEnd 2711 -e 0.020000 -l 50 -o tmp/valik/my_dir/query_0_1.fasta.gff
