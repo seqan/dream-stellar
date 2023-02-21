@@ -1,6 +1,6 @@
 #!/bin/bash
-
 cd build
+set -Eeuo pipefail
 
 for w in 19 23
 do

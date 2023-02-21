@@ -17,13 +17,13 @@ void init_split_parser(seqan3::argument_parser & parser, split_arguments & argum
                       "reference-output",
                       "Please provide a valid path to the reference metadata output.",
                       seqan3::option_spec::required,
-                      seqan3::output_file_validator{});
+                      seqan3::output_file_validator{seqan3::output_file_open_options::open_or_create});
     parser.add_option(arguments.seg_out,
                       '\0',
                       "segment-output",
                       "Please provide a valid path to the segment metadata output.",
                       seqan3::option_spec::required,
-                      seqan3::output_file_validator{});
+                      seqan3::output_file_validator{seqan3::output_file_open_options::open_or_create});
     parser.add_option(arguments.overlap,
                       '\0',
                       "overlap",

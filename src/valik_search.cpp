@@ -51,15 +51,12 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     using index_structure_t = std::conditional_t<compressed, index_structure::ibf_compressed, index_structure::ibf>;
     auto index = valik_index<index_structure_t>{};
 
-    auto cereal_worker = [&]()
     {
         auto start = std::chrono::high_resolution_clock::now();
         load_index(index, arguments.index_file);
         auto end = std::chrono::high_resolution_clock::now();
         time_statistics.index_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
-    };
-
-    auto cereal_handle = std::async(std::launch::async, cereal_worker);
+    }
 
     using fields = seqan3::fields<seqan3::field::id, seqan3::field::seq>;
     using types = seqan3::type_list<std::string, std::vector<seqan3::dna4>>;
@@ -72,28 +69,29 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     // the location of bin-query fasta files can be overwritten with an environment variable
     // the $VALIK_TMP directory has to exist and write permission must be granted
-    const char* ev_val = std::getenv("VALIK_TMP");
     std::filesystem::path tmp_path;
-    if (ev_val == nullptr)
-        tmp_path = create_temporary_path("valik/stellar_call_XXXXXX");
+    if (auto ptr = std::getenv("VALIK_TMP"); ptr != nullptr)
+        tmp_path = std::string(ptr);
     else
-        tmp_path = std::string(ev_val);
+        tmp_path = create_temporary_path("valik/stellar_call_XXXXXX");
+
+    std::string stellar_exec = "stellar";
+    if (auto ptr = std::getenv("VALIK_STELLAR"); ptr != nullptr)
+        stellar_exec = std::string(ptr);
 
     sync_out synced_out{arguments.out_file};
-    cereal_handle.wait(); // We need the index to be loaded
-
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
-
 
     std::optional<reference_segments> segments;
     if (!arguments.seg_path.empty())
         segments = reference_segments(arguments.seg_path);
 
-    double er_rate = (double) arguments.errors / (double) arguments.pattern_size;
+    //!WORKAROUND: Stellar does not allow smaller error rates
+    double er_rate = std::max((double) arguments.errors / (double) arguments.pattern_size, 0.00001);
 
+    std::ofstream text_out(arguments.out_file.string() + ".out");
 
-    std::ofstream text_out(arguments.out_file);
-
+    std::vector<std::string> output_files;
     auto consumerThread = std::jthread{[&]() {
         std::string result_string;
 
@@ -111,8 +109,9 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
                     fout.push_back(sequence_record);
                 }
             }
+            output_files.push_back(path.string() + ".gff");
 
-            std::vector<std::string> process_args{"echo", "stellar"};
+            std::vector<std::string> process_args{stellar_exec};
             if (segments)
             {
                 auto seg = segments->segment_from_bin(bin_id);
@@ -128,7 +127,6 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
             process_args.insert(process_args.end(), {"-e", std::to_string(er_rate),
                                                     "-l", std::to_string(arguments.pattern_size),
-                                                    "-a", "dna",
                                                     "-o", std::string(path) + ".gff"});
 
             external_process process(process_args);
@@ -158,6 +156,15 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         time_statistics.compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
     queue.finish(); // Flush carts that are not empty yet
+    consumerThread.join();
+
+    std::vector<std::string> merge_process_args{"cat"};
+    for (auto & path : output_files)
+        merge_process_args.push_back(path);
+    external_process merge(merge_process_args);
+
+    std::ofstream matches_out(arguments.out_file);
+    matches_out << merge.cout();
 }
 
 void valik_search(search_arguments const & arguments)

@@ -1,4 +1,6 @@
 #!/bin/bash
+cd "$(dirname "$0")"
+set -Eeuo pipefail
 
 echo -e "cmake_minimum_required (VERSION 3.16)\n" > datasources.cmake
 
@@ -25,6 +27,7 @@ cd single
 
 for file in *
 do
+    [[ -d $file ]] && continue      # skip folders
     echo -n "declare_datasource (FILE ${file}
                 URL \${CMAKE_SOURCE_DIR}/test/data/split/single/${file}
                 URL_HASH SHA256=" >> ../../datasources.cmake
@@ -40,6 +43,7 @@ cd ../multi
 
 for file in *
 do
+    [[ -d $file ]] && continue      # skip folders
     echo -n "declare_datasource (FILE ${file}
                 URL \${CMAKE_SOURCE_DIR}/test/data/split/multi/${file}
                 URL_HASH SHA256=" >> ../../datasources.cmake
@@ -55,6 +59,7 @@ cd ../
 
 for relative_path in write_out_*_*/*
 do
+    [[ -d $file ]] && continue      # skip folders
     filename=${relative_path/"/"/"_"}
     echo -n "declare_datasource (FILE ${filename}
                 URL \${CMAKE_SOURCE_DIR}/test/data/split/${relative_path}
@@ -69,6 +74,7 @@ cd ../build
 
 for file in *
 do
+    [[ -d $file ]] && continue      # skip folders
     [[ $file == *.sh ]] && continue
     echo -n "declare_datasource (FILE ${file}
                 URL \${CMAKE_SOURCE_DIR}/test/data/build/${file}
@@ -85,6 +91,7 @@ cd ../search
 
 for file in *
 do
+    [[ -d $file ]] && continue      # skip folders
     [[ $file == *.sh ]] && continue
     echo -n "declare_datasource (FILE ${file}
                 URL \${CMAKE_SOURCE_DIR}/test/data/search/${file}
@@ -101,6 +108,7 @@ cd ../consolidate
 
 for file in *
 do
+    [[ -d $file ]] && continue      # skip folders
     [[ $file == *.sh ]] && continue
     echo -n "declare_datasource (FILE ${file}
                 URL \${CMAKE_SOURCE_DIR}/test/data/consolidate/${file}

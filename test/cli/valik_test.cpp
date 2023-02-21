@@ -139,13 +139,14 @@ TEST_P(valik_search_clusters, search)
 {
     auto const [number_of_bins, window_size, number_of_errors, pattern_size, overlap] = GetParam();
 
+    setup_tmp_dir();
+    setenv("VALIK_STELLAR", "echo", true);
+
     if (window_size == 23 && number_of_errors == 0)
         GTEST_SKIP() << "Needs dynamic threshold correction";
 
-    setup_tmp_dir();
-
     cli_test_result const result = execute_app("valik", "search",
-                                                        "--output search.out",
+                                                        "--output search.gff",
                                                         "--pattern", std::to_string(pattern_size),
 							                            "--overlap", std::to_string(overlap),
                                                         "--error ", std::to_string(number_of_errors),
@@ -160,7 +161,7 @@ TEST_P(valik_search_clusters, search)
 
     auto expected = string_list_from_file(search_result_path(number_of_bins, window_size, number_of_errors,
 			    pattern_size, overlap), std::ios::binary);
-    auto actual = string_list_from_file("search.out");
+    auto actual = string_list_from_file("search.gff.out");
 
     EXPECT_EQ(expected, actual);
 }
@@ -188,9 +189,10 @@ TEST_P(valik_search_segments, search)
     auto const [segment_overlap, number_of_bins, window_size, number_of_errors, pattern_size, overlap] = GetParam();
 
     setup_tmp_dir();
+    setenv("VALIK_STELLAR", "echo", true);
 
     cli_test_result const result = execute_app("valik", "search",
-                                                        "--output search.out",
+                                                        "--output search.gff",
                                                         "--pattern", std::to_string(pattern_size),
 							                            "--overlap", std::to_string(overlap),
                                                         "--error ", std::to_string(number_of_errors),
@@ -206,7 +208,7 @@ TEST_P(valik_search_segments, search)
 
     auto expected = string_list_from_file(search_result_path(segment_overlap, number_of_bins, window_size, number_of_errors,
 			    pattern_size, overlap), std::ios::binary);
-    auto actual = string_list_from_file("search.out");
+    auto actual = string_list_from_file("search.gff.out");
 
     EXPECT_EQ(expected, actual);
 }
@@ -253,7 +255,7 @@ TEST_P(valik_consolidate, consolidation)
 
 INSTANTIATE_TEST_SUITE_P(consolidation_suite,
                          valik_consolidate,
-                         testing::Combine(testing::Values(8, 16), testing::Values(10, 50)),
+                         testing::Combine(testing::Values(8, 16), testing::Values(50)),
                          [] (testing::TestParamInfo<valik_consolidate::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +

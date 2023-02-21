@@ -1,6 +1,12 @@
 #!/bin/bash
-
 cd split
+set -Eeuo pipefail
+
+if [ -z "${VALIK_TMP}" ]; then
+    echo "no VALIK_TMP folder given"
+    exit 127
+fi
+
 mkdir -p $VALIK_TMP
 
 #----------- Split multiple sequences of various lengths -----------
@@ -56,12 +62,14 @@ do
         valik build "$ref_input" --kmer "$k" --window "$w" --size "$ibf_size" --output "$index" --from-segments --ref-meta "$ref_meta" --seg-path "$seg_meta"
 
         echo "Searching IBF with $errors errors"
-        search_out="single/"$seg_overlap"overlap"$b"bins"$w"window"$errors"errors.out"
+        search_out="single/"$seg_overlap"overlap"$b"bins"$w"window"$errors"errors.gff"
         valik search --index "$index" --query "$query" --output "$search_out" --error "$errors" --pattern "$pattern" --overlap "$pat_overlap" --tau "$tau" --p_max "$p_max" --seg-path "$seg_meta" --threads 1
-    done
+	rm "$search_out"
+	done
 done
 
 # avoid creating multiple identical reference metadata output files
 rm single/ref_"$seg_overlap"overlap4bins.txt
 mv "$ref_meta" single/reference_metadata.txt
 
+rm -r $VALIK_TMP
