@@ -1,8 +1,8 @@
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_15_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_15_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_15_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_15_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -28,6 +28,9 @@ Calculated parameters:
 Loaded 1 query sequence.
 Loaded sequence 3.
 
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
+
 Constructing index...
 
 Aligning all query sequences to database sequence...
@@ -39,9 +42,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_14_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_14_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_14_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_14_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -67,6 +70,9 @@ Calculated parameters:
 Loaded 1 query sequence.
 Loaded sequence 3.
 
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
+
 Constructing index...
 
 Aligning all query sequences to database sequence...
@@ -78,9 +84,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_13_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_13_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_13_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_13_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -106,6 +112,9 @@ Calculated parameters:
 Loaded 1 query sequence.
 Loaded sequence 3.
 
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
+
 Constructing index...
 
 Aligning all query sequences to database sequence...
@@ -117,9 +126,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_12_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_12_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_12_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_12_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -144,6 +153,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 2.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
@@ -156,9 +168,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_11_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_11_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_11_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_11_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -183,6 +195,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 2.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
@@ -195,9 +210,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_10_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_10_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_10_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_10_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -222,6 +237,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 2.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
@@ -234,9 +252,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_9_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_9_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_9_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_9_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -261,6 +279,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 2.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
@@ -273,9 +294,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_8_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_8_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_8_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_8_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -300,6 +321,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 2.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
@@ -312,9 +336,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_7_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_7_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_7_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_7_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -340,6 +364,9 @@ Calculated parameters:
 Loaded 1 query sequence.
 Loaded sequence 2.
 
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
+
 Constructing index...
 
 Aligning all query sequences to database sequence...
@@ -351,9 +378,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_6_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_6_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_6_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_6_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -378,6 +405,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 1.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
@@ -390,9 +420,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_5_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_5_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_5_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_5_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -417,6 +447,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 1.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
@@ -429,9 +462,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_4_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_4_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_4_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_4_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -456,6 +489,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 1.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
@@ -468,9 +504,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_3_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_3_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_3_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_3_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -495,6 +531,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 1.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
@@ -507,9 +546,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_2_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_2_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_2_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_2_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -534,6 +573,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 1.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
@@ -546,9 +588,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_1_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_1_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_1_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_1_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -573,6 +615,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 1.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
@@ -585,9 +630,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : multi_seq_ref.fasta
-  query file      : /tmp/valik/stellar_call_x5LFoo/query_0_0.fasta
-  alphabet        : dna
-  output file     : /tmp/valik/stellar_call_x5LFoo/query_0_0.fasta.gff
+  query file      : /tmp/valik/stellar_call_pcxc7t/query_0_0.fasta
+  alphabet        : dna5
+  output file     : /tmp/valik/stellar_call_pcxc7t/query_0_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -612,6 +657,9 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded sequence 1.
+
+All matches resulting from your search have an E-value of: 
+        6.4259e-16 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
