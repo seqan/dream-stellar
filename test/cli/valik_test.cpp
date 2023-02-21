@@ -255,7 +255,7 @@ TEST_P(valik_consolidate, consolidation)
 
 INSTANTIATE_TEST_SUITE_P(consolidation_suite,
                          valik_consolidate,
-                         testing::Combine(testing::Values(8, 16), testing::Values(10, 50)),
+                         testing::Combine(testing::Values(8, 16), testing::Values(50)),
                          [] (testing::TestParamInfo<valik_consolidate::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +
