@@ -1,6 +1,12 @@
 #!/bin/bash
-
 cd search
+set -Eeuo pipefail
+
+if [ -z "${VALIK_TMP}" ]; then
+    echo "no VALIK_TMP folder given"
+    exit 127
+fi
+
 mkdir -p $VALIK_TMP
 
 tau=0.75
@@ -22,3 +28,5 @@ do
         done
     done
 done
+
+rm -r $VALIK_TMP

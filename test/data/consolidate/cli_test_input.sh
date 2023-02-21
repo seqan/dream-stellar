@@ -1,24 +1,20 @@
 #!/bin/bash
-
-STELLAR=/home/evelin/DREAM-Stellar/dream_stellar/build/bin/stellar
-VALIK=valik
+cd consolidate
+set -Eeuo pipefail
 
 # ============================================================
 # Varying error rates
 # ============================================================
 
-cd consolidate
-
-rm *_full.gff
-rm *bins*overlap_segment_metadata.tsv
-rm *bins*overlap_reference_metadata.tsv
+rm -f *_full.gff
+rm -f *bins*overlap_segment_metadata.tsv
+rm -f *bins*overlap_reference_metadata.tsv
 
 errRate=0.05
 ref_file=multi_seq_ref.fasta
 query_file=query_e${errRate}.fasta
-
 call_stellar () {
-   $STELLAR -e $errRate -l $2 -v --sequenceOfInterest $3 \
+   stellar -e $errRate -l $2 -v --sequenceOfInterest $3 \
               --segmentBegin $4 --segmentEnd $5 \
               --suppress-runtime-printing \
               -o $1bins$2overlap$3index$4start$5end.gff \
@@ -28,11 +24,11 @@ call_stellar () {
 
 for minLen in 10 50
 do
-        ${STELLAR} -e $errRate -l $minLen -v --suppress-runtime-printing -o ${minLen}overlap_full.gff $ref_file $query_file > /dev/null
+        stellar -e $errRate -l $minLen -v --suppress-runtime-printing -o ${minLen}overlap_full.gff $ref_file $query_file > /dev/null
 
         for bin in 8 16
         do
-                $VALIK split $ref_file --reference-output ${bin}bins${minLen}overlap_reference_metadata.tsv \
+                valik split $ref_file --reference-output ${bin}bins${minLen}overlap_reference_metadata.tsv \
                                       --segment-output ${bin}bins${minLen}overlap_segment_metadata.tsv \
                                       --bins $bin --overlap $minLen
 

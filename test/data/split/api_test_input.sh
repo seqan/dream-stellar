@@ -1,13 +1,10 @@
 #!/bin/bash
-
-set -e
-
 cd split
+set -Eeuo pipefail
 
 #----------- Simulate chromosomes of various lengths -----------
 
-BINARY_DIR="${1}"
-SEED=${2}
+SEED=${1}
 
 for overlap in 0 20
 do
@@ -18,7 +15,7 @@ do
         do
             echo "Simulating chromosome with length $length"
             chr_out="chr"$i".fasta"
-            $BINARY_DIR/mason_genome -l $length -o $chr_out -s $SEED &>/dev/null
+            mason_genome -l $length -o $chr_out -s $SEED &> /dev/null
 
             sed -i "s/^>.*$/>chr$i/g" $chr_out
             let i=i+1

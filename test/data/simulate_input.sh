@@ -1,17 +1,42 @@
 #!/bin/bash
+cd "$(dirname "$0")"
+set -Eeuo pipefail
 
-# build raptor_data_simulation submodule from source
 # might need to move mason_genome binary
-BINARY_DIR=../../../lib/raptor_data_simulation/build/bin
 SEED=42 # was 20181406 before, but was hardcoded to 42 in seqan
 BIN_NUMBER=8
 HAPLOTYPE_COUNT=2
 
-./split/api_test_input.sh $BINARY_DIR $SEED
-./split/cli_test_input.sh $BINARY_DIR $SEED
+execs=(valik generate_local_matches generate_reads split_sequence mason_genome mason_variator)
+for exec in "${execs[@]}"; do
+    if ! which ${exec} &>/dev/null; then
+        echo "${exec} is not available"
+        echo ""
+        echo "make sure \"${execs[@]}\" are reachable via the \${PATH} variable"
+        echo ""
 
-./build/cli_test_input.sh $BINARY_DIR $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
+        # trying to do some guessing here:
+        paths=(../../build/bin)
+        paths+=(../../lib/raptor_data_simulation/build/bin)
+        paths+=(../../lib/raptor_data_simulation/build/src/mason2/src/mason2-build/bin)
+        paths+=(../../../stellar3/build/bin)
 
-./search/cli_test_input.sh $BINARY_DIR $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
+        p=""
+        for pp in ${paths[@]}; do
+            p=${p}$(realpath -m $pp):
+        done
+        echo "you could try "
+        echo "export PATH=${p}\${PATH}"
+
+        exit 127
+    fi
+done
+
+./split/api_test_input.sh $SEED
+./split/cli_test_input.sh $SEED
+
+./build/cli_test_input.sh $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
+
+./search/cli_test_input.sh $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
 
 ./consolidate/cli_test_input.sh

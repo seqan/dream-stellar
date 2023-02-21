@@ -1,6 +1,12 @@
 #!/bin/bash
-
 cd split
+set -Eeuo pipefail
+
+if [ -z "${VALIK_TMP}" ]; then
+    echo "no VALIK_TMP folder given"
+    exit 127
+fi
+
 mkdir -p $VALIK_TMP
 
 #----------- Split multiple sequences of various lengths -----------
@@ -65,3 +71,4 @@ done
 rm single/ref_"$seg_overlap"overlap4bins.txt
 mv "$ref_meta" single/reference_metadata.txt
 
+rm -r $VALIK_TMP
