@@ -127,7 +127,6 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
             process_args.insert(process_args.end(), {"-e", std::to_string(er_rate),
                                                     "-l", std::to_string(arguments.pattern_size),
-                                                    "-a", "dna",
                                                     "-o", std::string(path) + ".gff"});
 
             external_process process(process_args);
