@@ -5,7 +5,7 @@
 #include <valik/search/load_index.hpp>
 #include <valik/search/query_record.hpp>
 #include <valik/search/search_time_statistics.hpp>
-#include <valik/search/write_output_file_parallel.hpp>
+#include <valik/search/prefilter_queries_parallel.hpp>
 #include <valik/split/reference_segments.hpp>
 #include <utilities/external_process.hpp>
 
@@ -101,6 +101,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     {
         consumerThreads.emplace_back(
         [&]() {
+            // this will block until
             for (auto next = queue.dequeue(); next; next = queue.dequeue())
             {
                 auto & [bin_id, records] = *next;
@@ -138,7 +139,10 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
                                                         "-l", std::to_string(arguments.pattern_size),
                                                         "-o", std::string(path) + ".gff"});
 
+                auto start = std::chrono::high_resolution_clock::now();
                 external_process process(process_args);
+                auto end = std::chrono::high_resolution_clock::now();
+                time_statistics.cart_processing_times.push_back(0.0 + std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count());
 
                 text_out << process.cout();
                 text_out << process.cerr();
@@ -158,11 +162,9 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         time_statistics.reads_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
         start = std::chrono::high_resolution_clock::now();
-
-        //TODO: pass index and overlap instead of ibf and all parameters
-        write_output_file_parallel(index.ibf(), arguments, query_records, thresholder, queue);
+        prefilter_queries_parallel(index.ibf(), arguments, query_records, thresholder, queue);
         end = std::chrono::high_resolution_clock::now();
-        time_statistics.compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+        time_statistics.prefilter_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();
