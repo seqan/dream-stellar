@@ -101,7 +101,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     {
         consumerThreads.emplace_back(
         [&]() {
-            // this will block until
+            // this will block until producer threads have added carts to queue
             for (auto next = queue.dequeue(); next; next = queue.dequeue())
             {
                 auto & [bin_id, records] = *next;
