@@ -19,7 +19,7 @@ namespace valik::app
 {
 
 template <seqan3::data_layout ibf_data_layout>
-inline void write_output_file_parallel(seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
+inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
                                        search_arguments const & arguments,
                                        std::vector<query_record> const & records,
                                        raptor::threshold::threshold const & thresholder,
