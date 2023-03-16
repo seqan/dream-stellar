@@ -91,52 +91,61 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
     std::ofstream text_out(arguments.out_file.string() + ".out");
 
+
+    std::mutex mutex;
+    std::unordered_map<size_t, size_t> bin_count;
     std::vector<std::string> output_files;
-    auto consumerThread = std::jthread{[&]() {
-        std::string result_string;
 
-        std::unordered_map<size_t, size_t> bin_count;
-        for (auto next = queue.dequeue(); next; next = queue.dequeue())
-        {
-            auto & [bin_id, records] = *next;
-            std::filesystem::path path = tmp_path / std::string("query_" + std::to_string(bin_id) + "_" + std::to_string(bin_count[bin_id]++) + ".fasta");
+    auto consumerThreads = std::vector<std::jthread>{};
+    for (size_t i = 0; i < arguments.threads; ++i)
+    {
+        consumerThreads.emplace_back(
+        [&]() {
+            for (auto next = queue.dequeue(); next; next = queue.dequeue())
             {
-                seqan3::sequence_file_output fout{path, fields{}};
+                auto & [bin_id, records] = *next;
 
-                for (auto & record : records)
+                std::unique_lock g(mutex);
+                std::filesystem::path path = tmp_path / std::string("query_" + std::to_string(bin_id) + "_" + std::to_string(bin_count[bin_id]++) + ".fasta");
+                output_files.push_back(path.string() + ".gff");
+                g.unlock();
+
                 {
-                    sequence_record_type sequence_record{std::move(record.sequence_id), std::move(record.sequence)};
-                    fout.push_back(sequence_record);
+                    seqan3::sequence_file_output fout{path, fields{}};
+
+                    for (auto & record : records)
+                    {
+                        sequence_record_type sequence_record{std::move(record.sequence_id), std::move(record.sequence)};
+                        fout.push_back(sequence_record);
+                    }
                 }
+
+                std::vector<std::string> process_args{stellar_exec};
+                if (segments)
+                {
+                    auto seg = segments->segment_from_bin(bin_id);
+                    process_args.insert(process_args.end(), {index.bin_path()[0][0], std::string(path),
+                                                            "--sequenceOfInterest", std::to_string(seg.ref_ind),
+                                                            "--segmentBegin", std::to_string(seg.start),
+                                                            "--segmentEnd", std::to_string(seg.start + seg.len)});
+                }
+                else
+                {
+                    process_args.insert(process_args.end(), {index.bin_path()[bin_id][0], std::string(path)});
+                }
+
+                process_args.insert(process_args.end(), {"-e", std::to_string(er_rate),
+                                                        "-l", std::to_string(arguments.pattern_size),
+                                                        "-o", std::string(path) + ".gff"});
+
+                external_process process(process_args);
+
+                text_out << process.cout();
+                text_out << process.cerr();
             }
-            output_files.push_back(path.string() + ".gff");
 
-            std::vector<std::string> process_args{stellar_exec};
-            if (segments)
-            {
-                auto seg = segments->segment_from_bin(bin_id);
-                process_args.insert(process_args.end(), {index.bin_path()[0][0], std::string(path),
-                                                        "--sequenceOfInterest", std::to_string(seg.ref_ind),
-                                                        "--segmentBegin", std::to_string(seg.start),
-                                                        "--segmentEnd", std::to_string(seg.start + seg.len)});
-            }
-            else
-            {
-                process_args.insert(process_args.end(), {index.bin_path()[bin_id][0], std::string(path)});
-            }
-
-            process_args.insert(process_args.end(), {"-e", std::to_string(er_rate),
-                                                    "-l", std::to_string(arguments.pattern_size),
-                                                    "-o", std::string(path) + ".gff"});
-
-            external_process process(process_args);
-
-            text_out << process.cout();
-            text_out << process.cerr();
-        }
-
-    }};
-
+        });
+    }
 
     for (auto &&chunked_records : fin | seqan3::views::chunk((1ULL << 20) * 10))
     {
@@ -156,7 +165,7 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
         time_statistics.compute_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
     queue.finish(); // Flush carts that are not empty yet
-    consumerThread.join();
+    consumerThreads.clear();
 
     std::vector<std::string> merge_process_args{"cat"};
     for (auto & path : output_files)
