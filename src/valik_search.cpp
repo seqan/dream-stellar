@@ -40,6 +40,8 @@ static std::filesystem::path create_temporary_path(std::filesystem::path name) {
     return str.data();
 }
 
+
+
 //-----------------------------
 //
 // Setup IBF and launch multithreaded search.
@@ -115,6 +117,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
                 std::unique_lock g(mutex);
                 std::filesystem::path path = tmp_path / std::string("query_" + std::to_string(bin_id) + "_" + std::to_string(bin_count[bin_id]++) + ".fasta");
+
                 output_files.push_back(path.string() + ".gff");
                 g.unlock();
 
@@ -128,7 +131,14 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     }
                 }
 
-                std::vector<std::string> process_args{stellar_exec};
+                std::vector<std::string> process_args{};
+                if (arguments.write_time)
+                {
+                    std::filesystem::path time_path =  path.string() + std::string(".gff.time");
+                    process_args.insert(process_args.end(), {"/usr/bin/time", "-o", std::string(time_path), "-f", "\"%e\t%M\t%x\t%C\""});
+                }
+                process_args.push_back(stellar_exec);
+
                 if (segments)
                 {
                     auto seg = segments->segment_from_bin(bin_id);
@@ -193,16 +203,35 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
         merge_process_args.push_back(path);
     external_process merge(merge_process_args);
 
-    if (merge.status() != 0) {
-        std::cerr << "Merging failed\n";
-        std::cerr << "call:";
-        for (auto args : merge_process_args) {
-            std::cerr << " " << args;
+    auto check_external_process_success = [&](std::vector<std::string> const & proc_args, external_process const & proc)
+    {
+        if (proc.status() != 0) {
+            std::cerr << "External process failed\n";
+            std::cerr << "call:";
+            for (auto args : proc_args) {
+                std::cerr << " " << args;
+            }
+            std::cerr << '\n';
+            std::cerr << proc.cerr() << '\n';
+            return true;
         }
-        std::cerr << '\n';
-        std::cerr << merge.cerr() << '\n';
-        error_triggered = true;
+        else
+            return error_triggered;
+    };
+
+    if (arguments.write_time)
+    {
+        std::vector<std::string> merge_time_files{"cat"};
+        for (auto & path : output_files)
+            merge_time_files.push_back(path + ".time");
+        external_process merge_time(merge_time_files);
+        error_triggered = check_external_process_success(merge_time_files, merge_time);
+
+        std::ofstream time_out(arguments.out_file.string() + std::string(".time"));
+        time_out << merge_time.cout();
     }
+
+    error_triggered = check_external_process_success(merge_process_args, merge);
 
     std::ofstream matches_out(arguments.out_file);
     matches_out << merge.cout();
