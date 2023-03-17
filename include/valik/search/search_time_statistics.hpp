@@ -39,7 +39,7 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
 {
     std::filesystem::path file_path{arguments.out_file};
     file_path += ".time";
-    std::ofstream file_handle{file_path};
+    std::ofstream file_handle(file_path, std::ofstream::app);
 
     file_handle << "IBF I/O\tReads I/O\tPrefilter\tMin cart time\tAvg cart time\tMax cart time\tNr carts\n";
     file_handle << std::fixed
