@@ -81,6 +81,11 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     if (auto ptr = std::getenv("VALIK_STELLAR"); ptr != nullptr)
         stellar_exec = std::string(ptr);
 
+    std::string merge_exec = "cat";
+    if (auto ptr = std::getenv("VALIK_MERGE"); ptr != nullptr)
+        merge_exec = std::string(ptr);
+
+
     sync_out synced_out{arguments.out_file};
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
 
@@ -183,7 +188,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();
 
-    std::vector<std::string> merge_process_args{"cat"};
+    std::vector<std::string> merge_process_args{merge_exec};
     for (auto & path : output_files)
         merge_process_args.push_back(path);
     external_process merge(merge_process_args);

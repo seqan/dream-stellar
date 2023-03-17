@@ -141,6 +141,7 @@ TEST_P(valik_search_clusters, search)
 
     setup_tmp_dir();
     setenv("VALIK_STELLAR", "echo", true);
+    setenv("VALIK_MERGE", "echo", true);
 
     if (window_size == 23 && number_of_errors == 0)
         GTEST_SKIP() << "Needs dynamic threshold correction";
@@ -190,6 +191,7 @@ TEST_P(valik_search_segments, search)
 
     setup_tmp_dir();
     setenv("VALIK_STELLAR", "echo", true);
+    setenv("VALIK_MERGE", "echo", true);
 
     cli_test_result const result = execute_app("valik", "search",
                                                         "--output search.gff",
