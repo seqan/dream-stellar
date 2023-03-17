@@ -3,8 +3,8 @@ name: CI on Linux
 on:
   push:
     branches:
-      # Push events to branches matching refs/heads/master
-      - 'master'
+      # Push events to branches matching refs/heads/main
+      - 'main'
   pull_request:
   workflow_dispatch:
 
