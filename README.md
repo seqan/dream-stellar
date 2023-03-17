@@ -52,9 +52,9 @@
 ## Quick run: split and search single reference sequence
 `valik split test/data/split/single_reference.fasta --reference-output reference_metadata.txt --segment-output segment_metadata.txt --bins 4`
 
-`valik build test/data/split/seg_files.txt --window 15 --kmer 13 --output seg_file_index.ibf  --size 100k`
+`valik build --from-segments test/data/split/single_reference.fasta --seg-path segment_metadata.txt --ref-meta reference_metadata.txt --window 15 --kmer 13 --output seg_file_index.ibf --size 100k`
 
-`valik search --index seg_file_index.ibf --threads 4 --query test/data/search/query.fq --pattern 50 --overlap 49 --error 1 --output search.out`
+`valik search --index seg_file_index.ibf --threads 4 --query test/data/search/query.fq --pattern 50 --overlap 49 --error 1 --output search.gff --seg-path segment_metadata.txt`
 
 ```text
 read-0  0,
