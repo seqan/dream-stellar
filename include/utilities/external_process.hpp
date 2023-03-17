@@ -133,7 +133,7 @@ private:
         auto t2 = std::jthread{[&] { readUntilEnd(stderrpipe[READ_END], stdcerr); }};
 
         waitpid(pid, &status_, 0); /* wait for child to exit */
-        status_ = status_ >> 8;
+        status_ = WEXITSTATUS(status_);
         close(stdoutpipe[WRITE_END]);
         close(stderrpipe[WRITE_END]);
     }
