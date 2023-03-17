@@ -20,19 +20,17 @@
     This is the CI badge image:
         `https://img.shields.io/github/workflow/status/` - we do not use GitHub's badges as they are not customisable.
         `/seqan/app-template/` - owner/repository
-        `CI%20on%20Linux` - name of the workflow as encoded URL (e.g., whitespace = %20)
-        `master` - branch to show
-        `?style=flat&logo=github` - use a GitHub-style badge
-        `&label=App-Template%20CI` - text on the badge
+        `ci_linux.yml` - workflow file
+        `main` - branch to show
         `"Open GitHub actions page"` - this text will be shown on hover
 -->
-[1]: https://img.shields.io/github/workflow/status/eaasna/valik/CI%20on%20Linux/master?style=flat&logo=github&label=valik%20CI "Open GitHub actions page"
+[1]: https://img.shields.io/github/actions/workflow/status/eaasna/valik/ci_linux.yml?branch=main "Open GitHub actions page"
 <!--
     This is the CI badge link:
         `https://github.com/seqan/app-template/actions` - actions page of owner(seqan)/repository(app-template)
-        `?query=branch%3Amaster` - only show actions that ran on the mater branch
+        `?query=branch%3Amain` - only show actions that ran on the mater branch
 -->
-[2]: https://github.com/eaasna/valik/actions?query=branch%3Amaster
+[2]: https://github.com/eaasna/valik/actions?query=branch%3Amain
 <!--
     This is the Codecov badge image:
         Codecov offers badges: https://app.codecov.io/gh/seqan/app-template/settings/badge
@@ -40,7 +38,7 @@
         Copy the image part of the markdown badge here.
     `"Open Codecov page"` - this text will be shown on hover
 -->
-[3]: https://codecov.io/gh/eaasna/valik/branch/master/graph/badge.svg?token=ZKGJTQ55MF
+[3]: https://codecov.io/gh/eaasna/valik/branch/main/graph/badge.svg?token=ZKGJTQ55MF
 <!--
     This is the Codecov badge link:
         Codecov offers badges: https://app.codecov.io/gh/seqan/app-template/settings/badge
