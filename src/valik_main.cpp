@@ -28,9 +28,14 @@ int main(int argc, char ** argv)
         if (sub_parser.info.app_name == std::string_view{"valik-consolidate"})
             valik::app::run_consolidation(sub_parser);
     }
-    catch (seqan3::argument_parser_error const & ext)
+    catch(std::exception const& e)
     {
-        std::cerr << "[Error] " << ext.what() << '\n';
+        std::cerr << "[Error] " << e.what() << '\n';
+        std::exit(-1);
+    }
+    catch(...)
+    {
+        std::cerr << "[Error] unknown exception type\n";
         std::exit(-1);
     }
 

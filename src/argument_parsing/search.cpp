@@ -148,8 +148,8 @@ void run_search(seqan3::argument_parser & parser)
     // ==========================================
     // Set default pattern size.
     // ==========================================
-	if (!arguments.pattern_size)
-	{
+    if (!arguments.pattern_size)
+    {
         seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>> query_in{arguments.query_file};
         for (auto & [seq] : query_in | std::views::take(1))
         {
@@ -163,7 +163,7 @@ void run_search(seqan3::argument_parser & parser)
 
     if (parser.is_option_set("overlap"))
     {
-	    if (arguments.overlap >= arguments.pattern_size)
+        if (arguments.overlap >= arguments.pattern_size)
                 throw seqan3::argument_parser_error{"The overlap size has to be smaller than the pattern size."};
     }
     else

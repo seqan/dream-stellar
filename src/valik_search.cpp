@@ -46,10 +46,12 @@ static std::filesystem::path create_temporary_path(std::filesystem::path name) {
 //
 //-----------------------------
 template <bool compressed>
-void run_program(search_arguments const &arguments, search_time_statistics & time_statistics)
+bool run_program(search_arguments const &arguments, search_time_statistics & time_statistics)
 {
     using index_structure_t = std::conditional_t<compressed, index_structure::ibf_compressed, index_structure::ibf>;
     auto index = valik_index<index_structure_t>{};
+
+    bool error_triggered = false; // indicates if an error happen inside this function
 
     {
         auto start = std::chrono::high_resolution_clock::now();
@@ -78,6 +80,11 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     std::string stellar_exec = "stellar";
     if (auto ptr = std::getenv("VALIK_STELLAR"); ptr != nullptr)
         stellar_exec = std::string(ptr);
+
+    std::string merge_exec = "cat";
+    if (auto ptr = std::getenv("VALIK_MERGE"); ptr != nullptr)
+        merge_exec = std::string(ptr);
+
 
     sync_out synced_out{arguments.out_file};
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
@@ -146,6 +153,18 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
 
                 text_out << process.cout();
                 text_out << process.cerr();
+
+                if (process.status() != 0) {
+                    std::unique_lock g(mutex); // make sure that our output is synchronized
+                    std::cerr << "error running VALIK_STELLAR\n";
+                    std::cerr << "call:";
+                    for (auto args : process_args) {
+                        std::cerr << " " << args;
+                    }
+                    std::cerr << '\n';
+                    std::cerr << process.cerr() << '\n';
+                    error_triggered = true;
+                }
             }
 
         });
@@ -169,28 +188,43 @@ void run_program(search_arguments const &arguments, search_time_statistics & tim
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();
 
-    std::vector<std::string> merge_process_args{"cat"};
+    std::vector<std::string> merge_process_args{merge_exec};
     for (auto & path : output_files)
         merge_process_args.push_back(path);
     external_process merge(merge_process_args);
 
+    if (merge.status() != 0) {
+        std::cerr << "Merging failed\n";
+        std::cerr << "call:";
+        for (auto args : merge_process_args) {
+            std::cerr << " " << args;
+        }
+        std::cerr << '\n';
+        std::cerr << merge.cerr() << '\n';
+        error_triggered = true;
+    }
+
     std::ofstream matches_out(arguments.out_file);
     matches_out << merge.cout();
+    return error_triggered;
 }
 
 void valik_search(search_arguments const & arguments)
 {
     search_time_statistics time_statistics{};
 
+    bool failed;
     if (arguments.compressed)
-        run_program<seqan3::data_layout::compressed>(arguments, time_statistics);
+        failed = run_program<seqan3::data_layout::compressed>(arguments, time_statistics);
     else
-        run_program<seqan3::data_layout::uncompressed>(arguments, time_statistics);
+        failed = run_program<seqan3::data_layout::uncompressed>(arguments, time_statistics);
 
     if (arguments.write_time)
         write_time_statistics(time_statistics, arguments);
 
-    return;
+    if (failed) {
+        throw std::runtime_error("valik_search failed. Run didn't complete correctly.");
+    }
 }
 
 } // namespace valik::app
