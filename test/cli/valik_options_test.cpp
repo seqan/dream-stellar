@@ -127,7 +127,7 @@ TEST_F(argparse_split, no_bins)
                                                          "--bins 0");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --bins: Value 0 is not in range [4,29952].\n"});
+    EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --bins: Value 0 is not in range [1,29952].\n"});
 }
 
 TEST_F(argparse_build, input_missing)
