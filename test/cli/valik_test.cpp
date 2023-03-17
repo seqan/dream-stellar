@@ -57,9 +57,9 @@ TEST_P(valik_build_clusters, build_from_clusters)
 
     {
         std::ofstream file{"bin_paths.txt"};
-	for (size_t i{0}; i < number_of_bins; i++)
+    for (size_t i{0}; i < number_of_bins; i++)
         {
-	    std::string file_path = cli_test::data("bin_" + std::to_string(i) + ".fasta");
+        std::string file_path = cli_test::data("bin_" + std::to_string(i) + ".fasta");
             file << file_path << '\n';
         }
         file << '\n';
@@ -149,19 +149,19 @@ TEST_P(valik_search_clusters, search)
     cli_test_result const result = execute_app("valik", "search",
                                                         "--output search.gff",
                                                         "--pattern", std::to_string(pattern_size),
-							                            "--overlap", std::to_string(overlap),
+                                                        "--overlap", std::to_string(overlap),
                                                         "--error ", std::to_string(number_of_errors),
                                                         "--index ", ibf_path(number_of_bins, window_size),
                                                         "--query ", data("query.fq"),
                                                         "--threads 1",
-							                            "--tau 0.75",
-							                            "--p_max 0.75");
+                                                        "--tau 0.75",
+                                                        "--p_max 0.75");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
     auto expected = string_list_from_file(search_result_path(number_of_bins, window_size, number_of_errors,
-			    pattern_size, overlap), std::ios::binary);
+                pattern_size, overlap), std::ios::binary);
     auto actual = string_list_from_file("search.gff.out");
 
     EXPECT_EQ(expected, actual);
@@ -170,14 +170,14 @@ TEST_P(valik_search_clusters, search)
 INSTANTIATE_TEST_SUITE_P(cluster_search_suite,
                          valik_search_clusters,
                          testing::Combine(testing::Values(8), testing::Values(19, 23), testing::Values(0, 1),
-				 testing::Values(50, 100), testing::Values(1, 40)),
+                 testing::Values(50, 100), testing::Values(1, 40)),
                          [] (testing::TestParamInfo<valik_search_clusters::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +
                                                 std::to_string(std::get<1>(info.param)) + "_window_" +
                                                 std::to_string(std::get<2>(info.param)) + "_error_" +
-						                        std::to_string(std::get<3>(info.param)) + "_pattern_" +
-						                        std::to_string(std::get<4>(info.param)) + "_overlap";
+                                                std::to_string(std::get<3>(info.param)) + "_pattern_" +
+                                                std::to_string(std::get<4>(info.param)) + "_overlap";
                              return name;
                          });
 
@@ -196,20 +196,20 @@ TEST_P(valik_search_segments, search)
     cli_test_result const result = execute_app("valik", "search",
                                                         "--output search.gff",
                                                         "--pattern", std::to_string(pattern_size),
-							                            "--overlap", std::to_string(overlap),
+                                                        "--overlap", std::to_string(overlap),
                                                         "--error ", std::to_string(number_of_errors),
                                                         "--index ", ibf_path(segment_overlap, number_of_bins, window_size),
                                                         "--query ", data("single_query.fq"),
-							                            "--tau 0.75",
+                                                        "--tau 0.75",
                                                         "--threads 1",
                                                         "--seg-path", segment_metadata_path(segment_overlap, number_of_bins),
-							                            "--p_max 0.25");
+                                                        "--p_max 0.25");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
     auto expected = string_list_from_file(search_result_path(segment_overlap, number_of_bins, window_size, number_of_errors,
-			    pattern_size, overlap), std::ios::binary);
+                pattern_size, overlap), std::ios::binary);
     auto actual = string_list_from_file("search.gff.out");
 
     EXPECT_EQ(expected, actual);
@@ -224,8 +224,8 @@ INSTANTIATE_TEST_SUITE_P(segment_search_suite,
                              std::string name = std::to_string(std::get<1>(info.param)) + "_bins_" +
                                                 std::to_string(std::get<2>(info.param)) + "_window_" +
                                                 std::to_string(std::get<3>(info.param)) + "_error_" +
-						                        std::to_string(std::get<4>(info.param)) + "_pattern_" +
-						                        std::to_string(std::get<5>(info.param)) + "_overlap";
+                                                std::to_string(std::get<4>(info.param)) + "_pattern_" +
+                                                std::to_string(std::get<5>(info.param)) + "_overlap";
                              return name;
                          });
 
@@ -261,6 +261,6 @@ INSTANTIATE_TEST_SUITE_P(consolidation_suite,
                          [] (testing::TestParamInfo<valik_consolidate::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +
-						                        std::to_string(std::get<1>(info.param)) + "_overlap";
+                                                std::to_string(std::get<1>(info.param)) + "_overlap";
                              return name;
                          });

@@ -156,7 +156,7 @@ struct valik_base : public cli_test
     }
 
     static std::filesystem::path search_result_path(size_t const number_of_bins, size_t const window_size,
-		    size_t const number_of_errors, size_t const pattern_size, size_t const overlap) noexcept
+            size_t const number_of_errors, size_t const pattern_size, size_t const overlap) noexcept
     {
         std::string name{};
         name += std::to_string(number_of_bins);
@@ -174,7 +174,7 @@ struct valik_base : public cli_test
     }
 
     static std::filesystem::path search_result_path(size_t const segment_overlap, size_t const number_of_bins, size_t const window_size,
-		    size_t const number_of_errors, size_t const pattern_size, size_t const overlap) noexcept
+            size_t const number_of_errors, size_t const pattern_size, size_t const overlap) noexcept
     {
         std::string name{};
         name += std::to_string(segment_overlap);
@@ -536,7 +536,7 @@ struct valik_split : public valik_base, public testing::WithParamInterface<std::
 struct valik_build_clusters : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, bool>> {};
 struct valik_build_segments : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
 struct valik_search_clusters : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t,
-	size_t, size_t>> {};
+    size_t, size_t>> {};
 struct valik_search_segments : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t, size_t,
-	size_t, size_t>> {};
+    size_t, size_t>> {};
 struct valik_consolidate : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
