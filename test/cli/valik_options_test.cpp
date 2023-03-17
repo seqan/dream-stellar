@@ -21,8 +21,8 @@ TEST_F(argparse, no_options)
     std::string const expected
     {
         "valik - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
-	    "================================================================================================\n"
-	    "    Try -h or --help for more information.\n"
+        "================================================================================================\n"
+        "    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
@@ -35,8 +35,8 @@ TEST_F(argparse_split, no_options)
     std::string const expected
     {
         "valik - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
-	    "================================================================================================\n"
-	    "    Try -h or --help for more information.\n"
+        "================================================================================================\n"
+        "    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
@@ -49,8 +49,8 @@ TEST_F(argparse_build, no_options)
     std::string const expected
     {
         "valik - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
-	    "================================================================================================\n"
-	    "    Try -h or --help for more information.\n"
+        "================================================================================================\n"
+        "    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
@@ -63,8 +63,8 @@ TEST_F(argparse_search, no_options)
     std::string const expected
     {
         "valik - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
-	    "================================================================================================\n"
-	    "    Try -h or --help for more information.\n"
+        "================================================================================================\n"
+        "    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
@@ -291,7 +291,7 @@ TEST_F(argparse_search, pattern_window)
                                                          "--query ", data("query.fq"),
                                                          "--index ", data("8bins19window.ibf"),
                                                          "--output search.gff",
-							                             "--pattern 12");
+                                                         "--pattern 12");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] The minimiser window cannot be bigger than the pattern.\n"});

@@ -24,8 +24,8 @@ do
                 echo "Potential matches overlap by $o bp"
                 output="8bins"$w"window"$e"error"$p"pattern"$o"overlap.gff"
                 valik search --index ../build/8bins${w}window.ibf --query query.fq --output "$output" --error "$e" --pattern "$p" --overlap "$o" --tau "$tau" --p_max "$p_max" --threads 1
-	        rm "$output"
-		done
+            rm "$output"
+        done
         done
     done
 done
