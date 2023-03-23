@@ -18,8 +18,8 @@ TEST_P(valik_split, split)
                                                          data("various_chromosome_lengths.fasta"),
                                                          "--overlap ", std::to_string(overlap),
                                                          "--bins ", std::to_string(bins),
-                                                         "--reference-output reference_metadata.txt",
-                                                         "--segment-output reference_segments.txt");
+                                                         "--ref-meta reference_metadata.txt",
+                                                         "--seg-meta reference_segments.txt");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"Reference sequence: chr5 is too short and will be skipped.\n"});
@@ -110,7 +110,7 @@ TEST_P(valik_build_segments, build_from_segments)
                                                          "--output index.ibf",
                                                          "--from-segments",
                                                          "--ref-meta", ref_meta_path,
-                                                         "--seg-path", seg_meta_path,
+                                                         "--seg-meta", seg_meta_path,
                                                          seg_input);
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
@@ -202,7 +202,7 @@ TEST_P(valik_search_segments, search)
                                                         "--query ", data("single_query.fq"),
                                                         "--tau 0.75",
                                                         "--threads 1",
-                                                        "--seg-path", segment_metadata_path(segment_overlap, number_of_bins),
+                                                        "--seg-meta", segment_metadata_path(segment_overlap, number_of_bins),
                                                         "--p_max 0.25");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
@@ -242,7 +242,7 @@ TEST_P(valik_consolidate, consolidation)
 
     cli_test_result const result = execute_app("valik", "consolidate",
                                                         "--input ", consolidation_input_path(number_of_bins, segment_overlap),
-                                                        "--meta-path", ref_meta_path,
+                                                        "--ref-meta", ref_meta_path,
                                                         "--output consolidated.gff");
 
     EXPECT_EQ(result.exit_code, 0);

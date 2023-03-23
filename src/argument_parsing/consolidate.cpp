@@ -15,7 +15,7 @@ void init_consolidation_parser(seqan3::argument_parser & parser, consolidation_a
                       seqan3::input_file_validator{{"gff"}});
     parser.add_option(arguments.ref_meta_path,
                     '\0',
-                    "meta-path",
+                    "ref-meta",
                     "Path to reference metadata file created by split.",
                     seqan3::option_spec::standard,
                     seqan3::input_file_validator{});
