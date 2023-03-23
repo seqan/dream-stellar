@@ -202,6 +202,7 @@ TEST_P(valik_search_segments, search)
                                                         "--query ", data("single_query.fq"),
                                                         "--tau 0.75",
                                                         "--threads 1",
+                                                        "--ref-meta", data("reference_metadata.txt"),
                                                         "--seg-meta", segment_metadata_path(segment_overlap, number_of_bins),
                                                         "--p_max 0.25");
     EXPECT_EQ(result.exit_code, 0);

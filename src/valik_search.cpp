@@ -6,6 +6,7 @@
 #include <valik/search/query_record.hpp>
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/search/prefilter_queries_parallel.hpp>
+#include <valik/split/reference_metadata.hpp>
 #include <valik/split/reference_segments.hpp>
 #include <utilities/external_process.hpp>
 
@@ -95,6 +96,10 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     if (!arguments.seg_path.empty())
         segments = reference_segments(arguments.seg_path);
 
+    std::optional<reference_metadata> ref_meta;
+    if (!arguments.ref_meta_path.empty())
+        ref_meta = reference_metadata(arguments.ref_meta_path, false);
+
     //!WORKAROUND: Stellar does not allow smaller error rates
     double er_rate = std::max((double) arguments.errors / (double) arguments.pattern_size, 0.00001);
 
@@ -139,10 +144,12 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                 }
                 process_args.push_back(stellar_exec);
 
-                if (segments)
+                if (segments && ref_meta)
                 {
+                    auto ref_len = ref_meta->total_len;
                     auto seg = segments->segment_from_bin(bin_id);
                     process_args.insert(process_args.end(), {index.bin_path()[0][0], std::string(path),
+                                                            "--referenceLength", std::to_string(ref_len),
                                                             "--sequenceOfInterest", std::to_string(seg.ref_ind),
                                                             "--segmentBegin", std::to_string(seg.start),
                                                             "--segmentEnd", std::to_string(seg.start + seg.len)});
