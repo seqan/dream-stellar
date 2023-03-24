@@ -54,7 +54,7 @@ void init_build_parser(seqan3::argument_parser & parser, build_arguments & argum
                     seqan3::option_spec::standard);
     parser.add_option(arguments.seg_path,
                     '\0',
-                    "seg-path",
+                    "seg-meta",
                     "Path to segment metadata file created by split.",
                     seqan3::option_spec::standard,
                     seqan3::input_file_validator{});

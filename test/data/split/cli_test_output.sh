@@ -19,7 +19,7 @@ do
         echo "Splitting the genome into $b segments that overlap by $o"
         ref_meta="multi/chromosome_"$o"overlap"$b"bins.txt"
         seg_meta="multi/"$o"overlap"$b"bins.txt"
-        valik split "$seg_input" --overlap "$o" --bins "$b" --reference-output "$ref_meta" --segment-output "$seg_meta"
+        valik split "$seg_input" --overlap "$o" --bins "$b" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
     done
 done
 
@@ -53,17 +53,17 @@ do
     echo "Splitting the genome into $b segments that overlap by $seg_overlap"
     ref_meta="single/ref_"$seg_overlap"overlap"$b"bins.txt"
     seg_meta="single/"$seg_overlap"overlap"$b"bins.txt"
-    valik split "$ref_input" --overlap "$seg_overlap" --bins "$b" --reference-output "$ref_meta" --segment-output "$seg_meta"
+    valik split "$ref_input" --overlap "$seg_overlap" --bins "$b" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
 
     for w in 13 15
     do
         echo "Creating IBF for w=$w and k=$k where segments overlap by $seg_overlap"
         index="single/"$seg_overlap"overlap"$b"bins"$w"window.ibf"
-        valik build "$ref_input" --kmer "$k" --window "$w" --size "$ibf_size" --output "$index" --from-segments --ref-meta "$ref_meta" --seg-path "$seg_meta"
+        valik build "$ref_input" --kmer "$k" --window "$w" --size "$ibf_size" --output "$index" --from-segments --ref-meta "$ref_meta" --seg-meta "$seg_meta"
 
         echo "Searching IBF with $errors errors"
         search_out="single/"$seg_overlap"overlap"$b"bins"$w"window"$errors"errors.gff"
-        valik search --index "$index" --query "$query" --output "$search_out" --error "$errors" --pattern "$pattern" --overlap "$pat_overlap" --tau "$tau" --p_max "$p_max" --seg-path "$seg_meta" --threads 1
+        valik search --index "$index" --query "$query" --output "$search_out" --error "$errors" --pattern "$pattern" --overlap "$pat_overlap" --tau "$tau" --p_max "$p_max" --ref-meta "$ref_meta" --seg-meta "$seg_meta" --threads 1
     rm "$search_out"
     done
 done

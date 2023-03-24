@@ -9,6 +9,7 @@ fi
 
 export VALIK_TMP=tmp/valik/my_dir
 export VALIK_STELLAR=echo
+export VALIK_MERGE=echo
 
 echo "### Running valik split ###"
 ./split/cli_test_output.sh

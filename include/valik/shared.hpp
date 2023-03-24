@@ -115,6 +115,7 @@ struct search_arguments
 
     bool call_stellar{false};
     std::filesystem::path seg_path{};
+    std::filesystem::path ref_meta_path{};
 };
 
 } // namespace valik
