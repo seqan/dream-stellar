@@ -2,6 +2,7 @@
 	path = lib/seqan3
 	url = https://github.com/seqan/seqan3.git
 	branch = master
+	ignore = dirty
 [submodule "lib/robin-hood-hashing"]
 	path = lib/robin-hood-hashing
 	url = https://github.com/martinus/robin-hood-hashing.git
@@ -11,3 +12,4 @@
 [submodule "lib/raptor_data_simulation"]
 	path = lib/raptor_data_simulation
 	url = git@github.com:eaasna/raptor_data_simulation.git
+	ignore = dirty
