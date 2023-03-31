@@ -13,3 +13,5 @@ target_use_datasources (write_seg_sequences_test FILES write_out_20_16_ref.fasta
 target_use_datasources (write_seg_sequences_test FILES write_out_20_4_reference_metadata.txt)
 target_use_datasources (write_seg_sequences_test FILES write_out_20_4_reference_segments.txt)
 target_use_datasources (write_seg_sequences_test FILES write_out_20_4_ref.fasta)
+
+add_api_test (reference_segments_test.cpp)
