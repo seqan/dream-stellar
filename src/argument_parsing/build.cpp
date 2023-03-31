@@ -1,7 +1,7 @@
 #include <valik/argument_parsing/build.hpp>
 #include <valik/build/build.hpp>
 
-#include <valik/split/reference_segments.hpp>
+#include <valik/split/segment_metadata.hpp>
 
 namespace valik::app
 {
@@ -96,7 +96,7 @@ void run_build(seqan3::argument_parser & parser)
     }
     else
     {
-        reference_segments seg(arguments.seg_path);
+        segment_metadata seg(arguments.seg_path);
         arguments.bins = seg.members.size();
         sequence_file_validator(arguments.bin_file);
         std::string bin_string{arguments.bin_file.string()};

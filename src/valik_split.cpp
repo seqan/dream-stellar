@@ -1,7 +1,7 @@
 #include <valik/argument_parsing/shared.hpp>
 #include <valik/shared.hpp>
 #include <valik/split/reference_metadata.hpp>
-#include <valik/split/reference_segments.hpp>
+#include <valik/split/segment_metadata.hpp>
 #include <valik/split/write_seg_sequences.hpp>
 
 namespace valik::app
@@ -19,7 +19,7 @@ void valik_split(split_arguments const & arguments)
     reference.to_file(arguments.ref_out);
 
     // For each segment assign start, length and bin number
-    reference_segments segments(arguments.bins, arguments.overlap, reference);
+    segment_metadata segments(arguments.bins, arguments.overlap, reference);
     segments.to_file(arguments.seg_out);
 
     if (arguments.write_seg)

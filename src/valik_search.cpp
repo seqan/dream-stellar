@@ -7,7 +7,7 @@
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/search/prefilter_queries_parallel.hpp>
 #include <valik/split/reference_metadata.hpp>
-#include <valik/split/reference_segments.hpp>
+#include <valik/split/segment_metadata.hpp>
 #include <utilities/external_process.hpp>
 
 #include <raptor/threshold/threshold.hpp>
@@ -92,9 +92,9 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     sync_out synced_out{arguments.out_file};
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
 
-    std::optional<reference_segments> segments;
+    std::optional<segment_metadata> segments;
     if (!arguments.seg_path.empty())
-        segments = reference_segments(arguments.seg_path);
+        segments = segment_metadata(arguments.seg_path);
 
     std::optional<reference_metadata> ref_meta;
     if (!arguments.ref_meta_path.empty())

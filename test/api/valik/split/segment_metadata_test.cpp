@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <valik/split/reference_metadata.hpp>
-#include <valik/split/reference_segments.hpp>
+#include <valik/split/segment_metadata.hpp>
 
 #include <random>
 
@@ -20,7 +20,7 @@ static void create_dummy_reference_metadata(size_t const seed, size_t const numb
     file << '\n';
 }
 
-static void print_segments(valik::reference_segments const & segments)
+static void print_segments(valik::segment_metadata const & segments)
 {
     seqan3::debug_stream << "Default len: " << segments.default_len << '\n';
     for (const auto & seg : segments.members)
@@ -30,7 +30,7 @@ static void print_segments(valik::reference_segments const & segments)
     seqan3::debug_stream << '\n';
 }
 
-TEST(reference_segments, o0_b4)
+TEST(segment_metadata, o0_b4)
 {
     size_t overlap = 0;
     size_t bins = 4;
@@ -42,7 +42,7 @@ TEST(reference_segments, o0_b4)
     std::sort (reference.sequences.begin(), reference.sequences.end());
 
     // For each segment assign start, length and bin number
-    valik::reference_segments segments(bins, overlap, reference);
+    valik::segment_metadata segments(bins, overlap, reference);
     print_segments(segments);
 }
 

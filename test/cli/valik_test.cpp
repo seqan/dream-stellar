@@ -19,7 +19,7 @@ TEST_P(valik_split, split)
                                                          "--overlap ", std::to_string(overlap),
                                                          "--bins ", std::to_string(bins),
                                                          "--ref-meta reference_metadata.txt",
-                                                         "--seg-meta reference_segments.txt");
+                                                         "--seg-meta segment_metadata.txt");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"Reference sequence: chr5 is too short and will be skipped.\n"});
@@ -30,7 +30,7 @@ TEST_P(valik_split, split)
     EXPECT_TRUE(expected_metadata == actual_metadata);
 
     std::string const expected_segments = string_from_file(segment_metadata_path(overlap, bins), std::ios::binary);
-    std::string const actual_segments = string_from_file("reference_segments.txt", std::ios::binary);
+    std::string const actual_segments = string_from_file("segment_metadata.txt", std::ios::binary);
 
     EXPECT_TRUE(expected_segments == actual_segments);
 }

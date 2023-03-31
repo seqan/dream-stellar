@@ -2,14 +2,14 @@
 
 #include <valik/shared.hpp>
 #include <valik/split/reference_metadata.hpp>
-#include <valik/split/reference_segments.hpp>
+#include <valik/split/segment_metadata.hpp>
 
 namespace valik
 {
 
 // Note: template functions should live in .cpp files. This solution to avoid linker errors may cause code bloat.
 template <typename dna_t>
-void write_seg_sequences(reference_metadata const & reference, reference_segments & segments, std::filesystem::path const & ref_path)
+void write_seg_sequences(reference_metadata const & reference, segment_metadata & segments, std::filesystem::path const & ref_path)
 {
     using sequence_file_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>>;
 
@@ -27,7 +27,7 @@ void write_seg_sequences(reference_metadata const & reference, reference_segment
     for (auto && [seq] : sequence_file_t{ref_path})
     {
         // get the relevant segments for each reference
-        auto ref_seg = [&](reference_segments::segment & seg) {return reference.sequences.at(i).ind == seg.ref_ind;};
+        auto ref_seg = [&](segment_metadata::segment & seg) {return reference.sequences.at(i).ind == seg.ref_ind;};
         for (auto & seg : segments.members | std::views::filter(ref_seg))
         {
             std::filesystem::path seg_file = ref_path;

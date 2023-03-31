@@ -35,13 +35,13 @@ static void const test_write_out(size_t overlap, size_t bins)
     std::string path_prefix = "write_out_" + std::to_string(overlap) + "_" + std::to_string(bins);
 
     valik::reference_metadata reference(data(path_prefix + "_reference_metadata.txt"), false);
-    valik::reference_segments segments(data(path_prefix + "_reference_segments.txt"));
+    valik::segment_metadata segments(data(path_prefix + "_segment_metadata.txt"));
     valik::write_seg_sequences<seqan3::dna4>(reference, segments, data(path_prefix + "_ref.fasta"));
 
     for (size_t i = 0; i < bins - 1; i++)
     {
-        valik::reference_segments::segment current_seg = segments.members[i];
-        valik::reference_segments::segment next_seg = segments.members[i + 1];
+        valik::segment_metadata::segment current_seg = segments.members[i];
+        valik::segment_metadata::segment next_seg = segments.members[i + 1];
 
         std::string current_seg_seq = string_from_file(data(path_prefix + "_ref_" + std::to_string(i) + ".fasta"), std::ios::binary);
         std::string next_seg_seq = string_from_file(data(path_prefix + "_ref_" + std::to_string(i + 1) + ".fasta"), std::ios::binary);

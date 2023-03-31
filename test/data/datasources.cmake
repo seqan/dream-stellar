@@ -68,39 +68,39 @@ declare_datasource (FILE chromosome_metadata.txt
 declare_datasource (FILE write_out_0_16_reference_metadata.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_0_16/reference_metadata.txt
                 URL_HASH SHA256=368803a8d29419321ba9704bc7cbd52abf6f7b2f528d725ed54a5ecadf5c6ae3)
-declare_datasource (FILE write_out_0_16_reference_segments.txt
-                URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_0_16/reference_segments.txt
-                URL_HASH SHA256=f41420e802d66d96bb3d2246d459791ebe5796da669600552a0c3eb43082345f)
 declare_datasource (FILE write_out_0_16_ref.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_0_16/ref.fasta
                 URL_HASH SHA256=7c7a8fcdd52a932cda76219f24024c1624292377103d9fd5a55abd288c6072be)
+declare_datasource (FILE write_out_0_16_segment_metadata.txt
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_0_16/segment_metadata.txt
+                URL_HASH SHA256=f41420e802d66d96bb3d2246d459791ebe5796da669600552a0c3eb43082345f)
 declare_datasource (FILE write_out_0_4_reference_metadata.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_0_4/reference_metadata.txt
                 URL_HASH SHA256=368803a8d29419321ba9704bc7cbd52abf6f7b2f528d725ed54a5ecadf5c6ae3)
-declare_datasource (FILE write_out_0_4_reference_segments.txt
-                URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_0_4/reference_segments.txt
-                URL_HASH SHA256=171e201e20f2dc9d5d855b753fc7bf6abe7297ded613e727c0ed1dd69bbaf02f)
 declare_datasource (FILE write_out_0_4_ref.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_0_4/ref.fasta
                 URL_HASH SHA256=7c7a8fcdd52a932cda76219f24024c1624292377103d9fd5a55abd288c6072be)
+declare_datasource (FILE write_out_0_4_segment_metadata.txt
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_0_4/segment_metadata.txt
+                URL_HASH SHA256=171e201e20f2dc9d5d855b753fc7bf6abe7297ded613e727c0ed1dd69bbaf02f)
 declare_datasource (FILE write_out_20_16_reference_metadata.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_20_16/reference_metadata.txt
                 URL_HASH SHA256=368803a8d29419321ba9704bc7cbd52abf6f7b2f528d725ed54a5ecadf5c6ae3)
-declare_datasource (FILE write_out_20_16_reference_segments.txt
-                URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_20_16/reference_segments.txt
-                URL_HASH SHA256=32a40e7211cd45832506f16d0b3a613a222efd0783463978a50aa85ecb302837)
 declare_datasource (FILE write_out_20_16_ref.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_20_16/ref.fasta
                 URL_HASH SHA256=7c7a8fcdd52a932cda76219f24024c1624292377103d9fd5a55abd288c6072be)
+declare_datasource (FILE write_out_20_16_segment_metadata.txt
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_20_16/segment_metadata.txt
+                URL_HASH SHA256=32a40e7211cd45832506f16d0b3a613a222efd0783463978a50aa85ecb302837)
 declare_datasource (FILE write_out_20_4_reference_metadata.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_20_4/reference_metadata.txt
                 URL_HASH SHA256=368803a8d29419321ba9704bc7cbd52abf6f7b2f528d725ed54a5ecadf5c6ae3)
-declare_datasource (FILE write_out_20_4_reference_segments.txt
-                URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_20_4/reference_segments.txt
-                URL_HASH SHA256=171e201e20f2dc9d5d855b753fc7bf6abe7297ded613e727c0ed1dd69bbaf02f)
 declare_datasource (FILE write_out_20_4_ref.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_20_4/ref.fasta
                 URL_HASH SHA256=7c7a8fcdd52a932cda76219f24024c1624292377103d9fd5a55abd288c6072be)
+declare_datasource (FILE write_out_20_4_segment_metadata.txt
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_20_4/segment_metadata.txt
+                URL_HASH SHA256=171e201e20f2dc9d5d855b753fc7bf6abe7297ded613e727c0ed1dd69bbaf02f)
 declare_datasource (FILE 8bins19window.ibf
                 URL ${CMAKE_SOURCE_DIR}/test/data/build/8bins19window.ibf
                 URL_HASH SHA256=3a13c890650bf857770816244ed9420295ad8bbe681dac335f687863fc79a603)

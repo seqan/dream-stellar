@@ -3,7 +3,7 @@
 #include <valik/build/call_parallel_on_bins.hpp>
 #include <valik/index.hpp>
 #include <valik/split/reference_metadata.hpp>
-#include <valik/split/reference_segments.hpp>
+#include <valik/split/segment_metadata.hpp>
 
 #include <seqan3/search/views/minimiser_hash.hpp>
 
@@ -65,7 +65,7 @@ private:
 
         if (arguments->from_segments)
         {
-            reference_segments segments(arguments->seg_path);
+            segment_metadata segments(arguments->seg_path);
             reference_metadata reference(arguments->ref_meta_path, false);
 
             auto & ibf = index.ibf();
@@ -73,7 +73,7 @@ private:
             for (auto && [seq] : sequence_file_t{arguments->bin_file})
             {
                 // get the relevant segments for each reference
-                auto ref_seg = [&](reference_segments::segment & seg) {return reference.sequences.at(i).ind == seg.ref_ind;};
+                auto ref_seg = [&](segment_metadata::segment & seg) {return reference.sequences.at(i).ind == seg.ref_ind;};
                 for (auto & seg : segments.members | std::views::filter(ref_seg))
                 {
                     for (auto && value : seq | seqan3::views::slice(seg.start, seg.start + seg.len) | hash_view())

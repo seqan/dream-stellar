@@ -36,7 +36,7 @@ struct split_arguments
 {
     std::filesystem::path ref_file{};
     std::filesystem::path ref_out{"reference_metadata.txt"};
-    std::filesystem::path seg_out{"reference_segments.txt"};
+    std::filesystem::path seg_out{"segment_metadata.txt"};
 
     size_t overlap{150};
     size_t bins{64};
