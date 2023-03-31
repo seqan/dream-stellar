@@ -7,13 +7,19 @@
 #include <numeric>
 #include <vector>
 
-#include <hibf/detail/data_store.hpp>
-#include <hibf/detail/helper.hpp>
-#include <hibf/detail/layout/print_matrix.hpp>
-#include <hibf/detail/layout/print_result_line.hpp>
+#include <valik/split/reference_metadata.hpp>
+#include <hibf/print_matrix.hpp>
 
 namespace hibf
 {
+
+/*!\brief Returns the smallest natural number that is greater or equal to `value` and a multiplicative of 64.
+* \param[in] value The Input value that is smaller or equal to the return value.
+*/
+[[nodiscard]] constexpr size_t next_multiple_of_64(size_t const value) noexcept
+{
+    return ((value + 63) >> 6) << 6;
+}
 
 /*!\brief Distributes x Technical Bins across y User Bins while minimizing the maximal Technical Bin size
  *
@@ -85,7 +91,7 @@ class simple_binning
 {
 private:
     //!\brief The data input: filenames associated with the user bin and a kmer count per user bin.
-    data_store const * data{nullptr};
+    valik::reference_metadata const * data{nullptr};
 
     /*!\brief The number of User bins.
      *
@@ -101,9 +107,6 @@ private:
      */
     size_t const num_technical_bins{};
 
-    //!\brief Debug output in layouting file.
-    bool const debug{false};
-
 public:
     simple_binning() = default;                                   //!< Defaulted.
     simple_binning(simple_binning const &) = default;             //!< Defaulted.
@@ -115,7 +118,6 @@ public:
     /*!\brief The constructor from user bin names, their kmer counts and a configuration.
      * \param[in] data_ The filenames and kmer counts associated with the user bin, as well as the ostream buffer.
      * \param[in] num_bins (optional) The number of technical bins.
-     * \param[in] debug_ (optional) Enables debug output in layouting file.
      *
      * If the `num_bins` parameter is omitted or set to 0, then number of technical bins used in this algorithm
      * is automatically set to the next multiple of 64 given the number of user bins (e.g. \#UB = 88 -> \#TB = 124).
@@ -123,21 +125,12 @@ public:
      * \attention The number of technical bins must be greater or equal to the number of user bins!
      *            If you want to use less technical bins than user bins, see the hierarchical_binning algorithm.
      */
-    simple_binning(data_store & data_, size_t const num_bins = 0, bool const debug_ = false) :
+    simple_binning(valik::reference_metadata & data_, size_t const num_bins = 0) :
         data{std::addressof(data_)},
-        num_user_bins{data->kmer_counts.size()},
-        num_technical_bins{num_bins ? num_bins : next_multiple_of_64(num_user_bins)},
-        debug{debug_}
+        num_user_bins{data->sequences.size()},
+        num_technical_bins{num_bins ? num_bins : next_multiple_of_64(num_user_bins)}
     {
         assert(data != nullptr);
-        assert(data->output_buffer != nullptr);
-        assert(data->header_buffer != nullptr);
-
-        if (debug)
-        {
-            *data->header_buffer << std::fixed << std::setprecision(2);
-            *data->output_buffer << std::fixed << std::setprecision(2);
-        }
 
         if (num_user_bins > num_technical_bins)
         {
@@ -156,11 +149,6 @@ public:
     size_t execute()
     {
         assert(data != nullptr);
-        assert(data->output_buffer != nullptr);
-        assert(data->header_buffer != nullptr);
-
-        if (data->stats)
-            data->stats->filenames = data->filenames;
 
         std::vector<std::vector<size_t>> matrix(num_technical_bins); // rows
         for (auto & v : matrix)
@@ -173,17 +161,17 @@ public:
         size_t const extra_bins = num_technical_bins - num_user_bins + 1;
 
         // initialize first column (first row is initialized with inf)
-        double const ub_cardinality = static_cast<double>(data->kmer_counts[0]);
+        double const ub_cardinality = static_cast<double>(data->sequences[0].len);
         for (size_t i = 0; i < extra_bins; ++i)
         {
-            size_t const corrected_ub_cardinality = static_cast<size_t>(ub_cardinality * data->fp_correction[i + 1]);
-            matrix[i][0] = corrected_ub_cardinality / (i + 1);
+            // no FPR correction because cardinality is based on sequence length not k-mer content
+            matrix[i][0] = ub_cardinality / (i + 1);
         }
 
         // we must iterate column wise
         for (size_t j = 1; j < num_user_bins; ++j)
         {
-            double const ub_cardinality = static_cast<double>(data->kmer_counts[j]);
+            double const ub_cardinality = static_cast<double>(data->sequences[j].len);
 
             for (size_t i = j; i < j + extra_bins; ++i)
             {
@@ -191,9 +179,7 @@ public:
 
                 for (size_t i_prime = j - 1; i_prime < i; ++i_prime)
                 {
-                    size_t const corrected_ub_cardinality =
-                        static_cast<size_t>(ub_cardinality * data->fp_correction[(i - i_prime)]);
-                    size_t score = std::max<size_t>(corrected_ub_cardinality / (i - i_prime), matrix[i_prime][j - 1]);
+                    size_t score = std::max<size_t>(ub_cardinality / (i - i_prime), matrix[i_prime][j - 1]);
 
                     // std::cout << "j:" << j << " i:" << i << " i':" << i_prime << " score:" << score << std::endl;
 
@@ -220,26 +206,12 @@ public:
         while (trace_j > 0)
         {
             size_t next_i = trace[trace_i][trace_j];
-            size_t const kmer_count = data->kmer_counts[trace_j];
+            size_t const kmer_count = data->sequences[trace_j].len;
             size_t const number_of_bins = (trace_i - next_i);
             size_t const kmer_count_per_bin = (kmer_count + number_of_bins - 1) / number_of_bins; // round up
 
-            // add split bin to ibf statistics
-            if (data->stats)
-            {
-                data->stats->bins.emplace_back(hibf_statistics::bin_kind::split, kmer_count, 1ul, number_of_bins);
-            }
-
-            if (!debug)
-                print_result_line(*data, trace_j, bin_id, number_of_bins);
-            else
-                print_debug_line(*data,
-                                 trace_j,
-                                 bin_id,
-                                 number_of_bins,
-                                 kmer_count_per_bin,
-                                 optimal_score,
-                                 num_technical_bins);
+            //!TODO: add split segment to segment_metadata
+            seqan3::debug_stream << "split\t" << kmer_count << '\t' << 1ul << '\t' << number_of_bins << '\n';
 
             if (kmer_count_per_bin > max_size)
             {
@@ -253,25 +225,17 @@ public:
             --trace_j;
         }
         ++trace_i; // because we want the length not the index. Now trace_i == number_of_bins
-        size_t const kmer_count = data->kmer_counts[0];
+        size_t const kmer_count = data->sequences[0].len;
         size_t const kmer_count_per_bin = (kmer_count + trace_i - 1) / trace_i;
 
-        // add split bin to ibf statistics
-        if (data->stats)
-        {
-            data->stats->bins.emplace_back(hibf_statistics::bin_kind::split, kmer_count, 1ul, trace_i);
-        }
+        //!TODO: add split segment to segment_metadata
+        seqan3::debug_stream << "split\t" << kmer_count << '\t' << 1ul << '\t' << trace_i << '\n';
 
         if (kmer_count_per_bin > max_size)
         {
             max_id = bin_id;
             max_size = kmer_count_per_bin;
         }
-
-        if (!debug)
-            print_result_line(*data, 0, bin_id, trace_i);
-        else
-            print_debug_line(*data, 0, bin_id, trace_i, kmer_count_per_bin, optimal_score, num_technical_bins);
 
         return max_id;
     }

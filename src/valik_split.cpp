@@ -4,6 +4,8 @@
 #include <valik/split/segment_metadata.hpp>
 #include <valik/split/write_seg_sequences.hpp>
 
+#include <hibf/simple_binning.hpp>
+
 namespace valik::app
 {
 
@@ -21,6 +23,12 @@ void valik_split(split_arguments const & arguments)
     // For each segment assign start, length and bin number
     segment_metadata segments(arguments.bins, arguments.overlap, reference);
     segments.to_file(arguments.seg_out);
+
+    /*
+    std::sort(reference.sequences.begin(), reference.sequences.end());
+    hibf::simple_binning binning(reference, arguments.bins);
+    binning.execute();
+    */
 
     if (arguments.write_seg)
         write_seg_sequences<seqan3::dna4>(reference, segments, arguments.ref_file);
