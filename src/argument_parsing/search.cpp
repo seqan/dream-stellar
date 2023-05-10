@@ -89,11 +89,6 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
                     '\0',
                     "max_queued_carts",
                     "Maximal number of carts that are full and are waiting to be processed.");
-    parser.add_flag(arguments.call_stellar,
-                    '\0',
-                    "call-stellar",
-                    "Call distributed stellar search.",
-                    seqan3::option_spec::standard);
     parser.add_option(arguments.ref_meta_path,
                     '\0',
                     "ref-meta",
@@ -108,7 +103,6 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
                     seqan3::input_file_validator{});
 }
 
-// TODO: split creating seqan3::argument_parser and checks/validation of the arguments
 void run_search(seqan3::argument_parser & parser)
 {
     search_arguments arguments{};
