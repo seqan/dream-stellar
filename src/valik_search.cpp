@@ -142,7 +142,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     std::filesystem::path time_path =  path.string() + std::string(".gff.time");
                     process_args.insert(process_args.end(), {"/usr/bin/time", "-o", std::string(time_path), "-f", "\"%e\t%M\t%x\t%C\""});
                 }
-                process_args.push_back(stellar_exec);
+                process_args.insert(process_args.end(), {stellar_exec, "--version-check", "0"});
 
                 if (segments && ref_meta)
                 {
