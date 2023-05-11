@@ -142,10 +142,11 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     std::filesystem::path time_path =  path.string() + std::string(".gff.time");
                     process_args.insert(process_args.end(), {"/usr/bin/time", "-o", std::string(time_path), "-f", "\"%e\t%M\t%x\t%C\""});
                 }
-                process_args.push_back(stellar_exec);
+                process_args.insert(process_args.end(), {stellar_exec, "--version-check", "0"});
 
                 if (segments && ref_meta)
                 {
+		    // search segments of a single reference file
                     auto ref_len = ref_meta->total_len;
                     auto seg = segments->segment_from_bin(bin_id);
                     process_args.insert(process_args.end(), {index.bin_path()[0][0], std::string(path),
@@ -156,7 +157,11 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                 }
                 else
                 {
-                    process_args.insert(process_args.end(), {index.bin_path()[bin_id][0], std::string(path)});
+		    // search a reference database of bin sequence files
+		    if (index.bin_path().size() < bin_id)
+                        throw std::runtime_error("Could not find reference file with index " + std::to_string(bin_id) + ". Did you forget to provide metadata to search segments in a single reference file instead?");
+                    
+		    process_args.insert(process_args.end(), {index.bin_path()[bin_id][0], std::string(path)});
                 }
 
                 process_args.insert(process_args.end(), {"-e", std::to_string(er_rate),

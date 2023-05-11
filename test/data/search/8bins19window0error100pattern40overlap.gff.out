@@ -1,10 +1,10 @@
-bin_1.fasta tmp/valik/my_dir/query_1_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_1_0.fasta.gff
-bin_6.fasta tmp/valik/my_dir/query_6_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_6_0.fasta.gff
-bin_7.fasta tmp/valik/my_dir/query_7_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_7_0.fasta.gff
-bin_6.fasta tmp/valik/my_dir/query_6_1.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_6_1.fasta.gff
-bin_5.fasta tmp/valik/my_dir/query_5_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_5_0.fasta.gff
-bin_4.fasta tmp/valik/my_dir/query_4_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_4_0.fasta.gff
-bin_3.fasta tmp/valik/my_dir/query_3_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_3_0.fasta.gff
-bin_2.fasta tmp/valik/my_dir/query_2_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_2_0.fasta.gff
-bin_1.fasta tmp/valik/my_dir/query_1_1.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_1_1.fasta.gff
-bin_0.fasta tmp/valik/my_dir/query_0_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_0_0.fasta.gff
+--version-check 0 bin_1.fasta tmp/valik/my_dir/query_1_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_1_0.fasta.gff
+--version-check 0 bin_6.fasta tmp/valik/my_dir/query_6_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_6_0.fasta.gff
+--version-check 0 bin_7.fasta tmp/valik/my_dir/query_7_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_7_0.fasta.gff
+--version-check 0 bin_6.fasta tmp/valik/my_dir/query_6_1.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_6_1.fasta.gff
+--version-check 0 bin_5.fasta tmp/valik/my_dir/query_5_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_5_0.fasta.gff
+--version-check 0 bin_4.fasta tmp/valik/my_dir/query_4_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_4_0.fasta.gff
+--version-check 0 bin_3.fasta tmp/valik/my_dir/query_3_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_3_0.fasta.gff
+--version-check 0 bin_2.fasta tmp/valik/my_dir/query_2_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_2_0.fasta.gff
+--version-check 0 bin_1.fasta tmp/valik/my_dir/query_1_1.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_1_1.fasta.gff
+--version-check 0 bin_0.fasta tmp/valik/my_dir/query_0_0.fasta -e 0.000010 -l 100 -o tmp/valik/my_dir/query_0_0.fasta.gff
