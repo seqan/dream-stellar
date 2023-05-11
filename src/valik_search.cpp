@@ -103,18 +103,24 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     //!WORKAROUND: Stellar does not allow smaller error rates
     double er_rate = std::max((double) arguments.errors / (double) arguments.pattern_size, 0.00001);
 
-    std::ofstream text_out(arguments.out_file.string() + ".out");
-
-
     std::mutex mutex;
     std::unordered_map<size_t, size_t> bin_count;
-    std::vector<std::string> output_files;
+
+    struct LocalData {
+        std::vector<std::string> output_files;
+        std::stringstream        text_out;
+        std::vector<double>      timeStatistics;
+    };
+
+    std::vector<LocalData> localData(arguments.threads);
 
     auto consumerThreads = std::vector<std::jthread>{};
-    for (size_t i = 0; i < arguments.threads; ++i)
+    for (size_t threadNbr = 0; threadNbr < arguments.threads; ++threadNbr)
     {
         consumerThreads.emplace_back(
-        [&]() {
+        [&, threadNbr]() {
+            auto& ld = localData[threadNbr];
+
             // this will block until producer threads have added carts to queue
             for (auto next = queue.dequeue(); next; next = queue.dequeue())
             {
@@ -122,9 +128,9 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
                 std::unique_lock g(mutex);
                 std::filesystem::path path = tmp_path / std::string("query_" + std::to_string(bin_id) + "_" + std::to_string(bin_count[bin_id]++) + ".fasta");
-
-                output_files.push_back(path.string() + ".gff");
                 g.unlock();
+
+                ld.output_files.push_back(path.string() + ".gff");
 
                 {
                     seqan3::sequence_file_output fout{path, fields{}};
@@ -146,7 +152,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
                 if (segments && ref_meta)
                 {
-		    // search segments of a single reference file
+                    // search segments of a single reference file
                     auto ref_len = ref_meta->total_len;
                     auto seg = segments->segment_from_bin(bin_id);
                     process_args.insert(process_args.end(), {index.bin_path()[0][0], std::string(path),
@@ -157,11 +163,11 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                 }
                 else
                 {
-		    // search a reference database of bin sequence files
-		    if (index.bin_path().size() < bin_id)
+                    // search a reference database of bin sequence files
+                    if (index.bin_path().size() < bin_id) {
                         throw std::runtime_error("Could not find reference file with index " + std::to_string(bin_id) + ". Did you forget to provide metadata to search segments in a single reference file instead?");
-                    
-		    process_args.insert(process_args.end(), {index.bin_path()[bin_id][0], std::string(path)});
+                    }
+                    process_args.insert(process_args.end(), {index.bin_path()[bin_id][0], std::string(path)});
                 }
 
                 process_args.insert(process_args.end(), {"-e", std::to_string(er_rate),
@@ -171,10 +177,11 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                 auto start = std::chrono::high_resolution_clock::now();
                 external_process process(process_args);
                 auto end = std::chrono::high_resolution_clock::now();
-                time_statistics.cart_processing_times.push_back(0.0 + std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count());
 
-                text_out << process.cout();
-                text_out << process.cerr();
+                ld.timeStatistics.emplace_back(0.0 + std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count());
+
+                ld.text_out << process.cout();
+                ld.text_out << process.cerr();
 
                 if (process.status() != 0) {
                     std::unique_lock g(mutex); // make sure that our output is synchronized
@@ -188,10 +195,10 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     error_triggered = true;
                 }
             }
-
         });
     }
 
+    // prefilter data which inserts them into the shopping carts
     for (auto &&chunked_records : fin | seqan3::views::chunk((1ULL << 20) * 10))
     {
         query_records.clear();
@@ -209,6 +216,17 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     }
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();
+
+    // Merge all local data together
+    std::ofstream text_out(arguments.out_file.string() + ".out");
+    std::vector<std::string> output_files;
+
+    for (auto const& ld : localData) {
+        output_files.insert(output_files.end(), ld.output_files.begin(), ld.output_files.end());
+        time_statistics.cart_processing_times.insert(time_statistics.cart_processing_times.end(),
+                                                     ld.timeStatistics.begin(), ld.timeStatistics.end());
+        text_out << ld.text_out.str();
+    }
 
     std::vector<std::string> merge_process_args{merge_exec};
     for (auto & path : output_files)
