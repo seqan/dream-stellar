@@ -14,6 +14,10 @@
 
 #include <seqan3/io/sequence_file/output.hpp>
 
+#include <stellar/io/import_sequence.hpp>
+#include <stellar/stellar_database_segment.hpp>
+#include <stellar/utils/stellar_app_runtime.hpp>
+#include <stellar3.shared.hpp>
 
 namespace valik::app
 {
@@ -113,6 +117,34 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     };
 
     std::vector<LocalData> localData(arguments.threads);
+
+    stellar::stellar_app_runtime stellar_time{};
+    auto current_time = stellar_time.now();
+    using TAlphabet = seqan2::Dna;
+    using TSequence = seqan2::String<TAlphabet>;
+    seqan2::StringSet<TSequence> databases;
+    seqan2::StringSet<seqan2::CharString> databaseIDs;
+
+    using TSize = decltype(length(databases[0]));
+    TSize refLen;
+
+    //!TODO: this only imports sequences from a *single* reference file
+    bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
+    {
+        return stellar::_importAllSequences(arguments.bin_path[0][0].c_str(), "database", databases, databaseIDs, refLen);
+    });
+    if (!databasesSuccess)
+        return false;
+
+    using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
+    using TStorage = std::vector<TDatabaseSegment>;
+
+    /*!TODO:
+    Create StellarOptions for each shopping cart?
+
+    stellar::StellarOptions options();
+    options.segmentBegin =
+    */
 
     auto consumerThreads = std::vector<std::jthread>{};
     for (size_t threadNbr = 0; threadNbr < arguments.threads; ++threadNbr)
