@@ -14,3 +14,6 @@
 [submodule "lib/stellar3"]
 	path = lib/stellar3
 	url = git@github.com:seqan/stellar3.git
+[submodule "lib/seqan"]
+	path = lib/seqan
+	url = git@github.com:seqan/seqan.git
