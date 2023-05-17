@@ -128,13 +128,22 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     using TSize = decltype(length(databases[0]));
     TSize refLen;
 
-    //!TODO: this only imports sequences from a *single* reference file
-    bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
+    for (auto bin_paths : index.bin_path())
     {
-        return stellar::_importAllSequences(arguments.bin_path[0][0].c_str(), "database", databases, databaseIDs, refLen);
-    });
-    if (!databasesSuccess)
-        return false;
+        for (auto path : bin_paths)
+        {
+            bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
+            {
+                char tmp[256];
+                getcwd(tmp, 256);
+                seqan3::debug_stream << "Current working directory: " << tmp << '\n';
+                seqan3::debug_stream << path << '\n';
+                return stellar::_importAllSequences(path.c_str(), "database", databases, databaseIDs, refLen);
+            });
+            if (!databasesSuccess)
+                return false;
+        }
+    }
 
     using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
     using TStorage = std::vector<TDatabaseSegment>;
