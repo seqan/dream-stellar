@@ -101,6 +101,10 @@ void init_search_parser(seqan3::argument_parser & parser, search_arguments & arg
                     "Path to segment metadata file created by split.",
                     seqan3::option_spec::standard,
                     seqan3::input_file_validator{});
+    parser.add_flag(arguments.shared_memory,
+                    '\0',
+                    "shared-memory",
+                    "Launch Stellar instances on a single machine with shared memory.");
 }
 
 void run_search(seqan3::argument_parser & parser)

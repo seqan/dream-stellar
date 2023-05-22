@@ -118,42 +118,45 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
     std::vector<LocalData> localData(arguments.threads);
 
-    stellar::stellar_app_runtime stellar_time{};
-    auto current_time = stellar_time.now();
-    using TAlphabet = seqan2::Dna;
-    using TSequence = seqan2::String<TAlphabet>;
-    seqan2::StringSet<TSequence> databases;
-    seqan2::StringSet<seqan2::CharString> databaseIDs;
-
-    using TSize = decltype(length(databases[0]));
-    TSize refLen;
-
-    for (auto bin_paths : index.bin_path())
+    if (arguments.shared_memory)
     {
-        for (auto path : bin_paths)
+        stellar::stellar_app_runtime stellar_time{};
+        auto current_time = stellar_time.now();
+        using TAlphabet = seqan2::Dna;
+        using TSequence = seqan2::String<TAlphabet>;
+        seqan2::StringSet<TSequence> databases;
+        seqan2::StringSet<seqan2::CharString> databaseIDs;
+
+        using TSize = decltype(length(databases[0]));
+        TSize refLen;
+
+        for (auto bin_paths : index.bin_path())
         {
-            bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
+            for (auto path : bin_paths)
             {
-                char tmp[256];
-                getcwd(tmp, 256);
-                seqan3::debug_stream << "Current working directory: " << tmp << '\n';
-                seqan3::debug_stream << path << '\n';
-                return stellar::_importAllSequences(path.c_str(), "database", databases, databaseIDs, refLen);
-            });
-            if (!databasesSuccess)
-                return false;
+                bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
+                {
+                    char tmp[256];
+                    getcwd(tmp, 256);
+                    seqan3::debug_stream << "Current working directory: " << tmp << '\n';
+                    seqan3::debug_stream << path << '\n';
+                    return stellar::_importAllSequences(path.c_str(), "database", databases, databaseIDs, refLen);
+                });
+                if (!databasesSuccess)
+                    return false;
+            }
         }
+
+        using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
+        using TStorage = std::vector<TDatabaseSegment>;
+
+        /*!TODO:
+        Create StellarOptions for each shopping cart?
+
+        stellar::StellarOptions options();
+        options.segmentBegin =
+        */
     }
-
-    using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
-    using TStorage = std::vector<TDatabaseSegment>;
-
-    /*!TODO:
-    Create StellarOptions for each shopping cart?
-
-    stellar::StellarOptions options();
-    options.segmentBegin =
-    */
 
     auto consumerThreads = std::vector<std::jthread>{};
     for (size_t threadNbr = 0; threadNbr < arguments.threads; ++threadNbr)
