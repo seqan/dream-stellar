@@ -27,7 +27,7 @@ namespace valik::app
  * \param name: a name with 'XXXXXX' at the end, e.g.: valik/call_XXXXXX
  * \return returns the name with the 'XXXXXX' replaced and the directory created
  *
- * throws if any errors occures
+ * throws if any errors occurs
  */
 static std::filesystem::path create_temporary_path(std::filesystem::path name) {
     if (!name.is_relative()) {
@@ -118,12 +118,11 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
     std::vector<LocalData> localData(arguments.threads);
 
+    using TAlphabet = seqan2::Dna;
+    using TSequence = seqan2::String<TAlphabet>;
+    stellar::stellar_app_runtime stellar_time{};
     if (arguments.shared_memory)
     {
-        stellar::stellar_app_runtime stellar_time{};
-        auto current_time = stellar_time.now();
-        using TAlphabet = seqan2::Dna;
-        using TSequence = seqan2::String<TAlphabet>;
         seqan2::StringSet<TSequence> databases;
         seqan2::StringSet<seqan2::CharString> databaseIDs;
 
@@ -136,9 +135,6 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
             {
                 bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
                 {
-                    char tmp[256];
-                    getcwd(tmp, 256);
-                    seqan3::debug_stream << "Current working directory: " << tmp << '\n';
                     seqan3::debug_stream << path << '\n';
                     return stellar::_importAllSequences(path.c_str(), "database", databases, databaseIDs, refLen);
                 });
@@ -146,16 +142,6 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     return false;
             }
         }
-
-        using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
-        using TStorage = std::vector<TDatabaseSegment>;
-
-        /*!TODO:
-        Create StellarOptions for each shopping cart?
-
-        stellar::StellarOptions options();
-        options.segmentBegin =
-        */
     }
 
     auto consumerThreads = std::vector<std::jthread>{};
@@ -171,13 +157,14 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                 auto & [bin_id, records] = *next;
 
                 std::unique_lock g(mutex);
-                std::filesystem::path path = tmp_path / std::string("query_" + std::to_string(bin_id) + "_" + std::to_string(bin_count[bin_id]++) + ".fasta");
+                std::filesystem::path cart_queries_path = tmp_path / std::string("query_" + std::to_string(bin_id) +
+                                                          "_" + std::to_string(bin_count[bin_id]++) + ".fasta");
                 g.unlock();
 
-                ld.output_files.push_back(path.string() + ".gff");
+                ld.output_files.push_back(cart_queries_path.string() + ".gff");
 
                 {
-                    seqan3::sequence_file_output fout{path, fields{}};
+                    seqan3::sequence_file_output fout{cart_queries_path, fields{}};
 
                     for (auto & record : records)
                     {
@@ -186,57 +173,87 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     }
                 }
 
-                std::vector<std::string> process_args{};
-                if (arguments.write_time)
+                if (arguments.shared_memory)
                 {
-                    std::filesystem::path time_path =  path.string() + std::string(".gff.time");
-                    process_args.insert(process_args.end(), {"/usr/bin/time", "-o", std::string(time_path), "-f", "\"%e\t%M\t%x\t%C\""});
-                }
-                process_args.insert(process_args.end(), {stellar_exec, "--version-check", "0"});
+                    using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
+                    using TStorage = std::vector<TDatabaseSegment>;
 
-                if (segments && ref_meta)
-                {
-                    // search segments of a single reference file
-                    auto ref_len = ref_meta->total_len;
-                    auto seg = segments->segment_from_bin(bin_id);
-                    process_args.insert(process_args.end(), {index.bin_path()[0][0], std::string(path),
-                                                            "--referenceLength", std::to_string(ref_len),
-                                                            "--sequenceOfInterest", std::to_string(seg.ref_ind),
-                                                            "--segmentBegin", std::to_string(seg.start),
-                                                            "--segmentEnd", std::to_string(seg.start + seg.len)});
+                    // import query sequences
+                    seqan2::StringSet<TSequence> queries;
+                    seqan2::StringSet<seqan2::CharString> queryIDs;
+
+                    using TSize = decltype(length(queries[0]));
+                    TSize queryLen{0};   // does not get populated currently
+                    //!TODO: split query sequence
+                    bool const queriesSuccess = stellar_time.input_queries_time.measure_time([&]()
+                    {
+                        seqan3::debug_stream << cart_queries_path << '\n';
+                        return stellar::_importAllSequences(cart_queries_path.c_str(), "query", queries, queryIDs, queryLen);
+                    });
+                    if (!queriesSuccess)
+                        return false;
+
+                    /*!TODO:
+                    Create StellarOptions for each shopping cart?
+
+                    stellar::StellarOptions options();
+                    options.segmentBegin =
+                    */
                 }
                 else
                 {
-                    // search a reference database of bin sequence files
-                    if (index.bin_path().size() < bin_id) {
-                        throw std::runtime_error("Could not find reference file with index " + std::to_string(bin_id) + ". Did you forget to provide metadata to search segments in a single reference file instead?");
+                    std::vector<std::string> process_args{};
+                    if (arguments.write_time)
+                    {
+                        std::filesystem::path time_path =  cart_queries_path.string() + std::string(".gff.time");
+                        process_args.insert(process_args.end(), {"/usr/bin/time", "-o", std::string(time_path), "-f", "\"%e\t%M\t%x\t%C\""});
                     }
-                    process_args.insert(process_args.end(), {index.bin_path()[bin_id][0], std::string(path)});
-                }
+                    process_args.insert(process_args.end(), {stellar_exec, "--version-check", "0"});
 
-                process_args.insert(process_args.end(), {"-e", std::to_string(er_rate),
-                                                        "-l", std::to_string(arguments.pattern_size),
-                                                        "-o", std::string(path) + ".gff"});
-
-                auto start = std::chrono::high_resolution_clock::now();
-                external_process process(process_args);
-                auto end = std::chrono::high_resolution_clock::now();
-
-                ld.timeStatistics.emplace_back(0.0 + std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count());
-
-                ld.text_out << process.cout();
-                ld.text_out << process.cerr();
-
-                if (process.status() != 0) {
-                    std::unique_lock g(mutex); // make sure that our output is synchronized
-                    std::cerr << "error running VALIK_STELLAR\n";
-                    std::cerr << "call:";
-                    for (auto args : process_args) {
-                        std::cerr << " " << args;
+                    if (segments && ref_meta)
+                    {
+                        // search segments of a single reference file
+                        auto ref_len = ref_meta->total_len;
+                        auto seg = segments->segment_from_bin(bin_id);
+                        process_args.insert(process_args.end(), {index.bin_path()[0][0], std::string(cart_queries_path),
+                                                                "--referenceLength", std::to_string(ref_len),
+                                                                "--sequenceOfInterest", std::to_string(seg.ref_ind),
+                                                                "--segmentBegin", std::to_string(seg.start),
+                                                                "--segmentEnd", std::to_string(seg.start + seg.len)});
                     }
-                    std::cerr << '\n';
-                    std::cerr << process.cerr() << '\n';
-                    error_triggered = true;
+                    else
+                    {
+                        // search a reference database of bin sequence files
+                        if (index.bin_path().size() < bin_id) {
+                            throw std::runtime_error("Could not find reference file with index " + std::to_string(bin_id) + ". Did you forget to provide metadata to search segments in a single reference file instead?");
+                        }
+                        process_args.insert(process_args.end(), {index.bin_path()[bin_id][0], std::string(cart_queries_path)});
+                    }
+
+                    process_args.insert(process_args.end(), {"-e", std::to_string(er_rate),
+                                                            "-l", std::to_string(arguments.pattern_size),
+                                                            "-o", std::string(cart_queries_path) + ".gff"});
+
+                    auto start = std::chrono::high_resolution_clock::now();
+                    external_process process(process_args);
+                    auto end = std::chrono::high_resolution_clock::now();
+
+                    ld.timeStatistics.emplace_back(0.0 + std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count());
+
+                    ld.text_out << process.cout();
+                    ld.text_out << process.cerr();
+
+                    if (process.status() != 0) {
+                        std::unique_lock g(mutex); // make sure that our output is synchronized
+                        std::cerr << "error running VALIK_STELLAR\n";
+                        std::cerr << "call:";
+                        for (auto args : process_args) {
+                            std::cerr << " " << args;
+                        }
+                        std::cerr << '\n';
+                        std::cerr << process.cerr() << '\n';
+                        error_triggered = true;
+                    }
                 }
             }
         });
