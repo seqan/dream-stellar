@@ -1,6 +1,6 @@
 #pragma once
 
-#include <seqan3/argument_parser/all.hpp>
+#include <sharg/all.hpp>
 #include <seqan3/io/sequence_file/input.hpp>
 
 namespace valik::app
@@ -13,7 +13,7 @@ struct power_of_two_validator
     void operator() (option_value_type const & val) const
     {
         if (!std::has_single_bit(val))
-            throw seqan3::validation_error{"The value must be a power of two."};
+            throw sharg::validation_error{"The value must be a power of two."};
     }
 
     static std::string get_help_page_message ()
@@ -39,7 +39,7 @@ public:
     void operator()(option_value_type const & val) const
     {
         if (!is_zero_positive && !val)
-            throw seqan3::validation_error{"The value must be a positive integer."};
+            throw sharg::validation_error{"The value must be a positive integer."};
     }
 
     std::string get_help_page_message () const
@@ -71,7 +71,7 @@ public:
     void operator()(option_value_type const & cmp) const
     {
         if (!std::regex_match(cmp, expression))
-            throw seqan3::validation_error{seqan3::detail::to_string("Value ", cmp, " must be an integer followed by [k,m,g,t] (case insensitive).")};
+            throw sharg::validation_error{seqan3::detail::to_string("Value ", cmp, " must be an integer followed by [k,m,g,t] (case insensitive).")};
     }
 
     template <std::ranges::forward_range range_type>
@@ -105,7 +105,7 @@ public:
     void operator() (option_value_type const & values) const
     {
         if (values.empty())
-            throw seqan3::validation_error{"The list of input files cannot be empty."};
+            throw sharg::validation_error{"The list of input files cannot be empty."};
 
         for (auto && value : values)
         {
@@ -113,7 +113,7 @@ public:
             {
                 sequence_file_validator(value);
             }
-            catch (seqan3::validation_error const & exception)
+            catch (sharg::validation_error const & exception)
             {
                 if (value.extension() == ".minimiser")
                     minimiser_file_validator(value);
@@ -142,7 +142,7 @@ public:
 
         for (auto && value : values)
             if (is_minimiser_input != (value.extension() == ".minimiser"))
-                throw seqan3::validation_error{"You cannot mix sequence and minimiser files as input."};
+                throw sharg::validation_error{"You cannot mix sequence and minimiser files as input."};
     }
 
     std::string get_help_page_message() const
@@ -184,10 +184,10 @@ private:
                                  }
                                 return result;
                              }()};
-    seqan3::input_file_validator<> minimiser_file_validator{{"minimiser"}};
+    sharg::input_file_validator minimiser_file_validator{{"minimiser"}};
 
 public:
-    seqan3::input_file_validator<> sequence_file_validator{{combined_extensions}};
+    sharg::input_file_validator sequence_file_validator{{combined_extensions}};
 };
 
 } // namespace valik::app

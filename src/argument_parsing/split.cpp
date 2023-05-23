@@ -6,43 +6,41 @@
 namespace valik::app
 {
 
-void init_split_parser(seqan3::argument_parser & parser, split_arguments & arguments)
+void init_split_parser(sharg::parser & parser, split_arguments & arguments)
 {
     init_shared_meta(parser);
     parser.add_positional_option(arguments.ref_file,
-                      "File containing reference sequences.",
-                      seqan3::input_file_validator{});
+                      sharg::config{.description = "File containing reference sequences.",
+                      .validator = sharg::input_file_validator{}});
     parser.add_option(arguments.ref_out,
-                      '\0',
-                      "ref-meta",
-                      "Please provide a valid path to the reference metadata output.",
-                      seqan3::option_spec::required,
-                      seqan3::output_file_validator{seqan3::output_file_open_options::open_or_create});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "ref-meta",
+                      .description = "Please provide a valid path to the reference metadata output.",
+                      .required = true,
+                      .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create}});
     parser.add_option(arguments.seg_out,
-                      '\0',
-                      "seg-meta",
-                      "Please provide a valid path to the segment metadata output.",
-                      seqan3::option_spec::required,
-                      seqan3::output_file_validator{seqan3::output_file_open_options::open_or_create});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "seg-meta",
+                      .description = "Please provide a valid path to the segment metadata output.",
+                      .required = true,
+                      .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create}});
     parser.add_option(arguments.overlap,
-                      '\0',
-                      "overlap",
-                      "Choose how much consecutive segments overlap.",
-                      seqan3::option_spec::standard,
-                      positive_integer_validator{true});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "overlap",
+                      .description = "Choose how much consecutive segments overlap.",
+                      .validator = positive_integer_validator{true}});
     parser.add_option(arguments.bins,
-                      '\0',
-                      "bins",
-                      "Number of bins in the IBF. Multiples of 64 lead to better performance.",
-                      seqan3::option_spec::standard,
-                      seqan3::arithmetic_range_validator{1, 29952});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "bins",
+                      .description = "Number of bins in the IBF. Multiples of 64 lead to better performance.",
+                      .validator = sharg::arithmetic_range_validator{1, 29952}});
     parser.add_flag(arguments.write_seg,
-                      '\0',
-                      "write-out",
-                      "Write segment sequences to disk.");
+                      sharg::config{.short_id = '\0',
+                      .long_id = "write-out",
+                      .description = "Write segment sequences to disk."});
 }
 
-void run_split(seqan3::argument_parser & parser)
+void run_split(sharg::parser & parser)
 {
     split_arguments arguments{};
     init_split_parser(parser, arguments);

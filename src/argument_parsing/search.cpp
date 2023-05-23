@@ -8,106 +8,98 @@
 namespace valik::app
 {
 
-void init_search_parser(seqan3::argument_parser & parser, search_arguments & arguments)
+void init_search_parser(sharg::parser & parser, search_arguments & arguments)
 {
     init_shared_meta(parser);
     init_shared_options(parser, arguments);
     parser.add_option(arguments.index_file,
-                      '\0',
-                      "index",
-                      "Provide a valid path to an IBF.",
-                      seqan3::option_spec::required,
-                      seqan3::input_file_validator{});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "index",
+                      .description = "Provide a valid path to an IBF.",
+                      .required = true,
+                      .validator = sharg::input_file_validator{}});
     parser.add_option(arguments.query_file,
-                      '\0',
-                      "query",
-                      "Provide a path to the query file.",
-                      seqan3::option_spec::required,
-                      seqan3::input_file_validator{});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "query",
+                      .description = "Provide a path to the query file.",
+                      .required = true,
+                      .validator = sharg::input_file_validator{}});
     parser.add_option(arguments.out_file,
-                      '\0',
-                      "output",
-                      "Please provide a valid path to the output.",
-                      seqan3::option_spec::required,
-                      seqan3::output_file_validator{seqan3::output_file_open_options::open_or_create, {"gff"}});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "output",
+                      .description = "Please provide a valid path to the output.",
+                      .required = true,
+                      .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {"gff"}}});
     parser.add_option(arguments.errors,
-                      '\0',
-                      "error",
-                      "Choose the number of errors.",
-                      seqan3::option_spec::standard,
-                      positive_integer_validator{true});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "error",
+                      .description = "Choose the number of errors.",
+                      .validator = positive_integer_validator{true}});
     parser.add_option(arguments.tau,
-                      '\0',
-                      "tau",
-                      "Used in the dynamic thresholding. The higher tau, the lower the threshold.",
-                      seqan3::option_spec::standard,
-                      seqan3::arithmetic_range_validator{0, 1});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "tau",
+                      .description = "Used in the dynamic thresholding. The higher tau, the lower the threshold.",
+                      .validator = sharg::arithmetic_range_validator{0, 1}});
     parser.add_option(arguments.threshold,
-                      '\0',
-                      "threshold",
-                      "If set, this threshold is used instead of the probabilistic models.",
-                      seqan3::option_spec::standard,
-                      seqan3::arithmetic_range_validator{0, 1});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "threshold",
+                      .description = "If set, this threshold is used instead of the probabilistic models.",
+                      .validator = sharg::arithmetic_range_validator{0, 1}});
     parser.add_option(arguments.p_max,
-                      '\0',
-                      "p_max",
-                      "Used in the dynamic thresholding. The higher p_max, the lower the threshold.",
-                      seqan3::option_spec::standard,
-                      seqan3::arithmetic_range_validator{0, 1});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "p_max",
+                      .description = "Used in the dynamic thresholding. The higher p_max, the lower the threshold.",
+                      .validator = sharg::arithmetic_range_validator{0, 1}});
     parser.add_option(arguments.pattern_size,
-                      '\0',
-                      "pattern",
-                      "Choose the pattern size. Default: half of first query sequence.",
-                      seqan3::option_spec::standard);
+                      sharg::config{.short_id = '\0',
+                      .long_id = "pattern",
+                      .description = "Choose the pattern size. Default: half of first query sequence."});
     parser.add_option(arguments.overlap,
-                      '\0',
-                      "overlap",
-                      "Choose how much sequential patterns overlap. Default: pattern size - 1.",
-                      seqan3::option_spec::standard);
+                      sharg::config{.short_id = '\0',
+                      .long_id = "overlap",
+                      .description = "Choose how much sequential patterns overlap. Default: pattern size - 1."});
     parser.add_flag(arguments.compressed,
-                    '\0',
-                    "compressed",
-                    "Build a compressed IBF.");
+                    sharg::config{.short_id = '\0',
+                    .long_id = "compressed",
+                    .description = "Build a compressed IBF."});
     parser.add_flag(arguments.cache_thresholds,
-                    '\0',
-                    "cache-thresholds",
-                    "Stores the computed thresholds with an unique name next to the index. In the next search call "
-                    "using this option, the stored thresholds are re-used.\n"
-                    "Two files are stored:\n"
-                    "\\fBthreshold_*.bin\\fP: Depends on pattern, window, kmer/shape, errors, and tau.\n"
-                    "\\fBcorrection_*.bin\\fP: Depends on pattern, window, kmer/shape, p_max, and fpr.");
+                    sharg::config{.short_id = '\0',
+                    .long_id = "cache-thresholds",
+                    .description = "Stores the computed thresholds with an unique name next to the index. In the next search call "
+                                   "using this option, the stored thresholds are re-used.\n"
+                                   "Two files are stored:\n"
+                                   "\\fBthreshold_*.bin\\fP: Depends on pattern, window, kmer/shape, errors, and tau.\n"
+                                   "\\fBcorrection_*.bin\\fP: Depends on pattern, window, kmer/shape, p_max, and fpr."});
     parser.add_flag(arguments.write_time,
-                    '\0',
-                    "time",
-                    "Write timing file.",
-                    seqan3::option_spec::advanced);
+                    sharg::config{.short_id = '\0',
+                    .long_id = "time",
+                    .description = "Write timing file.",
+                    .advanced = true});
     parser.add_option(arguments.cart_max_capacity,
-                    '\0',
-                    "cart_max_capacity",
-                    "Number of elements to be stored in a single cart before it is send for processing.");
+                    sharg::config{.short_id = '\0',
+                    .long_id = "cart_max_capacity",
+                    .description = "Number of elements to be stored in a single cart before it is send for processing."});
     parser.add_option(arguments.max_queued_carts,
-                    '\0',
-                    "max_queued_carts",
-                    "Maximal number of carts that are full and are waiting to be processed.");
+                    sharg::config{.short_id = '\0',
+                    .long_id = "max_queued_carts",
+                    .description = "Maximal number of carts that are full and are waiting to be processed."});
     parser.add_option(arguments.ref_meta_path,
-                    '\0',
-                    "ref-meta",
-                    "Path to reference metadata file created by split.",
-                    seqan3::option_spec::standard,
-                    seqan3::input_file_validator{});
+                    sharg::config{.short_id = '\0',
+                    .long_id = "ref-meta",
+                    .description = "Path to reference metadata file created by split.",
+                    .validator = sharg::input_file_validator{}});
     parser.add_option(arguments.seg_path,
-                    '\0',
-                    "seg-meta",
-                    "Path to segment metadata file created by split.",
-                    seqan3::option_spec::standard,
-                    seqan3::input_file_validator{});
+                    sharg::config{.short_id = '\0',
+                    .long_id = "seg-meta",
+                    .description = "Path to segment metadata file created by split.",
+                    .validator = sharg::input_file_validator{}});
     parser.add_flag(arguments.shared_memory,
-                    '\0',
-                    "shared-memory",
-                    "Launch Stellar instances on a single machine with shared memory.");
+                    sharg::config{.short_id = '\0',
+                    .long_id = "shared-memory",
+                    .description = "Launch Stellar instances on a single machine with shared memory."});
 }
 
-void run_search(seqan3::argument_parser & parser)
+void run_search(sharg::parser & parser)
 {
     search_arguments arguments{};
 
@@ -119,7 +111,7 @@ void run_search(seqan3::argument_parser & parser)
     // Various checks.
     // ==========================================
 
-    seqan3::input_file_validator<seqan3::sequence_file_input<>>{}(arguments.query_file);
+    sharg::input_file_validator{}(arguments.query_file);
     arguments.treshold_was_set = parser.is_option_set("threshold");
 
     // ==========================================
@@ -145,7 +137,7 @@ void run_search(seqan3::argument_parser & parser)
     if (parser.is_option_set("pattern"))
     {
         if (arguments.pattern_size < arguments.window_size)
-            throw seqan3::argument_parser_error{"The minimiser window cannot be bigger than the pattern."};
+            throw sharg::validation_error{"The minimiser window cannot be bigger than the pattern."};
     }
     else
 
@@ -168,7 +160,7 @@ void run_search(seqan3::argument_parser & parser)
     if (parser.is_option_set("overlap"))
     {
         if (arguments.overlap >= arguments.pattern_size)
-                throw seqan3::argument_parser_error{"The overlap size has to be smaller than the pattern size."};
+                throw sharg::validation_error{"The overlap size has to be smaller than the pattern size."};
     }
     else
         arguments.overlap = arguments.pattern_size - 1;

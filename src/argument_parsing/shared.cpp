@@ -3,7 +3,7 @@
 namespace valik::app
 {
 
-void init_shared_meta(seqan3::argument_parser & parser)
+void init_shared_meta(sharg::parser & parser)
 {
     parser.info.app_name = "valik";
     parser.info.author = "Evelin Aasna";
@@ -43,13 +43,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)";
     parser.info.version = "1.0";
 }
 
-void try_parsing(seqan3::argument_parser & parser)
+void try_parsing(sharg::parser & parser)
 {
     try
     {
         parser.parse();
     }
-    catch (seqan3::argument_parser_error const & ext)
+    catch (sharg::parser_error const & ext)
     {
         std::cerr << "[Error] " << ext.what() << '\n';
         std::exit(-1);

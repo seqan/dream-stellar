@@ -35,8 +35,11 @@ list (APPEND CMAKE_MODULE_PATH "${SEQAN3_CLONE_DIR}/test/cmake/")
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/test/cmake/")
 
 # Use ccache.
-include (seqan_require_ccache)
-seqan_require_ccache ()
+include (seqan3_require_ccache)
+seqan3_require_ccache ()
+
+# Dependency: Sharg.
+find_package (Sharg REQUIRED HINTS lib/sharg/build_system)
 
 # Add the application.
 add_subdirectory (src)

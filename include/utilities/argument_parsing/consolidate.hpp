@@ -6,7 +6,7 @@
 namespace valik::app
 {
 
-void init_consolidation_parser(seqan3::argument_parser & parser, consolidation_arguments & arguments);
-void run_consolidate(seqan3::argument_parser & parser);
+void init_consolidation_parser(sharg::parser & parser, consolidation_arguments & arguments);
+void run_consolidate(sharg::parser & parser);
 
 } // namespace valik::app

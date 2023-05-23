@@ -6,6 +6,7 @@ cmake_minimum_required (VERSION 3.16)
 # Shared interface_
 add_library ("${PROJECT_NAME}_interface" INTERFACE)
 target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE seqan3::seqan3)
+target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE sharg::sharg)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/raptor/include)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/stellar3/include)
