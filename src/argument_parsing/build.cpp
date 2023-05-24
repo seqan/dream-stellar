@@ -9,7 +9,6 @@ namespace valik::app
 void init_build_parser(sharg::parser & parser, build_arguments & arguments)
 {
     init_shared_meta(parser);
-    init_shared_options(parser, arguments);
     parser.add_positional_option(arguments.bin_file,
                                  sharg::config{.description = "File containing one file per line per bin when building from clustered sequences. "
                                                               "Input sequence file when building from overlapping segments.",
@@ -59,6 +58,11 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                     .long_id = "ref-meta",
                     .description = "Path to reference metadata file created by split.",
                     .validator = sharg::input_file_validator{}});
+    parser.add_option(arguments.threads,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "threads",
+                    .description = "Choose the number of threads.",
+                    .validator = positive_integer_validator{}});
 }
 
 void run_build(sharg::parser & parser)

@@ -11,7 +11,6 @@ namespace valik::app
 void init_search_parser(sharg::parser & parser, search_arguments & arguments)
 {
     init_shared_meta(parser);
-    init_shared_options(parser, arguments);
     parser.add_option(arguments.index_file,
                       sharg::config{.short_id = '\0',
                       .long_id = "index",
@@ -97,6 +96,11 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     sharg::config{.short_id = '\0',
                     .long_id = "shared-memory",
                     .description = "Launch Stellar instances on a single machine with shared memory."});
+    parser.add_option(arguments.threads,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "threads",
+                    .description = "Choose the number of threads.",
+                    .validator = positive_integer_validator{}});
 }
 
 void run_search(sharg::parser & parser)
