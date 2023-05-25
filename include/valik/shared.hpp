@@ -116,6 +116,7 @@ struct search_arguments
     std::filesystem::path seg_path{};
     std::filesystem::path ref_meta_path{};
     bool shared_memory{false};
+
 };
 
 } // namespace valik

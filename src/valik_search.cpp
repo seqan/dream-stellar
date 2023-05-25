@@ -92,7 +92,6 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     if (auto ptr = std::getenv("VALIK_MERGE"); ptr != nullptr)
         merge_exec = std::string(ptr);
 
-
     sync_out synced_out{arguments.out_file};
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
 
@@ -191,7 +190,10 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                         return stellar::_importAllSequences(cart_queries_path.c_str(), "query", queries, queryIDs, queryLen);
                     });
                     if (!queriesSuccess)
-                        return false;
+                    {
+                        std::cerr << "Error importing queries\n";
+                        error_triggered = true;
+                    }
 
                     /*!TODO:
                     Create StellarOptions for each shopping cart?
