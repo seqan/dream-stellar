@@ -8,6 +8,8 @@
 
 #include <raptor/threshold/threshold_parameters.hpp>
 
+#include <stellar3.shared.hpp>
+
 namespace valik
 {
 
@@ -65,8 +67,39 @@ struct build_arguments
     std::filesystem::path ref_meta_path{};
 };
 
-struct search_arguments
+struct minimiser_threshold_arguments
 {
+    virtual ~minimiser_threshold_arguments() = 0;   // make an abstract base struct
+
+    double tau{0.9999};
+    double threshold{std::numeric_limits<double>::quiet_NaN()};
+    double p_max{0.15};
+    double fpr{0.05};
+    uint8_t errors{0};
+    size_t pattern_size{};
+    bool treshold_was_set{false};
+    bool cache_thresholds{false};
+
+    protected:
+        // prevent creating, assigning or moving base struct instances
+        minimiser_threshold_arguments() = default;
+        minimiser_threshold_arguments(minimiser_threshold_arguments const&) = default;
+        minimiser_threshold_arguments(minimiser_threshold_arguments&&) = default;
+        minimiser_threshold_arguments& operator=(minimiser_threshold_arguments const&) = default;
+        minimiser_threshold_arguments& operator=(minimiser_threshold_arguments&&) = default;
+};
+
+inline minimiser_threshold_arguments::~minimiser_threshold_arguments() = default;
+
+struct search_arguments final : public minimiser_threshold_arguments
+{
+    ~search_arguments() override = default;
+    search_arguments() = default;
+    search_arguments(search_arguments const&) = default;
+    search_arguments(search_arguments&&) = default;
+    search_arguments& operator=(search_arguments const&) = default;
+    search_arguments& operator=(search_arguments&&) = default;
+
     uint32_t window_size{23u};
     seqan3::shape shape{seqan3::ungapped{20u}};
     uint8_t shape_size{shape.size()};
@@ -79,16 +112,6 @@ struct search_arguments
     std::filesystem::path query_file{};
     std::filesystem::path index_file{};
     std::filesystem::path out_file{"search.gff"};
-
-    // Related to thresholding
-    double tau{0.9999};
-    double threshold{std::numeric_limits<double>::quiet_NaN()};
-    double p_max{0.15};
-    double fpr{0.05};
-    uint8_t errors{0};
-    uint64_t pattern_size{};
-    bool treshold_was_set{false};
-    bool cache_thresholds{false};
 
     bool compressed{false};
     bool write_time{false};
