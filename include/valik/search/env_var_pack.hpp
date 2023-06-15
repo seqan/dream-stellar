@@ -1,7 +1,10 @@
 #pragma once
 
 #include <cstdlib>
+#include <unistd.h>
 #include <filesystem>
+#include <vector>
+#include <algorithm>
 
 namespace valik
 {
@@ -45,7 +48,7 @@ struct env_var_pack
     *
     * throws if any errors occurs
     */
-    std::filesystem::path create_temporary_path(std::filesystem::path name)
+    static std::filesystem::path create_temporary_path(std::filesystem::path name)
     {
         if (!name.is_relative())
         {
