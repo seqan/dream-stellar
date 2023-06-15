@@ -15,7 +15,7 @@
 #include <seqan3/io/sequence_file/output.hpp>
 
 #include <stellar/database_id_map.hpp>
-#include <stellar/diagnostics/print.hpp>
+#include <stellar/diagnostics/print.tpp>
 #include <stellar/stellar_launcher.hpp>
 #include <stellar/stellar_output.hpp>
 #include <stellar/io/import_sequence.hpp>
@@ -213,7 +213,8 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     else
                     {
                         if (index.bin_path().size() < (size_t) bin_id) {
-                            throw std::runtime_error("Could not find reference file with index " + std::to_string(bin_id) + ". Did you forget to provide metadata to search segments in a single reference file instead?");
+                            throw std::runtime_error("Could not find reference file with index " + std::to_string(bin_id) +
+                            ". Did you forget to provide metadata to search segments in a single reference file instead?");
                         }
                         threadOptions.binSequences.push_back(bin_id);   //!TODO: what if mutliple sequence files per bin
                     }
@@ -221,6 +222,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     threadOptions.epsilon = stellar::utils::fraction::from_double(threadOptions.numEpsilon).limit_denominator();
                     threadOptions.minLength = arguments.pattern_size;
                     threadOptions.outputFile = cart_queries_path.string() + ".gff";
+                    stellar::_writeCalculatedParams(threadOptions);   // calculate qGram length
 
                     auto current_time = stellarThreadTime.swift_index_construction_time.now();
                     stellar::StellarIndex<TAlphabet> stellarIndex{queries, threadOptions};
@@ -325,7 +327,8 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     {
                         // search a reference database of bin sequence files
                         if (index.bin_path().size() < (size_t) bin_id) {
-                            throw std::runtime_error("Could not find reference file with index " + std::to_string(bin_id) + ". Did you forget to provide metadata to search segments in a single reference file instead?");
+                            throw std::runtime_error("Could not find reference file with index " + std::to_string(bin_id) +
+                            ". Did you forget to provide metadata to search segments in a single reference file instead?");
                         }
                         process_args.insert(process_args.end(), {index.bin_path()[bin_id][0], std::string(cart_queries_path)});
                     }
