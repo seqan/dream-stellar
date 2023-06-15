@@ -1,7 +1,7 @@
 #include <future>
-#include <cstdlib>
 #include <algorithm>
 
+#include <valik/search/env_var_pack.hpp>
 #include <valik/search/load_index.hpp>
 #include <valik/search/query_record.hpp>
 #include <valik/search/search_time_statistics.hpp>
@@ -24,31 +24,6 @@
 
 namespace valik::app
 {
-
-/* Creates a temporary folder in the temporary path of the OS
- *
- * \param name: a name with 'XXXXXX' at the end, e.g.: valik/call_XXXXXX
- * \return returns the name with the 'XXXXXX' replaced and the directory created
- *
- * throws if any errors occurs
- */
-static std::filesystem::path create_temporary_path(std::filesystem::path name) {
-    if (!name.is_relative()) {
-        throw std::runtime_error("Must be given a relative file");
-    }
-    auto path = std::filesystem::temp_directory_path() / name;
-    auto path_str = path.native();
-    create_directories(path.parent_path());
-    auto str = std::vector<char>(path_str.size()+1, '\0'); // Must include an extra character to include a 0
-    std::copy_n(path_str.data(), path_str.size(), str.data());
-    auto ptr = mkdtemp(str.data());
-    if (!ptr) {
-        throw std::runtime_error("Could not create temporary folder: " + path_str);
-    }
-    return str.data();
-}
-
-
 
 //-----------------------------
 //
@@ -79,22 +54,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
 
-    // the location of bin-query fasta files can be overwritten with an environment variable
-    // the $VALIK_TMP directory has to exist and write permission must be granted
-    std::filesystem::path tmp_path;
-    if (auto ptr = std::getenv("VALIK_TMP"); ptr != nullptr)
-        tmp_path = std::string(ptr);
-    else
-        tmp_path = create_temporary_path("valik/stellar_call_XXXXXX");
-
-    std::string stellar_exec = "stellar";
-    if (auto ptr = std::getenv("VALIK_STELLAR"); ptr != nullptr)
-        stellar_exec = std::string(ptr);
-
-    std::string merge_exec = "cat";
-    if (auto ptr = std::getenv("VALIK_MERGE"); ptr != nullptr)
-        merge_exec = std::string(ptr);
-
+    env_var_pack var_pack{};
     sync_out synced_out{arguments.out_file};
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
 
@@ -159,7 +119,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                 auto & [bin_id, records] = *next;
 
                 std::unique_lock g(mutex);
-                std::filesystem::path cart_queries_path = tmp_path / std::string("query_" + std::to_string(bin_id) +
+                std::filesystem::path cart_queries_path = var_pack.tmp_path / std::string("query_" + std::to_string(bin_id) +
                                                           "_" + std::to_string(bin_count[bin_id]++) + ".fasta");
                 g.unlock();
 
@@ -310,7 +270,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                         std::filesystem::path time_path =  cart_queries_path.string() + std::string(".gff.time");
                         process_args.insert(process_args.end(), {"/usr/bin/time", "-o", std::string(time_path), "-f", "\"%e\t%M\t%x\t%C\""});
                     }
-                    process_args.insert(process_args.end(), {stellar_exec, "--version-check", "0"});
+                    process_args.insert(process_args.end(), {var_pack.stellar_exec, "--version-check", "0"});
 
                     if (segments && ref_meta)
                     {
@@ -393,7 +353,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
         //!TODO: merge all stellar times
     }
 
-    std::vector<std::string> merge_process_args{merge_exec};
+    std::vector<std::string> merge_process_args{var_pack.merge_exec};
     for (auto & path : output_files)
         merge_process_args.push_back(path);
     external_process merge(merge_process_args);
