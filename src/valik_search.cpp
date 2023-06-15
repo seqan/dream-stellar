@@ -1,5 +1,4 @@
 #include <future>
-#include <algorithm>
 
 #include <valik/search/env_var_pack.hpp>
 #include <valik/search/load_index.hpp>
@@ -243,7 +242,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                         if (stellar::_shouldWriteOutputFile(databaseStrand, forwardMatches))
                         {
                             // open output files
-                            std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out | ::std::ios_base::app);
+                            std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
                             if (!outputFile.is_open())
                             {
                                 std::cerr << "Could not open output file." << std::endl;
