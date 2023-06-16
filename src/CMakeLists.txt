@@ -36,10 +36,6 @@ target_link_libraries ("raptor_threshold" PUBLIC "${PROJECT_NAME}_interface")
 add_library ("${PROJECT_NAME}_search_lib" STATIC valik_search.cpp)
 target_link_libraries ("${PROJECT_NAME}_search_lib" PUBLIC "raptor_threshold")
 
-# Stellar search
-add_library ("stellar_diagnostics_lib" STATIC ../lib/stellar3/src/stellar/stellar.diagnostics.cpp)
-target_link_libraries ("stellar_diagnostics_lib" PUBLIC "${PROJECT_NAME}_interface")
-
 # Valik consolidate
 add_library ("${PROJECT_NAME}_consolidation_lib" STATIC valik_consolidate.cpp)
 target_link_libraries ("${PROJECT_NAME}_consolidation_lib" PUBLIC "${PROJECT_NAME}_interface")
@@ -77,7 +73,6 @@ target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_split_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_build_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_search_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "stellar_diagnostics_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_consolidation_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_consolidation_io_lib")
 

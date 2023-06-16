@@ -84,12 +84,12 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     using TSequence = seqan2::String<TAlphabet>;
     seqan2::StringSet<TSequence> databases;
     seqan2::StringSet<seqan2::CharString> databaseIDs;
+    using TSize = decltype(length(databases[0]));
+    TSize refLen;
 
     if (arguments.shared_memory)
     {
         stellar::stellar_app_runtime stellarTime{};
-        using TSize = decltype(length(databases[0]));
-        TSize refLen;
 
         for (auto bin_paths : index.bin_path())
         {
@@ -97,8 +97,8 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
             {
                 bool const databasesSuccess = stellarTime.input_databases_time.measure_time([&]()
                 {
-                    seqan3::debug_stream << path << '\n';
-                    return stellar::_importAllSequences(path.c_str(), "database", databases, databaseIDs, refLen);
+                    std::cout << "Launching stellar search on a shared memory machine...\n";
+                    return stellar::_importAllSequences(path.c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
                 });
                 if (!databasesSuccess)
                     return false;
@@ -149,8 +149,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     //!TODO: split query sequence
                     bool const queriesSuccess = stellarThreadTime.input_queries_time.measure_time([&]()
                     {
-                        seqan3::debug_stream << cart_queries_path << '\n';
-                        return stellar::_importAllSequences(cart_queries_path.c_str(), "query", queries, queryIDs, queryLen);
+                        return stellar::_importAllSequences(cart_queries_path.c_str(), "query", queries, queryIDs, queryLen, ld.text_out, ld.text_out);
                     });
                     if (!queriesSuccess)
                     {
@@ -160,10 +159,10 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
                     threadOptions.queryFile = cart_queries_path.string();
                     threadOptions.prefilteredSearch = true;
+                    threadOptions.referenceLength = refLen;
                     if (segments && ref_meta)
                     {
                         threadOptions.searchSegment = true;
-                        threadOptions.referenceLength = ref_meta-> total_len;
                         auto seg = segments->segment_from_bin(bin_id);
                         threadOptions.binSequences.emplace_back(seg.ref_ind);
                         threadOptions.segmentBegin = seg.start;
@@ -181,16 +180,21 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     threadOptions.epsilon = stellar::utils::fraction::from_double(threadOptions.numEpsilon).limit_denominator();
                     threadOptions.minLength = arguments.pattern_size;
                     threadOptions.outputFile = cart_queries_path.string() + ".gff";
-                    stellar::_writeCalculatedParams(threadOptions);   // calculate qGram length
+                    stellar::_writeFileNames(threadOptions, ld.text_out);
+                    stellar::_writeSpecifiedParams(threadOptions, ld.text_out);
+                    stellar::_writeCalculatedParams(threadOptions, ld.text_out);   // calculate qGram
+                    ld.text_out << std::endl;
+                    stellar::_writeMoreCalculatedParams(threadOptions, threadOptions.referenceLength, queries, ld.text_out);
+
 
                     auto current_time = stellarThreadTime.swift_index_construction_time.now();
                     stellar::StellarIndex<TAlphabet> stellarIndex{queries, threadOptions};
                     stellar::StellarSwiftPattern<TAlphabet> swiftPattern = stellarIndex.createSwiftPattern();
 
                     // Construct index of the queries
-                    seqan3::debug_stream << "Constructing index..." << '\n';
+                    ld.text_out << "Constructing index..." << '\n';
                     stellarIndex.construct();
-                    std::cout << std::endl;
+                    ld.text_out << std::endl;
                     stellarThreadTime.swift_index_construction_time.manual_timing(current_time);
 
                     auto databaseSegment = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
@@ -201,10 +205,11 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
                     seqan2::CharString const & databaseID = databaseIDMap.databaseID(databaseRecordID);
 
+                    //!TODO: process disabled queries
+                    std::vector<size_t> disabledQueryIDs{};
+
                     //this is shared by forward and reverse strands by mergeIn()
                     stellar::StellarOutputStatistics outputStatistics{};
-
-                    std::vector<size_t> disabledQueryIDs{};
 
                     //!TODO: reverse strand
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
@@ -229,7 +234,8 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                             forwardMatches
                         );
 
-                        //stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID, statistics);
+                        ld.text_out << std::endl; // swift filter output is on same line
+                        stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID, statistics, ld.text_out);
 
                         stellarThreadTime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
                         {
@@ -258,6 +264,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                         outputStatistics = stellar::_computeOutputStatistics(forwardMatches);
                     }); // measure_time
 
+                    stellar::_writeOutputStatistics(outputStatistics, threadOptions.verbose, false /* disabledQueriesFile.is_open() */, ld.text_out);
 
                     ld.stellarTimes.emplace_back(stellarThreadTime);
                 }
