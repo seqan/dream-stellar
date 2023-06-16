@@ -266,16 +266,17 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
                     stellar::_writeOutputStatistics(outputStatistics, threadOptions.verbose, false /* disabledQueriesFile.is_open() */, ld.text_out);
 
-                    ld.stellarTimes.emplace_back(stellarThreadTime);
+                    ld.timeStatistics.emplace_back(stellarThreadTime.milliseconds());
+                    if (arguments.write_time)
+                    {
+                        std::filesystem::path time_path =  cart_queries_path.string() + std::string(".gff.time");
+
+                        stellar::_print_stellar_app_time(stellarThreadTime, ld.text_out);
+                    }
                 }
                 else
                 {
                     std::vector<std::string> process_args{};
-                    if (arguments.write_time)
-                    {
-                        std::filesystem::path time_path =  cart_queries_path.string() + std::string(".gff.time");
-                        process_args.insert(process_args.end(), {"/usr/bin/time", "-o", std::string(time_path), "-f", "\"%e\t%M\t%x\t%C\""});
-                    }
                     process_args.insert(process_args.end(), {var_pack.stellar_exec, "--version-check", "0"});
 
                     if (segments && ref_meta)
@@ -298,6 +299,9 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                         }
                         process_args.insert(process_args.end(), {index.bin_path()[bin_id][0], std::string(cart_queries_path)});
                     }
+
+                    if (arguments.write_time)
+                        process_args.insert(process_args.end(), "--time");
 
                     process_args.insert(process_args.end(), {"-e", std::to_string(er_rate),
                                                             "-l", std::to_string(arguments.pattern_size),
@@ -356,7 +360,6 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
         time_statistics.cart_processing_times.insert(time_statistics.cart_processing_times.end(),
                                                      ld.timeStatistics.begin(), ld.timeStatistics.end());
         text_out << ld.text_out.str();
-        //!TODO: merge all stellar times
     }
 
     std::vector<std::string> merge_process_args{var_pack.merge_exec};
@@ -380,18 +383,6 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
             return error_triggered;
     };
 
-    if (arguments.write_time)
-    {
-        std::vector<std::string> merge_time_files{"cat"};
-        for (auto & path : output_files)
-            merge_time_files.push_back(path + ".time");
-        external_process merge_time(merge_time_files);
-        error_triggered = check_external_process_success(merge_time_files, merge_time);
-
-        std::ofstream time_out(arguments.out_file.string() + std::string(".time"));
-        time_out << merge_time.cout();
-    }
-
     error_triggered = check_external_process_success(merge_process_args, merge);
 
     std::ofstream matches_out(arguments.out_file);
@@ -410,7 +401,7 @@ void valik_search(search_arguments const & arguments)
         failed = run_program<seqan3::data_layout::uncompressed>(arguments, time_statistics);
 
     if (arguments.write_time)
-        write_time_statistics(time_statistics, arguments);
+        write_time_statistics(time_statistics, arguments.out_file.string() + ".time");
 
     if (failed) {
         throw std::runtime_error("valik_search failed. Run didn't complete correctly.");

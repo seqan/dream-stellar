@@ -35,10 +35,9 @@ struct search_time_statistics
     }
 };
 
-inline void write_time_statistics(search_time_statistics const & time_statistics, search_arguments const & arguments)
+inline void write_time_statistics(search_time_statistics const & time_statistics, std::string const & time_file)
 {
-    std::filesystem::path file_path{arguments.out_file};
-    file_path += ".time";
+    std::filesystem::path file_path{time_file};
     std::ofstream file_handle(file_path, std::ofstream::app);
 
     file_handle << "IBF I/O\tReads I/O\tPrefilter\tMin cart time\tAvg cart time\tMax cart time\tNr carts\n";
