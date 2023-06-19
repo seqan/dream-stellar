@@ -82,7 +82,11 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
     using TAlphabet = seqan2::Dna;
     using TSequence = seqan2::String<TAlphabet>;
+
+    // negative (reverse complemented) database strand
+    bool const reverse = true /*threadOptions.reverse && threadOptions.alphabet != "protein" && threadOptions.alphabet != "char" */;
     seqan2::StringSet<TSequence> databases;
+    seqan2::StringSet<TSequence> reverseDatabases;
     seqan2::StringSet<seqan2::CharString> databaseIDs;
     using TSize = decltype(length(databases[0]));
     TSize refLen;
@@ -104,8 +108,19 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     return false;
             }
         }
+
+        if (reverse)
+        {
+            for (auto database : databases)
+            {
+                reverseComplement(database);
+                seqan2::appendValue(reverseDatabases, database, seqan2::Generous());
+            }
+        }
     }
     stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
+    stellar::DatabaseIDMap<TAlphabet> reverseDatabaseIDMap{reverseDatabases, databaseIDs};
+
 
     auto consumerThreads = std::vector<std::jthread>{};
     for (size_t threadNbr = 0; threadNbr < arguments.threads; ++threadNbr)
@@ -158,6 +173,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                         error_triggered = true;
                     }
 
+                    threadOptions.alphabet = "dna";            // Possible values: dna, rna, protein, char
                     threadOptions.queryFile = cart_queries_path.string();
                     threadOptions.prefilteredSearch = true;
                     threadOptions.referenceLength = refLen;
@@ -198,70 +214,133 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     ld.text_out << std::endl;
                     stellarThreadTime.swift_index_construction_time.manual_timing(current_time);
 
-                    auto databaseSegment = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
-                                        (databases[threadOptions.binSequences[0]], threadOptions);
-
-                    size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
-                    seqan2::CharString const & databaseID = databaseIDMap.databaseID(databaseRecordID);
-
                     //!TODO: process disabled queries
                     std::vector<size_t> disabledQueryIDs{};
 
-                    //this is shared by forward and reverse strands by mergeIn()
                     stellar::StellarOutputStatistics outputStatistics{};
-
-                    //!TODO: reverse strand
-                    stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
+                    if (threadOptions.forward)
                     {
-                        // container for eps-matches
-                        seqan2::StringSet<stellar::QueryMatches<stellar::StellarMatch<seqan2::String<TAlphabet> const,
-                                                                                      seqan2::CharString> > > forwardMatches;
-                        seqan2::resize(forwardMatches, length(queries));
-
-                        constexpr bool databaseStrand = true;
-                        stellar::QueryIDMap<TAlphabet> queryIDMap{queries};
-
-                        stellar::StellarComputeStatistics statistics = stellar::StellarLauncher<TAlphabet>::search_and_verify
-                        (
-                            databaseSegment,
-                            databaseID,
-                            queryIDMap,
-                            databaseStrand,
-                            threadOptions,
-                            swiftPattern,
-                            stellarThreadTime.forward_strand_stellar_time.prefiltered_stellar_time,
-                            forwardMatches
-                        );
-
-                        ld.text_out << std::endl; // swift filter output is on same line
-                        stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID, statistics, ld.text_out);
-
-                        stellarThreadTime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
+                        auto databaseSegment = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
+                                               (databases[threadOptions.binSequences[0]], threadOptions);
+                        stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                         {
-                            // forwardMatches is an in-out parameter
-                            // this is the match consolidation
-                            stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
-                                                                    forwardMatches, disabledQueryIDs);
-                        }); // measure_time
+                            size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
+                            seqan2::CharString const & databaseID = databaseIDMap.databaseID(databaseRecordID);
+                            // container for eps-matches
+                            seqan2::StringSet<stellar::QueryMatches<stellar::StellarMatch<seqan2::String<TAlphabet> const,
+                                                                                        seqan2::CharString> > > forwardMatches;
+                            seqan2::resize(forwardMatches, length(queries));
 
-                        if (stellar::_shouldWriteOutputFile(databaseStrand, forwardMatches))
-                        {
-                            // open output files
-                            std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
-                            if (!outputFile.is_open())
+                            constexpr bool databaseStrand = true;
+                            stellar::QueryIDMap<TAlphabet> queryIDMap{queries};
+
+                            stellar::StellarComputeStatistics statistics = stellar::StellarLauncher<TAlphabet>::search_and_verify
+                            (
+                                databaseSegment,
+                                databaseID,
+                                queryIDMap,
+                                databaseStrand,
+                                threadOptions,
+                                swiftPattern,
+                                stellarThreadTime.forward_strand_stellar_time.prefiltered_stellar_time,
+                                forwardMatches
+                            );
+
+                            ld.text_out << std::endl; // swift filter output is on same line
+                            stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID, statistics, ld.text_out);
+
+                            stellarThreadTime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
                             {
-                                std::cerr << "Could not open output file." << std::endl;
-                                error_triggered = true;
-                            }
-                            stellarThreadTime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
-                            {
-                                // output forwardMatches on positive database strand
-                                stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, "gff", outputFile);
+                                // forwardMatches is an in-out parameter
+                                // this is the match consolidation
+                                stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                                                                        forwardMatches, disabledQueryIDs);
                             }); // measure_time
-                        }
+
+                            if (stellar::_shouldWriteOutputFile(databaseStrand, forwardMatches))
+                            {
+                                // open output files
+                                std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
+                                if (!outputFile.is_open())
+                                {
+                                    std::cerr << "Could not open output file." << std::endl;
+                                    error_triggered = true;
+                                }
+                                stellarThreadTime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+                                {
+                                    // output forwardMatches on positive database strand
+                                    stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, "gff", outputFile);
+                                }); // measure_time
+                            }
 
                         outputStatistics = stellar::_computeOutputStatistics(forwardMatches);
-                    }); // measure_time
+                        }); // measure_time
+                    }
+
+
+                    if (reverse)
+                    {
+                        TDatabaseSegment databaseSegment{};
+                        stellarThreadTime.reverse_complement_database_time.measure_time([&]()
+                        {
+                            databaseSegment = _getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
+                                              (reverseDatabases[threadOptions.binSequences[0]], threadOptions, reverse);
+                        }); // measure_time
+
+                        stellarThreadTime.reverse_strand_stellar_time.measure_time([&]()
+                        {
+                            size_t const databaseRecordID = reverseDatabaseIDMap.recordID(databaseSegment);
+                            seqan2::CharString const & databaseID = reverseDatabaseIDMap.databaseID(databaseRecordID);
+                            // container for eps-matches
+                            seqan2::StringSet<stellar::QueryMatches<stellar::StellarMatch<seqan2::String<TAlphabet> const,
+                                                                                        seqan2::CharString> > > reverseMatches;
+                            seqan2::resize(reverseMatches, length(queries));
+
+                            constexpr bool databaseStrand = false;
+                            stellar::QueryIDMap<TAlphabet> queryIDMap{queries};
+
+                            stellar::StellarComputeStatistics statistics = stellar::StellarLauncher<TAlphabet>::search_and_verify
+                            (
+                                databaseSegment,
+                                databaseID,
+                                queryIDMap,
+                                databaseStrand,
+                                threadOptions,
+                                swiftPattern,
+                                stellarThreadTime.reverse_strand_stellar_time.prefiltered_stellar_time,
+                                reverseMatches
+                            );
+
+                            ld.text_out << std::endl; // swift filter output is on same line
+                            stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID, statistics, ld.text_out);
+
+                            stellarThreadTime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
+                            {
+                                // reverseMatches is an in-out parameter
+                                // this is the match consolidation
+                                stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                                                                        reverseMatches, disabledQueryIDs);
+                            }); // measure_time
+
+                            if (stellar::_shouldWriteOutputFile(databaseStrand, reverseMatches))
+                            {
+                                // open output files
+                                std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
+                                if (!outputFile.is_open())
+                                {
+                                    std::cerr << "Could not open output file." << std::endl;
+                                    error_triggered = true;
+                                }
+                                stellarThreadTime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+                                {
+                                    // output reverseMatches on negative database strand
+                                    stellar::_writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, "gff", outputFile);
+                                }); // measure_time
+                            }
+
+                        outputStatistics.mergeIn(stellar::_computeOutputStatistics(reverseMatches));
+                        }); // measure_time
+                    }
 
                     stellar::_writeOutputStatistics(outputStatistics, threadOptions.verbose, false /* disabledQueriesFile.is_open() */, ld.text_out);
 
