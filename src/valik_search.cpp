@@ -105,6 +105,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
             }
         }
     }
+    stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
 
     auto consumerThreads = std::vector<std::jthread>{};
     for (size_t threadNbr = 0; threadNbr < arguments.threads; ++threadNbr)
@@ -200,8 +201,6 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     auto databaseSegment = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
                                         (databases[threadOptions.binSequences[0]], threadOptions);
 
-                    //!TODO: these are passed as const, could be shared by all threads
-                    stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
                     size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
                     seqan2::CharString const & databaseID = databaseIDMap.databaseID(databaseRecordID);
 
