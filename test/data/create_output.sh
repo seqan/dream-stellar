@@ -23,4 +23,10 @@ echo "### Running valik search ###"
 echo "### Running valik consolidate ###"
 ./consolidate/cli_test_output.sh
 
+export VALIK_STELLAR=stellar
+export VALIK_MERGE=cat
+
+echo "### Running DREAM-Stellar with shared memory ###"
+./dream/cli_test_output.sh
+
 echo "### Finished ###"

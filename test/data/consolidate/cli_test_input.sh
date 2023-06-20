@@ -16,21 +16,22 @@ query_file=query_e${errRate}.fasta
 
 for minLen in 50
 do
-        stellar -e $errRate -l $minLen -v --suppress-runtime-printing -o ${minLen}overlap_full.gff $ref_file $query_file > /dev/null
+        stellar -e $errRate -l $minLen -v -o ${minLen}overlap_full.gff $ref_file $query_file > /dev/null
 
         for bin in 8 16
         do
-                valik split $ref_file --reference-output ${bin}bins${minLen}overlap_reference_metadata.tsv \
-                                      --segment-output ${bin}bins${minLen}overlap_segment_metadata.tsv \
+                valik split $ref_file --ref-meta ${bin}bins${minLen}overlap_reference_metadata.tsv \
+                                      --seg-meta ${bin}bins${minLen}overlap_segment_metadata.tsv \
                                       --bins $bin --overlap $minLen
 
-                valik build --from-segments $ref_file --seg-path ${bin}bins${minLen}overlap_segment_metadata.tsv \
+                valik build --from-segments $ref_file --seg-meta ${bin}bins${minLen}overlap_segment_metadata.tsv \
                 --ref-meta ${bin}bins${minLen}overlap_reference_metadata.tsv \
                 --window 15 --kmer 13 --output ${bin}index.ibf --size 10k
 
                 errors=$(echo "($errRate*$minLen+0.5)/1;" | bc)
                 valik search --index ${bin}index.ibf --query $query_file --pattern $minLen --error $errors \
-                --output ${bin}bins${minLen}overlap_dream_all.gff --seg-path ${bin}bins${minLen}overlap_segment_metadata.tsv
+                --output ${bin}bins${minLen}overlap_dream_all.gff --ref-meta ${bin}bins${minLen}overlap_reference_metadata.tsv \
+                --seg-meta ${bin}bins${minLen}overlap_segment_metadata.tsv
 
                 rm ${bin}index.ibf
                 rm ${bin}bins${minLen}overlap_segment_metadata.tsv
