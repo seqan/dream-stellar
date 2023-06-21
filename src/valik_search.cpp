@@ -257,21 +257,18 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                                                                         forwardMatches, disabledQueryIDs);
                             }); // measure_time
 
-                            if (stellar::_shouldWriteOutputFile(databaseStrand, forwardMatches))
+                            // open output files
+                            std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
+                            if (!outputFile.is_open())
                             {
-                                // open output files
-                                std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
-                                if (!outputFile.is_open())
-                                {
-                                    std::cerr << "Could not open output file." << std::endl;
-                                    error_triggered = true;
-                                }
-                                stellarThreadTime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
-                                {
-                                    // output forwardMatches on positive database strand
-                                    stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, "gff", outputFile);
-                                }); // measure_time
+                                std::cerr << "Could not open output file." << std::endl;
+                                error_triggered = true;
                             }
+                            stellarThreadTime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+                            {
+                                // output forwardMatches on positive database strand
+                                stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, "gff", outputFile);
+                            }); // measure_time
 
                         outputStatistics = stellar::_computeOutputStatistics(forwardMatches);
                         }); // measure_time
@@ -322,21 +319,18 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                                                                         reverseMatches, disabledQueryIDs);
                             }); // measure_time
 
-                            if (stellar::_shouldWriteOutputFile(databaseStrand, reverseMatches))
+                            // open output files
+                            std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::app);
+                            if (!outputFile.is_open())
                             {
-                                // open output files
-                                std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
-                                if (!outputFile.is_open())
-                                {
-                                    std::cerr << "Could not open output file." << std::endl;
-                                    error_triggered = true;
-                                }
-                                stellarThreadTime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
-                                {
-                                    // output reverseMatches on negative database strand
-                                    stellar::_writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, "gff", outputFile);
-                                }); // measure_time
+                                std::cerr << "Could not open output file." << std::endl;
+                                error_triggered = true;
                             }
+                            stellarThreadTime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+                            {
+                                // output reverseMatches on negative database strand
+                                stellar::_writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, "gff", outputFile);
+                            }); // measure_time
 
                         outputStatistics.mergeIn(stellar::_computeOutputStatistics(reverseMatches));
                         }); // measure_time
