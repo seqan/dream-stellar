@@ -440,9 +440,20 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
         text_out << ld.text_out.str();
     }
 
-    std::vector<std::string> merge_process_args{var_pack.merge_exec};
-    for (auto & path : output_files)
-        merge_process_args.push_back(path);
+    std::vector<std::string> merge_process_args;
+    if (output_files.size() > 0)
+    {
+        merge_process_args.push_back(var_pack.merge_exec);
+        for (auto & path : output_files)
+            merge_process_args.push_back(path);
+    }
+    else
+    {
+        //!WORKAROUND: merge hangs if no valik matches found
+        merge_process_args.push_back("echo");
+        merge_process_args.push_back("-n");
+    }
+
     external_process merge(merge_process_args);
 
     auto check_external_process_success = [&](std::vector<std::string> const & proc_args, external_process const & proc)

@@ -45,11 +45,17 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
                 << std::setprecision(2)
                 << time_statistics.index_io_time << '\t'
                 << time_statistics.reads_io_time << '\t'
-                << time_statistics.prefilter_time << '\t'
-                << time_statistics.get_cart_min() << '\t'
-                << time_statistics.get_cart_avg() << '\t'
-                << time_statistics.get_cart_max() << '\t'
-                << time_statistics.cart_processing_times.size() << '\n';
+                << time_statistics.prefilter_time << '\t';
+    if (!time_statistics.cart_processing_times.empty())
+    {
+        file_handle << std::fixed
+                    << std::setprecision(2)
+                    << time_statistics.get_cart_min() << '\t'
+                    << time_statistics.get_cart_avg() << '\t'
+                    << time_statistics.get_cart_max() << '\t'
+                    << time_statistics.cart_processing_times.size() << '\n';
+
+    }
 
 }
 
