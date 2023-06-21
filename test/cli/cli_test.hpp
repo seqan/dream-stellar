@@ -193,6 +193,20 @@ struct valik_base : public cli_test
         return cli_test::data(name);
     }
 
+    static std::filesystem::path search_result_path(size_t const number_of_bins, size_t const window_size,
+                                                    size_t const number_of_errors) noexcept
+    {
+        std::string name{};
+        name += std::to_string(number_of_bins);
+        name += "bins";
+        name += std::to_string(window_size);
+        name += "window";
+        name += std::to_string(number_of_errors);
+        name += "error";
+        name += ".gff";
+        return cli_test::data(name);
+    }
+
     static std::string string_from_file(std::filesystem::path const & path, std::ios_base::openmode const mode = std::ios_base::in)
     {
         std::ifstream file_stream(path, mode);
@@ -539,4 +553,5 @@ struct valik_search_clusters : public valik_base, public testing::WithParamInter
     size_t, size_t>> {};
 struct valik_search_segments : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t, size_t,
     size_t, size_t>> {};
+struct dream_search : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
 struct valik_consolidate : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
