@@ -17,15 +17,20 @@ TEST_P(dream_search, shared_mem)
     setup_tmp_dir();
     setenv("VALIK_MERGE", "cat", true);
 
+    std::filesystem::path ref_meta_path = data("ref_meta.txt");
+    valik::reference_metadata reference(ref_meta_path, false);
+    std::filesystem::path seg_meta_path = data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt");
+    std::filesystem::path index_path = ibf_path(number_of_bins, window_size);
+
     cli_test_result const build = execute_app("valik", "build",
                                                         data("ref.fasta"),
                                                         "--window", std::to_string(window_size),
                                                         "--kmer 13",
                                                         "--size 32k",
                                                         "--from-segments",
-                                                        "--ref-meta", data("ref_meta.txt"),
-                                                        "--seg-meta", data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt"),
-                                                        "--output ", ibf_path(number_of_bins, window_size));
+                                                        "--ref-meta", ref_meta_path,
+                                                        "--seg-meta", seg_meta_path,
+                                                        "--output ", index_path);
 
     cli_test_result const result = execute_app("valik", "search",
                                                         "--shared-memory",
@@ -33,18 +38,18 @@ TEST_P(dream_search, shared_mem)
                                                         "--pattern 50",
                                                         "--overlap 49",
                                                         "--error ", std::to_string(number_of_errors),
-                                                        "--index ", ibf_path(number_of_bins, window_size),
+                                                        "--index ", index_path,
                                                         "--query ", data("query.fastq"),
-                                                        "--ref-meta", data("ref_meta.txt"),
-                                                        "--seg-meta", data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt"));
+                                                        "--ref-meta", ref_meta_path,
+                                                        "--seg-meta", seg_meta_path);
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 3 database sequences.\n"});
     EXPECT_EQ(result.err, std::string{});
 
-    auto expected = string_list_from_file(search_result_path(number_of_bins, window_size, number_of_errors), std::ios::binary);
-    auto actual = string_list_from_file("search.gff");
+    auto distributed = valik::read_stellar_output(search_result_path(number_of_bins, window_size, number_of_errors), reference, std::ios::binary);
+    auto local = valik::read_stellar_output("search.gff", reference);
 
-    EXPECT_EQ(expected.size(), actual.size());
+    compare_gff_out(distributed, local);
 }
 
 INSTANTIATE_TEST_SUITE_P(shared_memory_dream_suite,

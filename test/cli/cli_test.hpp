@@ -532,17 +532,25 @@ struct valik_base : public cli_test
         return cli_test::data(name);
     }
 
-    static void compare_consolidation_out(std::vector<valik::stellar_match> const & expected,
-                                                std::vector<valik::stellar_match> const & actual)
+    static void compare_gff_out(std::vector<valik::stellar_match> const & expected,
+                                std::vector<valik::stellar_match> const & actual)
     {
         EXPECT_EQ(expected.size(), actual.size());
+        size_t not_actually_found{0};
         for (auto & match : expected)
         {
             auto it = std::find(actual.begin(), actual.end(), match);
-            EXPECT_TRUE(it != actual.end());
+            if (it == actual.end())
+            {
+                not_actually_found++;
+                seqan3::debug_stream << match.to_string();
+            }
+
             // EXPECT_EQ(match.percid, (*it).percid);
             // EXPECT_EQ(match.attributes, (*it).attributes);
         }
+
+        EXPECT_EQ(not_actually_found, 0);
     }
 };
 

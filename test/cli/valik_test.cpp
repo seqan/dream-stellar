@@ -254,7 +254,7 @@ TEST_P(valik_consolidate, consolidation)
     auto expected = valik::read_stellar_output(stellar_gold_path(segment_overlap), reference, std::ios::binary);
     auto actual = valik::read_stellar_output("consolidated.gff", reference);
 
-    compare_consolidation_out(expected, actual);
+    compare_gff_out(expected, actual);
 }
 
 INSTANTIATE_TEST_SUITE_P(consolidation_suite,

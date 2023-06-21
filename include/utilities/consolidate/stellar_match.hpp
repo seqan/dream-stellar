@@ -64,7 +64,7 @@ struct stellar_match
         }
     }
 
-    std::string to_string()
+    std::string to_string() const
     {
         std::string match_str = dname;
         match_str += "\tStellar\teps-matches\t";

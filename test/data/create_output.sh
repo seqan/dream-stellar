@@ -26,7 +26,7 @@ echo "### Running valik consolidate ###"
 export VALIK_STELLAR=stellar
 export VALIK_MERGE=cat
 
-echo "### Running DREAM-Stellar with shared memory ###"
+echo "### Running distributed DREAM-Stellar ###"
 ./dream/cli_test_output.sh
 
 echo "### Finished ###"

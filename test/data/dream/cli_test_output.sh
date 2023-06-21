@@ -40,12 +40,17 @@ do
         for e in 1
         do
             echo "Searching IBF with $e errors"
-            search_out=$b"bins"$w"window"$e"error.gff"
-            valik search --index "$index" --query "$query" --output "$search_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
+            dist_out=$b"bins"$w"window"$e"error.gff"
+            local_out="local"$b"bins"$w"window"$e"error.gff"
+            valik search --index "$index" --query "$query" --output "$dist_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
+            #valik search --shared-memory --index "$index" --query "$query" --output "$local_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
         done
 
         rm $VALIK_TMP/*
     done
 done
+
+#stellar_out="stellar.gff"
+#stellar ref.fasta query.fasta -e 0.02 -l 50 -o $stellar_out
 
 rm -r $VALIK_TMP
