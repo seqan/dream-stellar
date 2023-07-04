@@ -6,67 +6,66 @@
 namespace valik::app
 {
 
-void init_build_parser(seqan3::argument_parser & parser, build_arguments & arguments)
+void init_build_parser(sharg::parser & parser, build_arguments & arguments)
 {
     init_shared_meta(parser);
-    init_shared_options(parser, arguments);
     parser.add_positional_option(arguments.bin_file,
-                                 "File containing one file per line per bin when building from clustered sequences. "
-                                 "Input sequence file when building from overlapping segments.",
-                                 seqan3::input_file_validator{});
+                                 sharg::config{.description = "File containing one file per line per bin when building from clustered sequences. "
+                                                              "Input sequence file when building from overlapping segments.",
+                                 .validator = sharg::input_file_validator{}});
     parser.add_option(arguments.window_size,
-                      '\0',
-                      "window",
-                      "Choose the window size.",
-                      seqan3::option_spec::standard,
-                      positive_integer_validator{});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "window",
+                      .description = "Choose the window size.",
+                      .validator = positive_integer_validator{}});
     parser.add_option(arguments.kmer_size,
-                      '\0',
-                      "kmer",
-                      "Choose the kmer size.",
-                      seqan3::option_spec::standard,
-                      seqan3::arithmetic_range_validator{1, 32});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "kmer",
+                      .description = "Choose the kmer size.",
+                      .validator = sharg::arithmetic_range_validator{1, 32}});
     parser.add_option(arguments.out_path,
-                      '\0',
-                      "output",
-                      "Provide an output filepath.",
-                      seqan3::option_spec::required);
+                      sharg::config{.short_id = '\0',
+                      .long_id = "output",
+                      .description = "Provide an output filepath.",
+                      .required = true,
+                      .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {}}});
     parser.add_option(arguments.size,
-                      '\0',
-                      "size",
-                      "Choose the size of the resulting IBF.",
-                      seqan3::option_spec::required,
-                      size_validator{"\\d+\\s{0,1}[k,m,g,t,K,M,G,T]"});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "size",
+                      .description = "Choose the size of the resulting IBF.",
+                      .required = true,
+                      .validator = size_validator{"\\d+\\s{0,1}[k,m,g,t,K,M,G,T]"}});
     parser.add_option(arguments.hash,
-                      '\0',
-                      "hash",
-                      "Choose the number of hashes.",
-                      seqan3::option_spec::standard,
-                      seqan3::arithmetic_range_validator{1, 5});
+                      sharg::config{.short_id = '\0',
+                      .long_id = "hash",
+                      .description = "Choose the number of hashes.",
+                      .validator = sharg::arithmetic_range_validator{1, 5}});
     parser.add_flag(arguments.compressed,
-                    '\0',
-                    "compressed",
-                    "Build a compressed IBF.");
+                    sharg::config{.short_id = '\0',
+                    .long_id = "compressed",
+                    .description = "Build a compressed IBF."});
     parser.add_flag(arguments.from_segments,
-                    '\0',
-                    "from-segments",
-                    "Creates IBF from split reference database instead of reference clusters.",
-                    seqan3::option_spec::standard);
+                    sharg::config{.short_id = '\0',
+                    .long_id = "from-segments",
+                    .description = "Creates IBF from split reference database instead of reference clusters."});
     parser.add_option(arguments.seg_path,
-                    '\0',
-                    "seg-meta",
-                    "Path to segment metadata file created by split.",
-                    seqan3::option_spec::standard,
-                    seqan3::input_file_validator{});
+                    sharg::config{.short_id = '\0',
+                    .long_id = "seg-meta",
+                    .description = "Path to segment metadata file created by split.",
+                    .validator = sharg::input_file_validator{}});
     parser.add_option(arguments.ref_meta_path,
-                    '\0',
-                    "ref-meta",
-                    "Path to reference metadata file created by split.",
-                    seqan3::option_spec::standard,
-                    seqan3::input_file_validator{});
+                    sharg::config{.short_id = '\0',
+                    .long_id = "ref-meta",
+                    .description = "Path to reference metadata file created by split.",
+                    .validator = sharg::input_file_validator{}});
+    parser.add_option(arguments.threads,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "threads",
+                    .description = "Choose the number of threads.",
+                    .validator = positive_integer_validator{}});
 }
 
-void run_build(seqan3::argument_parser & parser)
+void run_build(sharg::parser & parser)
 {
     build_arguments arguments{};
     init_build_parser(parser, arguments);
@@ -114,16 +113,16 @@ void run_build(seqan3::argument_parser & parser)
     if (parser.is_option_set("window"))
     {
         if (arguments.kmer_size > arguments.window_size)
-            throw seqan3::argument_parser_error{"The k-mer size cannot be bigger than the window size."};
+            throw sharg::parser_error{"The k-mer size cannot be bigger than the window size."};
     }
     else
         arguments.window_size = arguments.shape.size();
 
     try
     {
-        seqan3::output_file_validator{seqan3::output_file_open_options::open_or_create}(arguments.out_path);
+        sharg::output_file_validator{sharg::output_file_open_options::open_or_create}(arguments.out_path);
     }
-    catch (seqan3::argument_parser_error const & ext)
+    catch (sharg::parser_error const & ext)
     {
         std::cerr << "[Error] " << ext.what() << '\n';
         std::exit(-1);
@@ -151,7 +150,7 @@ void run_build(seqan3::argument_parser & parser)
             multiplier = 8ull * 1024ull;
             break;
         default:
-            throw seqan3::argument_parser_error{"Use {k, m, g, t} to pass size. E.g., --size 8g."};
+            throw sharg::parser_error{"Use {k, m, g, t} to pass size. E.g., --size 8g."};
     }
 
     size_t size{};

@@ -4,30 +4,29 @@
 namespace valik::app
 {
 
-void init_consolidation_parser(seqan3::argument_parser & parser, consolidation_arguments & arguments)
+void init_consolidation_parser(sharg::parser & parser, consolidation_arguments & arguments)
 {
     init_shared_meta(parser);
     parser.add_option(arguments.matches_in,
-                      'i',
-                      "input",
-                      "DREAM Stellar matches.",
-                      seqan3::option_spec::required,
-                      seqan3::input_file_validator{{"gff"}});
+                      sharg::config{.short_id = 'i',
+                      .long_id = "input",
+                      .description = "DREAM Stellar matches.",
+                      .required = true,
+                      .validator = sharg::input_file_validator{{"gff"}}});
     parser.add_option(arguments.ref_meta_path,
-                    '\0',
-                    "ref-meta",
-                    "Path to reference metadata file created by split.",
-                    seqan3::option_spec::standard,
-                    seqan3::input_file_validator{});
+                    sharg::config{.short_id = '\0',
+                    .long_id = "ref-meta",
+                    .description = "Path to reference metadata file created by split.",
+                    .validator = sharg::input_file_validator{}});
     parser.add_option(arguments.matches_out,
-                      'o',
-                      "output",
-                      "Consolidated output.",
-                      seqan3::option_spec::required,
-                      seqan3::output_file_validator{seqan3::output_file_open_options::open_or_create, {"gff"}});
+                      sharg::config{.short_id = 'o',
+                      .long_id = "output",
+                      .description = "Consolidated output.",
+                      .required = true,
+                      .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {"gff"}}});
 }
 
-void run_consolidation(seqan3::argument_parser & parser)
+void run_consolidation(sharg::parser & parser)
 {
     consolidation_arguments arguments{};
     init_consolidation_parser(parser, arguments);

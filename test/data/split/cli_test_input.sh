@@ -43,6 +43,7 @@ generate_local_matches \
     --min-match-length $read_length \
     --max-match-length $read_length \
     --verbose-ids \
+    --ref-len $ref_len \
     --seed $SEED \
     $ref_out
 

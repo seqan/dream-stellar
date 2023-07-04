@@ -39,4 +39,6 @@ done
 
 ./search/cli_test_input.sh $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
 
+./dream/cli_test_input.sh $SEED
+
 ./consolidate/cli_test_input.sh

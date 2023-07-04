@@ -5,6 +5,6 @@
 namespace valik::app
 {
 
-void init_top_level_parser(seqan3::argument_parser & parser);
+void init_top_level_parser(sharg::parser & parser);
 
 } // namespace valik::app

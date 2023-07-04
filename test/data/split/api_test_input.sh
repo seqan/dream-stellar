@@ -26,6 +26,6 @@ do
         cat chr*.fasta > ${out_dir}/ref.fasta
         rm chr*.fasta
 
-        valik split ${out_dir}/ref.fasta --overlap ${overlap} --bins ${bins} --reference-output ${out_dir}/reference_metadata.txt --segment-output ${out_dir}/reference_segments.txt
+        valik split ${out_dir}/ref.fasta --overlap ${overlap} --bins ${bins} --ref-meta ${out_dir}/reference_metadata.txt --seg-meta ${out_dir}/reference_segments.txt
     done
 done

@@ -6,8 +6,11 @@ cmake_minimum_required (VERSION 3.16)
 # Shared interface_
 add_library ("${PROJECT_NAME}_interface" INTERFACE)
 target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE seqan3::seqan3)
+target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE sharg::sharg)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/raptor/include)
+target_include_directories ("${PROJECT_NAME}_interface" SYSTEM INTERFACE ../lib/stellar3/include)
+target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/seqan/include)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/robin-hood-hashing/src/include)
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
 
@@ -29,6 +32,7 @@ add_library ("raptor_threshold" STATIC
              ../lib/raptor/src/threshold/precompute_threshold.cpp
 )
 target_link_libraries ("raptor_threshold" PUBLIC "${PROJECT_NAME}_interface")
+
 add_library ("${PROJECT_NAME}_search_lib" STATIC valik_search.cpp)
 target_link_libraries ("${PROJECT_NAME}_search_lib" PUBLIC "raptor_threshold")
 

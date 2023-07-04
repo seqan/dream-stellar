@@ -13,12 +13,12 @@ int main(int argc, char ** argv)
 {
     try
     {
-        seqan3::argument_parser top_level_parser{"valik", argc, argv, seqan3::update_notifications::on, {"split", "build", "search", "consolidate"}};
+        sharg::parser top_level_parser{"valik", argc, argv, sharg::update_notifications::off, {"split", "build", "search", "consolidate"}};
         valik::app::init_top_level_parser(top_level_parser);
 
         valik::app::try_parsing(top_level_parser);
 
-        seqan3::argument_parser & sub_parser = top_level_parser.get_sub_parser();
+        sharg::parser & sub_parser = top_level_parser.get_sub_parser();
         if (sub_parser.info.app_name == std::string_view{"valik-split"})
             valik::app::run_split(sub_parser);
         if (sub_parser.info.app_name == std::string_view{"valik-build"})

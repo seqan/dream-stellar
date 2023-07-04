@@ -11,3 +11,12 @@
 [submodule "lib/raptor_data_simulation"]
 	path = lib/raptor_data_simulation
 	url = git@github.com:eaasna/raptor_data_simulation.git
+[submodule "lib/stellar3"]
+	path = lib/stellar3
+	url = git@github.com:seqan/stellar3.git
+[submodule "lib/seqan"]
+	path = lib/seqan
+	url = git@github.com:seqan/seqan.git
+[submodule "lib/sharg"]
+	path = lib/sharg
+	url = https://github.com/seqan/sharg-parser.git

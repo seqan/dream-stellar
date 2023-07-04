@@ -35,10 +35,9 @@ struct search_time_statistics
     }
 };
 
-inline void write_time_statistics(search_time_statistics const & time_statistics, search_arguments const & arguments)
+inline void write_time_statistics(search_time_statistics const & time_statistics, std::string const & time_file)
 {
-    std::filesystem::path file_path{arguments.out_file};
-    file_path += ".time";
+    std::filesystem::path file_path{time_file};
     std::ofstream file_handle(file_path, std::ofstream::app);
 
     file_handle << "IBF I/O\tReads I/O\tPrefilter\tMin cart time\tAvg cart time\tMax cart time\tNr carts\n";
@@ -46,11 +45,15 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
                 << std::setprecision(2)
                 << time_statistics.index_io_time << '\t'
                 << time_statistics.reads_io_time << '\t'
-                << time_statistics.prefilter_time << '\t'
-                << time_statistics.get_cart_min() << '\t'
-                << time_statistics.get_cart_avg() << '\t'
-                << time_statistics.get_cart_max() << '\t'
-                << time_statistics.cart_processing_times.size() << '\n';
+                << time_statistics.prefilter_time << '\t';
+    if (!time_statistics.cart_processing_times.empty())
+    {
+        file_handle << time_statistics.get_cart_min() << '\t'
+                    << time_statistics.get_cart_avg() << '\t'
+                    << time_statistics.get_cart_max() << '\t'
+                    << time_statistics.cart_processing_times.size() << '\n';
+
+    }
 
 }
 

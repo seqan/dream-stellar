@@ -3,7 +3,7 @@
 namespace valik::app
 {
 
-void init_top_level_parser(seqan3::argument_parser & parser)
+void init_top_level_parser(sharg::parser & parser)
 {
     init_shared_meta(parser);
     parser.info.description.emplace_back("Binning Directories are a datastruture that can be used in various ways. "

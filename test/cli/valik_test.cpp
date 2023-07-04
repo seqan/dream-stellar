@@ -103,6 +103,7 @@ TEST_P(valik_build_segments, build_from_segments)
     std::string ref_meta_path = cli_test::data("reference_metadata.txt");
     std::string seg_meta_path = cli_test::data(std::to_string(overlap) + "overlap" + std::to_string(number_of_bins) + "bins.txt");
 
+    //!TODO: the paths in the index are not data(path.fasta) so the file can't be opened by stellar (only a testing issue)
     cli_test_result const result = execute_app("valik", "build",
                                                          "--kmer 13",
                                                          "--window ", std::to_string(window_size),
@@ -253,7 +254,7 @@ TEST_P(valik_consolidate, consolidation)
     auto expected = valik::read_stellar_output(stellar_gold_path(segment_overlap), reference, std::ios::binary);
     auto actual = valik::read_stellar_output("consolidated.gff", reference);
 
-    compare_consolidation_out(expected, actual);
+    compare_gff_out(expected, actual);
 }
 
 INSTANTIATE_TEST_SUITE_P(consolidation_suite,
