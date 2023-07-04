@@ -48,9 +48,7 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
                 << time_statistics.prefilter_time << '\t';
     if (!time_statistics.cart_processing_times.empty())
     {
-        file_handle << std::fixed
-                    << std::setprecision(2)
-                    << time_statistics.get_cart_min() << '\t'
+        file_handle << time_statistics.get_cart_min() << '\t'
                     << time_statistics.get_cart_avg() << '\t'
                     << time_statistics.get_cart_max() << '\t'
                     << time_statistics.cart_processing_times.size() << '\n';

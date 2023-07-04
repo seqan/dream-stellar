@@ -39,7 +39,7 @@ include (seqan3_require_ccache)
 seqan3_require_ccache ()
 
 # Dependency: Sharg.
-find_package (Sharg REQUIRED HINTS lib/sharg/build_system)
+find_package (Sharg REQUIRED PATHS lib/sharg/build_system)
 
 # Add the application.
 add_subdirectory (src)
