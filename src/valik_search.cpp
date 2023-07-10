@@ -349,7 +349,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                 else
                 {
                     std::vector<std::string> process_args{};
-                    process_args.insert(process_args.end(), {var_pack.stellar_exec, "--version-check", "0"});
+                    process_args.insert(process_args.end(), {var_pack.stellar_exec, "--version-check", "0", "-a", "dna"});
 
                     if (segments && ref_meta)
                     {
