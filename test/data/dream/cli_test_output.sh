@@ -41,7 +41,7 @@ do
         do
             echo "Searching IBF with $e errors"
             dist_out=$b"bins"$w"window"$e"error.gff"
-            local_out="local"$b"bins"$w"window"$e"error.gff"
+            #local_out="local"$b"bins"$w"window"$e"error.gff"
             valik search --index "$index" --query "$query" --output "$dist_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
             #valik search --shared-memory --index "$index" --query "$query" --output "$local_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
         done
