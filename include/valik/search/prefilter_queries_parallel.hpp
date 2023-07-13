@@ -36,10 +36,6 @@ inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data
 
         std::span<query_record const> records_slice{&records[start], &records[end]};
 
-        /** This lambda writes the bin_hits into a file
-         *
-         * Caution, it creates a `result_string` of type `std::string` which it reuses for more efficiency
-         */
         auto result_cb = [&queue](query_record const& record, std::unordered_set<size_t> const& bin_hits)
         {
             for (size_t const bin : bin_hits)
