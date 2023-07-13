@@ -127,13 +127,26 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     // negative (reverse complemented) database strand
     bool const reverse = true /*threadOptions.reverse && threadOptions.alphabet != "protein" && threadOptions.alphabet != "char" */;
     seqan2::StringSet<TSequence> databases;
+    using TSize = decltype(length(databases[0]));
     seqan2::StringSet<TSequence> reverseDatabases;
     seqan2::StringSet<seqan2::CharString> databaseIDs;
-    using TSize = decltype(length(databases[0]));
+    std::ofstream disabledQueriesFile;
     TSize refLen;
 
     if (arguments.shared_memory)
     {
+        if (arguments.disableThresh != std::numeric_limits<size_t>::max())
+        {
+            std::filesystem::path disabledPath = arguments.out_file;
+            disabledPath.replace_extension(".disabled.fa");
+            disabledQueriesFile.open(((std::string) disabledPath).c_str(), ::std::ios_base::out | ::std::ios_base::app);
+            if (!disabledQueriesFile.is_open())
+            {
+                std::cerr << "Could not open file for disabled queries." << std::endl;
+                return false;
+            }
+        }
+
         stellar::stellar_runtime input_databases_time{};
         for (auto bin_paths : index.bin_path())
         {
@@ -218,6 +231,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     threadOptions.numEpsilon = er_rate;
                     threadOptions.epsilon = stellar::utils::fraction::from_double(threadOptions.numEpsilon).limit_denominator();
                     threadOptions.minLength = arguments.pattern_size;
+                    threadOptions.disableThresh = arguments.disableThresh;
                     threadOptions.outputFile = cart_queries_path.string() + ".gff";
                     stellar::_writeFileNames(threadOptions, ld.text_out);
                     stellar::_writeSpecifiedParams(threadOptions, ld.text_out);
@@ -236,7 +250,6 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     ld.text_out << std::endl;
                     stellarThreadTime.swift_index_construction_time.manual_timing(current_time);
 
-                    //!TODO: process disabled queries
                     std::vector<size_t> disabledQueryIDs{};
 
                     stellar::StellarOutputStatistics outputStatistics{};
@@ -358,7 +371,17 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                         }); // measure_time
                     }
 
-                    stellar::_writeOutputStatistics(outputStatistics, threadOptions.verbose, false /* disabledQueriesFile.is_open() */, ld.text_out);
+                    // Writes disabled query sequences to disabledFile.
+                    if (disabledQueriesFile.is_open())
+                    {
+                        stellarThreadTime.output_disabled_queries_time.measure_time([&]()
+                        {
+                            // write disabled query file
+                            stellar::_writeDisabledQueriesToFastaFile(disabledQueryIDs, queryIDs, queries, disabledQueriesFile);
+                        }); // measure_time
+                    }
+
+                    stellar::_writeOutputStatistics(outputStatistics, threadOptions.verbose, disabledQueriesFile.is_open(), ld.text_out);
 
                     ld.timeStatistics.emplace_back(stellarThreadTime.milliseconds());
                     if (arguments.write_time)

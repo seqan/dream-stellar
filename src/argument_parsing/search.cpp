@@ -101,6 +101,12 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "threads",
                     .description = "Choose the number of threads.",
                     .validator = positive_integer_validator{}});
+    parser.add_option(arguments.disableThresh,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "disableThresh",
+                    .description = "Maximal number of verified matches before disabling verification for one query sequence.",
+                    .advanced = true,
+                    .validator = sharg::arithmetic_range_validator{1, 10000}});
 
     /////////////////////////////////////////
     // Stellar options
@@ -138,11 +144,6 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                                 .long_id = "verification",
                                 .description = "Verification strategy: exact or bestLocal or bandedGlobal.",
                                 .validator = sharg::value_list_validator{"exact", "bestLocal", "bandedGlobal", "bandedGlobalExtend"}});
-    parser.add_option(options.disableThresh,
-                sharg::config{.short_id = '\0',
-                                .long_id = "disableThresh",
-                                .description = "Maximal number of verified matches before disabling verification for one query sequence (default infinity).",
-                                .validator = sharg::arithmetic_range_validator{1, 10000}});
     parser.add_option(options.numMatches,
                 sharg::config{.short_id = 'n',
                                 .long_id = "numMatches",
@@ -151,12 +152,6 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                 sharg::config{.short_id = 's',
                                 .long_id = "sortThresh",
                                 .description = "Number of matches triggering removal of duplicates. Choose a smaller value for saving space."});
-
-    parser.add_option(options.disabledQueriesFile,
-                sharg::config{.short_id = '\0',
-                                .long_id = "disabledQueriesFile",
-                                .description = "Name of output file for disabled query sequences.",
-                                .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {"fa", "fasta"}}});
     */
 }
 
