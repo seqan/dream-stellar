@@ -134,14 +134,12 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
     if (arguments.shared_memory)
     {
-        //!TODO: add this to runtime output
-        stellar::stellar_app_runtime stellarTime{};
-
+        stellar::stellar_runtime input_databases_time{};
         for (auto bin_paths : index.bin_path())
         {
             for (auto path : bin_paths)
             {
-                bool const databasesSuccess = stellarTime.input_databases_time.measure_time([&]()
+                bool const databasesSuccess = input_databases_time.measure_time([&]()
                 {
                     std::cout << "Launching stellar search on a shared memory machine...\n";
                     return stellar::_importAllSequences(path.c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
@@ -159,6 +157,8 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                 seqan2::appendValue(reverseDatabases, database, seqan2::Generous());
             }
         }
+
+        time_statistics.ref_io_time += input_databases_time.milliseconds() / 1000;
     }
     stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
     stellar::DatabaseIDMap<TAlphabet> reverseDatabaseIDMap{reverseDatabases, databaseIDs};
