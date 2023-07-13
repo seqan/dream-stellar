@@ -9,6 +9,7 @@ namespace valik::app
 
 struct search_time_statistics
 {
+    double ref_io_time{0.0};
     double index_io_time{0.0};
     std::vector<double> cart_processing_times;
     double reads_io_time{0.0};
@@ -40,9 +41,10 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
     std::filesystem::path file_path{time_file};
     std::ofstream file_handle(file_path, std::ofstream::app);
 
-    file_handle << "IBF I/O\tReads I/O\tPrefilter\tMin cart time\tAvg cart time\tMax cart time\tNr carts\n";
+    file_handle << "Ref I/O\tIBF I/O\tReads I/O\tPrefilter\tMin cart time\tAvg cart time\tMax cart time\tNr carts\n";
     file_handle << std::fixed
                 << std::setprecision(2)
+                << time_statistics.ref_io_time << '\t'
                 << time_statistics.index_io_time << '\t'
                 << time_statistics.reads_io_time << '\t'
                 << time_statistics.prefilter_time << '\t';
