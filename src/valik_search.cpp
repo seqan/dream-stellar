@@ -24,6 +24,51 @@
 namespace valik::app
 {
 
+using fields = seqan3::fields<seqan3::field::id, seqan3::field::seq>;
+using types = seqan3::type_list<std::string, std::vector<seqan3::dna4>>;
+using sequence_record_type = seqan3::sequence_record<types, fields>;
+
+template <typename rec_vec_t, typename TSequence, typename TId, typename TStream>
+inline bool get_cart_queries(rec_vec_t & records,
+                             seqan2::StringSet<TSequence> & seqs,
+                             seqan2::StringSet<TId> & ids,
+                             TStream & strOut,
+                             TStream & strErr)
+{
+    std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
+    bool idsUnique = true;
+
+    size_t seqCount{0};
+    for (auto & record : records)
+    {
+        TSequence seq;
+        for (auto c : record.sequence)
+            seq += c.to_char();
+
+        seqan2::appendValue(seqs, seq, seqan2::Generous());
+        seqan2::appendValue(ids, (seqan2::String<char>) record.sequence_id, seqan2::Generous());
+        seqCount++;
+        idsUnique &= stellar::_checkUniqueId(uniqueIds, (seqan2::String<char>) record.sequence_id);
+    }
+
+    strOut << "Loaded " << seqCount << " query sequence" << ((seqCount > 1) ? "s." : ".") << std::endl;
+    if (!idsUnique)
+        strErr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
+    return true;
+}
+
+template <typename rec_vec_t>
+void write_cart_queries(rec_vec_t & records, std::filesystem::path const & cart_queries_path)
+{
+    seqan3::sequence_file_output fout{cart_queries_path, fields{}};
+
+    for (auto & record : records)
+    {
+        sequence_record_type sequence_record{std::move(record.sequence_id), std::move(record.sequence)};
+        fout.push_back(sequence_record);
+    }
+}
+
 //-----------------------------
 //
 // Setup IBF and launch multithreaded search.
@@ -43,10 +88,6 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
         auto end = std::chrono::high_resolution_clock::now();
         time_statistics.index_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
-
-    using fields = seqan3::fields<seqan3::field::id, seqan3::field::seq>;
-    using types = seqan3::type_list<std::string, std::vector<seqan3::dna4>>;
-    using sequence_record_type = seqan3::sequence_record<types, fields>;
 
     seqan3::sequence_file_input<dna4_traits, fields> fin{arguments.query_file};
     std::vector<query_record> query_records{};
@@ -93,6 +134,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
     if (arguments.shared_memory)
     {
+        //!TODO: add this to runtime output
         stellar::stellar_app_runtime stellarTime{};
 
         for (auto bin_paths : index.bin_path())
@@ -140,16 +182,6 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
 
                 ld.output_files.push_back(cart_queries_path.string() + ".gff");
 
-                {
-                    seqan3::sequence_file_output fout{cart_queries_path, fields{}};
-
-                    for (auto & record : records)
-                    {
-                        sequence_record_type sequence_record{std::move(record.sequence_id), std::move(record.sequence)};
-                        fout.push_back(sequence_record);
-                    }
-                }
-
                 if (arguments.shared_memory)
                 {
                     stellar::StellarOptions threadOptions{};
@@ -159,19 +191,9 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     // import query sequences
                     seqan2::StringSet<TSequence> queries;
                     seqan2::StringSet<seqan2::CharString> queryIDs;
-
-                    using TSize = decltype(length(queries[0]));
-                    TSize queryLen{0};   // does not get populated currently
                     //!TODO: split query sequence
-                    bool const queriesSuccess = stellarThreadTime.input_queries_time.measure_time([&]()
-                    {
-                        return stellar::_importAllSequences(cart_queries_path.c_str(), "query", queries, queryIDs, queryLen, ld.text_out, ld.text_out);
-                    });
-                    if (!queriesSuccess)
-                    {
-                        std::cerr << "Error importing queries\n";
-                        error_triggered = true;
-                    }
+                    get_cart_queries(records, queries, queryIDs, ld.text_out, ld.text_out);
+                    using TSize = decltype(length(queries[0]));
 
                     threadOptions.alphabet = "dna";            // Possible values: dna, rna, protein, char
                     threadOptions.queryFile = cart_queries_path.string();
@@ -348,6 +370,8 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                 }
                 else
                 {
+                    write_cart_queries(records, cart_queries_path);
+
                     std::vector<std::string> process_args{};
                     process_args.insert(process_args.end(), {var_pack.stellar_exec, "--version-check", "0", "-a", "dna"});
 
