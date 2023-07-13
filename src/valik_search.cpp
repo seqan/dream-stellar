@@ -226,7 +226,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                             throw std::runtime_error("Could not find reference file with index " + std::to_string(bin_id) +
                             ". Did you forget to provide metadata to search segments in a single reference file instead?");
                         }
-                        threadOptions.binSequences.push_back(bin_id);   //!TODO: what if mutliple sequence files per bin
+                        threadOptions.binSequences.push_back(bin_id);
                     }
                     threadOptions.numEpsilon = er_rate;
                     threadOptions.epsilon = stellar::utils::fraction::from_double(threadOptions.numEpsilon).limit_denominator();
