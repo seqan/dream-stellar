@@ -91,7 +91,7 @@ struct minimiser_threshold_arguments
 
 inline minimiser_threshold_arguments::~minimiser_threshold_arguments() = default;
 
-struct search_arguments final : public minimiser_threshold_arguments
+struct search_arguments final : public minimiser_threshold_arguments, public stellar::StellarOptions
 {
     ~search_arguments() override = default;
     search_arguments() = default;
