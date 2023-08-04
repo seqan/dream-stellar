@@ -35,9 +35,15 @@ static void const test_reference_out(size_t overlap, size_t bins)
 {
     std::string path_prefix = "write_out_" + std::to_string(overlap) + "_" + std::to_string(bins);
 
+<<<<<<< HEAD
     valik::database_metadata reference(data(path_prefix + "_reference_metadata.txt"), false);
     valik::database_segments segments(data(path_prefix + "_reference_segments.txt"));
     valik::write_reference_segments(reference, segments, data("database.fasta"));
+=======
+    valik::sequence_metadata reference(data(path_prefix + "_reference_metadata.txt"), false);
+    valik::reference_segments segments(data(path_prefix + "_reference_segments.txt"));
+    valik::write_seg_sequences<seqan3::dna4>(reference, segments, data(path_prefix + "_ref.fasta"));
+>>>>>>> Rename reference_metadata -> sequence_metadata
 
     for (size_t i = 0; i < bins - 1; i++)
     {

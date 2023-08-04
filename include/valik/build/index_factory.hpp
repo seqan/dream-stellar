@@ -65,8 +65,13 @@ private:
 
         if (arguments->from_segments)
         {
+<<<<<<< HEAD
             database_segments segments(arguments->seg_path);
             database_metadata reference(arguments->ref_meta_path, false);
+=======
+            reference_segments segments(arguments->seg_path);
+            sequence_metadata reference(arguments->ref_meta_path, false);
+>>>>>>> Rename reference_metadata -> sequence_metadata
 
             auto & ibf = index.ibf();
             int i = 0;

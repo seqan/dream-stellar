@@ -1,11 +1,6 @@
 #pragma once
 
 #include <utilities/shared.hpp>
-#include <valik/split/database_metadata.hpp>
-
-namespace valik
-{
-
 struct stellar_match
 {
     std::string dname{};
