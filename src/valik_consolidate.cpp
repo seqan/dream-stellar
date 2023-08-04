@@ -5,7 +5,7 @@ namespace valik::app
 
 void valik_consolidate(consolidation_arguments const & arguments)
 {
-    reference_metadata reference(arguments.ref_meta_path, false);
+    sequence_metadata reference(arguments.ref_meta_path, false);
 
     auto matches = read_stellar_output(arguments.matches_in, reference);
 

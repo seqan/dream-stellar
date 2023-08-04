@@ -2,7 +2,7 @@
 
 #include <valik/build/call_parallel_on_bins.hpp>
 #include <valik/index.hpp>
-#include <valik/split/reference_metadata.hpp>
+#include <valik/split/sequence_metadata.hpp>
 #include <valik/split/reference_segments.hpp>
 
 #include <seqan3/search/views/minimiser_hash.hpp>
@@ -66,7 +66,7 @@ private:
         if (arguments->from_segments)
         {
             reference_segments segments(arguments->seg_path);
-            reference_metadata reference(arguments->ref_meta_path, false);
+            sequence_metadata reference(arguments->ref_meta_path, false);
 
             auto & ibf = index.ibf();
             int i = 0;

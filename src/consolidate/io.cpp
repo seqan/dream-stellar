@@ -4,7 +4,7 @@ namespace valik
 {
 
 std::vector<stellar_match> read_stellar_output(std::filesystem::path const & match_path,
-                                                      reference_metadata const & reference,
+                                                      sequence_metadata const & reference,
                                                       std::ios_base::openmode const mode /* = std::ios_base::in */)
 {
     std::vector<stellar_match> matches;

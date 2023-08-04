@@ -1,7 +1,7 @@
 #pragma once
 
 #include <valik/shared.hpp>
-#include <valik/split/reference_metadata.hpp>
+#include <valik/split/sequence_metadata.hpp>
 #include <valik/split/reference_segments.hpp>
 
 namespace valik
@@ -9,7 +9,7 @@ namespace valik
 
 // Note: template functions should live in .cpp files. This solution to avoid linker errors may cause code bloat.
 template <typename dna_t>
-void write_seg_sequences(reference_metadata const & reference, reference_segments & segments, std::filesystem::path const & ref_path)
+void write_seg_sequences(sequence_metadata const & reference, reference_segments & segments, std::filesystem::path const & ref_path)
 {
     using sequence_file_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>>;
 

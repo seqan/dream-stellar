@@ -18,7 +18,7 @@ TEST_P(dream_search, shared_mem)
     setenv("VALIK_MERGE", "cat", true);
 
     std::filesystem::path ref_meta_path = data("ref_meta.txt");
-    valik::reference_metadata reference(ref_meta_path, false);
+    valik::sequence_metadata reference(ref_meta_path, false);
     std::filesystem::path seg_meta_path = data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt");
     std::filesystem::path index_path = ibf_path(number_of_bins, window_size);
 

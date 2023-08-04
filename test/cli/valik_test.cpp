@@ -240,7 +240,7 @@ TEST_P(valik_consolidate, consolidation)
     auto const [number_of_bins, segment_overlap] = GetParam();
 
     std::filesystem::path ref_meta_path = consolidation_meta_path(number_of_bins, segment_overlap);
-    valik::reference_metadata reference(ref_meta_path, false);
+    valik::sequence_metadata reference(ref_meta_path, false);
 
     cli_test_result const result = execute_app("valik", "consolidate",
                                                         "--input ", consolidation_input_path(number_of_bins, segment_overlap),

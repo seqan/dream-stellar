@@ -3,7 +3,7 @@
 #include <seqan3/core/debug_stream.hpp>
 #include <seqan3/io/sequence_file/all.hpp>
 
-#include <valik/split/reference_metadata.hpp>
+#include <valik/split/sequence_metadata.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -43,7 +43,7 @@ class reference_segments {
             members.push_back(seg);
         }
 
-        void construct_by_linear_scan(size_t const bins, size_t const overlap, reference_metadata const & reference)
+        void construct_by_linear_scan(size_t const bins, size_t const overlap, sequence_metadata const & reference)
         {
             assert(bins > 0);
             default_len = reference.total_len / bins + 1;
@@ -90,7 +90,7 @@ class reference_segments {
             assert(members.size() == bins);
         }
 
-        reference_segments(size_t bins, size_t overlap, reference_metadata const & reference)
+        reference_segments(size_t bins, size_t overlap, sequence_metadata const & reference)
         {
             construct_by_linear_scan(bins, overlap, reference);
         }
