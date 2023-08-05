@@ -5,8 +5,8 @@
 #include <valik/search/query_record.hpp>
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/search/prefilter_queries_parallel.hpp>
-#include <valik/split/sequence_metadata.hpp>
-#include <valik/split/reference_segments.hpp>
+#include <valik/split/database_metadata.hpp>
+#include <valik/split/database_segments.hpp>
 #include <utilities/external_process.hpp>
 
 #include <raptor/threshold/threshold.hpp>
@@ -98,13 +98,13 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
     sync_out synced_out{arguments.out_file};
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
 
-    std::optional<reference_segments> segments;
+    std::optional<database_segments> segments;
     if (!arguments.seg_path.empty())
-        segments = reference_segments(arguments.seg_path);
+        segments = database_segments(arguments.seg_path);
 
-    std::optional<sequence_metadata> ref_meta;
+    std::optional<database_metadata> ref_meta;
     if (!arguments.ref_meta_path.empty())
-        ref_meta = sequence_metadata(arguments.ref_meta_path, false);
+        ref_meta = database_metadata(arguments.ref_meta_path, false);
 
     //!WORKAROUND: Stellar does not allow smaller error rates
     double er_rate = std::max((double) arguments.errors / (double) arguments.pattern_size, 0.00001);
@@ -216,7 +216,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                     {
                         threadOptions.searchSegment = true;
                         auto seg = segments->segment_from_bin(bin_id);
-                        threadOptions.binSequences.emplace_back(seg.ref_ind);
+                        threadOptions.binSequences.emplace_back(seg.seq_ind);
                         threadOptions.segmentBegin = seg.start;
                         threadOptions.segmentEnd = seg.start + seg.len;
                     }
@@ -405,7 +405,7 @@ bool run_program(search_arguments const &arguments, search_time_statistics & tim
                         auto seg = segments->segment_from_bin(bin_id);
                         process_args.insert(process_args.end(), {index.bin_path()[0][0], std::string(cart_queries_path),
                                                                 "--referenceLength", std::to_string(ref_len),
-                                                                "--sequenceOfInterest", std::to_string(seg.ref_ind),
+                                                                "--sequenceOfInterest", std::to_string(seg.seq_ind),
                                                                 "--segmentBegin", std::to_string(seg.start),
                                                                 "--segmentEnd", std::to_string(seg.start + seg.len)});
                     }

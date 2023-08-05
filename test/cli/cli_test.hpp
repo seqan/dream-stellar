@@ -7,7 +7,7 @@
 #include <string>                // strings
 
 #include <valik/index.hpp>
-#include <valik/split/reference_metadata.hpp>
+#include <valik/split/database_metadata.hpp>
 #include <utilities/consolidate/io.hpp>
 
 #include <ranges>

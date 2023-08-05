@@ -1,7 +1,7 @@
 #pragma once
 
 #include <utilities/shared.hpp>
-#include <valik/split/sequence_metadata.hpp>
+#include <valik/split/database_metadata.hpp>
 
 namespace valik
 {
@@ -19,7 +19,7 @@ struct stellar_match
     // 1;seq2Range=1280,1378;cigar=97M1D2M;mutations=14A,45G,58T,92C
     std::string attributes{};
 
-    stellar_match(std::vector<std::string> const match_vec, sequence_metadata const & reference)
+    stellar_match(std::vector<std::string> const match_vec, database_metadata const & reference)
     {
         dname = match_vec[0];
 

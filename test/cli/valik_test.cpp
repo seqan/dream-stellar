@@ -22,7 +22,7 @@ TEST_P(valik_split, split)
                                                          "--seg-meta reference_segments.txt");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"Reference sequence: chr5 is too short and will be skipped.\n"});
+    EXPECT_EQ(result.err, std::string{"Sequence: chr5 is too short and will be skipped.\n"});
 
     std::string const expected_metadata = string_from_file(data("chromosome_metadata.txt"), std::ios::binary);
     std::string const actual_metadata = string_from_file("reference_metadata.txt", std::ios::binary);
@@ -240,7 +240,7 @@ TEST_P(valik_consolidate, consolidation)
     auto const [number_of_bins, segment_overlap] = GetParam();
 
     std::filesystem::path ref_meta_path = consolidation_meta_path(number_of_bins, segment_overlap);
-    valik::sequence_metadata reference(ref_meta_path, false);
+    valik::database_metadata reference(ref_meta_path, false);
 
     cli_test_result const result = execute_app("valik", "consolidate",
                                                         "--input ", consolidation_input_path(number_of_bins, segment_overlap),

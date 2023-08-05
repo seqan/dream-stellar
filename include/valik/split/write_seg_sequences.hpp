@@ -1,15 +1,15 @@
 #pragma once
 
 #include <valik/shared.hpp>
-#include <valik/split/sequence_metadata.hpp>
-#include <valik/split/reference_segments.hpp>
+#include <valik/split/database_metadata.hpp>
+#include <valik/split/database_segments.hpp>
 
 namespace valik
 {
 
 // Note: template functions should live in .cpp files. This solution to avoid linker errors may cause code bloat.
 template <typename dna_t>
-void write_seg_sequences(sequence_metadata const & reference, reference_segments & segments, std::filesystem::path const & ref_path)
+void write_seg_sequences(database_metadata const & reference, database_segments & segments, std::filesystem::path const & ref_path)
 {
     using sequence_file_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>>;
 
@@ -27,13 +27,13 @@ void write_seg_sequences(sequence_metadata const & reference, reference_segments
     for (auto && [seq] : sequence_file_t{ref_path})
     {
         // get the relevant segments for each reference
-        auto ref_seg = [&](reference_segments::segment & seg) {return reference.sequences.at(i).ind == seg.ref_ind;};
+        auto ref_seg = [&](database_segments::segment & seg) {return reference.sequences.at(i).ind == seg.seq_ind;};
         for (auto & seg : segments.members | std::views::filter(ref_seg))
         {
             std::filesystem::path seg_file = ref_path;
             std::filesystem::path seg_stem = seg_file.stem();
             seg_stem += "_";
-            seg_stem += std::to_string(seg.bin);
+            seg_stem += std::to_string(seg.id);
             seg_stem += seg_file.extension();
             seg_file.replace_filename(seg_stem);
             file_paths_out << seg_file.string() << '\n';

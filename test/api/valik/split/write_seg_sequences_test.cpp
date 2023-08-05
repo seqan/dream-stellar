@@ -34,14 +34,14 @@ static void const test_write_out(size_t overlap, size_t bins)
 {
     std::string path_prefix = "write_out_" + std::to_string(overlap) + "_" + std::to_string(bins);
 
-    valik::sequence_metadata reference(data(path_prefix + "_reference_metadata.txt"), false);
-    valik::reference_segments segments(data(path_prefix + "_reference_segments.txt"));
+    valik::database_metadata reference(data(path_prefix + "_reference_metadata.txt"), false);
+    valik::database_segments segments(data(path_prefix + "_reference_segments.txt"));
     valik::write_seg_sequences<seqan3::dna4>(reference, segments, data(path_prefix + "_ref.fasta"));
 
     for (size_t i = 0; i < bins - 1; i++)
     {
-        valik::reference_segments::segment current_seg = segments.members[i];
-        valik::reference_segments::segment next_seg = segments.members[i + 1];
+        valik::database_segments::segment current_seg = segments.members[i];
+        valik::database_segments::segment next_seg = segments.members[i + 1];
 
         std::string current_seg_seq = string_from_file(data(path_prefix + "_ref_" + std::to_string(i) + ".fasta"), std::ios::binary);
         std::string next_seg_seq = string_from_file(data(path_prefix + "_ref_" + std::to_string(i + 1) + ".fasta"), std::ios::binary);
@@ -51,7 +51,7 @@ static void const test_write_out(size_t overlap, size_t bins)
         EXPECT_EQ(current_seg_seq.size(), current_seg.len);
         EXPECT_EQ(next_seg_seq.size(), next_seg.len);
 
-        if (current_seg.ref_ind == next_seg.ref_ind)
+        if (current_seg.seq_ind == next_seg.seq_ind)
         {
             EXPECT_EQ(current_seg_seq.substr(current_seg_seq.size() - overlap), next_seg_seq.substr(0, overlap));
         }
