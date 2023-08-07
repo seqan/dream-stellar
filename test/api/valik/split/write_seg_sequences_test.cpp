@@ -3,6 +3,7 @@
 #include <valik/split/write_seg_sequences.hpp>
 
 #include <seqan3/alphabet/nucleotide/dna4.hpp>
+#include <seqan3/test/expect_range_eq.hpp>
 
 // Generate the full path of a test input file that is provided in the data directory.
 static std::filesystem::path data(std::string const & filename)
@@ -30,21 +31,21 @@ static void trim_fasta_id(std::string & seg_seq)
                 seg_seq.end());
 }
 
-static void const test_write_out(size_t overlap, size_t bins)
+static void const test_reference_out(size_t overlap, size_t bins)
 {
     std::string path_prefix = "write_out_" + std::to_string(overlap) + "_" + std::to_string(bins);
 
     valik::database_metadata reference(data(path_prefix + "_reference_metadata.txt"), false);
     valik::database_segments segments(data(path_prefix + "_reference_segments.txt"));
-    valik::write_seg_sequences<seqan3::dna4>(reference, segments, data(path_prefix + "_ref.fasta"));
+    valik::write_reference_segments(reference, segments, data("database.fasta"));
 
     for (size_t i = 0; i < bins - 1; i++)
     {
         valik::database_segments::segment current_seg = segments.members[i];
         valik::database_segments::segment next_seg = segments.members[i + 1];
 
-        std::string current_seg_seq = string_from_file(data(path_prefix + "_ref_" + std::to_string(i) + ".fasta"), std::ios::binary);
-        std::string next_seg_seq = string_from_file(data(path_prefix + "_ref_" + std::to_string(i + 1) + ".fasta"), std::ios::binary);
+        std::string current_seg_seq = string_from_file(data("database_" + std::to_string(i) + ".fasta"), std::ios::binary);
+        std::string next_seg_seq = string_from_file(data("database_" + std::to_string(i + 1) + ".fasta"), std::ios::binary);
         trim_fasta_id(current_seg_seq);
         trim_fasta_id(next_seg_seq);
 
@@ -58,34 +59,100 @@ static void const test_write_out(size_t overlap, size_t bins)
     }
 }
 
-TEST(write_seg_sequences, o0_b4)
+TEST(write_ref_sequences, o0_b4)
 {
     size_t overlap = 0;
     size_t bins = 4;
 
-    test_write_out(overlap, bins);
+    test_reference_out(overlap, bins);
 }
 
-TEST(write_seg_sequences, o20_b4)
+TEST(write_ref_sequences, o20_b4)
 {
     size_t overlap = 20;
     size_t bins = 4;
 
-    test_write_out(overlap, bins);
+    test_reference_out(overlap, bins);
 }
 
-TEST(write_seg_sequences, o0_b16)
+TEST(write_ref_sequences, o0_b16)
 {
     size_t overlap = 0;
     size_t bins = 16;
 
-    test_write_out(overlap, bins);
+    test_reference_out(overlap, bins);
 }
 
-TEST(write_seg_sequences, o20_b16)
+TEST(write_ref_sequences, o20_b16)
 {
     size_t overlap = 20;
     size_t bins = 16;
 
-    test_write_out(overlap, bins);
+    test_reference_out(overlap, bins);
+}
+
+static void const test_query_out(size_t overlap, size_t bins)
+{
+    std::string path_prefix = "write_out_" + std::to_string(overlap) + "_" + std::to_string(bins);
+
+    valik::database_metadata reference(data(path_prefix + "_reference_metadata.txt"), false);
+    valik::database_segments segments(data(path_prefix + "_reference_segments.txt"));
+    valik::write_query_segments(reference, segments, data("database.fasta"));
+
+    using sequence_file_t = seqan3::sequence_file_input<valik::dna4_traits, seqan3::fields<seqan3::field::seq>>;
+
+    size_t i{0};
+    seqan3::dna4_vector previous_seg_seq;
+    for (auto && [current_seg_seq] : sequence_file_t{data("database.segments.fasta")})
+    {
+        if (i > 1)
+        {
+            valik::database_segments::segment previous_seg = segments.members[i - 1];
+            valik::database_segments::segment current_seg = segments.members[i];
+
+            EXPECT_EQ(previous_seg_seq.size(), previous_seg.len);
+            EXPECT_EQ(current_seg_seq.size(), current_seg.len);
+
+            if (previous_seg.seq_ind == current_seg.seq_ind)
+            {
+                EXPECT_RANGE_EQ(std::vector<seqan3::dna4>(previous_seg_seq.end() - overlap, previous_seg_seq.end()),
+                                std::vector<seqan3::dna4>(current_seg_seq.begin(), current_seg_seq.begin()+ overlap));
+            }
+        }
+
+        i++;
+        previous_seg_seq = current_seg_seq;
+    }
+}
+
+TEST(write_query_sequences, o0_b4)
+{
+    size_t overlap = 0;
+    size_t bins = 4;
+
+    test_query_out(overlap, bins);
+}
+
+TEST(write_query_sequences, o20_b4)
+{
+    size_t overlap = 20;
+    size_t bins = 4;
+
+    test_query_out(overlap, bins);
+}
+
+TEST(write_query_sequences, o0_b16)
+{
+    size_t overlap = 0;
+    size_t bins = 16;
+
+    test_query_out(overlap, bins);
+}
+
+TEST(write_query_sequences, o20_b16)
+{
+    size_t overlap = 20;
+    size_t bins = 16;
+
+    test_query_out(overlap, bins);
 }

@@ -36,13 +36,14 @@ struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
 
 struct split_arguments
 {
-    std::filesystem::path ref_file{};
-    std::filesystem::path ref_out{"reference_metadata.txt"};
+    std::filesystem::path db_file{};
+    std::filesystem::path db_out{"reference_metadata.txt"};
     std::filesystem::path seg_out{"reference_segments.txt"};
 
     size_t overlap{150};
-    size_t bins{64};
-    bool write_seg{false};
+    size_t seg_count{64};
+    bool write_ref{false};
+    bool write_query{false};
 };
 
 struct build_arguments

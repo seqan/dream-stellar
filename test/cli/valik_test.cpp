@@ -18,7 +18,7 @@ TEST_P(valik_split, split)
                                                          data("various_chromosome_lengths.fasta"),
                                                          "--overlap ", std::to_string(overlap),
                                                          "--bins ", std::to_string(bins),
-                                                         "--ref-meta reference_metadata.txt",
+                                                         "--db-meta reference_metadata.txt",
                                                          "--seg-meta reference_segments.txt");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
