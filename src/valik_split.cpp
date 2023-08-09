@@ -9,7 +9,7 @@ namespace valik::app
 
 //-----------------------------
 //
-// Divide reference database into partially overlapping segments.
+// Divide reference or query database into partially overlapping segments.
 //
 //-----------------------------
 void valik_split(split_arguments const & arguments)

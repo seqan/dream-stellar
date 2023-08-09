@@ -12,12 +12,12 @@
 
 TEST_P(valik_split, split)
 {
-    auto const [overlap, bins] = GetParam();
+    auto const [overlap, seg_count] = GetParam();
 
     cli_test_result const result = execute_app("valik", "split",
                                                          data("various_chromosome_lengths.fasta"),
                                                          "--overlap ", std::to_string(overlap),
-                                                         "--bins ", std::to_string(bins),
+                                                         "--seg-count ", std::to_string(seg_count),
                                                          "--db-meta reference_metadata.txt",
                                                          "--seg-meta reference_segments.txt");
     EXPECT_EQ(result.exit_code, 0);
@@ -29,7 +29,7 @@ TEST_P(valik_split, split)
 
     EXPECT_TRUE(expected_metadata == actual_metadata);
 
-    std::string const expected_segments = string_from_file(segment_metadata_path(overlap, bins), std::ios::binary);
+    std::string const expected_segments = string_from_file(segment_metadata_path(overlap, seg_count), std::ios::binary);
     std::string const actual_segments = string_from_file("reference_segments.txt", std::ios::binary);
 
     EXPECT_TRUE(expected_segments == actual_segments);
