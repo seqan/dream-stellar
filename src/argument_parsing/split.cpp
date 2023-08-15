@@ -30,7 +30,7 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       .description = "Choose how much consecutive segments overlap.",
                       .validator = positive_integer_validator{true}});
     parser.add_option(arguments.seg_count,
-                      sharg::config{.short_id = '\0',
+                      sharg::config{.short_id = 'n',
                       .long_id = "seg-count",
                       .description = "Dividing the database into this many segments. Corresponds to IBF bin count for the reference sequence so that multiples of 64 lead to better performance.",
                       .validator = sharg::arithmetic_range_validator{1, 29952}});

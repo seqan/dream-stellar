@@ -19,7 +19,7 @@ do
         echo "Splitting the genome into $b segments that overlap by $o"
         ref_meta="multi/chromosome_"$o"overlap"$b"bins.txt"
         seg_meta="multi/"$o"overlap"$b"bins.txt"
-        valik split "$seg_input" --overlap "$o" --bins "$b" --db-meta "$ref_meta" --seg-meta "$seg_meta"
+        valik split "$seg_input" --overlap "$o" --seg-count "$b" --db-meta "$ref_meta" --seg-meta "$seg_meta"
     done
 done
 
@@ -53,7 +53,7 @@ do
     echo "Splitting the genome into $b segments that overlap by $seg_overlap"
     ref_meta="single/ref_"$seg_overlap"overlap"$b"bins.txt"
     seg_meta="single/"$seg_overlap"overlap"$b"bins.txt"
-    valik split "$ref_input" --overlap "$seg_overlap" --bins "$b" --db-meta "$ref_meta" --seg-meta "$seg_meta"
+    valik split "$ref_input" --overlap "$seg_overlap" --seg-count "$b" --db-meta "$ref_meta" --seg-meta "$seg_meta"
 
     for w in 13 15
     do

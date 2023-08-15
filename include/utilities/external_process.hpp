@@ -138,3 +138,20 @@ private:
         close(stderrpipe[WRITE_END]);
     }
 };
+
+template <typename arg_t>
+bool check_external_process_success(std::vector<arg_t> const & proc_args, external_process const & proc)
+{
+    if (proc.status() != 0) {
+        std::cerr << "External process failed\n";
+        std::cerr << "call:";
+        for (auto args : proc_args) {
+            std::cerr << " " << args;
+        }
+        std::cerr << '\n';
+        std::cerr << proc.cerr() << '\n';
+        return false;
+    }
+    else
+        return true;
+}

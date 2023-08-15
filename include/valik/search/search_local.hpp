@@ -1,0 +1,368 @@
+#pragma once
+
+#include "future"
+
+#include <valik/search/cart_query_io.hpp>
+#include <valik/search/iterate_queries.hpp>
+#include <valik/shared.hpp>
+#include <valik/split/database_metadata.hpp>
+#include <valik/split/database_segments.hpp>
+#include <utilities/cart_queue.hpp>
+#include <utilities/consolidate/merge_processes.hpp>
+
+#include <stellar/database_id_map.hpp>
+#include <stellar/diagnostics/print.tpp>
+#include <stellar/stellar_launcher.hpp>
+#include <stellar/stellar_output.hpp>
+#include <stellar/io/import_sequence.hpp>
+#include <stellar/utils/stellar_app_runtime.hpp>
+#include <stellar3.shared.hpp>
+
+namespace valik::app
+{
+
+/**
+ * @brief Function that calls Valik prefiltering and launches parallel threads of Stellar search.
+ *
+ * @tparam index_t Type of IBF.
+ * @param arguments Command line arguments.
+ * @param time_statistics Run-time statistics.
+ * @param index Interleaved Bloom Filter.
+ * @return false if search failed.
+ */
+template <bool is_split, typename index_t>
+bool search_local(search_arguments const & arguments, search_time_statistics & time_statistics, index_t const & index)
+{
+    std::optional<database_metadata> ref_meta;
+    if (!arguments.ref_meta_path.empty())
+        ref_meta = database_metadata(arguments.ref_meta_path, false);
+
+    std::optional<database_segments> ref_segments;
+    if (!arguments.ref_seg_path.empty())
+        ref_segments = database_segments(arguments.ref_seg_path);
+
+    env_var_pack var_pack{};
+
+    std::optional<database_segments> query_segments;
+    if (!arguments.query_seg_path.empty())
+        query_segments = database_segments(arguments.query_seg_path);
+
+    using TAlphabet = seqan2::Dna;
+    using TSequence = seqan2::String<TAlphabet>;
+    auto queue = cart_queue<short_query_record<TSequence>>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
+
+    std::mutex mutex;
+    execution_metadata exec_meta(arguments.threads);
+
+    // negative (reverse complemented) database strand
+    bool const reverse = true /*threadOptions.reverse && threadOptions.alphabet != "protein" && threadOptions.alphabet != "char" */;
+    seqan2::StringSet<TSequence> databases;
+    using TSize = decltype(length(databases[0]));
+    seqan2::StringSet<TSequence> reverseDatabases;
+    seqan2::StringSet<seqan2::CharString> databaseIDs;
+    std::ofstream disabledQueriesFile;
+    TSize refLen;
+
+    if (arguments.disableThresh != std::numeric_limits<size_t>::max())
+    {
+        std::filesystem::path disabledPath = arguments.out_file;
+        disabledPath.replace_extension(".disabled.fa");
+        disabledQueriesFile.open(((std::string) disabledPath).c_str(), ::std::ios_base::out | ::std::ios_base::app);
+        if (!disabledQueriesFile.is_open())
+        {
+            std::cerr << "Could not open file for disabled queries." << std::endl;
+            return false;
+        }
+    }
+
+    stellar::stellar_runtime input_databases_time{};
+    for (auto bin_paths : index.bin_path())
+    {
+        for (auto path : bin_paths)
+        {
+            bool const databasesSuccess = input_databases_time.measure_time([&]()
+            {
+                std::cout << "Launching stellar search on a shared memory machine...\n";
+                return stellar::_importAllSequences(path.c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
+            });
+            if (!databasesSuccess)
+                return false;
+    }
+    }
+
+    if (reverse)
+    {
+        for (auto database : databases)
+        {
+            reverseComplement(database);
+            seqan2::appendValue(reverseDatabases, database, seqan2::Generous());
+        }
+    }
+
+    time_statistics.ref_io_time += input_databases_time.milliseconds() / 1000;
+    stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
+    stellar::DatabaseIDMap<TAlphabet> reverseDatabaseIDMap{reverseDatabases, databaseIDs};
+
+    seqan2::StringSet<TSequence> underlyingQueries;
+    seqan2::StringSet<seqan2::CharString> underlyingQueryIDs;
+
+    TSize queryLen;
+    // import underlying query sequences (SPLIT)
+    stellar::stellar_runtime input_queries_time{};
+    bool const queriesSuccess = input_queries_time.measure_time([&]()
+    {
+        std::cout << "Finding all local alignments between two genomes...\n";
+        return stellar::_importAllSequences(arguments.query_file.c_str(), "query", underlyingQueries, underlyingQueryIDs, queryLen, std::cout, std::cerr);
+    });
+    if (!queriesSuccess)
+        return false;
+    time_statistics.reads_io_time += input_queries_time.milliseconds() / 1000;
+
+    bool error_in_search = false; // indicates if an error happened inside this lambda
+    auto consumerThreads = std::vector<std::jthread>{};
+    for (size_t threadNbr = 0; threadNbr < arguments.threads; ++threadNbr)
+    {
+        consumerThreads.emplace_back(
+        [&, threadNbr]() {
+            auto& thread_meta = exec_meta.table[threadNbr];
+            // this will block until producer threads have added carts to queue
+            for (auto next = queue.dequeue(); next; next = queue.dequeue())
+            {
+                auto & [bin_id, records] = *next;
+
+                std::unique_lock g(mutex);
+                std::filesystem::path cart_queries_path = var_pack.tmp_path / std::string("query_" + std::to_string(bin_id) +
+                                                          "_" + std::to_string(exec_meta.bin_count[bin_id]++) + ".fasta");
+                g.unlock();
+
+                thread_meta.output_files.push_back(cart_queries_path.string() + ".gff");
+
+                stellar::StellarOptions threadOptions{};
+                stellar::stellar_app_runtime stellarThreadTime{};
+                threadOptions.alphabet = "dna";            // Possible values: dna, rna, protein, char
+                threadOptions.queryFile = cart_queries_path.string();
+                threadOptions.prefilteredSearch = true;
+                threadOptions.referenceLength = refLen;
+                if (ref_segments && ref_meta)
+                {
+                    threadOptions.searchSegment = true;
+                    auto seg = ref_segments->segment_from_bin(bin_id);
+                    threadOptions.binSequences.emplace_back(seg.seq_ind);
+                    threadOptions.segmentBegin = seg.start;
+                    threadOptions.segmentEnd = seg.start + seg.len;
+                }
+                else
+                {
+                    if (index.bin_path().size() < (size_t) bin_id) {
+                        throw std::runtime_error("Could not find reference file with index " + std::to_string(bin_id) +
+                        ". Did you forget to provide metadata to search segments in a single reference file instead?");
+                    }
+                    threadOptions.binSequences.push_back(bin_id);
+                }
+                threadOptions.numEpsilon = arguments.stellar_er_rate;
+                threadOptions.epsilon = stellar::utils::fraction::from_double(threadOptions.numEpsilon).limit_denominator();
+                threadOptions.minLength = arguments.pattern_size;
+                threadOptions.disableThresh = arguments.disableThresh;
+                threadOptions.outputFile = cart_queries_path.string() + ".gff";
+
+                using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
+                using TQuerySegment = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
+
+                stellar::_writeFileNames(threadOptions, thread_meta.text_out);
+                stellar::_writeSpecifiedParams(threadOptions, thread_meta.text_out);
+                stellar::_writeCalculatedParams(threadOptions, thread_meta.text_out);   // calculate qGram
+                thread_meta.text_out << std::endl;
+
+                // import query sequences
+                seqan2::StringSet<TQuerySegment, seqan2::Dependent<>> queries;
+                seqan2::StringSet<seqan2::CharString> queryIDs;
+                get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out);
+
+                stellar::_writeMoreCalculatedParams(threadOptions, threadOptions.referenceLength, queries, thread_meta.text_out);
+
+                auto current_time = stellarThreadTime.swift_index_construction_time.now();
+                stellar::StellarIndex<TAlphabet> stellarIndex{queries, threadOptions};
+                stellar::StellarSwiftPattern<TAlphabet> swiftPattern = stellarIndex.createSwiftPattern();
+
+                // Construct index of the queries
+                thread_meta.text_out << "Constructing index..." << '\n';
+                stellarIndex.construct();
+                thread_meta.text_out << std::endl;
+                stellarThreadTime.swift_index_construction_time.manual_timing(current_time);
+
+                std::vector<size_t> disabledQueryIDs{};
+
+                stellar::StellarOutputStatistics outputStatistics{};
+                if (threadOptions.forward)
+                {
+                    auto databaseSegment = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
+                                            (databases[threadOptions.binSequences[0]], threadOptions);
+                    stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
+                    {
+                        size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
+                        seqan2::CharString const & databaseID = databaseIDMap.databaseID(databaseRecordID);
+                        // container for eps-matches
+                        seqan2::StringSet<stellar::QueryMatches<stellar::StellarMatch<seqan2::String<TAlphabet> const,
+                                                                                    seqan2::CharString> > > forwardMatches;
+                        seqan2::resize(forwardMatches, length(queries));
+
+                        constexpr bool databaseStrand = true;
+                        auto queryIDMap = stellar::QueryIDMap<TAlphabet>(queries);
+
+                        stellar::StellarComputeStatistics statistics = stellar::StellarLauncher<TAlphabet>::search_and_verify
+                        (
+                            databaseSegment,
+                            databaseID,
+                            queryIDMap,
+                            databaseStrand,
+                            threadOptions,
+                            swiftPattern,
+                            stellarThreadTime.forward_strand_stellar_time.prefiltered_stellar_time,
+                            forwardMatches
+                        );
+
+                        thread_meta.text_out << std::endl; // swift filter output is on same line
+                        stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID, statistics, thread_meta.text_out);
+
+                        seqan3::debug_stream << "before consolidation\n";
+
+                        for (auto & query_matches : forwardMatches)
+                            seqan3::debug_stream << seqan2::length(query_matches.matches) << '\t';
+                        seqan3::debug_stream << '\n';
+
+                        stellarThreadTime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
+                        {
+                            // forwardMatches is an in-out parameter
+                            // this is the match consolidation
+                            stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                                                                    forwardMatches, disabledQueryIDs);
+                        }); // measure_time
+
+                        seqan3::debug_stream << "after consolidation\n";
+
+                        for (auto & query_matches : forwardMatches)
+                            seqan3::debug_stream << seqan2::length(query_matches.matches) << '\t';
+                        seqan3::debug_stream << '\n';
+
+                        // open output files
+                        std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
+                        if (!outputFile.is_open())
+                        {
+                            std::cerr << "Could not open output file." << std::endl;
+                            error_in_search = true;
+                        }
+                        stellarThreadTime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+                        {
+                            // output forwardMatches on positive database strand
+                            stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, "gff", outputFile);
+                        }); // measure_time
+
+                    outputStatistics = stellar::_computeOutputStatistics(forwardMatches);
+                    }); // measure_time
+                }
+
+
+                if (reverse)
+                {
+                    TDatabaseSegment databaseSegment{};
+                    stellarThreadTime.reverse_complement_database_time.measure_time([&]()
+                    {
+                        databaseSegment = _getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
+                                            (reverseDatabases[threadOptions.binSequences[0]], threadOptions, reverse);
+                    }); // measure_time
+
+                    stellarThreadTime.reverse_strand_stellar_time.measure_time([&]()
+                    {
+                        size_t const databaseRecordID = reverseDatabaseIDMap.recordID(databaseSegment);
+                        seqan2::CharString const & databaseID = reverseDatabaseIDMap.databaseID(databaseRecordID);
+                        // container for eps-matches
+                        seqan2::StringSet<stellar::QueryMatches<stellar::StellarMatch<seqan2::String<TAlphabet> const,
+                                                                                    seqan2::CharString> > > reverseMatches;
+                        seqan2::resize(reverseMatches, length(queries));
+
+                        constexpr bool databaseStrand = false;
+
+                        stellar::QueryIDMap<TAlphabet> queryIDMap{queries};
+
+                        stellar::StellarComputeStatistics statistics = stellar::StellarLauncher<TAlphabet>::search_and_verify
+                        (
+                            databaseSegment,
+                            databaseID,
+                            queryIDMap,
+                            databaseStrand,
+                            threadOptions,
+                            swiftPattern,
+                            stellarThreadTime.reverse_strand_stellar_time.prefiltered_stellar_time,
+                            reverseMatches
+                        );
+
+                        thread_meta.text_out << std::endl; // swift filter output is on same line
+                        stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID,
+                                                                            statistics, thread_meta.text_out);
+
+                        stellarThreadTime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
+                        {
+                            // reverseMatches is an in-out parameter
+                            // this is the match consolidation
+                            stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                                                                    reverseMatches, disabledQueryIDs);
+                        }); // measure_time
+
+                        // open output files
+                        std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::app);
+                        if (!outputFile.is_open())
+                        {
+                            std::cerr << "Could not open output file." << std::endl;
+                            error_in_search = true;
+                        }
+                        stellarThreadTime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+                        {
+                            // output reverseMatches on negative database strand
+                            stellar::_writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, "gff", outputFile);
+                        }); // measure_time
+
+                    outputStatistics.mergeIn(stellar::_computeOutputStatistics(reverseMatches));
+                    }); // measure_time
+                }
+
+                // Writes disabled query sequences to disabledFile.
+                if (disabledQueriesFile.is_open())
+                {
+                    stellarThreadTime.output_disabled_queries_time.measure_time([&]()
+                    {
+                        // write disabled query file
+                        stellar::_writeDisabledQueriesToFastaFile(disabledQueryIDs, queryIDs, queries, disabledQueriesFile);
+                    }); // measure_time
+                }
+
+                stellar::_writeOutputStatistics(outputStatistics, threadOptions.verbose, disabledQueriesFile.is_open(), thread_meta.text_out);
+
+                thread_meta.time_statistics.emplace_back(stellarThreadTime.milliseconds());
+                if (arguments.write_time)
+                {
+                    std::filesystem::path time_path =  cart_queries_path.string() + std::string(".gff.time");
+
+                    stellar::_print_stellar_app_time(stellarThreadTime, thread_meta.text_out);
+                }
+            }
+        });
+    }
+
+    std::vector<seqan2::Segment<seqan2::String<seqan2::Dna> const, seqan2::InfixSegment>> hostQueries;
+    std::vector<seqan2::CharString> hostQueryIDs;
+
+    if constexpr (is_split)
+        read_split_queries(underlyingQueries, underlyingQueryIDs, hostQueries, arguments, time_statistics, index.ibf(), queue, *query_segments);
+    else
+        read_short_queries(underlyingQueries, underlyingQueryIDs, hostQueries, arguments, time_statistics, index.ibf(), queue);
+
+    queue.finish(); // Flush carts that are not empty yet
+    consumerThreads.clear();
+
+    // merge output files and metadata from threads
+    bool error_in_merge = merge_processes(arguments, time_statistics, exec_meta, var_pack);
+
+    return error_in_search && error_in_merge;
+}
+
+}  // namespace valik::app

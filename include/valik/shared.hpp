@@ -4,8 +4,10 @@
 #include <vector>
 
 #include <seqan3/io/sequence_file/input.hpp>
+#include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/search/kmer_index/shape.hpp>
 
+#include <raptor/threshold/threshold.hpp>
 #include <raptor/threshold/threshold_parameters.hpp>
 
 #include <stellar3.shared.hpp>
@@ -137,8 +139,10 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
         };
     }
 
-    std::filesystem::path seg_path{};
+    double stellar_er_rate{};
     std::filesystem::path ref_meta_path{};
+    std::filesystem::path ref_seg_path{};
+    std::filesystem::path query_seg_path{};
     bool shared_memory{false};
 
 };

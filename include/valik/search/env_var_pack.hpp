@@ -6,6 +6,11 @@
 #include <vector>
 #include <algorithm>
 
+#include <utilities/external_process.hpp>
+#include <valik/search/execution_metadata.hpp>
+#include <valik/search/search_time_statistics.hpp>
+#include <valik/shared.hpp>
+
 namespace valik
 {
 
