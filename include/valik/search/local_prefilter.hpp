@@ -152,6 +152,7 @@ void local_prefilter(
     for (query_t const & record : records)
     {
         std::vector<seqan3::dna4> const & seq = record.sequence;
+//        seqan3::debug_stream << "Prefiltering sequence: \n";
 
         // sequence can't contain local match if it's shorter than pattern length
         if (seq.size() < arguments.pattern_size)

@@ -43,6 +43,14 @@ inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data
         {
             for (size_t const bin : bin_hits)
             {
+                /*
+
+
+                seqan3::debug_stream << "Cart insertion of sequence: " << '\n';
+                for (auto & n : record.sequence)
+                    seqan3::debug_stream << n;
+                seqan3::debug_stream << '\n';
+                */
                 queue.insert(bin, record);
             }
         };
