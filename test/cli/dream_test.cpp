@@ -44,7 +44,7 @@ TEST_P(dream_search, shared_mem)
                                                         "--seg-meta", seg_meta_path);
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 3 database sequences.\n"});
-    EXPECT_EQ(result.err, std::string{});
+    EXPECT_EQ(result.err, std::string{"WARNING: Non-unique query ids. Output can be ambiguous.\n"});
 
     auto distributed = valik::read_stellar_output(search_result_path(number_of_bins, window_size, number_of_errors), reference, std::ios::binary);
     auto local = valik::read_stellar_output("search.gff", reference);
@@ -92,7 +92,7 @@ TEST_F(dream_search, no_matches)
                                                         "--seg-meta", data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt"));
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 3 database sequences.\n"});
-    EXPECT_EQ(result.err, std::string{});
+    EXPECT_EQ(result.err, std::string{}); // Stellar shortens query IDs until the first whitespace
 
     auto actual = string_list_from_file("search.gff");
 

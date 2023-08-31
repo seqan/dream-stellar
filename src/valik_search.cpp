@@ -12,6 +12,7 @@ void valik_search(search_arguments const & arguments)
 {
     search_time_statistics time_statistics{};
 
+    //!TODO: this switch doesn't work, make is_compressed template parameter
     using index_structure_t = index_structure::ibf;
     if (arguments.compressed)
         using index_structure_t = index_structure::ibf_compressed;

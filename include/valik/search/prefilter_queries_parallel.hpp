@@ -21,10 +21,13 @@ namespace valik::app
 template <typename query_t, seqan3::data_layout ibf_data_layout>
 inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
                                        search_arguments const & arguments,
-                                       std::vector<query_t> & records,
+                                       std::vector<query_t> const & records,
                                        raptor::threshold::threshold const & thresholder,
                                        cart_queue<query_t> & queue)
 {
+    if (records.empty())
+        return;
+
     std::vector<std::jthread> tasks;
     size_t const num_records = records.size();
     size_t const records_per_thread = num_records / arguments.threads;
@@ -40,14 +43,6 @@ inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data
         {
             for (size_t const bin : bin_hits)
             {
-                /*
-
-
-                seqan3::debug_stream << "Cart insertion of sequence: " << '\n';
-                for (auto & n : record.sequence)
-                    seqan3::debug_stream << n;
-                seqan3::debug_stream << '\n';
-                */
                 queue.insert(bin, record);
             }
         };

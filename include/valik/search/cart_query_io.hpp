@@ -36,8 +36,6 @@ inline bool get_cart_queries(rec_vec_t const & records,
     std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
     bool idsUnique = true;
 
-    std::cout << "\nget_cart_queries\n";
-
     size_t seqCount{0};
     for (auto & record : records)
     {
@@ -46,8 +44,6 @@ inline bool get_cart_queries(rec_vec_t const & records,
         seqan2::appendValue(ids, query_id, seqan2::Generous());
         seqCount++;
         idsUnique &= stellar::_checkUniqueId(uniqueIds, (seqan2::String<char>) record.sequence_id);
-        //!ERROR: infix sequence is copied to seqs invalidating the pointers
-        std::cout << std::addressof(seqs[seqan2::length(seqs) - 1]) << '\t' << seqs[seqan2::length(seqs) - 1] << '\n';
     }
 
     strOut << "Loaded " << seqCount << " query sequence" << ((seqCount > 1) ? "s " : " ") << "from cart." << std::endl;

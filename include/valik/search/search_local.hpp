@@ -103,21 +103,6 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
     stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
     stellar::DatabaseIDMap<TAlphabet> reverseDatabaseIDMap{reverseDatabases, databaseIDs};
 
-    seqan2::StringSet<TSequence> underlyingQueries;
-    seqan2::StringSet<seqan2::CharString> underlyingQueryIDs;
-
-    TSize queryLen;
-    // import underlying query sequences (SPLIT)
-    stellar::stellar_runtime input_queries_time{};
-    bool const queriesSuccess = input_queries_time.measure_time([&]()
-    {
-        std::cout << "Finding all local alignments between two genomes...\n";
-        return stellar::_importAllSequences(arguments.query_file.c_str(), "query", underlyingQueries, underlyingQueryIDs, queryLen, std::cout, std::cerr);
-    });
-    if (!queriesSuccess)
-        return false;
-    time_statistics.reads_io_time += input_queries_time.milliseconds() / 1000;
-
     bool error_in_search = false; // indicates if an error happened inside this lambda
     auto consumerThreads = std::vector<std::jthread>{};
     for (size_t threadNbr = 0; threadNbr < arguments.threads; ++threadNbr)
@@ -224,12 +209,6 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
                         thread_meta.text_out << std::endl; // swift filter output is on same line
                         stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID, statistics, thread_meta.text_out);
 
-                        seqan3::debug_stream << "before consolidation\n";
-
-                        for (auto & query_matches : forwardMatches)
-                            seqan3::debug_stream << seqan2::length(query_matches.matches) << '\t';
-                        seqan3::debug_stream << '\n';
-
                         stellarThreadTime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
                         {
                             // forwardMatches is an in-out parameter
@@ -237,12 +216,6 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
                             stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
                                                                     forwardMatches, disabledQueryIDs);
                         }); // measure_time
-
-                        seqan3::debug_stream << "after consolidation\n";
-
-                        for (auto & query_matches : forwardMatches)
-                            seqan3::debug_stream << seqan2::length(query_matches.matches) << '\t';
-                        seqan3::debug_stream << '\n';
 
                         // open output files
                         std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
@@ -348,13 +321,10 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
         });
     }
 
-    std::vector<seqan2::Segment<seqan2::String<seqan2::Dna> const, seqan2::InfixSegment>> hostQueries;
-    std::vector<seqan2::CharString> hostQueryIDs;
-
     if constexpr (is_split)
-        read_split_queries(underlyingQueries, underlyingQueryIDs, hostQueries, arguments, time_statistics, index.ibf(), queue, *query_segments);
+        iterate_split_queries(arguments, time_statistics, index.ibf(), queue, *query_segments);
     else
-        read_short_queries(underlyingQueries, underlyingQueryIDs, hostQueries, arguments, time_statistics, index.ibf(), queue);
+        iterate_short_queries(arguments, time_statistics, index.ibf(), queue);
 
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();
