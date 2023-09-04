@@ -3,6 +3,7 @@
 #include <array>
 #include <cassert>
 #include <filesystem>
+#include <iostream>
 #include <memory>
 #include <ranges>
 #include <sstream>
