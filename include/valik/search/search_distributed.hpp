@@ -2,6 +2,7 @@
 
 #include <valik/search/cart_query_io.hpp>
 #include <valik/search/iterate_queries.hpp>
+#include <valik/search/load_index.hpp>
 #include <valik/shared.hpp>
 #include <valik/split/database_metadata.hpp>
 #include <valik/split/database_segments.hpp>

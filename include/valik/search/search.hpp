@@ -1,6 +1,5 @@
 #pragma once
 
-#include <valik/search/load_index.hpp>
 #include <valik/search/query_record.hpp>
 #include <valik/search/search_distributed.hpp>
 #include <valik/search/search_local.hpp>
