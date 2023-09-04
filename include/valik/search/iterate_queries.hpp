@@ -57,11 +57,11 @@ template <typename ibf_t>
 void iterate_short_queries(search_arguments const & arguments,
                         search_time_statistics & time_statistics, // IN-OUT parameter
                         ibf_t const & ibf,
-                        cart_queue<short_query_record<seqan2::String<seqan2::Dna>>> & queue)
+                        cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue)
 {
     using TSequence = seqan2::String<seqan2::Dna>;
     using TId = seqan2::CharString;
-    std::vector<short_query_record<TSequence>> query_records{};
+    std::vector<shared_query_record<TSequence>> query_records{};
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
@@ -96,7 +96,7 @@ void iterate_short_queries(search_arguments const & arguments,
         if (query_records.size() > chunk_size)
         {
             auto start = std::chrono::high_resolution_clock::now();
-            prefilter_queries_parallel<short_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
+            prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
             auto end = std::chrono::high_resolution_clock::now();
             time_statistics.prefilter_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
             query_records.clear();
@@ -107,7 +107,7 @@ void iterate_short_queries(search_arguments const & arguments,
         std::cerr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
 
     auto start = std::chrono::high_resolution_clock::now();
-    prefilter_queries_parallel<short_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
+    prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
     auto end = std::chrono::high_resolution_clock::now();
     time_statistics.prefilter_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 }
@@ -126,12 +126,12 @@ template <typename ibf_t>
 void iterate_split_queries(search_arguments const & arguments,
                         search_time_statistics & time_statistics, // IN-OUT parameter
                         ibf_t const & ibf,
-                        cart_queue<short_query_record<seqan2::String<seqan2::Dna>>> & queue,
+                        cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue,
                         database_segments & segments)
 {
     using TSequence = seqan2::String<seqan2::Dna>;
     using TId = seqan2::CharString;
-    std::vector<short_query_record<TSequence>> query_records{};
+    std::vector<shared_query_record<TSequence>> query_records{};
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
@@ -172,7 +172,7 @@ void iterate_split_queries(search_arguments const & arguments,
             if (query_records.size() > chunk_size)
             {
                 auto start = std::chrono::high_resolution_clock::now();
-                prefilter_queries_parallel<short_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
+                prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
                 auto end = std::chrono::high_resolution_clock::now();
                 time_statistics.prefilter_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
                 query_records.clear();
@@ -185,7 +185,7 @@ void iterate_split_queries(search_arguments const & arguments,
 
 
     auto start = std::chrono::high_resolution_clock::now();
-    prefilter_queries_parallel<short_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
+    prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
     auto end = std::chrono::high_resolution_clock::now();
     time_statistics.prefilter_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 }

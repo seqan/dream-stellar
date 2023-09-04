@@ -10,14 +10,22 @@
 namespace valik
 {
 
+/**
+ * @brief Each record owns the underlying data.
+ *
+ */
 struct query_record
 {
     std::string sequence_id;
     std::vector<seqan3::dna4> sequence;
 };
 
+/**
+ * @brief Query sequence resources are shared between records.
+ *
+ */
 template <typename TSequence>
-struct short_query_record
+struct shared_query_record
 {
     std::string sequence_id;
     std::vector<seqan3::dna4> sequence;
