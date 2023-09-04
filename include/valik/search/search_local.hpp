@@ -24,15 +24,25 @@ namespace valik::app
 /**
  * @brief Function that calls Valik prefiltering and launches parallel threads of Stellar search.
  *
- * @tparam index_t Type of IBF.
+ * @tparam compressed IBF layout type.
+ * @tparam is_split Split query sequences.
  * @param arguments Command line arguments.
  * @param time_statistics Run-time statistics.
- * @param index Interleaved Bloom Filter.
  * @return false if search failed.
  */
-template <bool is_split, typename index_t>
-bool search_local(search_arguments const & arguments, search_time_statistics & time_statistics, index_t const & index)
+template <bool compressed, bool is_split>
+bool search_local(search_arguments const & arguments, search_time_statistics & time_statistics)
 {
+    using index_structure_t = std::conditional_t<compressed, index_structure::ibf_compressed, index_structure::ibf>;
+    auto index = valik_index<index_structure_t>{};
+
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+        load_index(index, arguments.index_file);
+        auto end = std::chrono::high_resolution_clock::now();
+        time_statistics.index_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+    }
+
     std::optional<database_metadata> ref_meta;
     if (!arguments.ref_meta_path.empty())
         ref_meta = database_metadata(arguments.ref_meta_path, false);

@@ -6,34 +6,42 @@ namespace valik::app
 /**
  * @brief Function that loads the index and launches local or distributed search.
  *
+ * @tparam compressed Interleaved Bloom Filter layout type.
  * @param arguments Command line arguments.
  */
 void valik_search(search_arguments const & arguments)
 {
+
     search_time_statistics time_statistics{};
-
-    //!TODO: this switch doesn't work, make is_compressed template parameter
-    using index_structure_t = index_structure::ibf;
-    if (arguments.compressed)
-        using index_structure_t = index_structure::ibf_compressed;
-    auto index = valik_index<index_structure_t>{};
-
-    {
-        auto start = std::chrono::high_resolution_clock::now();
-        load_index(index, arguments.index_file);
-        auto end = std::chrono::high_resolution_clock::now();
-        time_statistics.index_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
-    }
 
     bool failed;
     if (arguments.distribute)
-        failed = search_distributed(arguments, time_statistics, index);
+    {
+        if (arguments.compressed)
+            failed = search_distributed<true>(arguments, time_statistics);
+        else
+            failed = search_distributed<false>(arguments, time_statistics);
+    }
+
+    // Shared memory execution
     else
     {
-        if (arguments.query_seg_path.empty())
-            failed = search_local<false>(arguments, time_statistics, index);
+        if (arguments.compressed)
+        {
+            if (arguments.query_seg_path.empty())
+                failed = search_local<true, false>(arguments, time_statistics);
+            // Split long query sequences
+            else
+                failed = search_local<true, true>(arguments, time_statistics);
+        }
         else
-            failed = search_local<true>(arguments, time_statistics, index);
+        {
+            if (arguments.query_seg_path.empty())
+                failed = search_local<false, false>(arguments, time_statistics);
+            // Split long query sequences
+            else
+                failed = search_local<false, true>(arguments, time_statistics);
+        }
     }
 
     if (arguments.write_time)
