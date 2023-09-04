@@ -6,6 +6,8 @@
 
 #include <stellar/utils/stellar_app_runtime.hpp>
 
+#include <seqan/seq_io.h>
+
 namespace valik::app
 {
 
