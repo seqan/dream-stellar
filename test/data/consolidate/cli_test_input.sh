@@ -20,9 +20,9 @@ do
 
         for bin in 8 16
         do
-                valik split $ref_file --ref-meta ${bin}bins${minLen}overlap_reference_metadata.tsv \
+                valik split $ref_file --db-meta ${bin}bins${minLen}overlap_reference_metadata.tsv \
                                       --seg-meta ${bin}bins${minLen}overlap_segment_metadata.tsv \
-                                      --bins $bin --overlap $minLen
+                                      --seg-count $bin --overlap $minLen
 
                 valik build --from-segments $ref_file --seg-meta ${bin}bins${minLen}overlap_segment_metadata.tsv \
                 --ref-meta ${bin}bins${minLen}overlap_reference_metadata.tsv \

@@ -194,9 +194,8 @@ struct valik_base : public cli_test
     }
 
     static std::filesystem::path search_result_path(size_t const number_of_bins, size_t const window_size,
-                                                    size_t const number_of_errors) noexcept
+                                                    size_t const number_of_errors, std::string name = "") noexcept
     {
-        std::string name{};
         name += std::to_string(number_of_bins);
         name += "bins";
         name += std::to_string(window_size);
@@ -561,5 +560,6 @@ struct valik_search_clusters : public valik_base, public testing::WithParamInter
     size_t, size_t>> {};
 struct valik_search_segments : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t, size_t,
     size_t, size_t>> {};
-struct dream_search : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
+struct dream_short_search : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
+struct dream_split_search : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
 struct valik_consolidate : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};

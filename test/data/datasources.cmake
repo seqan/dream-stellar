@@ -2,12 +2,18 @@ cmake_minimum_required (VERSION 3.16)
 
 include (cmake/app_datasources.cmake)
 
+declare_datasource (FILE database.fasta
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/database.fasta
+                URL_HASH SHA256=7c7a8fcdd52a932cda76219f24024c1624292377103d9fd5a55abd288c6072be)
 declare_datasource (FILE single_query.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/single_query.fasta
                 URL_HASH SHA256=38cfe9dfc5c452002553225fba211569aaa974eb8c38145b890195f59a074773)
 declare_datasource (FILE single_query.fq
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/single_query.fq
                 URL_HASH SHA256=6f6837a3313b8288a1cffa1091329cf797ef72e2501c13e2b7dbd285a63a193b)
+declare_datasource (FILE single_reference_B.fasta
+                URL ${CMAKE_SOURCE_DIR}/test/data/split/single_reference_B.fasta
+                URL_HASH SHA256=fd75ba89825ff869a6b14d1a1fe9013baf0225c763cf66cf186b20b8dedfbf8b)
 declare_datasource (FILE single_reference.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/single_reference.fasta
                 URL_HASH SHA256=53d633474b01a68927d3ab1fd970b200e96403bb1fdcc53feb0367a2093be273)
@@ -74,9 +80,6 @@ declare_datasource (FILE write_out_0_16_reference_metadata.txt
 declare_datasource (FILE write_out_0_16_reference_segments.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_0_16/reference_segments.txt
                 URL_HASH SHA256=f41420e802d66d96bb3d2246d459791ebe5796da669600552a0c3eb43082345f)
-declare_datasource (FILE database.fasta
-                URL ${CMAKE_SOURCE_DIR}/test/data/split/database.fasta
-                URL_HASH SHA256=7c7a8fcdd52a932cda76219f24024c1624292377103d9fd5a55abd288c6072be)
 declare_datasource (FILE write_out_0_4_reference_metadata.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_0_4/reference_metadata.txt
                 URL_HASH SHA256=368803a8d29419321ba9704bc7cbd52abf6f7b2f528d725ed54a5ecadf5c6ae3)
@@ -248,12 +251,30 @@ declare_datasource (FILE 4bins15window1error.gff.out
 declare_datasource (FILE 4bins15window.ibf
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins15window.ibf
                 URL_HASH SHA256=8b584d0e55043b3cc0835674dc83f5a7db6143645071f49973a1d085ac4fb919)
+declare_datasource (FILE consolidated16bins13window1error.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/dream/consolidated16bins13window1error.gff
+                URL_HASH SHA256=28dc2cffdd32bb8a7bf2a8826280246103a518468bba32e65ec3c121e00c0fde)
+declare_datasource (FILE consolidated16bins15window1error.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/dream/consolidated16bins15window1error.gff
+                URL_HASH SHA256=32fbb8e408c436c7876012da039bc91426c18dd47a01d0f48e5b4b78e18da157)
+declare_datasource (FILE consolidated4bins13window1error.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/dream/consolidated4bins13window1error.gff
+                URL_HASH SHA256=28dc2cffdd32bb8a7bf2a8826280246103a518468bba32e65ec3c121e00c0fde)
+declare_datasource (FILE consolidated4bins15window1error.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/dream/consolidated4bins15window1error.gff
+                URL_HASH SHA256=28dc2cffdd32bb8a7bf2a8826280246103a518468bba32e65ec3c121e00c0fde)
 declare_datasource (FILE dummy_reads.fastq
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/dummy_reads.fastq
                 URL_HASH SHA256=f1aa9ca0fb0b87393923848f0389cc3fb5cfd4841566afaf72e6c55829b64d73)
 declare_datasource (FILE query.fastq
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/query.fastq
                 URL_HASH SHA256=cf44a9c49b3c68f43a2800bf791d215704b50d408fc2ddcdd754d976adb69bea)
+declare_datasource (FILE query_meta.txt
+                URL ${CMAKE_SOURCE_DIR}/test/data/dream/query_meta.txt
+                URL_HASH SHA256=1eb7e99026c694bddfdd61125084264d1b2a526a174aae5c8422c418a29ad9f0)
+declare_datasource (FILE query_seg_meta.txt
+                URL ${CMAKE_SOURCE_DIR}/test/data/dream/query_seg_meta.txt
+                URL_HASH SHA256=0e9366f96408e7cc03470b0f64bb789333725bb6a4523dd88fb4453d6c3266e9)
 declare_datasource (FILE ref.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/ref.fasta
                 URL_HASH SHA256=30ed460bfe4838a6ce3e97dff22b42c9312b0c801c8d671dbe82f6abca265f4e)
