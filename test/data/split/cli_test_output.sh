@@ -63,7 +63,7 @@ do
 
         echo "Searching IBF with $errors errors"
         search_out="single/"$seg_overlap"overlap"$b"bins"$w"window"$errors"errors.gff"
-        valik search --index "$index" --query "$query" --output "$search_out" --error "$errors" --pattern "$pattern" --overlap "$pat_overlap" --tau "$tau" --p_max "$p_max" --ref-meta "$ref_meta" --seg-meta "$seg_meta" --threads 1
+        valik search --distribute --index "$index" --query "$query" --output "$search_out" --error "$errors" --pattern "$pattern" --overlap "$pat_overlap" --tau "$tau" --p_max "$p_max" --ref-meta "$ref_meta" --seg-meta "$seg_meta" --threads 1
     rm "$search_out"
     done
 done

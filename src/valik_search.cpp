@@ -26,15 +26,15 @@ void valik_search(search_arguments const & arguments)
     }
 
     bool failed;
-    if (arguments.shared_memory)
+    if (arguments.distribute)
+        failed = search_distributed(arguments, time_statistics, index);
+    else
     {
         if (arguments.query_seg_path.empty())
             failed = search_local<false>(arguments, time_statistics, index);
         else
             failed = search_local<true>(arguments, time_statistics, index);
     }
-    else
-        failed = search_distributed(arguments, time_statistics, index);
 
     if (arguments.write_time)
         write_time_statistics(time_statistics, arguments.out_file.string() + ".time");

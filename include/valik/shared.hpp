@@ -143,7 +143,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
     std::filesystem::path ref_meta_path{};
     std::filesystem::path ref_seg_path{};
     std::filesystem::path query_seg_path{};
-    bool shared_memory{false};
+    bool distribute{false};
 
 };
 

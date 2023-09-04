@@ -33,7 +33,6 @@ TEST_P(dream_short_search, short_shared_mem)
                                                         "--output ", index_path);
 
     cli_test_result const result = execute_app("valik", "search",
-                                                        "--shared-memory",
                                                         "--output search.gff",
                                                         "--pattern 50",
                                                         "--overlap 49",
@@ -81,7 +80,6 @@ TEST_F(dream_short_search, no_matches)
                                                         "--output ", ibf_path(number_of_bins, window_size));
 
     cli_test_result const result = execute_app("valik", "search",
-                                                        "--shared-memory",
                                                         "--output search.gff",
                                                         "--pattern 50",
                                                         "--overlap 49",
@@ -137,7 +135,6 @@ TEST_P(dream_split_search, split_shared_mem)
                                                         "--output ", index_path);
 
     cli_test_result const search = execute_app("valik", "search",
-                                                        "--shared-memory",
                                                         "--output search.gff",
                                                         "--pattern 50",
                                                         "--overlap 49",

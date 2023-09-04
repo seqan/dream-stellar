@@ -149,6 +149,7 @@ TEST_P(valik_search_clusters, search)
 
     cli_test_result const result = execute_app("valik", "search",
                                                         "--output search.gff",
+                                                        "--distribute",
                                                         "--pattern", std::to_string(pattern_size),
                                                         "--overlap", std::to_string(overlap),
                                                         "--error ", std::to_string(number_of_errors),
@@ -196,6 +197,7 @@ TEST_P(valik_search_segments, search)
 
     cli_test_result const result = execute_app("valik", "search",
                                                         "--output search.gff",
+                                                        "--distribute",
                                                         "--pattern", std::to_string(pattern_size),
                                                         "--overlap", std::to_string(overlap),
                                                         "--error ", std::to_string(number_of_errors),

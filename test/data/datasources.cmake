@@ -5,15 +5,9 @@ include (cmake/app_datasources.cmake)
 declare_datasource (FILE database.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/database.fasta
                 URL_HASH SHA256=7c7a8fcdd52a932cda76219f24024c1624292377103d9fd5a55abd288c6072be)
-declare_datasource (FILE single_query.fasta
-                URL ${CMAKE_SOURCE_DIR}/test/data/split/single_query.fasta
-                URL_HASH SHA256=38cfe9dfc5c452002553225fba211569aaa974eb8c38145b890195f59a074773)
 declare_datasource (FILE single_query.fq
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/single_query.fq
                 URL_HASH SHA256=6f6837a3313b8288a1cffa1091329cf797ef72e2501c13e2b7dbd285a63a193b)
-declare_datasource (FILE single_reference_B.fasta
-                URL ${CMAKE_SOURCE_DIR}/test/data/split/single_reference_B.fasta
-                URL_HASH SHA256=fd75ba89825ff869a6b14d1a1fe9013baf0225c763cf66cf186b20b8dedfbf8b)
 declare_datasource (FILE single_reference.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/single_reference.fasta
                 URL_HASH SHA256=53d633474b01a68927d3ab1fd970b200e96403bb1fdcc53feb0367a2093be273)

@@ -97,10 +97,10 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "query-meta",
                     .description = "Path to query genome metadata for finding all local alignment between two long sequences.",
                     .validator = sharg::input_file_validator{}});
-    parser.add_flag(arguments.shared_memory,
+    parser.add_flag(arguments.distribute,
                     sharg::config{.short_id = '\0',
-                    .long_id = "shared-memory",
-                    .description = "Launch Stellar instances on a single machine with shared memory."});
+                    .long_id = "distribute",
+                    .description = "Launch parallel Stellar instances each of them with independent memory."});
     parser.add_option(arguments.threads,
                     sharg::config{.short_id = '\0',
                     .long_id = "threads",

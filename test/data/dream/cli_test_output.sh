@@ -43,9 +43,9 @@ do
             dist_out=$b"bins"$w"window"$e"error.gff"
             dist_consolidated="consolidated"$b"bins"$w"window"$e"error.gff"
             #local_out="local"$b"bins"$w"window"$e"error.gff"
-            valik search --index "$index" --query "$query" --output "$dist_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
+            valik search --distribute --index "$index" --query "$query" --output "$dist_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
             valik consolidate --input "$dist_out" --output "$dist_consolidated" --ref-meta "$ref_meta"
-            #valik search --shared-memory --index "$index" --query "$query" --output "$local_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
+            #valik search --index "$index" --query "$query" --output "$local_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
         done
 
         rm $VALIK_TMP/*
