@@ -5,6 +5,7 @@
 #include <valik/split/database_segments.hpp>
 
 #include <stellar/utils/stellar_app_runtime.hpp>
+#include <stellar/io/import_sequence.hpp>
 
 #include <seqan/seq_io.h>
 
