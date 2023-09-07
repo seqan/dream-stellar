@@ -18,6 +18,9 @@ target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall
 add_library ("${PROJECT_NAME}_split_lib" STATIC valik_split.cpp)
 target_link_libraries ("${PROJECT_NAME}_split_lib" PUBLIC "${PROJECT_NAME}_interface")
 
+add_library ("${PROJECT_NAME}_split_write_lib" STATIC split/write_seg_sequences.cpp)
+target_link_libraries ("${PROJECT_NAME}_split_write_lib" PUBLIC "${PROJECT_NAME}_interface")
+
 # Valik build
 add_library ("${PROJECT_NAME}_build_lib" STATIC valik_build.cpp)
 target_link_libraries ("${PROJECT_NAME}_build_lib" PUBLIC "${PROJECT_NAME}_interface")
@@ -42,6 +45,9 @@ target_link_libraries ("${PROJECT_NAME}_consolidation_lib" PUBLIC "${PROJECT_NAM
 
 add_library ("${PROJECT_NAME}_consolidation_io_lib" STATIC consolidate/io.cpp)
 target_link_libraries ("${PROJECT_NAME}_consolidation_io_lib" PUBLIC "${PROJECT_NAME}_interface")
+
+add_library ("${PROJECT_NAME}_merge_processes_lib" STATIC consolidate/merge_processes.cpp)
+target_link_libraries ("${PROJECT_NAME}_merge_processes_lib" PUBLIC "${PROJECT_NAME}_interface")
 
 # Sliding window argument parsing
 add_library ("${PROJECT_NAME}_argument_parsing_shared_lib" STATIC argument_parsing/shared.cpp)
@@ -71,10 +77,12 @@ target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_shared_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_top_level_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_split_lib")
+target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_split_write_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_build_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_search_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_consolidation_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_consolidation_io_lib")
+target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_merge_processes_lib")
 
 # Sliding window executable
 add_executable ("${PROJECT_NAME}" valik_main.cpp)

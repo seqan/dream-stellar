@@ -1,7 +1,7 @@
 #include <valik/argument_parsing/shared.hpp>
 #include <valik/shared.hpp>
-#include <valik/split/reference_metadata.hpp>
-#include <valik/split/reference_segments.hpp>
+#include <valik/split/database_metadata.hpp>
+#include <valik/split/database_segments.hpp>
 #include <valik/split/write_seg_sequences.hpp>
 
 namespace valik::app
@@ -9,21 +9,23 @@ namespace valik::app
 
 //-----------------------------
 //
-// Divide reference database into partially overlapping segments.
+// Divide reference or query database into partially overlapping segments.
 //
 //-----------------------------
 void valik_split(split_arguments const & arguments)
 {
     // Linear scan over reference file to extract metadata
-    reference_metadata reference(arguments.ref_file, true);
-    reference.to_file(arguments.ref_out);
+    database_metadata database(arguments.db_file, true);
+    database.to_file(arguments.db_out);
 
     // For each segment assign start, length and bin number
-    reference_segments segments(arguments.bins, arguments.overlap, reference);
+    database_segments segments(arguments.seg_count, arguments.overlap, database);
     segments.to_file(arguments.seg_out);
 
-    if (arguments.write_seg)
-        write_seg_sequences<seqan3::dna4>(reference, segments, arguments.ref_file);
+    if (arguments.write_ref)
+        write_reference_segments(database, segments, arguments.db_file);
+    if (arguments.write_query)
+        write_query_segments(database, segments, arguments.db_file);
 }
 
 } // namespace valik::app

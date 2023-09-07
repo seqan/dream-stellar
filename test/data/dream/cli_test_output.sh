@@ -29,7 +29,7 @@ do
     echo "Splitting the genome into $b segments that overlap by $seg_overlap"
     ref_meta="ref_meta.txt"
     seg_meta="seg_meta"$seg_overlap"overlap"$b"bins.txt"
-    valik split "$ref_input" --overlap "$seg_overlap" --bins "$b" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
+    valik split "$ref_input" --overlap "$seg_overlap" --seg-count "$b" --db-meta "$ref_meta" --seg-meta "$seg_meta"
 
     for w in 13 15
     do
@@ -41,9 +41,11 @@ do
         do
             echo "Searching IBF with $e errors"
             dist_out=$b"bins"$w"window"$e"error.gff"
+            dist_consolidated="consolidated"$b"bins"$w"window"$e"error.gff"
             #local_out="local"$b"bins"$w"window"$e"error.gff"
-            valik search --index "$index" --query "$query" --output "$dist_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
-            #valik search --shared-memory --index "$index" --query "$query" --output "$local_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
+            valik search --distribute --index "$index" --query "$query" --output "$dist_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
+            valik consolidate --input "$dist_out" --output "$dist_consolidated" --ref-meta "$ref_meta"
+            #valik search --index "$index" --query "$query" --output "$local_out" --error "$e" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
         done
 
         rm $VALIK_TMP/*

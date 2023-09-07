@@ -101,7 +101,7 @@ TEST_F(argparse_split, input_missing)
 {
     cli_test_result const result = execute_app("valik", "split",
                                                          "--seg-meta seg",
-                                                         "--ref-meta ref");
+                                                         "--db-meta ref");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] Not enough positional arguments provided (Need at least 1). See -h/--help for more information.\n"});
@@ -112,22 +112,22 @@ TEST_F(argparse_split, input_invalid)
     cli_test_result const result = execute_app("valik", "split",
                                                          "nonexistent",
                                                          "--seg-meta seg",
-                                                         "--ref-meta ref");
+                                                         "--db-meta ref");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for positional option 1: The file \"nonexistent\" does not exist!\n"});
 }
 
-TEST_F(argparse_split, no_bins)
+TEST_F(argparse_split, no_seg_count)
 {
     cli_test_result const result = execute_app("valik", "split",
                                                          "dummy.fasta",
                                                          "--seg-meta seg",
-                                                         "--ref-meta ref",
-                                                         "--bins 0");
+                                                         "--db-meta ref",
+                                                         "--seg-count 0");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --bins: Value 0 is not in range [1,29952].\n"});
+    EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option -n/--seg-count: Value 0 is not in range [1,29952].\n"});
 }
 
 TEST_F(argparse_build, input_missing)

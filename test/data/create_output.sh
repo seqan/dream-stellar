@@ -3,7 +3,7 @@ cd "$(dirname "$0")"
 set -Eeuo pipefail
 
 if ! which valik 2> /dev/null; then
-    echo "valik not found. please compile it and add it the path to it to the PATH variable"
+    echo "valik not found. please compile it and add its path to the PATH variable"
     exit 255
 fi
 

@@ -4,8 +4,10 @@
 #include <vector>
 
 #include <seqan3/io/sequence_file/input.hpp>
+#include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 #include <seqan3/search/kmer_index/shape.hpp>
 
+#include <raptor/threshold/threshold.hpp>
 #include <raptor/threshold/threshold_parameters.hpp>
 
 #include <stellar3.shared.hpp>
@@ -36,13 +38,14 @@ struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
 
 struct split_arguments
 {
-    std::filesystem::path ref_file{};
-    std::filesystem::path ref_out{"reference_metadata.txt"};
+    std::filesystem::path db_file{};
+    std::filesystem::path db_out{"reference_metadata.txt"};
     std::filesystem::path seg_out{"reference_segments.txt"};
 
     size_t overlap{150};
-    size_t bins{64};
-    bool write_seg{false};
+    size_t seg_count{64};
+    bool write_ref{false};
+    bool write_query{false};
 };
 
 struct build_arguments
@@ -136,9 +139,11 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
         };
     }
 
-    std::filesystem::path seg_path{};
+    double stellar_er_rate{};
     std::filesystem::path ref_meta_path{};
-    bool shared_memory{false};
+    std::filesystem::path ref_seg_path{};
+    std::filesystem::path query_seg_path{};
+    bool distribute{false};
 
 };
 

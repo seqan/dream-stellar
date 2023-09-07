@@ -12,24 +12,24 @@
 
 TEST_P(valik_split, split)
 {
-    auto const [overlap, bins] = GetParam();
+    auto const [overlap, seg_count] = GetParam();
 
     cli_test_result const result = execute_app("valik", "split",
                                                          data("various_chromosome_lengths.fasta"),
                                                          "--overlap ", std::to_string(overlap),
-                                                         "--bins ", std::to_string(bins),
-                                                         "--ref-meta reference_metadata.txt",
+                                                         "--seg-count ", std::to_string(seg_count),
+                                                         "--db-meta reference_metadata.txt",
                                                          "--seg-meta reference_segments.txt");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"Reference sequence: chr5 is too short and will be skipped.\n"});
+    EXPECT_EQ(result.err, std::string{"Sequence: chr5 is too short and will be skipped.\n"});
 
     std::string const expected_metadata = string_from_file(data("chromosome_metadata.txt"), std::ios::binary);
     std::string const actual_metadata = string_from_file("reference_metadata.txt", std::ios::binary);
 
     EXPECT_TRUE(expected_metadata == actual_metadata);
 
-    std::string const expected_segments = string_from_file(segment_metadata_path(overlap, bins), std::ios::binary);
+    std::string const expected_segments = string_from_file(segment_metadata_path(overlap, seg_count), std::ios::binary);
     std::string const actual_segments = string_from_file("reference_segments.txt", std::ios::binary);
 
     EXPECT_TRUE(expected_segments == actual_segments);
@@ -149,6 +149,7 @@ TEST_P(valik_search_clusters, search)
 
     cli_test_result const result = execute_app("valik", "search",
                                                         "--output search.gff",
+                                                        "--distribute",
                                                         "--pattern", std::to_string(pattern_size),
                                                         "--overlap", std::to_string(overlap),
                                                         "--error ", std::to_string(number_of_errors),
@@ -196,6 +197,7 @@ TEST_P(valik_search_segments, search)
 
     cli_test_result const result = execute_app("valik", "search",
                                                         "--output search.gff",
+                                                        "--distribute",
                                                         "--pattern", std::to_string(pattern_size),
                                                         "--overlap", std::to_string(overlap),
                                                         "--error ", std::to_string(number_of_errors),
@@ -240,7 +242,7 @@ TEST_P(valik_consolidate, consolidation)
     auto const [number_of_bins, segment_overlap] = GetParam();
 
     std::filesystem::path ref_meta_path = consolidation_meta_path(number_of_bins, segment_overlap);
-    valik::reference_metadata reference(ref_meta_path, false);
+    valik::database_metadata reference(ref_meta_path, false);
 
     cli_test_result const result = execute_app("valik", "consolidate",
                                                         "--input ", consolidation_input_path(number_of_bins, segment_overlap),

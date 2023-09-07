@@ -128,9 +128,9 @@ void find_pattern_bins(pattern_bounds const & pattern,
 // - overlap shows how much consequtive patterns overlap
 //
 //-----------------------------
-template <seqan3::data_layout ibf_data_layout, typename result_cb_t>
+template <seqan3::data_layout ibf_data_layout, typename result_cb_t, typename query_t>
 void local_prefilter(
-    std::span<query_record const> const & records,
+    std::span<query_t const> const & records,
     seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
     search_arguments const & arguments,
     raptor::threshold::threshold const & thresholder,
@@ -149,7 +149,7 @@ void local_prefilter(
         seqan3::window_size{arguments.window_size},
         seqan3::seed{adjust_seed(arguments.shape_weight)});
 
-    for (query_record const & record : records)
+    for (query_t const & record : records)
     {
         std::vector<seqan3::dna4> const & seq = record.sequence;
 
