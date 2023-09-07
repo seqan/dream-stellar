@@ -29,11 +29,11 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       .description = "Please provide a valid path to the output.",
                       .required = true,
                       .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {"gff"}}});
-    parser.add_option(arguments.errors,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "error",
-                      .description = "Choose the number of errors.",
-                      .validator = positive_integer_validator{true}});
+    parser.add_option(arguments.error_rate,
+                      sharg::config{.short_id = 'e',
+                      .long_id = "error-rate",
+                      .description = "Choose the maximum allowed error rate of a local match.",
+                      .validator = error_rate_validator{}});
     parser.add_option(arguments.tau,
                       sharg::config{.short_id = '\0',
                       .long_id = "tau",
@@ -226,10 +226,7 @@ void run_search(sharg::parser & parser)
     else
         arguments.overlap = arguments.pattern_size - 1;
 
-    // ==========================================
-    //!WORKAROUND: Stellar does not allow smaller error rates
-    // ==========================================
-    arguments.stellar_er_rate = std::max((double) arguments.errors / (double) arguments.pattern_size, 0.00001);
+    arguments.errors = std::ceil(arguments.error_rate * arguments.pattern_size);
 
     // ==========================================
     // Dispatch

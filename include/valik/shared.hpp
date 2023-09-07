@@ -139,7 +139,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
         };
     }
 
-    double stellar_er_rate{};
+    float error_rate{};
     std::filesystem::path ref_meta_path{};
     std::filesystem::path ref_seg_path{};
     std::filesystem::path query_seg_path{};

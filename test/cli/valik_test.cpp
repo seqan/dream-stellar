@@ -139,6 +139,7 @@ INSTANTIATE_TEST_SUITE_P(segment_build_suite,
 TEST_P(valik_search_clusters, search)
 {
     auto const [number_of_bins, window_size, number_of_errors, pattern_size, overlap] = GetParam();
+    float error_rate = (float) number_of_errors / (float) pattern_size;
 
     setup_tmp_dir();
     setenv("VALIK_STELLAR", "echo", true);
@@ -152,7 +153,7 @@ TEST_P(valik_search_clusters, search)
                                                         "--distribute",
                                                         "--pattern", std::to_string(pattern_size),
                                                         "--overlap", std::to_string(overlap),
-                                                        "--error ", std::to_string(number_of_errors),
+                                                        "--error-rate ", std::to_string(error_rate),
                                                         "--index ", ibf_path(number_of_bins, window_size),
                                                         "--query ", data("query.fq"),
                                                         "--threads 1",
@@ -190,6 +191,7 @@ INSTANTIATE_TEST_SUITE_P(cluster_search_suite,
 TEST_P(valik_search_segments, search)
 {
     auto const [segment_overlap, number_of_bins, window_size, number_of_errors, pattern_size, overlap] = GetParam();
+    float error_rate = (float) number_of_errors / (float) pattern_size;
 
     setup_tmp_dir();
     setenv("VALIK_STELLAR", "echo", true);
@@ -200,7 +202,7 @@ TEST_P(valik_search_segments, search)
                                                         "--distribute",
                                                         "--pattern", std::to_string(pattern_size),
                                                         "--overlap", std::to_string(overlap),
-                                                        "--error ", std::to_string(number_of_errors),
+                                                        "--error-rate ", std::to_string(error_rate),
                                                         "--index ", ibf_path(segment_overlap, number_of_bins, window_size),
                                                         "--query ", data("single_query.fq"),
                                                         "--tau 0.75",
