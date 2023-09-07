@@ -1,9 +1,10 @@
 #pragma once
 
+#include <utilities/shared.hpp>
+
 namespace valik
 {
 
-#include <utilities/shared.hpp>
 struct stellar_match
 {
     std::string dname{};
