@@ -22,6 +22,25 @@ struct power_of_two_validator
     }
 };
 
+struct error_rate_validator
+{
+    using option_value_type = float;
+
+    void operator()(option_value_type const & val) const
+    {
+        if ((val < 0.0) || (val > 0.2))
+        {
+            throw sharg::validation_error{"The provided error rate is not in range [0, 0.2]."};
+        }
+    }
+
+    std::string get_help_page_message() const
+    {
+        return "Error rate must be in range [0, 0.2].";
+    }
+
+};
+
 class positive_integer_validator
 {
 public:

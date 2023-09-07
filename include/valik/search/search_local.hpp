@@ -155,7 +155,10 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
                     }
                     threadOptions.binSequences.push_back(bin_id);
                 }
-                threadOptions.numEpsilon = arguments.stellar_er_rate;
+                // ==========================================
+                //!WORKAROUND: Stellar does not allow smaller error rates
+                // ==========================================
+                threadOptions.numEpsilon = std::max(arguments.error_rate, (float) 0.00001);
                 threadOptions.epsilon = stellar::utils::fraction::from_double(threadOptions.numEpsilon).limit_denominator();
                 threadOptions.minLength = arguments.pattern_size;
                 threadOptions.disableThresh = arguments.disableThresh;

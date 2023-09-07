@@ -99,7 +99,11 @@ bool search_distributed(search_arguments const & arguments, search_time_statisti
                 if (arguments.write_time)
                     process_args.insert(process_args.end(), "--time");
 
-                process_args.insert(process_args.end(), {"-e", std::to_string(arguments.stellar_er_rate),
+                // ==========================================
+                //!WORKAROUND: Stellar does not allow smaller error rates
+                // ==========================================
+                float numEpsilon = std::max(arguments.error_rate, (float) 0.00001);
+                process_args.insert(process_args.end(), {"-e", std::to_string(numEpsilon),
                                                         "-l", std::to_string(arguments.pattern_size),
                                                         "-o", std::string(cart_queries_path) + ".gff"});
 

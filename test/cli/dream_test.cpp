@@ -13,6 +13,8 @@
 TEST_P(dream_short_search, short_shared_mem)
 {
     auto const [number_of_bins, window_size, number_of_errors] = GetParam();
+    size_t pattern_size = 50;
+    float error_rate = (float) number_of_errors / (float) pattern_size;
 
     setup_tmp_dir();
     setenv("VALIK_MERGE", "cat", true);
@@ -34,9 +36,9 @@ TEST_P(dream_short_search, short_shared_mem)
 
     cli_test_result const result = execute_app("valik", "search",
                                                         "--output search.gff",
-                                                        "--pattern 50",
-                                                        "--overlap 49",
-                                                        "--error ", std::to_string(number_of_errors),
+                                                        "--pattern ", std::to_string(pattern_size),
+                                                        "--overlap ", std::to_string(pattern_size - 1),
+                                                        "--error-rate ", std::to_string(error_rate),
                                                         "--index ", index_path,
                                                         "--query ", data("query.fastq"),
                                                         "--ref-meta", ref_meta_path,
@@ -83,7 +85,7 @@ TEST_F(dream_short_search, no_matches)
                                                         "--output search.gff",
                                                         "--pattern 50",
                                                         "--overlap 49",
-                                                        "--error 1",
+                                                        "--error-rate 0",
                                                         "--index ", ibf_path(number_of_bins, window_size),
                                                         "--query ", data("dummy_reads.fastq"),
                                                         "--ref-meta", data("ref_meta.txt"),
@@ -107,6 +109,8 @@ TEST_P(dream_split_search, split_shared_mem)
 
     setup_tmp_dir();
     setenv("VALIK_MERGE", "cat", true);
+    size_t pattern_size = 50;
+    float error_rate = (float) number_of_errors / (float) pattern_size;
 
     size_t query_seg_count = 60;
     std::filesystem::path ref_meta_path = data("ref_meta.txt");
@@ -136,9 +140,9 @@ TEST_P(dream_split_search, split_shared_mem)
 
     cli_test_result const search = execute_app("valik", "search",
                                                         "--output search.gff",
-                                                        "--pattern 50",
-                                                        "--overlap 49",
-                                                        "--error ", std::to_string(number_of_errors),
+                                                        "--pattern ", std::to_string(pattern_size),
+                                                        "--overlap ", std::to_string(pattern_size - 1),
+                                                        "--error-rate ", std::to_string(error_rate),
                                                         "--index ", index_path,
                                                         "--query ", data("query.fastq"),
                                                         "--ref-meta", ref_meta_path,
