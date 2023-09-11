@@ -24,11 +24,4 @@ std::vector<field_t> get_line_vector(std::string const line, char const delim)
     return line_vec;
 }
 
-struct consolidation_arguments
-{
-    std::filesystem::path matches_in{};
-    std::filesystem::path ref_meta_path{};
-    std::filesystem::path matches_out{};
-};
-
 } // namespace valik

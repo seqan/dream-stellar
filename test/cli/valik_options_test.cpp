@@ -76,7 +76,7 @@ TEST_F(argparse, no_subparser)
     cli_test_result const result = execute_app("valik", "foo");
     std::string const expected
     {
-        "[Error] You misspelled the subcommand! Please specify which sub-program you want to use: one of [split, build, search, consolidate]. "
+        "[Error] You misspelled the subcommand! Please specify which sub-program you want to use: one of [split, build, search]. "
         "Use -h/--help for more information.\n"
     };
     EXPECT_NE(result.exit_code, 0);
@@ -89,7 +89,7 @@ TEST_F(argparse, unknown_option)
     cli_test_result const result = execute_app("valik", "-v");
     std::string const expected
     {
-        "[Error] You misspelled the subcommand! Please specify which sub-program you want to use: one of [split, build, search, consolidate]. "
+        "[Error] You misspelled the subcommand! Please specify which sub-program you want to use: one of [split, build, search]. "
         "Use -h/--help for more information.\n"
     };
     EXPECT_NE(result.exit_code, 0);

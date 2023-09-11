@@ -1,1 +1,9 @@
 add_api_test (local_prefilter_test.cpp)
+
+target_use_datasources (local_prefilter_test FILES 50overlap_full.gff)
+target_use_datasources (local_prefilter_test FILES 8bins50overlap_dream_all.gff)
+target_use_datasources (local_prefilter_test FILES 16bins50overlap_dream_all.gff)
+target_use_datasources (local_prefilter_test FILES 8bins50overlap_dream_consolidated.gff)
+target_use_datasources (local_prefilter_test FILES 16bins50overlap_dream_consolidated.gff)
+target_use_datasources (local_prefilter_test FILES 8bins50overlap_reference_metadata.tsv)
+target_use_datasources (local_prefilter_test FILES 16bins50overlap_reference_metadata.tsv)

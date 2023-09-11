@@ -234,39 +234,3 @@ INSTANTIATE_TEST_SUITE_P(segment_search_suite,
                                                 std::to_string(std::get<5>(info.param)) + "_overlap";
                              return name;
                          });
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////// valik consolidate //////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-TEST_P(valik_consolidate, consolidation)
-{
-    auto const [number_of_bins, segment_overlap] = GetParam();
-
-    std::filesystem::path ref_meta_path = consolidation_meta_path(number_of_bins, segment_overlap);
-    valik::database_metadata reference(ref_meta_path, false);
-
-    cli_test_result const result = execute_app("valik", "consolidate",
-                                                        "--input ", consolidation_input_path(number_of_bins, segment_overlap),
-                                                        "--ref-meta", ref_meta_path,
-                                                        "--output consolidated.gff");
-
-    EXPECT_EQ(result.exit_code, 0);
-    EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{});
-
-    auto expected = valik::read_stellar_output(stellar_gold_path(segment_overlap), reference, std::ios::binary);
-    auto actual = valik::read_stellar_output("consolidated.gff", reference);
-
-    compare_gff_out(expected, actual);
-}
-
-INSTANTIATE_TEST_SUITE_P(consolidation_suite,
-                         valik_consolidate,
-                         testing::Combine(testing::Values(8, 16), testing::Values(50)),
-                         [] (testing::TestParamInfo<valik_consolidate::ParamType> const & info)
-                         {
-                             std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +
-                                                std::to_string(std::get<1>(info.param)) + "_overlap";
-                             return name;
-                         });

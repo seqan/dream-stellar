@@ -9,4 +9,5 @@ macro (add_api_test test_filename)
     add_dependencies (api_test ${target})
 endmacro ()
 
+add_subdirectory(utilities)
 add_subdirectory(valik)

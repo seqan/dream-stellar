@@ -19,7 +19,6 @@ namespace valik
  * @param var_pack Environmental variables, this function calls the merge executable.
  * @return false if merge failed.
  */
-
 bool merge_processes(search_arguments const & arguments,
                      app::search_time_statistics & time_statistics,
                      app::execution_metadata & exec_meta,

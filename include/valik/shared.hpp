@@ -114,6 +114,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
     std::vector<std::vector<std::string>> bin_path{};
     std::filesystem::path query_file{};
     std::filesystem::path index_file{};
+    std::filesystem::path all_matches{};
     std::filesystem::path out_file{"search.gff"};
 
     bool compressed{false};

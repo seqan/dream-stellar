@@ -1,7 +1,5 @@
 #include <seqan3/argument_parser/all.hpp>
 
-#include <utilities/argument_parsing/consolidate.hpp>
-
 #include <valik/argument_parsing/split.hpp>
 #include <valik/argument_parsing/build.hpp>
 #include <valik/argument_parsing/search.hpp>
@@ -13,7 +11,7 @@ int main(int argc, char ** argv)
 {
     try
     {
-        sharg::parser top_level_parser{"valik", argc, argv, sharg::update_notifications::off, {"split", "build", "search", "consolidate"}};
+        sharg::parser top_level_parser{"valik", argc, argv, sharg::update_notifications::off, {"split", "build", "search"}};
         valik::app::init_top_level_parser(top_level_parser);
 
         valik::app::try_parsing(top_level_parser);
@@ -25,8 +23,6 @@ int main(int argc, char ** argv)
             valik::app::run_build(sub_parser);
         if (sub_parser.info.app_name == std::string_view{"valik-search"})
             valik::app::run_search(sub_parser);
-        if (sub_parser.info.app_name == std::string_view{"valik-consolidate"})
-            valik::app::run_consolidation(sub_parser);
     }
     catch(std::exception const& e)
     {
