@@ -72,7 +72,6 @@ target_use_datasources (valik_test FILES query.fq)
 
 target_use_datasources (valik_test FILES 16bins50overlap_dream_all.gff)
 target_use_datasources (valik_test FILES 16bins50overlap_reference_metadata.tsv)
-target_use_datasources (valik_test FILES 50overlap_full.gff)
 target_use_datasources (valik_test FILES 8bins50overlap_dream_all.gff)
 target_use_datasources (valik_test FILES 8bins50overlap_reference_metadata.tsv)
 target_use_datasources (valik_test FILES multi_seq_ref.fasta)
