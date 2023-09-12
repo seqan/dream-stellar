@@ -41,4 +41,4 @@ done
 
 ./dream/cli_test_input.sh $SEED
 
-./consolidate/cli_test_input.sh
+./consolidate/api_test_input.sh

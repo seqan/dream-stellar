@@ -28,14 +28,6 @@ std::filesystem::path consolidation_meta_path(size_t const number_of_bins, size_
     return data(name);
 }
 
-std::filesystem::path stellar_gold_path(size_t const overlap) noexcept
-{
-    std::string name{};
-    name += std::to_string(overlap);
-    name += "overlap_full.gff";
-    return data(name);
-}
-
 void compare_gff_out(std::vector<valik::stellar_match> const & expected,
                             std::vector<valik::stellar_match> const & actual)
 {
@@ -70,7 +62,7 @@ TEST(consolidate_matches, bins8overlap50)
     valik::consolidate_matches(arguments);
 
     valik::database_metadata reference(arguments.ref_meta_path, false);
-    auto expected = valik::read_stellar_output(stellar_gold_path(segment_overlap), reference, std::ios::binary);
+    auto expected = valik::read_stellar_output(data("stellar_truth.gff"), reference, std::ios::binary);
     auto actual = valik::read_stellar_output("consolidated.gff", reference);
 
     compare_gff_out(expected, actual);
@@ -89,7 +81,7 @@ TEST(consolidate_matches, bins16overlap50)
     valik::consolidate_matches(arguments);
 
     valik::database_metadata reference(arguments.ref_meta_path, false);
-    auto expected = valik::read_stellar_output(stellar_gold_path(segment_overlap), reference, std::ios::binary);
+    auto expected = valik::read_stellar_output(data("stellar_truth.gff"), reference, std::ios::binary);
     auto actual = valik::read_stellar_output("consolidated.gff", reference);
 
     compare_gff_out(expected, actual);

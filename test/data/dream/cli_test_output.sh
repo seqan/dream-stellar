@@ -24,6 +24,8 @@ pat_overlap=49        # how much adjacent patterns overlap
 
 ref_input="ref.fasta"
 query="query.fastq"
+e=1
+er=$(echo $e/$pattern | bc -l)
 for b in 4 16
 do
     echo "Splitting the genome into $b segments that overlap by $seg_overlap"
@@ -37,22 +39,19 @@ do
         index=$b"bins"$w"window.ibf"
         valik build "$ref_input" --kmer "$k" --window "$w" --size "$ibf_size" --output "$index" --from-segments --ref-meta "$ref_meta" --seg-meta "$seg_meta"
 
-        for e in 1
-        do
-            echo "Searching IBF with $e errors"
-            dist_out=$b"bins"$w"window"$e"error.gff"
-            dist_consolidated="consolidated"$b"bins"$w"window"$e"error.gff"
-            #local_out="local"$b"bins"$w"window"$e"error.gff"
-            er=$(echo $e/$pattern | bc -l)
-            valik search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
-            #valik search --index "$index" --query "$query" --output "$local_out" --error "$er" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
-        done
+        echo "Searching IBF with $e errors"
+        dist_out=$b"bins"$w"window"$e"error.gff"
+        dist_consolidated="consolidated"$b"bins"$w"window"$e"error.gff"
+        #local_out="local"$b"bins"$w"window"$e"error.gff"
+        valik search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
+        #valik search --index "$index" --query "$query" --output "$local_out" --error "$er" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
 
         rm $VALIK_TMP/*
     done
 done
 
-#stellar_out="stellar.gff"
-#stellar ref.fasta query.fasta -e 0.02 -l 50 -o $stellar_out
+stellar_out="stellar.gff"
+sed -n '1~4s/^@/>/p;2~4p' $query > query.fasta
+stellar $ref_input query.fasta -e $er -l $pattern -o $stellar_out
 
 rm -r $VALIK_TMP
