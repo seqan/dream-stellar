@@ -52,6 +52,6 @@ done
 
 stellar_out="stellar.gff"
 sed -n '1~4s/^@/>/p;2~4p' $query > query.fasta
-stellar $ref_input query.fasta -e $er -l $pattern -o $stellar_out
+stellar $ref_input query.fasta -e $er -l $pattern -o $stellar_out > /dev/null
 
 rm -r $VALIK_TMP

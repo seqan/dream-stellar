@@ -3,7 +3,7 @@
 #include <utilities/consolidate/consolidate_matches.hpp>
 
 // Generate the full path of a test input file that is provided in the data directory.
-std::filesystem::path data(std::string const & filename)
+std::filesystem::path data_path(std::string const & filename)
 {
     return std::filesystem::path{std::string{DATADIR}}.concat(filename);
 }
@@ -15,7 +15,7 @@ std::filesystem::path consolidation_input_path(size_t const number_of_bins, size
     name += "bins";
     name += std::to_string(overlap);
     name += "overlap_dream_all.gff";
-    return data(name);
+    return data_path(name);
 }
 
 std::filesystem::path consolidation_meta_path(size_t const number_of_bins, size_t const overlap) noexcept
@@ -25,7 +25,7 @@ std::filesystem::path consolidation_meta_path(size_t const number_of_bins, size_
     name += "bins";
     name += std::to_string(overlap);
     name += "overlap_reference_metadata.tsv";
-    return data(name);
+    return data_path(name);
 }
 
 void compare_gff_out(std::vector<valik::stellar_match> const & expected,
@@ -62,8 +62,8 @@ TEST(consolidate_matches, bins8overlap50)
     valik::consolidate_matches(arguments);
 
     valik::database_metadata reference(arguments.ref_meta_path, false);
-    auto expected = valik::read_stellar_output(data("stellar_truth.gff"), reference, std::ios::binary);
-    auto actual = valik::read_stellar_output("consolidated.gff", reference);
+    auto expected = valik::read_stellar_output(data_path("stellar_truth.gff"), reference, std::ios::binary);
+    auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
 
     compare_gff_out(expected, actual);
 }
@@ -81,8 +81,8 @@ TEST(consolidate_matches, bins16overlap50)
     valik::consolidate_matches(arguments);
 
     valik::database_metadata reference(arguments.ref_meta_path, false);
-    auto expected = valik::read_stellar_output(data("stellar_truth.gff"), reference, std::ios::binary);
-    auto actual = valik::read_stellar_output("consolidated.gff", reference);
+    auto expected = valik::read_stellar_output(data_path("stellar_truth.gff"), reference, std::ios::binary);
+    auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
 
     compare_gff_out(expected, actual);
 }
