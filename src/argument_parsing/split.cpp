@@ -9,19 +9,13 @@ namespace valik::app
 void init_split_parser(sharg::parser & parser, split_arguments & arguments)
 {
     init_shared_meta(parser);
-    parser.add_positional_option(arguments.db_file,
+    parser.add_positional_option(arguments.seq_file,
                       sharg::config{.description = "File containing database sequences.",
                       .validator = sharg::input_file_validator{}});
-    parser.add_option(arguments.db_out,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "db-meta",
+    parser.add_option(arguments.meta_out,
+                      sharg::config{.short_id = 'o',
+                      .long_id = "out",
                       .description = "Please provide a valid path to the database metadata output.",
-                      .required = true,
-                      .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create}});
-    parser.add_option(arguments.seg_out,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "seg-meta",
-                      .description = "Please provide a valid path to the segment metadata output.",
                       .required = true,
                       .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create}});
     parser.add_option(arguments.overlap,
