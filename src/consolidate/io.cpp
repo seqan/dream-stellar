@@ -45,4 +45,4 @@ void write_stellar_output(std::filesystem::path const & out_path,
     fout.close();
 }
 
-}
+} // namespace valik
