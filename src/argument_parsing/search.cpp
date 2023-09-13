@@ -215,6 +215,15 @@ void run_search(sharg::parser & parser)
     }
 
     // ==========================================
+    // Create temporary file path for merging distributed Stellar runs.
+    // ==========================================
+    if (!arguments.ref_meta_path.empty())
+    {
+        arguments.all_matches = arguments.out_file;
+        arguments.all_matches += ".preliminary";
+    }
+
+    // ==========================================
     // More checks.
     // ==========================================
 

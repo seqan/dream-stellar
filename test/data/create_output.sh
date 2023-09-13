@@ -20,9 +20,6 @@ echo "### Running valik build ###"
 echo "### Running valik search ###"
 ./search/cli_test_output.sh
 
-echo "### Running valik consolidate ###"
-./consolidate/cli_test_output.sh
-
 export VALIK_STELLAR=stellar
 export VALIK_MERGE=cat
 

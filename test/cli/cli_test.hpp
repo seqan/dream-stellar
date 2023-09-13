@@ -194,8 +194,9 @@ struct valik_base : public cli_test
     }
 
     static std::filesystem::path search_result_path(size_t const number_of_bins, size_t const window_size,
-                                                    size_t const number_of_errors, std::string name = "") noexcept
+                                                    size_t const number_of_errors) noexcept
     {
+        std::string name;
         name += std::to_string(number_of_bins);
         name += "bins";
         name += std::to_string(window_size);
@@ -503,36 +504,8 @@ struct valik_base : public cli_test
         }
     }
 
-    static std::filesystem::path consolidation_input_path(size_t const number_of_bins, size_t const overlap) noexcept
-    {
-        std::string name{};
-        name += std::to_string(number_of_bins);
-        name += "bins";
-        name += std::to_string(overlap);
-        name += "overlap_dream_all.gff";
-        return cli_test::data(name);
-    }
-
-    static std::filesystem::path consolidation_meta_path(size_t const number_of_bins, size_t const overlap) noexcept
-    {
-        std::string name{};
-        name += std::to_string(number_of_bins);
-        name += "bins";
-        name += std::to_string(overlap);
-        name += "overlap_reference_metadata.tsv";
-        return cli_test::data(name);
-    }
-
-    static std::filesystem::path stellar_gold_path(size_t const overlap) noexcept
-    {
-        std::string name{};
-        name += std::to_string(overlap);
-        name += "overlap_full.gff";
-        return cli_test::data(name);
-    }
-
     static void compare_gff_out(std::vector<valik::stellar_match> const & expected,
-                                std::vector<valik::stellar_match> const & actual)
+                            std::vector<valik::stellar_match> const & actual)
     {
         EXPECT_EQ(expected.size(), actual.size());
         size_t not_actually_found{0};
@@ -562,4 +535,3 @@ struct valik_search_segments : public valik_base, public testing::WithParamInter
     size_t, size_t>> {};
 struct dream_short_search : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
 struct dream_split_search : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
-struct valik_consolidate : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};

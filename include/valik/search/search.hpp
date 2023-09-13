@@ -6,6 +6,8 @@
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/shared.hpp>
 
+#include <utilities/consolidate/consolidate_matches.hpp>
+
 namespace valik::app
 {
 

@@ -153,17 +153,8 @@ TEST_P(dream_split_search, split_shared_mem)
     EXPECT_EQ(search.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 3 database sequences.\n"});
     EXPECT_EQ(search.err, std::string{"WARNING: Non-unique query ids. Output can be ambiguous.\n"});
 
-    cli_test_result const result = execute_app("valik", "consolidate",
-                                                        "--input search.gff",
-                                                        "--ref-meta", ref_meta_path,
-                                                        "--output search.consolidated.gff");
-
-    EXPECT_EQ(result.exit_code, 0);
-    EXPECT_EQ(result.out, std::string{""});
-    EXPECT_EQ(result.err, std::string{""});
-
-    auto distributed = valik::read_stellar_output(search_result_path(number_of_bins, window_size, number_of_errors, "consolidated"), reference, std::ios::binary);
-    auto local = valik::read_stellar_output("search.consolidated.gff", reference);
+    auto distributed = valik::read_stellar_output(search_result_path(number_of_bins, window_size, number_of_errors), reference, std::ios::binary);
+    auto local = valik::read_stellar_output("search.gff", reference);
 
     compare_gff_out(distributed, local);
 }

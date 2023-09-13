@@ -44,12 +44,21 @@ void valik_search(search_arguments const & arguments)
         }
     }
 
+    // Consolidate matches (not necessary when searching a metagenomic database)
+    if (!arguments.ref_meta_path.empty())
+    {
+        consolidate_matches(arguments);
+        const bool error_in_delete = !std::filesystem::remove(arguments.all_matches);
+        if (error_in_delete)
+            std::cerr << "Could not clean up intermediate file: \t" << std::string(arguments.all_matches) << '\n';
+        failed = failed || error_in_delete;
+    }
+
     if (arguments.write_time)
         write_time_statistics(time_statistics, arguments.out_file.string() + ".time");
 
-    if (failed) {
+    if (failed)
         throw std::runtime_error("valik_search failed. Run didn't complete correctly.");
-    }
 }
 
 } // namespace valik::app
