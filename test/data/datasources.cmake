@@ -235,7 +235,7 @@ declare_datasource (FILE 4bins15window1error.gff
                 URL_HASH SHA256=28dc2cffdd32bb8a7bf2a8826280246103a518468bba32e65ec3c121e00c0fde)
 declare_datasource (FILE 4bins15window1error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins15window1error.gff.out
-                URL_HASH SHA256=d7c0691b24eb8c949eb522b9844d647b62b0a621953692b15cad5c022128c29e)
+                URL_HASH SHA256=5d285b543887e94829f15112b8d3c9659d48ff61a74cb216f2fa9f4bb54b4c90)
 declare_datasource (FILE 4bins15window.ibf
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins15window.ibf
                 URL_HASH SHA256=8b584d0e55043b3cc0835674dc83f5a7db6143645071f49973a1d085ac4fb919)
