@@ -27,6 +27,6 @@ do
         out_dir=write_out_${overlap}_${bins}
         mkdir -p ${out_dir}
 
-        valik split database.fasta --overlap ${overlap} --seg-count ${bins} --db-meta ${out_dir}/reference_metadata.txt --seg-meta ${out_dir}/reference_segments.txt
+        valik split database.fasta --overlap ${overlap} --seg-count ${bins} --out ${out_dir}/reference_metadata.txt
     done
 done

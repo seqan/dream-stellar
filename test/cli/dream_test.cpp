@@ -19,9 +19,8 @@ TEST_P(dream_short_search, short_shared_mem)
     setup_tmp_dir();
     setenv("VALIK_MERGE", "cat", true);
 
-    std::filesystem::path ref_meta_path = data("ref_meta.txt");
-    valik::database_metadata reference(ref_meta_path, false);
-    std::filesystem::path seg_meta_path = data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt");
+    std::filesystem::path ref_meta_path = data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt");
+    valik::metadata reference(ref_meta_path);
     std::filesystem::path index_path = ibf_path(number_of_bins, window_size);
 
     cli_test_result const build = execute_app("valik", "build",
@@ -31,7 +30,6 @@ TEST_P(dream_short_search, short_shared_mem)
                                                         "--size 32k",
                                                         "--from-segments",
                                                         "--ref-meta", ref_meta_path,
-                                                        "--seg-meta", seg_meta_path,
                                                         "--output ", index_path);
 
     cli_test_result const result = execute_app("valik", "search",
@@ -41,8 +39,7 @@ TEST_P(dream_short_search, short_shared_mem)
                                                         "--error-rate ", std::to_string(error_rate),
                                                         "--index ", index_path,
                                                         "--query ", data("query.fastq"),
-                                                        "--ref-meta", ref_meta_path,
-                                                        "--seg-meta", seg_meta_path);
+                                                        "--ref-meta", ref_meta_path);
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 3 database sequences.\n"});
     EXPECT_EQ(result.err, std::string{"WARNING: Non-unique query ids. Output can be ambiguous.\n"});
@@ -76,9 +73,7 @@ TEST_F(dream_short_search, no_matches)
                                                         "--window ", std::to_string(window_size),
                                                         "--kmer 13",
                                                         "--size 32k",
-                                                        "--from-segments",
-                                                        "--ref-meta", data("ref_meta.txt"),
-                                                        "--seg-meta", data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt"),
+                                                        "--ref-meta", data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt"),
                                                         "--output ", ibf_path(number_of_bins, window_size));
 
     cli_test_result const result = execute_app("valik", "search",
@@ -88,8 +83,7 @@ TEST_F(dream_short_search, no_matches)
                                                         "--error-rate 0",
                                                         "--index ", ibf_path(number_of_bins, window_size),
                                                         "--query ", data("dummy_reads.fastq"),
-                                                        "--ref-meta", data("ref_meta.txt"),
-                                                        "--seg-meta", data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt"));
+                                                        "--ref-meta", data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt"));
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 3 database sequences.\n"});
     EXPECT_EQ(result.err, std::string{}); // Stellar shortens query IDs until the first whitespace
@@ -113,17 +107,14 @@ TEST_P(dream_split_search, split_shared_mem)
     float error_rate = (float) number_of_errors / (float) pattern_size;
 
     size_t query_seg_count = 60;
-    std::filesystem::path ref_meta_path = data("ref_meta.txt");
-    valik::database_metadata reference(ref_meta_path, false);
-    std::filesystem::path seg_meta_path = data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt");
+    std::filesystem::path ref_meta_path = data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt");
+    valik::metadata reference(ref_meta_path);
     std::filesystem::path index_path = ibf_path(number_of_bins, window_size);
-    std::filesystem::path query_meta_path = data("query_meta.txt");
-    std::filesystem::path query_seg_meta_path = data("query_seg_meta.txt");
+    std::filesystem::path query_meta_path = data("query_seg_meta.txt");
 
     cli_test_result const split_query = execute_app("valik", "split",
                                                         data("query.fastq"),
-                                                        "--db-meta", query_meta_path,
-                                                        "--seg-meta", query_seg_meta_path,
+                                                        "--out", query_meta_path,
                                                         "--seg-count ", std::to_string(query_seg_count),
                                                         "--overlap 0");
 
@@ -133,9 +124,7 @@ TEST_P(dream_split_search, split_shared_mem)
                                                         "--window", std::to_string(window_size),
                                                         "--kmer 13",
                                                         "--size 32k",
-                                                        "--from-segments",
                                                         "--ref-meta", ref_meta_path,
-                                                        "--seg-meta", seg_meta_path,
                                                         "--output ", index_path);
 
     cli_test_result const search = execute_app("valik", "search",
@@ -146,8 +135,7 @@ TEST_P(dream_split_search, split_shared_mem)
                                                         "--index ", index_path,
                                                         "--query ", data("query.fastq"),
                                                         "--ref-meta", ref_meta_path,
-                                                        "--seg-meta", seg_meta_path,
-                                                        "--query-meta", query_seg_meta_path);
+                                                        "--query-meta", query_meta_path);
 
     EXPECT_EQ(search.exit_code, 0);
     EXPECT_EQ(search.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 3 database sequences.\n"});

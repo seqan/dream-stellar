@@ -18,19 +18,13 @@ TEST_P(valik_split, split)
                                                          data("various_chromosome_lengths.fasta"),
                                                          "--overlap ", std::to_string(overlap),
                                                          "--seg-count ", std::to_string(seg_count),
-                                                         "--db-meta reference_metadata.txt",
-                                                         "--seg-meta reference_segments.txt");
+                                                         "--out reference_metadata.txt");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"Sequence: chr5 is too short and will be skipped.\n"});
 
-    std::string const expected_metadata = string_from_file(data("chromosome_metadata.txt"), std::ios::binary);
-    std::string const actual_metadata = string_from_file("reference_metadata.txt", std::ios::binary);
-
-    EXPECT_TRUE(expected_metadata == actual_metadata);
-
     std::string const expected_segments = string_from_file(segment_metadata_path(overlap, seg_count), std::ios::binary);
-    std::string const actual_segments = string_from_file("reference_segments.txt", std::ios::binary);
+    std::string const actual_segments = string_from_file("reference_metadata.txt", std::ios::binary);
 
     EXPECT_TRUE(expected_segments == actual_segments);
 }
@@ -100,8 +94,7 @@ TEST_P(valik_build_segments, build_from_segments)
     auto const [overlap, number_of_bins, window_size] = GetParam();
 
     std::string seg_input = cli_test::data("single_reference.fasta");
-    std::string ref_meta_path = cli_test::data("reference_metadata.txt");
-    std::string seg_meta_path = cli_test::data(std::to_string(overlap) + "overlap" + std::to_string(number_of_bins) + "bins.txt");
+    std::string ref_meta_path = cli_test::data(std::to_string(overlap) + "overlap" + std::to_string(number_of_bins) + "bins.txt");
 
     //!TODO: the paths in the index are not data(path.fasta) so the file can't be opened by stellar (only a testing issue)
     cli_test_result const result = execute_app("valik", "build",
@@ -109,9 +102,7 @@ TEST_P(valik_build_segments, build_from_segments)
                                                          "--window ", std::to_string(window_size),
                                                          "--size 32k",
                                                          "--output index.ibf",
-                                                         "--from-segments",
                                                          "--ref-meta", ref_meta_path,
-                                                         "--seg-meta", seg_meta_path,
                                                          seg_input);
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
@@ -207,8 +198,7 @@ TEST_P(valik_search_segments, search)
                                                         "--query ", data("single_query.fq"),
                                                         "--tau 0.75",
                                                         "--threads 1",
-                                                        "--ref-meta", data("reference_metadata.txt"),
-                                                        "--seg-meta", segment_metadata_path(segment_overlap, number_of_bins),
+                                                        "--ref-meta", segment_metadata_path(segment_overlap, number_of_bins),
                                                         "--p_max 0.25");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});

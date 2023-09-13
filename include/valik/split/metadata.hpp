@@ -4,6 +4,8 @@
 #include <seqan3/core/debug_stream.hpp>
 #include <seqan3/io/sequence_file/all.hpp>
 
+#include <valik/shared.hpp>
+
 #include <iostream>
 #include <fstream>
 

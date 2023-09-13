@@ -15,10 +15,9 @@ stellar -e $errRate -l $minLen -o stellar_truth.gff $ref_file $query_file > /dev
 
 for bin in 8 16
 do
-        valik split $ref_file --db-meta ${bin}bins${minLen}overlap_reference_metadata.tsv \
-                                --seg-meta ${bin}bins${minLen}overlap_segment_metadata.tsv \
-                                --seg-count $bin --overlap $minLen
+        valik split $ref_file --out ${bin}bins${minLen}overlap_reference_metadata.tsv --seg-count $bin --overlap $minLen
 
+        #!TODO: read until $
         while read -r bin_id id start len;
         do
                 end=$(echo $start + $len | bc)

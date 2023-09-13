@@ -2,7 +2,7 @@
 
 #include <valik/search/prefilter_queries_parallel.hpp>
 #include <valik/search/search_time_statistics.hpp>
-#include <valik/split/database_segments.hpp>
+#include <valik/split/metadata.hpp>
 
 #include <stellar/utils/stellar_app_runtime.hpp>
 #include <stellar/io/import_sequence.hpp>
@@ -123,14 +123,14 @@ void iterate_short_queries(search_arguments const & arguments,
  * @param time_statistics Run-time statistics.
  * @param ibf Interleaved Bloom Filter of the reference database.
  * @param queue Shopping cart queue for load balancing between Valik prefiltering and Stellar search.
- * @param segments Metadata table for split query segments.
+ * @param meta Metadata table for split query segments.
  */
 template <typename ibf_t>
 void iterate_split_queries(search_arguments const & arguments,
                         search_time_statistics & time_statistics, // IN-OUT parameter
                         ibf_t const & ibf,
                         cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue,
-                        database_segments & segments)
+                        metadata & meta)
 {
     using TSequence = seqan2::String<seqan2::Dna>;
     using TId = seqan2::CharString;
@@ -157,8 +157,8 @@ void iterate_split_queries(search_arguments const & arguments,
 
         auto query_ptr = std::make_shared<TSequence>(seq);
 
-        auto segments_from_id = [&](database_segments::segment & seg) {return seqCount == seg.seq_ind;};
-        for (auto const & seg : segments.members | std::views::filter(segments_from_id))
+        auto segments_from_id = [&](metadata::segment_stats & seg) {return seqCount == seg.seq_ind;};
+        for (auto const & seg : meta.segments | std::views::filter(segments_from_id))
         {
             seqan2::Segment<TSequence const, seqan2::InfixSegment> inf = seqan2::infixWithLength(*query_ptr, seg.start, seg.len);
 

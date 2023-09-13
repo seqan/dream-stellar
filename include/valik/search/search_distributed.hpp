@@ -4,8 +4,7 @@
 #include <valik/search/iterate_queries.hpp>
 #include <valik/search/load_index.hpp>
 #include <valik/shared.hpp>
-#include <valik/split/database_metadata.hpp>
-#include <valik/split/database_segments.hpp>
+#include <valik/split/metadata.hpp>
 #include <utilities/consolidate/merge_processes.hpp>
 #include <utilities/cart_queue.hpp>
 
@@ -33,13 +32,9 @@ bool search_distributed(search_arguments const & arguments, search_time_statisti
         time_statistics.index_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
 
-    std::optional<database_metadata> ref_meta;
+    std::optional<metadata> ref_meta;
     if (!arguments.ref_meta_path.empty())
-        ref_meta = database_metadata(arguments.ref_meta_path, false);
-
-    std::optional<database_segments> ref_segments;
-    if (!arguments.ref_seg_path.empty())
-        ref_segments = database_segments(arguments.ref_seg_path);
+        ref_meta = metadata(arguments.ref_meta_path);
 
     env_var_pack var_pack{};
     auto queue = cart_queue<query_record>{index.ibf().bin_count(), arguments.cart_max_capacity, arguments.max_queued_carts};
@@ -75,11 +70,11 @@ bool search_distributed(search_arguments const & arguments, search_time_statisti
                 std::vector<std::string> process_args{};
                 process_args.insert(process_args.end(), {var_pack.stellar_exec, "--version-check", "0", "-a", "dna"});
 
-                if (ref_segments && ref_meta)
+                if (ref_meta)
                 {
                     // search segments of a single reference file
                     auto ref_len = ref_meta->total_len;
-                    auto seg = ref_segments->segment_from_bin(bin_id);
+                    auto seg = ref_meta->segment_from_bin(bin_id);
                     process_args.insert(process_args.end(), {index.bin_path()[0][0], std::string(cart_queries_path),
                                                             "--referenceLength", std::to_string(ref_len),
                                                             "--sequenceOfInterest", std::to_string(seg.seq_ind),

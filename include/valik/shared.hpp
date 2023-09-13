@@ -64,8 +64,6 @@ struct build_arguments
     uint64_t hash{2};
     bool compressed{false};
 
-    bool from_segments{false};
-    std::filesystem::path seg_path{};
     std::filesystem::path ref_meta_path{};
 };
 
@@ -141,8 +139,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
 
     float error_rate{};
     std::filesystem::path ref_meta_path{};
-    std::filesystem::path ref_seg_path{};
-    std::filesystem::path query_seg_path{};
+    std::filesystem::path query_meta_path{};
     bool distribute{false};
 
 };

@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include <valik/split/database_metadata.hpp>
+#include <valik/split/metadata.hpp>
 
 #include <utilities/consolidate/stellar_match.hpp>
 
@@ -10,7 +10,7 @@ namespace valik
 {
 
 std::vector<stellar_match> read_stellar_output(std::filesystem::path const & match_path,
-                                                      database_metadata const & reference,
+                                                      metadata const & meta,
                                                       std::ios_base::openmode const mode = std::ios_base::in);
 
 void write_stellar_output(std::filesystem::path const & out_path,

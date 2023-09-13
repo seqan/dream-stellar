@@ -6,8 +6,7 @@
 #include <valik/search/iterate_queries.hpp>
 #include <valik/search/load_index.hpp>
 #include <valik/shared.hpp>
-#include <valik/split/database_metadata.hpp>
-#include <valik/split/database_segments.hpp>
+#include <valik/split/metadata.hpp>
 #include <utilities/cart_queue.hpp>
 #include <utilities/consolidate/merge_processes.hpp>
 
@@ -44,19 +43,15 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
         time_statistics.index_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
 
-    std::optional<database_metadata> ref_meta;
+    std::optional<metadata> ref_meta;
     if (!arguments.ref_meta_path.empty())
-        ref_meta = database_metadata(arguments.ref_meta_path, false);
-
-    std::optional<database_segments> ref_segments;
-    if (!arguments.ref_seg_path.empty())
-        ref_segments = database_segments(arguments.ref_seg_path);
+        ref_meta = metadata(arguments.ref_meta_path);
 
     env_var_pack var_pack{};
 
-    std::optional<database_segments> query_segments;
-    if (!arguments.query_seg_path.empty())
-        query_segments = database_segments(arguments.query_seg_path);
+    std::optional<metadata> query_meta;
+    if (!arguments.query_meta_path.empty())
+        query_meta = metadata(arguments.query_meta_path);
 
     using TAlphabet = seqan2::Dna;
     using TSequence = seqan2::String<TAlphabet>;
@@ -139,10 +134,10 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
                 threadOptions.queryFile = cart_queries_path.string();
                 threadOptions.prefilteredSearch = true;
                 threadOptions.referenceLength = refLen;
-                if (ref_segments && ref_meta)
+                if (ref_meta)
                 {
                     threadOptions.searchSegment = true;
-                    auto seg = ref_segments->segment_from_bin(bin_id);
+                    auto seg = ref_meta->segment_from_bin(bin_id);
                     threadOptions.binSequences.emplace_back(seg.seq_ind);
                     threadOptions.segmentBegin = seg.start;
                     threadOptions.segmentEnd = seg.start + seg.len;
@@ -336,7 +331,7 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
     }
 
     if constexpr (is_split)
-        iterate_split_queries(arguments, time_statistics, index.ibf(), queue, *query_segments);
+        iterate_split_queries(arguments, time_statistics, index.ibf(), queue, *query_meta);
     else
         iterate_short_queries(arguments, time_statistics, index.ibf(), queue);
 

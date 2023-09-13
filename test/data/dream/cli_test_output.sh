@@ -29,22 +29,21 @@ er=$(echo $e/$pattern | bc -l)
 for b in 4 16
 do
     echo "Splitting the genome into $b segments that overlap by $seg_overlap"
-    ref_meta="ref_meta.txt"
     seg_meta="seg_meta"$seg_overlap"overlap"$b"bins.txt"
-    valik split "$ref_input" --overlap "$seg_overlap" --seg-count "$b" --db-meta "$ref_meta" --seg-meta "$seg_meta"
+    valik split "$ref_input" --overlap "$seg_overlap" --seg-count "$b" --out "$seg_meta"
 
     for w in 13 15
     do
         echo "Creating IBF for w=$w and k=$k where segments overlap by $seg_overlap"
         index=$b"bins"$w"window.ibf"
-        valik build "$ref_input" --kmer "$k" --window "$w" --size "$ibf_size" --output "$index" --from-segments --ref-meta "$ref_meta" --seg-meta "$seg_meta"
+        valik build "$ref_input" --kmer "$k" --window "$w" --size "$ibf_size" --output "$index" --ref-meta "$seg_meta"
 
         echo "Searching IBF with $e errors"
         dist_out=$b"bins"$w"window"$e"error.gff"
         dist_consolidated="consolidated"$b"bins"$w"window"$e"error.gff"
         #local_out="local"$b"bins"$w"window"$e"error.gff"
-        valik search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
-        #valik search --index "$index" --query "$query" --output "$local_out" --error "$er" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$ref_meta" --seg-meta "$seg_meta"
+        valik search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$seg_meta"
+        #valik search --index "$index" --query "$query" --output "$local_out" --error "$er" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$seg_meta"
 
         rm $VALIK_TMP/*
     done
