@@ -22,12 +22,6 @@ void valik_split(split_arguments const & arguments)
         write_query_segments(meta, arguments.meta_out);
 
     metadata meta_deserialised(arguments.meta_out);
-
-    for (auto & seq : meta_deserialised.sequences)
-        seqan3::debug_stream << seq.id << '\t' << seq.ind << '\t' << seq.len << '\n';
-
-    for (auto & seg : meta_deserialised.segments)
-        seqan3::debug_stream << seg.id << '\t' << seg.seq_ind << '\t' << seg.start << '\t' << seg.len << '\n';
 }
 
 } // namespace valik::app

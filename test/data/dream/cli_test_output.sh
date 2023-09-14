@@ -24,6 +24,9 @@ pat_overlap=49        # how much adjacent patterns overlap
 
 ref_input="ref.fasta"
 query="query.fastq"
+
+valik split "$query" --overlap 0 --seg-count 60 --out query_seg_meta.txt
+
 e=1
 er=$(echo $e/$pattern | bc -l)
 for b in 4 16

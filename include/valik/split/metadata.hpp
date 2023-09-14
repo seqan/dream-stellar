@@ -233,8 +233,8 @@ struct metadata
         }
         */
 
-        if (segments.size() < (id - 1))
-            throw std::runtime_error{"Could not find segment"};
+        if (segments.size() - 1 < id)
+            throw std::runtime_error{"Could not find segment " + std::to_string(id)};
 
         return segments[id];
     }
