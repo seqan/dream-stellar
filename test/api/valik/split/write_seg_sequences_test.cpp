@@ -35,7 +35,7 @@ static void const test_reference_out(size_t overlap, size_t bins)
 {
     std::string path_prefix = "write_out_" + std::to_string(overlap) + "_" + std::to_string(bins);
 
-    valik::metadata meta(data_path(path_prefix + "_reference_segments.txt"));
+    valik::metadata meta(data_path(path_prefix + "_reference_metadata.txt"));
     valik::write_reference_segments(meta, data_path("database.fasta"));
 
     for (size_t i = 0; i < bins - 1; i++)
@@ -94,7 +94,7 @@ static void const test_query_out(size_t overlap, size_t bins)
 {
     std::string path_prefix = "write_out_" + std::to_string(overlap) + "_" + std::to_string(bins);
 
-    valik::metadata meta(data_path(path_prefix + "_reference_segments.txt"));
+    valik::metadata meta(data_path(path_prefix + "_reference_metadata.txt"));
     valik::write_query_segments(meta, data_path("database.fasta"));
 
     using sequence_file_t = seqan3::sequence_file_input<valik::dna4_traits, seqan3::fields<seqan3::field::seq>>;
