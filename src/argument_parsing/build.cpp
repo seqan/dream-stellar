@@ -91,7 +91,7 @@ void run_build(sharg::parser & parser)
     else
     {
         metadata meta(arguments.ref_meta_path);
-        arguments.bins = meta.segments.size();
+        arguments.bins = meta.seg_count;
         sequence_file_validator(arguments.bin_file);
         std::string bin_string{arguments.bin_file.string()};
         arguments.bin_path.emplace_back(std::vector<std::string>{bin_string});

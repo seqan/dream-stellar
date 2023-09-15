@@ -40,8 +40,8 @@ static void const test_reference_out(size_t overlap, size_t bins)
 
     for (size_t i = 0; i < bins - 1; i++)
     {
-        valik::metadata::segment_stats current_seg = meta.segments[i];
-        valik::metadata::segment_stats next_seg = meta.segments[i + 1];
+        valik::metadata::segment_stats current_seg = meta.segment_from_bin(i);
+        valik::metadata::segment_stats next_seg = meta.segment_from_bin(i + 1);
 
         std::string current_seg_seq = string_from_file(data_path("database_" + std::to_string(i) + ".fasta"), std::ios::binary);
         std::string next_seg_seq = string_from_file(data_path("database_" + std::to_string(i + 1) + ".fasta"), std::ios::binary);
@@ -105,8 +105,8 @@ static void const test_query_out(size_t overlap, size_t bins)
     {
         if (i > 1)
         {
-            valik::metadata::segment_stats previous_seg = meta.segments[i - 1];
-            valik::metadata::segment_stats current_seg = meta.segments[i];
+            valik::metadata::segment_stats previous_seg = meta.segment_from_bin(i - 1);
+            valik::metadata::segment_stats current_seg = meta.segment_from_bin(i);
 
             EXPECT_EQ(previous_seg_seq.size(), previous_seg.len);
             EXPECT_EQ(current_seg_seq.size(), current_seg.len);

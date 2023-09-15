@@ -67,12 +67,10 @@ private:
             metadata meta(arguments->ref_meta_path);
 
             auto & ibf = index.ibf();
-            int i = 0;
+            size_t i = 0;
             for (auto && [seq] : sequence_file_t{arguments->bin_file})
             {
-                // get the relevant segments for each reference
-                auto ref_seg = [&](metadata::segment_stats & seg) {return meta.sequences.at(i).ind == seg.seq_ind;};
-                for (auto & seg : meta.segments | std::views::filter(ref_seg))
+                for (auto & seg : meta.segments_from_ind(i))
                 {
                     for (auto && value : seq | seqan3::views::slice(seg.start, seg.start + seg.len) | hash_view())
                         ibf.emplace(value, seqan3::bin_index{seg.id});

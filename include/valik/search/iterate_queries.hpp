@@ -157,11 +157,9 @@ void iterate_split_queries(search_arguments const & arguments,
 
         auto query_ptr = std::make_shared<TSequence>(seq);
 
-        auto segments_from_id = [&](metadata::segment_stats & seg) {return seqCount == seg.seq_ind;};
-        for (auto const & seg : meta.segments | std::views::filter(segments_from_id))
+        for (auto const & seg : meta.segments_from_ind(seqCount))
         {
             seqan2::Segment<TSequence const, seqan2::InfixSegment> inf = seqan2::infixWithLength(*query_ptr, seg.start, seg.len);
-
             std::vector<seqan3::dna4> seg_vec{};
             for (auto & c : inf)
             {

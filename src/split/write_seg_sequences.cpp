@@ -18,12 +18,10 @@ void write_reference_segments(metadata & reference_metadata,
     std::ofstream file_paths_out;
     file_paths_out.open(seg_path_file);
 
-    int i = 0;
+    size_t i = 0;
     for (auto && [seq] : sequence_file_t{ref_path})
     {
-        // get the underlying sequence
-        auto is_segment_sequence = [&](metadata::segment_stats & seg) {return reference_metadata.sequences.at(i).ind == seg.seq_ind;};
-        for (auto & seg : reference_metadata.segments | std::views::filter(is_segment_sequence))
+        for (auto & seg : reference_metadata.segments_from_ind(i))
         {
             std::filesystem::path seg_file = ref_path;
             std::filesystem::path seg_stem = seg_file.stem();
@@ -55,12 +53,10 @@ void write_query_segments(metadata & query_metadata,
     seg_out_path.replace_extension("segments.fasta");
     seqan3::sequence_file_output seg_out{seg_out_path};
 
-    int i = 0;
+    size_t i = 0;
     for (auto && [seq] : sequence_file_t{query_path})
     {
-        // get the underlying sequence
-        auto is_segment_sequence = [&](metadata::segment_stats & seg) {return query_metadata.sequences.at(i).ind == seg.seq_ind;};
-        for (auto & seg : query_metadata.segments | std::views::filter(is_segment_sequence))
+        for (auto & seg : query_metadata.segments_from_ind(i))
         {
             std::string id{seg.unique_id()};
             seqan3::dna4_vector seg_sequence(&seq[seg.start], &seq[seg.start+seg.len]);
