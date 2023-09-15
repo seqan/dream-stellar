@@ -252,14 +252,7 @@ struct metadata
             if (sequences.size() <= ind)
                 throw std::runtime_error{"Sequence " + std::to_string(ind) + " index out of range."};
 
-            auto is_sequence_segment = [&](segment_stats & seg) {return ind == seg.seq_ind;};
-            std::vector<segment_stats> sequence_segments{};
-            for (auto seg : segments | std::views::filter(is_sequence_segment))
-            {
-                sequence_segments.push_back(seg);
-            }
-
-            return sequence_segments;
+            return segments | std::views::filter([&](segment_stats & seg) {return ind == seg.seq_ind;});
         }
 
         /**
