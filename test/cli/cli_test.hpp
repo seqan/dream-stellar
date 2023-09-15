@@ -526,12 +526,17 @@ struct valik_base : public cli_test
     }
 };
 
-struct valik_split : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
+struct valik_split_various : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
+struct valik_split_short : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
+struct valik_split_long : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
+
 struct valik_build_clusters : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, bool>> {};
 struct valik_build_segments : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
+
 struct valik_search_clusters : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t,
     size_t, size_t>> {};
 struct valik_search_segments : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t, size_t,
     size_t, size_t>> {};
+
 struct dream_short_search : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
 struct dream_split_search : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};

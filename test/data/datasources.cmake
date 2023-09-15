@@ -46,10 +46,6 @@ declare_datasource (FILE 150overlap4bins15window.ibf
 declare_datasource (FILE 150overlap4bins.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/single/150overlap4bins.txt
                 URL_HASH SHA256=770920e15d8a49dd4cc756fea7b106a160dc2465fe9b3b6a48cb288c59f75f0b)
-declare_datasource (FILE reference_metadata.txt
-                URL ${CMAKE_SOURCE_DIR}/test/data/split/single/reference_metadata.txt
-                URL_HASH SHA256=b82abe243ea2872d540d3548759997f93db2345351f76c93dd6ab40992abf1cd)
-
 
 declare_datasource (FILE 0overlap16bins.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/multi/0overlap16bins.txt
@@ -63,10 +59,6 @@ declare_datasource (FILE 20overlap16bins.txt
 declare_datasource (FILE 20overlap4bins.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/multi/20overlap4bins.txt
                 URL_HASH SHA256=c769012bdccd3a918c6e47a1e9bc6f3988d085babc591bfa5461982156cd4188)
-declare_datasource (FILE chromosome_metadata.txt
-                URL ${CMAKE_SOURCE_DIR}/test/data/split/multi/chromosome_metadata.txt
-                URL_HASH SHA256=368803a8d29419321ba9704bc7cbd52abf6f7b2f528d725ed54a5ecadf5c6ae3)
-
 
 declare_datasource (FILE write_out_0_16_reference_metadata.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/split/write_out_0_16/reference_metadata.txt
