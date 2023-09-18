@@ -133,7 +133,10 @@ struct metadata
         void scan_database_sequences(size_t const n, size_t const overlap)
         {
             default_seg_len = total_len / n + 1;
-            assert(default_seg_len > overlap);
+            if (default_seg_len <= overlap)
+                throw std::runtime_error("Segments of length " + std::to_string(default_seg_len) + "bp can not overlap by " + std::to_string(overlap) +
+                                         "bp.\nDecrease the overlap or the number of segments.");
+
             size_t len_lower_bound = default_seg_len / 10;
 
             // Check how many sequences are discarded for being too short
