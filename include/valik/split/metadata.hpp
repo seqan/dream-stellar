@@ -284,17 +284,12 @@ struct metadata
          *
          * @param ind Index of sequence.
          */
-        auto segments_from_ind(size_t const ind)
+        auto segments_from_ind(size_t const & ind)
         {
             if (sequences.size() <= ind)
                 throw std::runtime_error{"Sequence " + std::to_string(ind) + " index out of range."};
 
-            std::vector<segment_stats> sequence_segments{};
-            auto is_sequence_segment = [&](segment_stats & seg) {return ind == seg.seq_ind;};
-            for (auto & s : segments | std::views::filter(is_sequence_segment))
-                sequence_segments.push_back(s);
-
-            return sequence_segments;
+            return segments | std::views::filter([ind](segment_stats const & seg) {return ind == seg.seq_ind;});
         }
 
         /**
