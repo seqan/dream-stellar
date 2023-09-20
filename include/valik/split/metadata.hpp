@@ -94,6 +94,7 @@ struct metadata
     };
 
     uint64_t total_len;
+    size_t seq_count;
     size_t seg_count;
 
     private:
@@ -213,15 +214,14 @@ struct metadata
                         add_segment(segments.size(), seq.ind, start, seq.len);
                     else
                     {
-                        size_t actual_seg_len = seq.len / segments_per_seq + std::ceil(overlap / 2.0f);
+                        size_t actual_seg_len = std::ceil(((float) seq.len - overlap) / segments_per_seq);
 
                         // divide database sequence into multiple segments
-                        add_segment(segments.size(), seq.ind, start, actual_seg_len);
-                        start = start + actual_seg_len - overlap;
-                        while (start + actual_seg_len < seq.len)
+                        add_segment(segments.size(), seq.ind, 0, actual_seg_len + overlap);
+
+                        for (start += actual_seg_len; start + actual_seg_len + overlap < seq.len - overlap; start += actual_seg_len)
                         {
-                            add_segment(segments.size(), seq.ind, start, actual_seg_len);
-                            start = start + actual_seg_len - overlap;
+                            add_segment(segments.size(), seq.ind, start, actual_seg_len + overlap);
                         }
                         add_segment(segments.size(), seq.ind, start, seq.len - start);
                     }
@@ -249,7 +249,7 @@ struct metadata
                                          std::to_string(arguments.overlap) + "bp.\nDecrease the overlap or the number of segments.");
             }
 
-            size_t len_lower_bound = arguments.overlap;
+            size_t len_lower_bound = default_seg_len / 10;
             // Check how many sequences are discarded for being too short
             auto first_long_seq = std::find_if(sequences.begin(), sequences.end(), [&](auto const & seq){return (seq.len > len_lower_bound);});
             size_t discarded_short_sequences = first_long_seq - sequences.begin();
@@ -275,6 +275,7 @@ struct metadata
             else
                 make_equal_length_segments(arguments.seg_count, arguments.overlap, first_long_seq);
 
+            //!TODO: sequence ind AND bin ID used to be sorted
             std::stable_sort(sequences.begin(), sequences.end(), fasta_order());
             std::stable_sort(segments.begin(), segments.end(), fasta_order());
         }
@@ -286,6 +287,7 @@ struct metadata
         metadata(split_arguments const & arguments)
         {
             scan_database_file(arguments.seq_file);
+            seq_count = sequences.size();
             scan_database_sequences(arguments);
             seg_count = segments.size();
         }
@@ -329,6 +331,7 @@ struct metadata
             }
 
             in_file.close();
+            seq_count = sequences.size();
             seg_count = segments.size();
         }
 
@@ -418,6 +421,19 @@ struct metadata
             double stdev = std::sqrt(sq_sum / segments.size() - mean * mean);
 
             return stdev;
+        }
+
+        // coefficient of variation
+        double segment_length_cv()
+        {
+            auto segment_lengths = segments | std::views::transform([](segment_stats const & seg){return seg.len;});
+
+            double sum = std::accumulate(segment_lengths.begin(), segment_lengths.end(), 0.0);
+            double mean = sum / segment_lengths.size();
+            double sq_sum = std::inner_product(segment_lengths.begin(), segment_lengths.end(), segment_lengths.begin(), 0.0);
+            double stdev = std::sqrt(sq_sum / segments.size() - mean * mean);
+
+            return stdev / mean;
         }
 };
 

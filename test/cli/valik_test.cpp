@@ -39,6 +39,11 @@ TEST_P(valik_split_various, split_various_lengths)
         std::string const expected_segments = string_from_file(segment_metadata_path(overlap, seg_count), std::ios::binary);
         std::string const actual_segments = string_from_file("reference_metadata.txt", std::ios::binary);
 
+        valik::metadata expected_metadata(segment_metadata_path(overlap, seg_count));
+        expected_metadata.stream_out(seqan3::debug_stream);
+        valik::metadata actual_metadata("reference_metadata.txt");
+        actual_metadata.stream_out(seqan3::debug_stream);
+
         EXPECT_TRUE(expected_segments == actual_segments);
     }
 
@@ -83,6 +88,9 @@ TEST_P(valik_split_short, split_many_short)
                                      " instead of " + std::to_string(seg_count) + " segments.";
         EXPECT_EQ(result.err, expected);
     }
+
+    valik::metadata meta("query_metadata.txt");
+    EXPECT_GE(0.1f, meta.segment_length_cv());  // create segments of roughly equal length
 }
 
 INSTANTIATE_TEST_SUITE_P(split_many_short_suite,
@@ -109,9 +117,12 @@ TEST_P(valik_split_long, split_few_long)
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
+
     valik::metadata meta("reference_metadata.txt");
-    seqan3::debug_stream << "stdev\t" << meta.segment_length_stdev() << '\n';
-    meta.stream_out(seqan3::debug_stream);
+    if (seg_count == meta.seq_count)
+        EXPECT_EQ(meta.seq_count, meta.seg_count);  // one-to-one pairing of sequences and segments
+    else
+        EXPECT_GE(0.1f, meta.segment_length_cv());  // create segments of roughly equal length
 }
 
 INSTANTIATE_TEST_SUITE_P(split_few_long_suite,
