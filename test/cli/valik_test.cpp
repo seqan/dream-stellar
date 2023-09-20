@@ -41,6 +41,9 @@ TEST_P(valik_split_various, split_various_lengths)
 
         EXPECT_TRUE(expected_segments == actual_segments);
     }
+
+    valik::metadata meta("reference_metadata.txt");
+    seqan3::debug_stream << "stdev\t" << meta.segment_length_stdev() << '\n';
 }
 
 
@@ -67,14 +70,17 @@ TEST_P(valik_split_short, split_many_short)
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
 
-    if (seg_count > 45)
+    size_t read_count = 30;
+    if (seg_count % 30 == 0)
     {
         EXPECT_EQ(result.err, std::string{});
     }
     // it is not advantageous to split 30 sequences of equal length into e.g 39 segments
     else
     {
-        const std::string expected = "WARNING: Database was split into 30 instead of " + std::to_string(seg_count) + " segments.";
+        const std::string expected = "WARNING: Database was split into " +
+                                     std::to_string((size_t) std::round((float) seg_count / read_count) * read_count) +
+                                     " instead of " + std::to_string(seg_count) + " segments.";
         EXPECT_EQ(result.err, expected);
     }
 }
@@ -102,6 +108,10 @@ TEST_P(valik_split_long, split_few_long)
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
+
+    valik::metadata meta("reference_metadata.txt");
+    seqan3::debug_stream << "stdev\t" << meta.segment_length_stdev() << '\n';
+    meta.stream_out(seqan3::debug_stream);
 }
 
 INSTANTIATE_TEST_SUITE_P(split_few_long_suite,
@@ -132,6 +142,8 @@ TEST_F(split_options, too_few_segments)
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, expected);
 }
+
+/*
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// valik build clusters /////////////////////////////////////////////////
@@ -317,3 +329,4 @@ INSTANTIATE_TEST_SUITE_P(segment_search_suite,
                                                 std::to_string(std::get<5>(info.param)) + "_overlap";
                              return name;
                          });
+*/

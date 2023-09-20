@@ -6,13 +6,18 @@
 namespace valik::app
 {
 
-//-----------------------------
-//
-// Divide reference or query database into partially overlapping segments.
-//
-//-----------------------------
-void valik_split(split_arguments const & arguments)
+/**
+ * @brief Function that divides reference or query database into partially overlapping segments.
+ *
+ * @param arguments Command line arguments.
+ */
+void valik_split(split_arguments & arguments)
 {
+    if (arguments.split_index)
+        arguments.seg_count = adjust_bin_count(arguments.seg_count_in);
+    else
+        arguments.seg_count = arguments.seg_count_in;
+
     metadata meta(arguments);
     meta.to_file(arguments.meta_out);
 

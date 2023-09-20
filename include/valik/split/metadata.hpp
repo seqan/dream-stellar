@@ -50,14 +50,6 @@ struct metadata
         }
     };
 
-    struct fasta_order
-    {
-        inline bool operator() (sequence_stats const & left, sequence_stats const & right)
-        {
-            return (left.ind < right.ind);
-        }
-    };
-
     /** !\brief a struct that represents a single segment.
      *
      * All indices and positions are 0-based.
@@ -85,6 +77,19 @@ struct metadata
         std::string unique_id()
         {
             return std::to_string(seq_ind) + "_" + std::to_string(start) + "_" + std::to_string(len);
+        }
+    };
+
+    struct fasta_order
+    {
+        inline bool operator() (sequence_stats const & left, sequence_stats const & right)
+        {
+            return (left.ind < right.ind);
+        }
+
+        inline bool operator() (segment_stats const & left, segment_stats const & right)
+        {
+            return (left.seq_ind < right.seq_ind);
         }
     };
 
@@ -125,42 +130,21 @@ struct metadata
         }
 
         /**
-         * @brief Function that scans over the collection of sequences and greedily assigns segment positions.
+         * @brief Function that splits the database into n partially overlapping segments.
          *
-         * @param n Chosen number of segments.
+         * @param n Number of segments.
          * @param overlap Length of overlap between adjacent segments.
+         * @param seq_it Iterator to first sequence of sufficient length.
          */
-        void scan_database_sequences(size_t const n, size_t const overlap)
+        template <typename it_t>
+        void make_exactly_n_segments(size_t const & n, size_t const & overlap, it_t & seq_it)
         {
-            default_seg_len = total_len / n + 1;
-            if (default_seg_len <= overlap)
-                throw std::runtime_error("Segments of length " + std::to_string(default_seg_len) + "bp can not overlap by " + std::to_string(overlap) +
-                                         "bp.\nDecrease the overlap or the number of segments.");
-
-            size_t len_lower_bound = default_seg_len / 10;
-
-            // Check how many sequences are discarded for being too short
-            auto first_long_seq = std::find_if(sequences.begin(), sequences.end(), [&](auto const & seq){return (seq.len >= len_lower_bound);});
-            size_t discarded_short_sequences = first_long_seq - sequences.begin();
-            // But do not discard all sequences if they are of uniform size
-            if (first_long_seq == sequences.end())
-                discarded_short_sequences = 0;
-
-            if (n < (sequences.size() - discarded_short_sequences))
-                throw std::runtime_error("Can not split " + std::to_string(sequences.size()) + " sequences into " + std::to_string(n) + " segments.");
-
-            std::stable_sort(sequences.begin(), sequences.end(), fasta_order());
-
             size_t remaining_db_len = total_len;
-            for (const auto & seq : sequences)
+            for (auto it = seq_it; it != sequences.end(); it++)
             {
+                auto seq = *it;
                 size_t start = 0;
-                if (seq.len < len_lower_bound)
-                {
-                    seqan3::debug_stream << "Sequence: " << seq.id << " is too short and will be skipped.\n";
-                    remaining_db_len -= seq.len;
-                }
-                else if ((seq.len >= len_lower_bound) & (seq.len <= default_seg_len * 1.5))
+                if (seq.len <= default_seg_len * 1.5)
                 {
                     // database sequence is single segment
                     add_segment(segments.size(), seq.ind, start, seq.len);
@@ -179,12 +163,12 @@ struct metadata
                         add_segment(segments.size(), seq.ind, start, seq.len);
                     else
                     {
-                        size_t actual_seg_len = seq.len / segments_per_seq + overlap + 1; // + 1 because integer division always rounded down
+                        size_t actual_seg_len = seq.len / segments_per_seq + std::ceil(overlap / 2.0f);
 
                         // divide database sequence into multiple segments
                         add_segment(segments.size(), seq.ind, start, actual_seg_len);
                         start = start + actual_seg_len - overlap;
-                        while (start + actual_seg_len - overlap < seq.len)
+                        while (start + actual_seg_len < seq.len)
                         {
                             add_segment(segments.size(), seq.ind, start, actual_seg_len);
                             start = start + actual_seg_len - overlap;
@@ -196,8 +180,103 @@ struct metadata
             }
 
             if (segments.size() != n)
-                seqan3::debug_stream << "WARNING: Database was split into " << segments.size() <<
-                                        " instead of " << n << " segments.";
+            {
+                throw std::runtime_error("Error: Database was split into " + std::to_string(segments.size()) +
+                                         " instead of " + std::to_string(n) + " segments.");
+            }
+        }
+
+        /**
+         * @brief Function that splits the database into partially overlapping segments of roughly equal length.
+         *
+         * @param seg_count_in Suggested number of segments.
+         * @param overlap Length of overlap between adjacent segments.
+         * @param seq_it Iterator to first sequence of sufficient length.
+         */
+        template <typename it_t>
+        void make_equal_length_segments(size_t const & seg_count_in, size_t const & overlap, it_t & seq_it)
+        {
+            for (auto it = seq_it; it != sequences.end(); it++)
+            {
+                auto seq = *it;
+                size_t start = 0;
+                if (seq.len <= default_seg_len * 1.5)
+                {
+                    // database sequence is single segment
+                    add_segment(segments.size(), seq.ind, start, seq.len);
+                }
+                else
+                {
+                    size_t segments_per_seq = std::round( (double) seq.len / (double) default_seg_len);
+
+                    if (segments_per_seq == 1)
+                        add_segment(segments.size(), seq.ind, start, seq.len);
+                    else
+                    {
+                        size_t actual_seg_len = seq.len / segments_per_seq + std::ceil(overlap / 2.0f);
+
+                        // divide database sequence into multiple segments
+                        add_segment(segments.size(), seq.ind, start, actual_seg_len);
+                        start = start + actual_seg_len - overlap;
+                        while (start + actual_seg_len < seq.len)
+                        {
+                            add_segment(segments.size(), seq.ind, start, actual_seg_len);
+                            start = start + actual_seg_len - overlap;
+                        }
+                        add_segment(segments.size(), seq.ind, start, seq.len - start);
+                    }
+                }
+            }
+
+            if (segments.size() != seg_count_in)
+                seqan3::debug_stream << "WARNING: Database was split into " << segments.size() << " instead of " << seg_count_in << " segments.";
+
+        }
+
+        /**
+         * @brief Function that scans over the collection of sequences and greedily assigns segment positions.
+         *
+         * @param seg_count_in Chosen number of segments.
+         * @param n Actual number of segments.
+         * @param overlap Length of overlap between adjacent segments.
+         */
+        void scan_database_sequences(split_arguments const & arguments)
+        {
+            default_seg_len = total_len / arguments.seg_count + 1;
+            if (default_seg_len <= arguments.overlap)
+            {
+                throw std::runtime_error("Segments of length " + std::to_string(default_seg_len) + "bp can not overlap by " +
+                                         std::to_string(arguments.overlap) + "bp.\nDecrease the overlap or the number of segments.");
+            }
+
+            size_t len_lower_bound = arguments.overlap;
+            // Check how many sequences are discarded for being too short
+            auto first_long_seq = std::find_if(sequences.begin(), sequences.end(), [&](auto const & seq){return (seq.len > len_lower_bound);});
+            size_t discarded_short_sequences = first_long_seq - sequences.begin();
+            // But do not discard all sequences if they are of uniform size
+            if (first_long_seq == sequences.end())
+            {
+                throw std::runtime_error("Overlap can not be shorter than sequence length.");
+            }
+
+            for (auto it = sequences.begin(); it < first_long_seq; it++)
+            {
+                seqan3::debug_stream << "Sequence: " << (*it).id << " is too short and will be skipped.\n";
+            }
+
+            if (arguments.seg_count < (sequences.size() - discarded_short_sequences))
+            {
+                throw std::runtime_error("Can not split " + std::to_string(sequences.size()) +
+                                         " sequences into " + std::to_string(arguments.seg_count) + " segments.");
+            }
+
+            if (arguments.split_index)
+                make_exactly_n_segments(arguments.seg_count, arguments.overlap, first_long_seq);
+            else
+                make_equal_length_segments(arguments.seg_count, arguments.overlap, first_long_seq);
+
+            std::stable_sort(sequences.begin(), sequences.end(), fasta_order());
+            std::stable_sort(segments.begin(), segments.end(), fasta_order());
         }
 
     public:
@@ -207,7 +286,7 @@ struct metadata
         metadata(split_arguments const & arguments)
         {
             scan_database_file(arguments.seq_file);
-            scan_database_sequences(arguments.seg_count, arguments.overlap);
+            scan_database_sequences(arguments);
             seg_count = segments.size();
         }
 
@@ -305,16 +384,40 @@ struct metadata
             std::ofstream out_file;
             out_file.open(filepath);
 
-            for (sequence_stats const & seq : sequences)
-                out_file << seq.id << '\t' << seq.ind << '\t' << seq.len << '\n';
+            stream_out(out_file);
 
-            out_file << "$\n";
+            out_file.close();
+        }
+
+        /**
+         * @brief Function that streams out the metadata table.
+         *
+         * @param out_str Output stream.
+         */
+        template <typename str_t>
+        void stream_out(str_t & out_str)
+        {
+            for (sequence_stats const & seq : sequences)
+                out_str << seq.id << '\t' << seq.ind << '\t' << seq.len << '\n';
+
+            out_str << "$\n";
 
             for (const auto & seg : segments)
-                out_file << seg.id << '\t' << seg.seq_ind << '\t' << seg.start << '\t' << seg.len << '\n';
+                out_str << seg.id << '\t' << seg.seq_ind << '\t' << seg.start << '\t' << seg.len << '\n';
 
-            out_file << "$\n";
-            out_file.close();
+            out_str << "$\n";
+        }
+
+        double segment_length_stdev()
+        {
+            auto segment_lengths = segments | std::views::transform([](segment_stats const & seg){return seg.len;});
+
+            double sum = std::accumulate(segment_lengths.begin(), segment_lengths.end(), 0.0);
+            double mean = sum / segment_lengths.size();
+            double sq_sum = std::inner_product(segment_lengths.begin(), segment_lengths.end(), segment_lengths.begin(), 0.0);
+            double stdev = std::sqrt(sq_sum / segments.size() - mean * mean);
+
+            return stdev;
         }
 };
 

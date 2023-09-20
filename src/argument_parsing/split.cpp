@@ -23,11 +23,15 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       .long_id = "overlap",
                       .description = "Choose how much consecutive segments overlap.",
                       .validator = positive_integer_validator{true}});
-    parser.add_option(arguments.seg_count,
+    parser.add_option(arguments.seg_count_in,
                       sharg::config{.short_id = 'n',
                       .long_id = "seg-count",
-                      .description = "Dividing the database into this many segments. Corresponds to IBF bin count for the reference sequence so that multiples of 64 lead to better performance.",
+                      .description = "Dividing the database into this many segments.",
                       .validator = sharg::arithmetic_range_validator{1, 29952}});
+    parser.add_option(arguments.split_index,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "split-index",
+                      .description = "Split a reference database before building an Interleaved Bloom Filter where the number of bins should be a multiple of 64."});
     parser.add_flag(arguments.write_ref,
                       sharg::config{.short_id = '\0',
                       .long_id = "write-ref",

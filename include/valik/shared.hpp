@@ -15,9 +15,23 @@
 namespace valik
 {
 
-inline constexpr static uint64_t adjust_seed(uint8_t const kmer_size, uint64_t const seed = 0x8F3F73B5CF1C9ADEULL) noexcept
+constexpr static uint64_t adjust_seed(uint8_t const kmer_size, uint64_t const seed = 0x8F3F73B5CF1C9ADEULL) noexcept
 {
     return seed >> (64u - 2u * kmer_size);
+}
+
+/**
+ * @brief Function that rounds the chosen segment count to the next multiple of 64.
+ *
+ * @param n Segment count.
+ */
+constexpr static size_t adjust_bin_count(size_t const & n)
+{
+    int remainder = n % 64;
+    if (remainder == 0)
+        return n;
+
+    return n + 64 - remainder;
 }
 
 //!\brief Strong type for passing the window size.
@@ -43,6 +57,8 @@ struct split_arguments
 
     size_t overlap{150};
     size_t seg_count{64};
+    size_t seg_count_in{};
+    bool split_index{false};
     bool write_ref{false};
     bool write_query{false};
 };

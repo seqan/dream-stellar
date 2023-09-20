@@ -5,6 +5,6 @@
 namespace valik::app
 {
 
-void valik_split(split_arguments const & arguments);
+void valik_split(split_arguments & arguments);
 
 } // namespace valik::app
