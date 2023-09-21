@@ -7,6 +7,45 @@
 #include "cli_test.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////// valik split index bins /////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_P(valik_split_ref, split_ref)
+{
+    auto const [seg_count, overlap] = GetParam();
+
+    cli_test_result const result = execute_app("valik", "split",
+                                                        data("ref.fasta"),
+                                                        "--split-index",
+                                                        "--out reference_metadata.txt",
+                                                        "--seg-count ", std::to_string(seg_count),
+                                                        "--overlap ", std::to_string(overlap));
+
+    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    EXPECT_EQ(result.err, std::string{});
+
+
+    valik::metadata meta("reference_metadata.txt");
+    if (meta.seg_count < 97)
+        EXPECT_EQ(meta.seg_count, 64);
+    else
+        EXPECT_EQ(meta.seg_count, 128);
+    EXPECT_GE(0.1f, meta.segment_length_cv()); // create segments of roughly equal length
+}
+
+INSTANTIATE_TEST_SUITE_P(split_ref_suite,
+                         valik_split_ref,
+                         testing::Combine(testing::Values(8, 63, 64, 65, 96, 97, 159), testing::Values(0, 1, 9)),
+                         [] (testing::TestParamInfo<valik_split_long::ParamType> const & info)
+                         {
+                             std::string name = std::to_string(std::get<0>(info.param)) + "_seg_count_" +
+                                                std::to_string(std::get<1>(info.param)) + "_overlap";
+                             return name;
+                         });
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// valik split equal length ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

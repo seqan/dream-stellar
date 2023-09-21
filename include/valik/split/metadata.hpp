@@ -169,23 +169,21 @@ struct metadata
                     // sequences that are contained in a single segment might not have the exact segment length
                     // dynamically update segment length to divide the rest of the remaining database as equally as possible among the chosen number of segments
                     size_t remaining_seg_count = n - segments.size();
-                    size_t updated_seg_len = remaining_db_len / remaining_seg_count;
-
+                    size_t updated_seg_len = std::round((float) remaining_db_len / remaining_seg_count);
                     size_t segments_per_seq = std::round( (double) seq.len / (double) updated_seg_len);
 
                     if (segments_per_seq == 1)
                         add_segment(seq.ind, start, seq.len);
                     else
                     {
-                        size_t actual_seg_len = seq.len / segments_per_seq + std::ceil(overlap / 2.0f);
+                        size_t actual_seg_len = std::ceil(((float) seq.len - overlap) / segments_per_seq);
 
                         // divide database sequence into multiple segments
-                        add_segment(seq.ind, start, actual_seg_len);
-                        start = start + actual_seg_len - overlap;
-                        while (start + actual_seg_len < seq.len)
+                        add_segment(seq.ind, 0, actual_seg_len + overlap);
+
+                        for (start += actual_seg_len; start + actual_seg_len + overlap < seq.len - overlap; start += actual_seg_len)
                         {
-                            add_segment(seq.ind, start, actual_seg_len);
-                            start = start + actual_seg_len - overlap;
+                            add_segment(seq.ind, start, actual_seg_len + overlap);
                         }
                         add_segment(seq.ind, start, seq.len - start);
                     }

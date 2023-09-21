@@ -526,6 +526,7 @@ struct valik_base : public cli_test
     }
 };
 
+struct valik_split_ref : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
 struct valik_split_various : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
 struct valik_split_short : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};
 struct valik_split_long : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t>> {};

@@ -28,7 +28,7 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       .long_id = "seg-count",
                       .description = "Dividing the database into this many segments.",
                       .validator = sharg::arithmetic_range_validator{1, 29952}});
-    parser.add_option(arguments.split_index,
+    parser.add_flag(arguments.split_index,
                       sharg::config{.short_id = '\0',
                       .long_id = "split-index",
                       .description = "Split a reference database before building an Interleaved Bloom Filter where the number of bins should be a multiple of 64."});
