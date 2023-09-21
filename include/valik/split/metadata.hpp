@@ -32,9 +32,9 @@ struct metadata
     {
         std::string id;
         size_t ind;
-        size_t len;
+        uint64_t len;
 
-        sequence_stats(std::string const fasta_id, size_t const fasta_ind, size_t const seq_length)
+        sequence_stats(std::string const fasta_id, size_t const fasta_ind, uint64_t const seq_length)
         {
             id = fasta_id;
             ind = fasta_ind;
@@ -63,12 +63,19 @@ struct metadata
     {
         size_t id;
         size_t seq_ind;
-        size_t start;
-        size_t len;
+        uint64_t start;
+        uint64_t len;
 
-        segment_stats(size_t i, size_t ind, size_t s, size_t l)
+        segment_stats(size_t const i, size_t const ind, uint64_t const s, uint64_t const l)
         {
             id = i;
+            seq_ind = ind;
+            start = s;
+            len = l;
+        }
+
+        segment_stats(size_t const ind, uint64_t const s, uint64_t const l)
+        {
             seq_ind = ind;
             start = s;
             len = l;
@@ -124,7 +131,13 @@ struct metadata
             std::stable_sort(sequences.begin(), sequences.end(), length_order());
         }
 
-        void add_segment(size_t const i, size_t const ind, size_t const s, size_t const l)
+        void add_segment(size_t const ind, uint64_t const s, uint64_t const l)
+        {
+            segment_stats seg(ind, s, l);
+            segments.push_back(seg);
+        }
+
+        void add_segment(size_t const i, size_t const ind, uint64_t const s, uint64_t const l)
         {
             segment_stats seg(i, ind, s, l);
             segments.push_back(seg);
@@ -148,7 +161,7 @@ struct metadata
                 if (seq.len <= default_seg_len * 1.5)
                 {
                     // database sequence is single segment
-                    add_segment(segments.size(), seq.ind, start, seq.len);
+                    add_segment(seq.ind, start, seq.len);
                     remaining_db_len -= seq.len;
                 }
                 else
@@ -161,20 +174,20 @@ struct metadata
                     size_t segments_per_seq = std::round( (double) seq.len / (double) updated_seg_len);
 
                     if (segments_per_seq == 1)
-                        add_segment(segments.size(), seq.ind, start, seq.len);
+                        add_segment(seq.ind, start, seq.len);
                     else
                     {
                         size_t actual_seg_len = seq.len / segments_per_seq + std::ceil(overlap / 2.0f);
 
                         // divide database sequence into multiple segments
-                        add_segment(segments.size(), seq.ind, start, actual_seg_len);
+                        add_segment(seq.ind, start, actual_seg_len);
                         start = start + actual_seg_len - overlap;
                         while (start + actual_seg_len < seq.len)
                         {
-                            add_segment(segments.size(), seq.ind, start, actual_seg_len);
+                            add_segment(seq.ind, start, actual_seg_len);
                             start = start + actual_seg_len - overlap;
                         }
-                        add_segment(segments.size(), seq.ind, start, seq.len - start);
+                        add_segment(seq.ind, start, seq.len - start);
                     }
                     remaining_db_len -= seq.len;
                 }
@@ -204,26 +217,26 @@ struct metadata
                 if (seq.len <= default_seg_len * 1.5)
                 {
                     // database sequence is single segment
-                    add_segment(segments.size(), seq.ind, start, seq.len);
+                    add_segment(seq.ind, start, seq.len);
                 }
                 else
                 {
                     size_t segments_per_seq = std::round( (double) seq.len / (double) default_seg_len);
 
                     if (segments_per_seq == 1)
-                        add_segment(segments.size(), seq.ind, start, seq.len);
+                        add_segment(seq.ind, start, seq.len);
                     else
                     {
                         size_t actual_seg_len = std::ceil(((float) seq.len - overlap) / segments_per_seq);
 
                         // divide database sequence into multiple segments
-                        add_segment(segments.size(), seq.ind, 0, actual_seg_len + overlap);
+                        add_segment(seq.ind, 0, actual_seg_len + overlap);
 
                         for (start += actual_seg_len; start + actual_seg_len + overlap < seq.len - overlap; start += actual_seg_len)
                         {
-                            add_segment(segments.size(), seq.ind, start, actual_seg_len + overlap);
+                            add_segment(seq.ind, start, actual_seg_len + overlap);
                         }
-                        add_segment(segments.size(), seq.ind, start, seq.len - start);
+                        add_segment(seq.ind, start, seq.len - start);
                     }
                 }
             }
@@ -275,9 +288,10 @@ struct metadata
             else
                 make_equal_length_segments(arguments.seg_count, arguments.overlap, first_long_seq);
 
-            //!TODO: sequence ind AND bin ID used to be sorted
             std::stable_sort(sequences.begin(), sequences.end(), fasta_order());
             std::stable_sort(segments.begin(), segments.end(), fasta_order());
+            for (size_t i = 0; i < segments.size(); i++)
+                segments[i].id = i;
         }
 
     public:

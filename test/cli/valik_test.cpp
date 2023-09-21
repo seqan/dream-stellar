@@ -7,7 +7,7 @@
 #include "cli_test.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////// valik split tests ///////////////////////////////////////////////////
+////////////////////////////////////////////// valik split equal length ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST_P(valik_split_various, split_various_lengths)
@@ -38,17 +38,8 @@ TEST_P(valik_split_various, split_various_lengths)
         EXPECT_EQ(result.err, std::string{"Sequence: chr5 is too short and will be skipped.\n"});
         std::string const expected_segments = string_from_file(segment_metadata_path(overlap, seg_count), std::ios::binary);
         std::string const actual_segments = string_from_file("reference_metadata.txt", std::ios::binary);
-
-        valik::metadata expected_metadata(segment_metadata_path(overlap, seg_count));
-        expected_metadata.stream_out(seqan3::debug_stream);
-        valik::metadata actual_metadata("reference_metadata.txt");
-        actual_metadata.stream_out(seqan3::debug_stream);
-
         EXPECT_TRUE(expected_segments == actual_segments);
     }
-
-    valik::metadata meta("reference_metadata.txt");
-    seqan3::debug_stream << "stdev\t" << meta.segment_length_stdev() << '\n';
 }
 
 
@@ -154,7 +145,6 @@ TEST_F(split_options, too_few_segments)
     EXPECT_EQ(result.err, expected);
 }
 
-/*
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// valik build clusters /////////////////////////////////////////////////
@@ -340,4 +330,3 @@ INSTANTIATE_TEST_SUITE_P(segment_search_suite,
                                                 std::to_string(std::get<5>(info.param)) + "_overlap";
                              return name;
                          });
-*/
