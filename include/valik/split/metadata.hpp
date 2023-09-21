@@ -266,11 +266,6 @@ struct metadata
             // Check how many sequences are discarded for being too short
             auto first_long_seq = std::find_if(sequences.begin(), sequences.end(), [&](auto const & seq){return (seq.len > len_lower_bound);});
             size_t discarded_short_sequences = first_long_seq - sequences.begin();
-            // But do not discard all sequences if they are of uniform size
-            if (first_long_seq == sequences.end())
-            {
-                throw std::runtime_error("Overlap can not be shorter than sequence length.");
-            }
 
             for (auto it = sequences.begin(); it < first_long_seq; it++)
             {

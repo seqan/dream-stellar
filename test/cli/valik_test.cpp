@@ -20,32 +20,18 @@ TEST_P(valik_split_various, split_various_lengths)
                                                          "--seg-count ", std::to_string(seg_count),
                                                          "--overlap ", std::to_string(overlap));
 
-    // if overlap too large
-    if (overlap == 2000)
-    {
-        EXPECT_NE(result.exit_code, 0);
-        EXPECT_EQ(result.out, std::string{});
-        std::string err_first_half = result.err.substr(0, result.err.find("length") + 6);
-        std::string err_second_half = result.err.substr(result.err.find("bp") + 2, result.err.size() - 1);
-        EXPECT_EQ(err_first_half, std::string{"[Error] Segments of length"});
-        std::string expected = " can not overlap by " + std::to_string(overlap) + "bp.\nDecrease the overlap or the number of segments.\n";
-        EXPECT_EQ(err_second_half, expected);
-    }
-    else
-    {
-        EXPECT_EQ(result.exit_code, 0);
-        EXPECT_EQ(result.out, std::string{});
-        EXPECT_EQ(result.err, std::string{"Sequence: chr5 is too short and will be skipped.\n"});
-        std::string const expected_segments = string_from_file(segment_metadata_path(overlap, seg_count), std::ios::binary);
-        std::string const actual_segments = string_from_file("reference_metadata.txt", std::ios::binary);
-        EXPECT_TRUE(expected_segments == actual_segments);
-    }
+    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    EXPECT_EQ(result.err, std::string{"Sequence: chr5 is too short and will be skipped.\n"});
+    std::string const expected_segments = string_from_file(segment_metadata_path(overlap, seg_count), std::ios::binary);
+    std::string const actual_segments = string_from_file("reference_metadata.txt", std::ios::binary);
+    EXPECT_TRUE(expected_segments == actual_segments);
 }
 
 
 INSTANTIATE_TEST_SUITE_P(split_suite,
                          valik_split_various,
-                         testing::Combine(testing::Values(4, 16), testing::Values(0, 20, 2000)),
+                         testing::Combine(testing::Values(4, 16), testing::Values(0, 20)),
                          [] (testing::TestParamInfo<valik_split_various::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_seg_count_" +
@@ -145,6 +131,37 @@ TEST_F(split_options, too_few_segments)
     EXPECT_EQ(result.err, expected);
 }
 
+TEST_F(split_options, overlap_too_large)
+{
+    size_t n = 30;
+    size_t o = 2000;
+    cli_test_result const result = execute_app("valik", "split", data("query.fastq"), "--seg-count",
+                                               std::to_string(n), "--overlap", std::to_string(o),
+                                               "--out", "meta.txt");
+    EXPECT_NE(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    std::string err_first_half = result.err.substr(0, result.err.find("length") + 6);
+    std::string err_second_half = result.err.substr(result.err.find("bp") + 2, result.err.size() - 1);
+    EXPECT_EQ(err_first_half, std::string{"[Error] Segments of length"});
+    std::string expected = " can not overlap by " + std::to_string(o) + "bp.\nDecrease the overlap or the number of segments.\n";
+    EXPECT_EQ(err_second_half, expected);
+}
+
+TEST_F(split_options, too_many_segments)
+{
+    size_t n = 300;
+    size_t o = 20;
+    cli_test_result const result = execute_app("valik", "split", data("query.fastq"), "--seg-count",
+                                               std::to_string(n), "--overlap", std::to_string(o),
+                                               "--out", "meta.txt");
+    EXPECT_NE(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    std::string err_first_half = result.err.substr(0, result.err.find("length") + 6);
+    std::string err_second_half = result.err.substr(result.err.find("bp") + 2, result.err.size() - 1);
+    EXPECT_EQ(err_first_half, std::string{"[Error] Segments of length"});
+    std::string expected = " can not overlap by " + std::to_string(o) + "bp.\nDecrease the overlap or the number of segments.\n";
+    EXPECT_EQ(err_second_half, expected);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// valik build clusters /////////////////////////////////////////////////
