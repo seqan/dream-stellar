@@ -4,7 +4,7 @@ namespace valik
 {
 
 std::vector<stellar_match> read_stellar_output(std::filesystem::path const & match_path,
-                                               database_metadata const & reference,
+                                               metadata const & meta,
                                                std::ios_base::openmode const mode /* = std::ios_base::in */)
 {
     std::vector<stellar_match> matches;
@@ -19,7 +19,7 @@ std::vector<stellar_match> read_stellar_output(std::filesystem::path const & mat
             break;
 
         assert(line_vec.size() == 9); // Stellar GFF format output has 9 columns
-        stellar_match match(line_vec, reference);
+        stellar_match match(line_vec, meta);
         matches.push_back(match);
     }
 

@@ -15,9 +15,26 @@
 namespace valik
 {
 
-inline constexpr static uint64_t adjust_seed(uint8_t const kmer_size, uint64_t const seed = 0x8F3F73B5CF1C9ADEULL) noexcept
+constexpr static uint64_t adjust_seed(uint8_t const kmer_size, uint64_t const seed = 0x8F3F73B5CF1C9ADEULL) noexcept
 {
     return seed >> (64u - 2u * kmer_size);
+}
+
+/**
+ * @brief Function that rounds the chosen segment count to the closest multiple of 64.
+ *
+ * @param n Segment count.
+ */
+constexpr static size_t adjust_bin_count(size_t const & n)
+{
+    int remainder = n % 64;
+
+    if (remainder == 0)
+        return n;
+    else if (remainder < 32)
+        return std::max((uint32_t) n - remainder, 128u) - 64;  // previous multiple of 64
+    else
+        return n + 64 - remainder;  // next multiple of 64
 }
 
 //!\brief Strong type for passing the window size.
@@ -38,12 +55,13 @@ struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
 
 struct split_arguments
 {
-    std::filesystem::path db_file{};
-    std::filesystem::path db_out{"reference_metadata.txt"};
-    std::filesystem::path seg_out{"reference_segments.txt"};
+    std::filesystem::path seq_file{};
+    std::filesystem::path meta_out{"metadata.txt"};
 
     size_t overlap{150};
     size_t seg_count{64};
+    size_t seg_count_in{64};
+    bool split_index{false};
     bool write_ref{false};
     bool write_query{false};
 };
@@ -65,8 +83,6 @@ struct build_arguments
     uint64_t hash{2};
     bool compressed{false};
 
-    bool from_segments{false};
-    std::filesystem::path seg_path{};
     std::filesystem::path ref_meta_path{};
 };
 
@@ -142,8 +158,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
 
     float error_rate{};
     std::filesystem::path ref_meta_path{};
-    std::filesystem::path ref_seg_path{};
-    std::filesystem::path query_seg_path{};
+    std::filesystem::path query_meta_path{};
     bool distribute{false};
 
 };

@@ -87,12 +87,7 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "ref-meta",
                     .description = "Path to reference metadata file created by split.",
                     .validator = sharg::input_file_validator{}});
-    parser.add_option(arguments.ref_seg_path,
-                    sharg::config{.short_id = '\0',
-                    .long_id = "seg-meta",
-                    .description = "Path to reference segment metadata file created by split.",
-                    .validator = sharg::input_file_validator{}});
-    parser.add_option(arguments.query_seg_path,
+    parser.add_option(arguments.query_meta_path,
                     sharg::config{.short_id = '\0',
                     .long_id = "query-meta",
                     .description = "Path to query genome metadata for finding all local alignment between two long sequences.",

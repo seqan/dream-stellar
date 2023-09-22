@@ -28,7 +28,7 @@ void valik_search(search_arguments const & arguments)
     {
         if (arguments.compressed)
         {
-            if (arguments.query_seg_path.empty())
+            if (arguments.query_meta_path.empty())
                 failed = search_local<true, false>(arguments, time_statistics);
             // Split long query sequences
             else
@@ -36,7 +36,7 @@ void valik_search(search_arguments const & arguments)
         }
         else
         {
-            if (arguments.query_seg_path.empty())
+            if (arguments.query_meta_path.empty())
                 failed = search_local<false, false>(arguments, time_statistics);
             // Split long query sequences
             else

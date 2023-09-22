@@ -61,7 +61,7 @@ TEST(consolidate_matches, bins8overlap50)
 
     valik::consolidate_matches(arguments);
 
-    valik::database_metadata reference(arguments.ref_meta_path, false);
+    valik::metadata reference(arguments.ref_meta_path);
     auto expected = valik::read_stellar_output(data_path("stellar_truth.gff"), reference, std::ios::binary);
     auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
 
@@ -80,7 +80,7 @@ TEST(consolidate_matches, bins16overlap50)
 
     valik::consolidate_matches(arguments);
 
-    valik::database_metadata reference(arguments.ref_meta_path, false);
+    valik::metadata reference(arguments.ref_meta_path);
     auto expected = valik::read_stellar_output(data_path("stellar_truth.gff"), reference, std::ios::binary);
     auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
 

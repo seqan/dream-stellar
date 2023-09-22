@@ -3,7 +3,7 @@
 #include <filesystem>
 
 #include <valik/shared.hpp>
-#include <valik/split/database_metadata.hpp>
+#include <valik/split/metadata.hpp>
 
 #include <utilities/consolidate/io.hpp>
 

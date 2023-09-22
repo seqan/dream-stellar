@@ -1,7 +1,7 @@
 #include <valik/argument_parsing/build.hpp>
 #include <valik/build/build.hpp>
 
-#include <valik/split/database_segments.hpp>
+#include <valik/split/metadata.hpp>
 
 namespace valik::app
 {
@@ -44,19 +44,12 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                     sharg::config{.short_id = '\0',
                     .long_id = "compressed",
                     .description = "Build a compressed IBF."});
-    parser.add_flag(arguments.from_segments,
-                    sharg::config{.short_id = '\0',
-                    .long_id = "from-segments",
-                    .description = "Creates IBF from split reference database instead of reference clusters."});
-    parser.add_option(arguments.seg_path,
-                    sharg::config{.short_id = '\0',
-                    .long_id = "seg-meta",
-                    .description = "Path to segment metadata file created by split.",
-                    .validator = sharg::input_file_validator{}});
     parser.add_option(arguments.ref_meta_path,
                     sharg::config{.short_id = '\0',
                     .long_id = "ref-meta",
-                    .description = "Path to reference metadata file created by split.",
+                    .description = "Path to reference metadata table created by valik split. "
+                                   "Provide reference metadata to create the IBF "
+                                   "from reference segments instead of a clustered database.",
                     .validator = sharg::input_file_validator{}});
     parser.add_option(arguments.threads,
                     sharg::config{.short_id = '\0',
@@ -78,7 +71,8 @@ void run_build(sharg::parser & parser)
     // ==========================================
     auto sequence_file_validator{bin_validator{}.sequence_file_validator};
 
-    if (!arguments.from_segments)
+    // build from reference clusters
+    if (arguments.ref_meta_path.empty())
     {
         std::ifstream istrm{arguments.bin_file};
         std::string line;
@@ -93,10 +87,11 @@ void run_build(sharg::parser & parser)
         }
         arguments.bins = arguments.bin_path.size();
     }
+    // build from reference segments
     else
     {
-        database_segments seg(arguments.seg_path);
-        arguments.bins = seg.members.size();
+        metadata meta(arguments.ref_meta_path);
+        arguments.bins = meta.seg_count;
         sequence_file_validator(arguments.bin_file);
         std::string bin_string{arguments.bin_file.string()};
         arguments.bin_path.emplace_back(std::vector<std::string>{bin_string});

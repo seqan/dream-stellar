@@ -1,20 +1,17 @@
 #pragma once
 
 #include <valik/shared.hpp>
-#include <valik/split/database_metadata.hpp>
-#include <valik/split/database_segments.hpp>
+#include <valik/split/metadata.hpp>
 
 namespace valik
 {
 
 /** !\brief Function that writes an output FASTA file for each segment sequence. */
-void write_reference_segments(database_metadata const & reference_metadata,
-                              database_segments & segments,
+void write_reference_segments(metadata & reference_metadata,
                               std::filesystem::path const & ref_path);
 
 /** !\brief Function that writes segment sequences into a single FASTA file. */
-void write_query_segments(database_metadata const & query_metadata,
-                          database_segments & segments,
+void write_query_segments(metadata & query_metadata,
                           std::filesystem::path const & query_path);
 
 }   // namespace valik

@@ -15,10 +15,9 @@ stellar -e $errRate -l $minLen -o stellar_truth.gff $ref_file $query_file > /dev
 
 for bin in 8 16
 do
-        valik split $ref_file --db-meta ${bin}bins${minLen}overlap_reference_metadata.tsv \
-                                --seg-meta ${bin}bins${minLen}overlap_segment_metadata.tsv \
-                                --seg-count $bin --overlap $minLen
+        valik split $ref_file --out ${bin}bins${minLen}overlap_reference_metadata.tsv --seg-count $bin --overlap $minLen
 
+        tail -n $((bin + 1)) ${bin}bins${minLen}overlap_reference_metadata.tsv | head -n $bin > segments.tsv
         while read -r bin_id id start len;
         do
                 end=$(echo $start + $len | bc)
@@ -26,9 +25,10 @@ do
                         --sequenceOfInterest $id --segmentBegin $start \
                         --segmentEnd $end $ref_file $query_file > /dev/null
 
-        done < ${bin}bins${minLen}overlap_segment_metadata.tsv
+        done < segments.tsv
 
-        rm ${bin}bins${minLen}overlap_segment_metadata.tsv
+        rm segments.tsv
+
 
         cat multi_seq_ref_*.gff > ${bin}bins${minLen}overlap_dream_all.gff
         rm multi_seq_ref_*
