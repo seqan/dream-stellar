@@ -60,7 +60,7 @@ struct split_arguments
 
     size_t overlap{150};
     size_t seg_count{64};
-    size_t seg_count_in{};
+    size_t seg_count_in{64};
     bool split_index{false};
     bool write_ref{false};
     bool write_query{false};

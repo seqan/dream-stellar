@@ -25,8 +25,6 @@ void valik_split(split_arguments & arguments)
         write_reference_segments(meta, arguments.meta_out);
     if (arguments.write_query)
         write_query_segments(meta, arguments.meta_out);
-
-    metadata meta_deserialised(arguments.meta_out);
 }
 
 } // namespace valik::app
