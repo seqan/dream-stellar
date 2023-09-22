@@ -99,7 +99,8 @@ TEST_F(argparse, unknown_option)
 
 TEST_F(argparse_split, input_missing)
 {
-    cli_test_result const result = execute_app("valik", "split");
+    cli_test_result const result = execute_app("valik", "split",
+                                                "--out seg");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] Not enough positional arguments provided (Need at least 1). See -h/--help for more information.\n"});
