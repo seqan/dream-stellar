@@ -45,6 +45,7 @@ void valik_search(search_arguments const & arguments)
     }
 
     // Consolidate matches (not necessary when searching a metagenomic database)
+    auto start = std::chrono::high_resolution_clock::now();
     if (!arguments.ref_meta_path.empty())
     {
         consolidate_matches(arguments);
@@ -53,6 +54,8 @@ void valik_search(search_arguments const & arguments)
             std::cerr << "Could not clean up intermediate file: \t" << std::string(arguments.all_matches) << '\n';
         failed = failed || error_in_delete;
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    time_statistics.consolidation_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
     if (arguments.write_time)
         write_time_statistics(time_statistics, arguments.out_file.string() + ".time");

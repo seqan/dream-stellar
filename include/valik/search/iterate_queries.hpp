@@ -43,7 +43,7 @@ void iterate_distributed_queries(search_arguments const & arguments,
         start = std::chrono::high_resolution_clock::now();
         prefilter_queries_parallel(ibf, arguments, query_records, thresholder, queue);
         end = std::chrono::high_resolution_clock::now();
-        time_statistics.prefilter_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+        time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
 }
 
@@ -101,7 +101,7 @@ void iterate_short_queries(search_arguments const & arguments,
             auto start = std::chrono::high_resolution_clock::now();
             prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
             auto end = std::chrono::high_resolution_clock::now();
-            time_statistics.prefilter_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+            time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
             query_records.clear();
         }
     }
@@ -112,7 +112,7 @@ void iterate_short_queries(search_arguments const & arguments,
     auto start = std::chrono::high_resolution_clock::now();
     prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
     auto end = std::chrono::high_resolution_clock::now();
-    time_statistics.prefilter_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+    time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 }
 
 /**
@@ -175,7 +175,7 @@ void iterate_split_queries(search_arguments const & arguments,
                 auto start = std::chrono::high_resolution_clock::now();
                 prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
                 auto end = std::chrono::high_resolution_clock::now();
-                time_statistics.prefilter_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+                time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
                 query_records.clear();
             }
         }
@@ -188,7 +188,7 @@ void iterate_split_queries(search_arguments const & arguments,
     auto start = std::chrono::high_resolution_clock::now();
     prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
     auto end = std::chrono::high_resolution_clock::now();
-    time_statistics.prefilter_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+    time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 }
 
 }   // namespace valik::app
