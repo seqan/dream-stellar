@@ -134,6 +134,7 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
                 threadOptions.queryFile = cart_queries_path.string();
                 threadOptions.prefilteredSearch = true;
                 threadOptions.referenceLength = refLen;
+                threadOptions.numMatches = 10000u;
                 if (ref_meta)
                 {
                     threadOptions.searchSegment = true;
