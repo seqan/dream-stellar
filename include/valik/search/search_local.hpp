@@ -105,7 +105,7 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
         }
     }
 
-    time_statistics.ref_io_time += input_databases_time.milliseconds() / 1000;
+    time_statistics.ref_io_time += input_databases_time.milliseconds() * 1000;
     stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
     stellar::DatabaseIDMap<TAlphabet> reverseDatabaseIDMap{reverseDatabases, databaseIDs};
 
@@ -330,13 +330,16 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
         });
     }
 
+    auto start = std::chrono::high_resolution_clock::now();
     if constexpr (is_split)
-        iterate_split_queries(arguments, time_statistics, index.ibf(), queue, *query_meta);
+        iterate_split_queries(arguments, index.ibf(), queue, *query_meta);
     else
-        iterate_short_queries(arguments, time_statistics, index.ibf(), queue);
+        iterate_short_queries(arguments, index.ibf(), queue);
 
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();
+    auto end = std::chrono::high_resolution_clock::now();
+    time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
     // merge output files and metadata from threads
     bool error_in_merge = merge_processes(arguments, time_statistics, exec_meta, var_pack);

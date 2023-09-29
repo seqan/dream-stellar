@@ -16,13 +16,11 @@ namespace valik::app
  * @brief Function that sends chunks of queries to the prefilter which then writes shopping carts onto disk.
  *
  * @param arguments Command line arguments.
- * @param time_statistics Run-time statistics.
  * @param ibf Interleaved Bloom Filter.
  * @param queue Shopping cart queue for load balancing between prefiltering and Stellar search.
  */
 template <typename ibf_t, typename cart_queue_t>
 void iterate_distributed_queries(search_arguments const & arguments,
-                                 search_time_statistics & time_statistics, // IN-OUT parameter
                                  ibf_t const & ibf,
                                  cart_queue_t & queue)
 {
@@ -33,17 +31,10 @@ void iterate_distributed_queries(search_arguments const & arguments,
     for (auto &&chunked_records : fin | seqan3::views::chunk((1ULL << 20) * 10))
     {
         query_records.clear();
-        auto start = std::chrono::high_resolution_clock::now();
         for (auto && fasta_record: chunked_records)
             query_records.emplace_back(std::move(fasta_record.id()), std::move(fasta_record.sequence()));
 
-        auto end = std::chrono::high_resolution_clock::now();
-        time_statistics.reads_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
-
-        start = std::chrono::high_resolution_clock::now();
         prefilter_queries_parallel(ibf, arguments, query_records, thresholder, queue);
-        end = std::chrono::high_resolution_clock::now();
-        time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
 }
 
@@ -52,13 +43,11 @@ void iterate_distributed_queries(search_arguments const & arguments,
  *
  * @tparam ibf_t Interleaved Bloom Filter type.
  * @param arguments Command line arguments.
- * @param time_statistics Run-time statistics.
  * @param ibf Interleaved Bloom Filter of the reference database.
  * @param queue Shopping cart queue for load balancing between Valik prefiltering and Stellar search.
  */
 template <typename ibf_t>
 void iterate_short_queries(search_arguments const & arguments,
-                        search_time_statistics & time_statistics, // IN-OUT parameter
                         ibf_t const & ibf,
                         cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue)
 {
@@ -98,10 +87,7 @@ void iterate_short_queries(search_arguments const & arguments,
 
         if (query_records.size() > chunk_size)
         {
-            auto start = std::chrono::high_resolution_clock::now();
             prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
-            auto end = std::chrono::high_resolution_clock::now();
-            time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
             query_records.clear();
         }
     }
@@ -109,10 +95,7 @@ void iterate_short_queries(search_arguments const & arguments,
     if (!idsUnique)
         std::cerr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
 
-    auto start = std::chrono::high_resolution_clock::now();
     prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
-    auto end = std::chrono::high_resolution_clock::now();
-    time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 }
 
 /**
@@ -120,14 +103,12 @@ void iterate_short_queries(search_arguments const & arguments,
  *
  * @tparam ibf_t Interleaved Bloom Filter type.
  * @param arguments Command line arguments.
- * @param time_statistics Run-time statistics.
  * @param ibf Interleaved Bloom Filter of the reference database.
  * @param queue Shopping cart queue for load balancing between Valik prefiltering and Stellar search.
  * @param meta Metadata table for split query segments.
  */
 template <typename ibf_t>
 void iterate_split_queries(search_arguments const & arguments,
-                        search_time_statistics & time_statistics, // IN-OUT parameter
                         ibf_t const & ibf,
                         cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue,
                         metadata & meta)
@@ -172,10 +153,7 @@ void iterate_split_queries(search_arguments const & arguments,
 
             if (query_records.size() > chunk_size)
             {
-                auto start = std::chrono::high_resolution_clock::now();
                 prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
-                auto end = std::chrono::high_resolution_clock::now();
-                time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
                 query_records.clear();
             }
         }
@@ -184,11 +162,7 @@ void iterate_split_queries(search_arguments const & arguments,
     if (!idsUnique)
         std::cerr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
 
-
-    auto start = std::chrono::high_resolution_clock::now();
     prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
-    auto end = std::chrono::high_resolution_clock::now();
-    time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 }
 
 }   // namespace valik::app

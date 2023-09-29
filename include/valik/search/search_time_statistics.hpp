@@ -12,7 +12,6 @@ struct search_time_statistics
     double ref_io_time{0.0};
     double index_io_time{0.0};
     std::vector<double> cart_processing_times;
-    double reads_io_time{0.0};
     double search_time{0.0};
     double consolidation_time{0.0};
 
@@ -42,12 +41,11 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
     std::filesystem::path file_path{time_file};
     std::ofstream file_handle(file_path, std::ofstream::app);
 
-    file_handle << "Ref I/O\tIBF I/O\tReads I/O\tSearch\tMin cart time\tAvg cart time\tMax cart time\tNr carts\tConsolidation\n";
+    file_handle << "Ref I/O\tIBF I/O\t\tSearch\tMin cart time\tAvg cart time\tMax cart time\tNr carts\tConsolidation\n";
     file_handle << std::fixed
                 << std::setprecision(2)
                 << time_statistics.ref_io_time << '\t'
                 << time_statistics.index_io_time << '\t'
-                << time_statistics.reads_io_time << '\t'
                 << time_statistics.search_time << '\t';
     if (!time_statistics.cart_processing_times.empty())
     {
