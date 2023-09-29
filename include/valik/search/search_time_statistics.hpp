@@ -36,12 +36,17 @@ struct search_time_statistics
     }
 };
 
-inline void write_time_statistics(search_time_statistics const & time_statistics, std::string const & time_file)
+inline void write_time_statistics(search_time_statistics const & time_statistics,
+                                  std::string const & time_file,
+                                  search_arguments const & arguments)
 {
     std::filesystem::path file_path{time_file};
     std::ofstream file_handle(file_path, std::ofstream::app);
 
-    file_handle << "Ref I/O\tIBF I/O\t\tSearch\tMin cart time\tAvg cart time\tMax cart time\tNr carts\tConsolidation\n";
+    // the effective query count gives an estimate on how many total queries were done across all reference segments
+    // this helps assess the effectiveness of the prefiltering
+    // the effective query count is an upper bound because some carts are only partially filled
+    file_handle << "Ref I/O\tIBF I/O\t\tSearch\tEffective query count\tMin cart time\tAvg cart time\tMax cart time\tConsolidation\n";
     file_handle << std::fixed
                 << std::setprecision(2)
                 << time_statistics.ref_io_time << '\t'
@@ -49,10 +54,12 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
                 << time_statistics.search_time << '\t';
     if (!time_statistics.cart_processing_times.empty())
     {
-        file_handle << time_statistics.get_cart_min() << '\t'
+        file_handle << std::fixed
+                    << std::setprecision(4)
+                    << time_statistics.cart_processing_times.size() * arguments.cart_max_capacity << '\t'
+                    << time_statistics.get_cart_min() << '\t'
                     << time_statistics.get_cart_avg() << '\t'
-                    << time_statistics.get_cart_max() << '\t'
-                    << time_statistics.cart_processing_times.size() << '\t';
+                    << time_statistics.get_cart_max() << '\t';
     }
 
     file_handle << time_statistics.consolidation_time << '\n';

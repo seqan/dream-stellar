@@ -240,7 +240,7 @@ struct metadata
             }
 
             if (segments.size() != seg_count_in)
-                seqan3::debug_stream << "WARNING: Database was split into " << segments.size() << " instead of " << seg_count_in << " segments.";
+                seqan3::debug_stream << "WARNING: Database was split into " << segments.size() << " instead of " << seg_count_in << " segments.\n";
 
         }
 

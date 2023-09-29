@@ -319,13 +319,9 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
 
                 stellar::_writeOutputStatistics(outputStatistics, threadOptions.verbose, disabledQueriesFile.is_open(), thread_meta.text_out);
 
-                thread_meta.time_statistics.emplace_back(stellarThreadTime.milliseconds());
+                thread_meta.time_statistics.emplace_back(stellarThreadTime.milliseconds() / 1000);
                 if (arguments.write_time)
-                {
-                    std::filesystem::path time_path =  cart_queries_path.string() + std::string(".gff.time");
-
                     stellar::_print_stellar_app_time(stellarThreadTime, thread_meta.text_out);
-                }
             }
         });
     }
