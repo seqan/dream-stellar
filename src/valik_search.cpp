@@ -58,7 +58,7 @@ void valik_search(search_arguments const & arguments)
     time_statistics.consolidation_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
     if (arguments.write_time)
-        write_time_statistics(time_statistics, arguments.out_file.string() + ".time");
+        write_time_statistics(time_statistics, arguments.out_file.string() + ".time", arguments);
 
     if (failed)
         throw std::runtime_error("valik_search failed. Run didn't complete correctly.");
