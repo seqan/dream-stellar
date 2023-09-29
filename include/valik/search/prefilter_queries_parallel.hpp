@@ -41,7 +41,6 @@ inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data
 
         auto result_cb = [&queue](query_t const& record, std::unordered_set<size_t> const& bin_hits)
         {
-            seqan3::debug_stream << "# bin hits " << bin_hits.size() << '\n';
             for (size_t const bin : bin_hits)
             {
                 queue.insert(bin, record);

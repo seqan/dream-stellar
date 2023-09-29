@@ -179,7 +179,7 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
                 stellar::StellarSwiftPattern<TAlphabet> swiftPattern = stellarIndex.createSwiftPattern();
 
                 // Construct index of the queries
-                thread_meta.text_out << "Constructing index of " << seqan2::length(queries) <<  " queries\n";
+                thread_meta.text_out << "Constructing index..." << '\n';
                 stellarIndex.construct();
                 thread_meta.text_out << std::endl;
                 stellarThreadTime.swift_index_construction_time.manual_timing(current_time);
