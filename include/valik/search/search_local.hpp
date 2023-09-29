@@ -105,7 +105,7 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
         }
     }
 
-    time_statistics.ref_io_time += input_databases_time.milliseconds() * 1000;
+    time_statistics.ref_io_time += input_databases_time.milliseconds() / 1000;
     stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
     stellar::DatabaseIDMap<TAlphabet> reverseDatabaseIDMap{reverseDatabases, databaseIDs};
 
