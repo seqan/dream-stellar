@@ -15,6 +15,7 @@ void valik_search(search_arguments const & arguments)
     search_time_statistics time_statistics{};
 
     bool failed;
+    auto search_start = std::chrono::high_resolution_clock::now();
     if (arguments.distribute)
     {
         if (arguments.compressed)
@@ -43,6 +44,10 @@ void valik_search(search_arguments const & arguments)
                 failed = search_local<false, true>(arguments, time_statistics);
         }
     }
+
+    auto search_end = std::chrono::high_resolution_clock::now();
+    seqan3::debug_stream << "Total search time: " << std::chrono::duration_cast<std::chrono::duration<double>>(search_end - search_start).count() << '\n';
+
 
     // Consolidate matches (not necessary when searching a metagenomic database)
     auto start = std::chrono::high_resolution_clock::now();
