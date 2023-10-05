@@ -13,17 +13,20 @@
 namespace valik
 {
 
-//-----------------------------
-//
-// Reports all pattern begin positions in read.
-//
-// If read_len = 150
-//   pattern_size = 50
-//   overlap = 20
-//
-//   begin_vector = {0, 30, 60, 90, 100}
-//
-//-----------------------------
+/**
+ * @brief Function that finds the begin positions of all pattern of a query.
+ *
+ * E.g if read_len = 150
+ *        pattern_size = 50
+ *        overlap = 20
+ *
+ *        begin_positions = {0, 30, 60, 90, 100}
+ *
+ * @param read_len Length of query.
+ * @param pattern_size Length of pattern.
+ * @param overlap How much adjacent patterns overlap.
+ * @param callback Functor that calls make_pattern_bounds and find_pattern_bins on each begin position.
+ */
 template <typename functor_t>
 constexpr void pattern_begin_positions(size_t const read_len, uint64_t const pattern_size, uint64_t const overlap, functor_t && callback)
 {
@@ -44,11 +47,9 @@ constexpr void pattern_begin_positions(size_t const read_len, uint64_t const pat
     }
 }
 
-//-----------------------------
-//
-// Half open interval [begin; end) on the minimiser vector that shows minimisers belonging to the current pattern
-// & the threshold for a local match.
-//-----------------------------
+/**
+ * @brief Struct representing a half open interval [begin, end) of the minimiser vector corresponding to a particular pattern.
+ */
 struct pattern_bounds
 {
     size_t begin_position;
@@ -56,13 +57,16 @@ struct pattern_bounds
     size_t threshold;
 };
 
-//-----------------------------
-//
-// Match a pattern to the corresponding range of minimisers in the minimiser vector &
-// find the threshold based on the number of minimisers in that range.
-// NB: for winnowing minimisers patterns of the same length can contain a varying number of minimisers.
-//
-//-----------------------------
+/**
+ * @brief Function that matches a pattern to the corresponding range of minimisers in the minimisers vector and finds the threshold based on
+ *        the number of minimisers in that range. For winnowing minimisers patterns of the same length can contain a varying number of minimisers.
+ *
+ * @param begin Begin position of the pattern on the query.
+ * @param arguments Command line arguments.
+ * @param window_span_begin Vector containing for each minimiser the beginning of the first window to which it is the minimiser.
+ * @param thresholder Probabilistic threshold for the number of overlapping k-mers to constitute a likely local match.
+ * @return pattern_bounds The interval of minimisers corresponding to the pattern.
+ */
 template <typename span_vec_t>
 pattern_bounds make_pattern_bounds(size_t const & begin,
                                    search_arguments const & arguments,
@@ -93,11 +97,14 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
     return pattern;
 }
 
-//-----------------------------
-//
-// Count matching k-mers and return matching bins for one pattern.
-//
-//-----------------------------
+/**
+ * @brief Function that for a single pattern counts matching k-mers and returns bins that exceed the threshold.
+ *
+ * @param pattern Slice of a query record that is being considered.
+ * @param bin_count Number of bins in the IBF.
+ * @param counting_table Rows: minimisers of the query. Columns: bins of the IBF.
+ * @param sequence_hits Bins that likely contain a match for the pattern (IN-OUT parameter).
+ */
 template <typename binning_bitvector_t>
 void find_pattern_bins(pattern_bounds const & pattern,
                         size_t const & bin_count,
@@ -120,14 +127,17 @@ void find_pattern_bins(pattern_bounds const & pattern,
     }
 }
 
-//-----------------------------
-//
-// Search a batch of queries in the IBF:
-// - the IBF is searched for local matches of length pattern size
-// - not all local match positions are considered
-// - overlap shows how much consequtive patterns overlap
-//
-//-----------------------------
+/**
+ * @brief Function that queries the IBF for local matches in a batch of records.
+ *
+ * @param records Query records.
+ * @param ibf Interleaved Bloom Filter of the reference database.
+ * @param arguments Command line arguments.
+ *                  arguments.pattern_size and arguments.error_rate define the minimum length and maximum error rate of a local match respectively.
+ *                  arguments.overlap defines how many match locations are considered per record.
+ * @param thresholder Probabilistic threshold for the number of overlapping k-mers to constitute a likely local match.
+ * @param result_cb Lambda that inserts the prefiltering results (record-bin pairs) into the shopping carts.
+ */
 template <seqan3::data_layout ibf_data_layout, typename result_cb_t, typename query_t>
 void local_prefilter(
     std::span<query_t const> const & records,

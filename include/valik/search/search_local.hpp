@@ -319,24 +319,23 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
 
                 stellar::_writeOutputStatistics(outputStatistics, threadOptions.verbose, disabledQueriesFile.is_open(), thread_meta.text_out);
 
-                thread_meta.time_statistics.emplace_back(stellarThreadTime.milliseconds());
+                thread_meta.time_statistics.emplace_back(stellarThreadTime.milliseconds() / 1000);
                 if (arguments.write_time)
-                {
-                    std::filesystem::path time_path =  cart_queries_path.string() + std::string(".gff.time");
-
                     stellar::_print_stellar_app_time(stellarThreadTime, thread_meta.text_out);
-                }
             }
         });
     }
 
+    auto start = std::chrono::high_resolution_clock::now();
     if constexpr (is_split)
-        iterate_split_queries(arguments, time_statistics, index.ibf(), queue, *query_meta);
+        iterate_split_queries(arguments, index.ibf(), queue, *query_meta);
     else
-        iterate_short_queries(arguments, time_statistics, index.ibf(), queue);
+        iterate_short_queries(arguments, index.ibf(), queue);
 
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();
+    auto end = std::chrono::high_resolution_clock::now();
+    time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
     // merge output files and metadata from threads
     bool error_in_merge = merge_processes(arguments, time_statistics, exec_meta, var_pack);
