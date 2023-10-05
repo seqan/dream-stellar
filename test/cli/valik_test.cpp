@@ -101,7 +101,7 @@ TEST_P(valik_split_short, split_many_short)
     {
         const std::string expected = "WARNING: Database was split into " +
                                      std::to_string((size_t) std::round((float) seg_count / read_count) * read_count) +
-                                     " instead of " + std::to_string(seg_count) + " segments.";
+                                     " instead of " + std::to_string(seg_count) + " segments.\n";
         EXPECT_EQ(result.err, expected);
     }
 
