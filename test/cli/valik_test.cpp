@@ -350,6 +350,11 @@ TEST_P(valik_search_segments, search)
     setenv("VALIK_STELLAR", "echo", true);
     setenv("VALIK_MERGE", "echo", true);
 
+    // create dummy file for test case because VALIK_STELLAR == echo
+    std::filesystem::path file_path{"search.gff.preliminary"};
+    std::ofstream file_handle(file_path);
+    file_handle << "\n";
+
     cli_test_result const result = execute_app("valik", "search",
                                                         "--output search.gff",
                                                         "--distribute",

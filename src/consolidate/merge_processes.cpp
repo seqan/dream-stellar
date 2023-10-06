@@ -26,7 +26,13 @@ bool merge_processes(search_arguments const & arguments,
 
     external_process merge(merge_process_args);
 
-    std::ofstream matches_out(arguments.out_file);
+    std::filesystem::path merge_out_path;
+    if (arguments.distribute)
+        merge_out_path = arguments.out_file;
+    else
+        merge_out_path = arguments.all_matches;
+    std::ofstream matches_out(merge_out_path);
+
     matches_out << merge.cout();
 
     return check_external_process_success(merge_process_args, merge);
