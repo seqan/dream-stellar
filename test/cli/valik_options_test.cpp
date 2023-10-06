@@ -291,3 +291,29 @@ TEST_F(argparse_search, pattern_window)
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] The minimiser window cannot be bigger than the pattern.\n"});
 }
+
+TEST_F(argparse_search, not_dist_no_meta)
+{
+    cli_test_result const result = execute_app("valik", "search",
+                                                         "--query ", data("query.fq"),
+                                                         "--index ", data("8bins19window.ibf"),
+                                                         "--output search.gff",
+                                                         "--pattern 100");
+    EXPECT_NE(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    EXPECT_EQ(result.err, std::string{"[Error] Provide --ref-meta to search a single genome or launch a --distribute run to search multiple reference files instead.\n"});
+}
+
+TEST_F(argparse_search, shared_mem_metagenome)
+{
+    cli_test_result const result = execute_app("valik", "search",
+                                                         "--query ", data("query.fq"),
+                                                         "--index ", data("8bins19window.ibf"),
+                                                         "--output search.gff",
+                                                         "--ref-meta ", data("150overlap4bins.txt"),
+                                                         "--pattern 100");
+    EXPECT_NE(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    EXPECT_EQ(result.err, std::string{"[Error] Multiple reference files can not be searched in shared memory mode. "
+                                      "Add --distribute argument to launch multiple distributed instances of DREAM-Stellar search.\n"});
+}

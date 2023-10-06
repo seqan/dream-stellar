@@ -78,18 +78,16 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
         }
     }
 
-    std::cout << "Launching stellar search on a shared memory machine...\n";
-    stellar::stellar_runtime input_databases_time{};
-
     auto bin_paths = index.bin_path();
     if (bin_paths.size() > 1 || bin_paths[0].size() > 1)
         throw std::runtime_error("Multiple reference files can not be searched in shared memory mode. "
                                  "Add --distribute argument to launch multiple distributed instances of DREAM-Stellar search.");
 
+    stellar::stellar_runtime input_databases_time{};
     bool const databasesSuccess = input_databases_time.measure_time([&]()
     {
         std::cout << "Launching stellar search on a shared memory machine...\n";
-        return stellar::_importAllSequences(bin_paths[0].c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
+        return stellar::_importAllSequences(bin_paths[0][0].c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
     });
     if (!databasesSuccess)
         return false;
