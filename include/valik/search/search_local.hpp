@@ -43,10 +43,7 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
         time_statistics.index_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
 
-    std::optional<metadata> ref_meta;
-    if (!arguments.ref_meta_path.empty())
-        ref_meta = metadata(arguments.ref_meta_path);
-
+    metadata ref_meta = metadata(arguments.ref_meta_path);
     env_var_pack var_pack{};
 
     std::optional<metadata> query_meta;
@@ -81,20 +78,21 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
         }
     }
 
+    std::cout << "Launching stellar search on a shared memory machine...\n";
     stellar::stellar_runtime input_databases_time{};
-    for (auto bin_paths : index.bin_path())
+
+    auto bin_paths = index.bin_path();
+    if (bin_paths.size() > 1 || bin_paths[0].size() > 1)
+        throw std::runtime_error("Multiple reference files can not be searched in shared memory mode. "
+                                 "Add --distribute argument to launch multiple distributed instances of DREAM-Stellar search.");
+
+    bool const databasesSuccess = input_databases_time.measure_time([&]()
     {
-        for (auto path : bin_paths)
-        {
-            bool const databasesSuccess = input_databases_time.measure_time([&]()
-            {
-                std::cout << "Launching stellar search on a shared memory machine...\n";
-                return stellar::_importAllSequences(path.c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
-            });
-            if (!databasesSuccess)
-                return false;
-    }
-    }
+        std::cout << "Launching stellar search on a shared memory machine...\n";
+        return stellar::_importAllSequences(bin_paths[0].c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
+    });
+    if (!databasesSuccess)
+        return false;
 
     if (reverse)
     {
@@ -134,22 +132,12 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
                 threadOptions.queryFile = cart_queries_path.string();
                 threadOptions.prefilteredSearch = true;
                 threadOptions.referenceLength = refLen;
-                if (ref_meta)
-                {
-                    threadOptions.searchSegment = true;
-                    auto seg = ref_meta->segment_from_bin(bin_id);
-                    threadOptions.binSequences.emplace_back(seg.seq_ind);
-                    threadOptions.segmentBegin = seg.start;
-                    threadOptions.segmentEnd = seg.start + seg.len;
-                }
-                else
-                {
-                    if (index.bin_path().size() < (size_t) bin_id) {
-                        throw std::runtime_error("Could not find reference file with index " + std::to_string(bin_id) +
-                        ". Did you forget to provide metadata to search segments in a single reference file instead?");
-                    }
-                    threadOptions.binSequences.push_back(bin_id);
-                }
+                threadOptions.searchSegment = true;
+                auto seg = ref_meta.segment_from_bin(bin_id);
+                threadOptions.binSequences.emplace_back(seg.seq_ind);
+                threadOptions.segmentBegin = seg.start;
+                threadOptions.segmentEnd = seg.start + seg.len;
+
                 // ==========================================
                 //!WORKAROUND: Stellar does not allow smaller error rates
                 // ==========================================
