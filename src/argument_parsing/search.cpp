@@ -219,6 +219,12 @@ void run_search(sharg::parser & parser)
     }
 
     // ==========================================
+    // Check for split metadata.
+    // ==========================================
+    if (!arguments.distribute && arguments.ref_meta_path.empty())
+        throw std::runtime_error("Provide --ref-meta to search a single genome or launch a --distribute run to search multiple reference files instead.");
+
+    // ==========================================
     // More checks.
     // ==========================================
 
