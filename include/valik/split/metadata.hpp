@@ -14,6 +14,24 @@ namespace valik
 {
 
 /**
+ * @brief Function that removes leading and trailing whitespace.
+*/
+template <typename id_t>
+void trim_fasta_id(id_t & id)
+{
+    std::string whitespace = " \t\n\r\v";
+    auto first_valid = id.find_first_not_of(whitespace);
+    if (first_valid == std::string::npos)
+        throw std::runtime_error{"Sequence name can not be empty."};
+    id.erase(0, first_valid);
+
+    auto last_valid = id.find_last_not_of(whitespace);
+    if (last_valid == std::string::npos)
+        throw std::runtime_error{"Sequence name can not be empty."};
+    id.erase(last_valid + 1);
+}
+
+/**
  * @brief Struct that stores the metadata for a split database.
  *  \param total_len    Total database length.
  *  \param sequences    Collection of database sequences.
@@ -105,7 +123,6 @@ struct metadata
     size_t seg_count;
 
     private:
-
         std::vector<sequence_stats> sequences;
         size_t default_seg_len;
         std::vector<segment_stats> segments;
@@ -123,6 +140,7 @@ struct metadata
             size_t fasta_ind = 0;
             for (auto & record : fin)
             {
+                trim_fasta_id(record.id());
                 sequence_stats seq(record.id(), fasta_ind, record.sequence().size());
                 total_len += seq.len;
                 sequences.push_back(seq);
