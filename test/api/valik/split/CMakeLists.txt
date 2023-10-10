@@ -5,3 +5,5 @@ target_use_datasources (write_seg_sequences_test FILES write_out_0_16_reference_
 target_use_datasources (write_seg_sequences_test FILES write_out_0_4_reference_metadata.txt)
 target_use_datasources (write_seg_sequences_test FILES write_out_20_16_reference_metadata.txt)
 target_use_datasources (write_seg_sequences_test FILES write_out_20_4_reference_metadata.txt)
+
+add_api_test (trim_fasta_id_test.cpp)
