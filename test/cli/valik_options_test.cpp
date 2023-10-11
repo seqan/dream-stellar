@@ -292,6 +292,18 @@ TEST_F(argparse_search, pattern_window)
     EXPECT_EQ(result.err, std::string{"[Error] The minimiser window cannot be bigger than the pattern.\n"});
 }
 
+TEST_F(argparse_search, incorrect_error_rate)
+{
+    cli_test_result const result = execute_app("valik", "search",
+                                                         "--query ", data("query.fq"),
+                                                         "--index ", data("8bins19window.ibf"),
+                                                         "--output search.gff",
+                                                         "--error-rate 0.21");
+    EXPECT_NE(result.exit_code, 0);
+    EXPECT_EQ(result.out, std::string{});
+    EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option -e/--error-rate: Value 0.210000 is not in range [0.000000,0.200000].\n"});
+}
+
 TEST_F(argparse_search, not_dist_no_meta)
 {
     cli_test_result const result = execute_app("valik", "search",
