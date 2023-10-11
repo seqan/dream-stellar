@@ -107,7 +107,7 @@ declare_datasource (FILE bin_7.fasta
 declare_datasource (FILE bin_paths.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/build/bin_paths.txt
                 URL_HASH SHA256=614e23263b689c7b4cc0ae41e99aeb5b43b351f865b4604f892320f2cc4377c7)
-
+                
 
 declare_datasource (FILE 8bins19window0error100pattern1overlap.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins19window0error100pattern1overlap.gff.out
@@ -123,7 +123,7 @@ declare_datasource (FILE 8bins19window0error50pattern40overlap.gff.out
                 URL_HASH SHA256=6a3b539c5296dc66d65c4ead72f51969c16fd0f39802b2083fdde77babf954de)
 declare_datasource (FILE 8bins19window1error100pattern1overlap.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins19window1error100pattern1overlap.gff.out
-                URL_HASH SHA256=67e4d5a3c3e7f8a360c6dc57e6710ce2d4939c7ab1fdea4cb86206b71456ebe3)
+                URL_HASH SHA256=182aeb25616835a67c020a6c53c591ed07a70734be7f7952ca332920f721b43a)
 declare_datasource (FILE 8bins19window1error100pattern40overlap.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins19window1error100pattern40overlap.gff.out
                 URL_HASH SHA256=182aeb25616835a67c020a6c53c591ed07a70734be7f7952ca332920f721b43a)
@@ -141,13 +141,13 @@ declare_datasource (FILE 8bins23window0error100pattern40overlap.gff.out
                 URL_HASH SHA256=003e0a5f4b93774ccb1f9aecff4ba584a82ab30a635dc02d367e818486276490)
 declare_datasource (FILE 8bins23window0error50pattern1overlap.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window0error50pattern1overlap.gff.out
-                URL_HASH SHA256=6a3b539c5296dc66d65c4ead72f51969c16fd0f39802b2083fdde77babf954de)
+                URL_HASH SHA256=0c43d5289724e6b2f7a7711aaed472cf244e5c6ddb67744eaa5b144be15df0e1)
 declare_datasource (FILE 8bins23window0error50pattern40overlap.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window0error50pattern40overlap.gff.out
                 URL_HASH SHA256=6a3b539c5296dc66d65c4ead72f51969c16fd0f39802b2083fdde77babf954de)
 declare_datasource (FILE 8bins23window1error100pattern1overlap.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window1error100pattern1overlap.gff.out
-                URL_HASH SHA256=a7f4095f96b00b6d91bf262a9f55afb8c2341a2b905401a58d1073a94594298b)
+                URL_HASH SHA256=003dd1e69309013f7019d22c96430f5ab1f06611a3b378b4892c4d0318289554)
 declare_datasource (FILE 8bins23window1error100pattern40overlap.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins23window1error100pattern40overlap.gff.out
                 URL_HASH SHA256=003dd1e69309013f7019d22c96430f5ab1f06611a3b378b4892c4d0318289554)
@@ -187,40 +187,28 @@ declare_datasource (FILE stellar_truth.gff
 
 declare_datasource (FILE 16bins13window1error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/16bins13window1error.gff
-                URL_HASH SHA256=28dc2cffdd32bb8a7bf2a8826280246103a518468bba32e65ec3c121e00c0fde)
+                URL_HASH SHA256=1ca9082ac216591fc1202e9bb04ab82f68045c6e19ffb93c88b91c3935a8983b)
 declare_datasource (FILE 16bins13window1error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/16bins13window1error.gff.out
-                URL_HASH SHA256=e7188f524d8b9c5e22eeaccba9c514a85c666004ad7e540b44b904392e23654c)
-declare_datasource (FILE 16bins13window.ibf
-                URL ${CMAKE_SOURCE_DIR}/test/data/dream/16bins13window.ibf
-                URL_HASH SHA256=8784dd10a43ec4900bf9f530ac3f5276a5464479b9da5bb03b5746b6f8834cf6)
+                URL_HASH SHA256=adce965156e8398a2439eb052ab1c6ade8629a7a035dcd611aa027b91efbf03d)
 declare_datasource (FILE 16bins15window1error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/16bins15window1error.gff
-                URL_HASH SHA256=28dc2cffdd32bb8a7bf2a8826280246103a518468bba32e65ec3c121e00c0fde)
+                URL_HASH SHA256=1ca9082ac216591fc1202e9bb04ab82f68045c6e19ffb93c88b91c3935a8983b)
 declare_datasource (FILE 16bins15window1error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/16bins15window1error.gff.out
-                URL_HASH SHA256=1e7553192d36bb12421d100aa6b3e8f7e76ab74eecddf7538d694ea26bbb046f)
-declare_datasource (FILE 16bins15window.ibf
-                URL ${CMAKE_SOURCE_DIR}/test/data/dream/16bins15window.ibf
-                URL_HASH SHA256=0d5ed868a2ac1718db0ab5709743a8d06a4147a8784ba3f8fe4a5c3be62fa113)
+                URL_HASH SHA256=887bcb4de574521e44578d0ec60aeb2de6eef515bd5b52daafb4142011046424)
 declare_datasource (FILE 4bins13window1error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins13window1error.gff
                 URL_HASH SHA256=28dc2cffdd32bb8a7bf2a8826280246103a518468bba32e65ec3c121e00c0fde)
 declare_datasource (FILE 4bins13window1error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins13window1error.gff.out
                 URL_HASH SHA256=35098b144d6e1214f51b0eb748ad39ab767fbcc8fa64efcbe49be05369036793)
-declare_datasource (FILE 4bins13window.ibf
-                URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins13window.ibf
-                URL_HASH SHA256=8ead5d8092a7423fcdd5fbc213e6dea75055a616eb902d2ed303aeca2710b592)
 declare_datasource (FILE 4bins15window1error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins15window1error.gff
                 URL_HASH SHA256=28dc2cffdd32bb8a7bf2a8826280246103a518468bba32e65ec3c121e00c0fde)
 declare_datasource (FILE 4bins15window1error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins15window1error.gff.out
                 URL_HASH SHA256=35098b144d6e1214f51b0eb748ad39ab767fbcc8fa64efcbe49be05369036793)
-declare_datasource (FILE 4bins15window.ibf
-                URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins15window.ibf
-                URL_HASH SHA256=8177a8f0935835c5934d78e1d88a24a79d2d681601aea02163d68cf9d69f5abb)
 declare_datasource (FILE dummy_reads.fastq
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/dummy_reads.fastq
                 URL_HASH SHA256=f1aa9ca0fb0b87393923848f0389cc3fb5cfd4841566afaf72e6c55829b64d73)
@@ -238,19 +226,19 @@ declare_datasource (FILE query_seg_meta.txt
                 URL_HASH SHA256=c0cafa74bf4a053e74a5dff5bf9a4a9a95cd70148f5a99b69b823adc31c3c186)
 declare_datasource (FILE ref.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/ref.fasta
-                URL_HASH SHA256=b404bc7e2a6f2882ec65e31ee89fa58b781513cd694ce7e5e394e494f58376ae)
+                URL_HASH SHA256=47f808d207c4c90afebbe1c8ab28990ec0e3e777c75ec787099279005428f3da)
 declare_datasource (FILE ref_meta.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/ref_meta.txt
                 URL_HASH SHA256=cfaea330c4abde12e75cec5ae8b74ffd985d2b1d4ad1620b72e064f17488e1d5)
 declare_datasource (FILE seg_meta150overlap16bins.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/seg_meta150overlap16bins.txt
-                URL_HASH SHA256=e5eda48309baba84f31c89cfb96a4e428e4c475aec65d98f8a0d0986b39458d9)
+                URL_HASH SHA256=fae21b4e8f3ac79d6afe30392a33c906bc6d13cfce453306fb691bc85f903379)
 declare_datasource (FILE seg_meta150overlap4bins.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/seg_meta150overlap4bins.txt
-                URL_HASH SHA256=c165b01e979c886d13cb0f333b4393354f483119d2bca211d39dd5f6990c74fc)
+                URL_HASH SHA256=fb54ed4ec95d134f07e78ad3fd348e379d95fa11f29e5215dd76d509211ff324)
 declare_datasource (FILE stellar.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/stellar.gff
-                URL_HASH SHA256=609ef82e33b85bcd08e70e98ad5ea2203e8dab328eb0e3fdbe3954e9449bb9af)
+                URL_HASH SHA256=fa2c3f23b4b4b9a2f5bc6144c08bfe53bda1fe1754f2e2edc26315b13228b8ac)
 declare_datasource (FILE test.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/test.gff
                 URL_HASH SHA256=8a1951719f7312caa90af663db4b59302a38b0208b2728747f09bfa7c76dedce)
