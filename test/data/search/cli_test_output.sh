@@ -24,10 +24,9 @@ do
                 echo "Potential matches overlap by $o bp"
                 output="8bins"$w"window"$e"error"$p"pattern"$o"overlap.gff"
                 er=$( echo $e/$p | bc -l )
-                #!TODO: test output creates command lists that can not be consolidated
-                echo "WARNING: expected output for districuted search was not updated"
-                #valik search --distribute --index ../build/8bins${w}window.ibf --query query.fq --output "$output" --error-rate "$er" --pattern "$p" --overlap "$o" --tau "$tau" --p_max "$p_max" --threads 1
-                #rm "$output"
+                valik search --distribute --index ../build/8bins${w}window.ibf --query query.fq --output "$output" --error-rate "$er" --pattern "$p" \
+                             --overlap "$o" --tau "$tau" --p_max "$p_max" --threads 1
+                rm "$output"
             done
         done
     done

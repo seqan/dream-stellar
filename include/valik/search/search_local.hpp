@@ -142,8 +142,21 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
                 threadOptions.numEpsilon = std::max(arguments.error_rate, (float) 0.00001);
                 threadOptions.epsilon = stellar::utils::fraction::from_double(threadOptions.numEpsilon).limit_denominator();
                 threadOptions.minLength = arguments.pattern_size;
-                threadOptions.disableThresh = arguments.disableThresh;
                 threadOptions.outputFile = cart_queries_path.string() + ".gff";
+                
+                {
+                    //!TODO: process arguments --disableThresh, --sortThresh, --numMatches in consolidation
+                    /*
+                    threadOptions.disableThresh = arguments.disableThresh;
+                    threadOptions.compactThresh = arguments.compactThresh;
+                    threadOptions.numMatches = arguments.numMatches;
+                    */
+                    threadOptions.maxRepeatPeriod = arguments.maxRepeatPeriod;
+                    threadOptions.minRepeatLength = arguments.minRepeatLength;
+                    threadOptions.strVerificationMethod = arguments.strVerificationMethod;
+                    threadOptions.xDrop = arguments.xDrop;
+                    threadOptions.qgramAbundanceCut = arguments.qgramAbundanceCut;
+                }
 
                 using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
                 using TQuerySegment = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;

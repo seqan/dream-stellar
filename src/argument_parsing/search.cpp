@@ -22,7 +22,7 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       .long_id = "query",
                       .description = "Provide a path to the query file.",
                       .required = true,
-                      .validator = sharg::input_file_validator{}});
+                      .validator = sharg::input_file_validator{{"fasta", "fa", "fq", "fastq"}}});
     parser.add_option(arguments.out_file,
                       sharg::config{.short_id = '\0',
                       .long_id = "output",
@@ -33,30 +33,11 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       sharg::config{.short_id = 'e',
                       .long_id = "error-rate",
                       .description = "Choose the maximum allowed error rate of a local match.",
-                      .validator = error_rate_validator{}});
-    parser.add_option(arguments.tau,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "tau",
-                      .description = "Used in the dynamic thresholding. The higher tau, the lower the threshold.",
-                      .validator = sharg::arithmetic_range_validator{0, 1}});
-    parser.add_option(arguments.threshold,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "threshold",
-                      .description = "If set, this threshold is used instead of the probabilistic models.",
-                      .validator = sharg::arithmetic_range_validator{0, 1}});
-    parser.add_option(arguments.p_max,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "p_max",
-                      .description = "Used in the dynamic thresholding. The higher p_max, the lower the threshold.",
-                      .validator = sharg::arithmetic_range_validator{0, 1}});
+                      .validator = float_in_range_validator{0.0f, 0.2f}});
     parser.add_option(arguments.pattern_size,
                       sharg::config{.short_id = '\0',
                       .long_id = "pattern",
-                      .description = "Choose the pattern size. Default: half of first query sequence."});
-    parser.add_option(arguments.overlap,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "overlap",
-                      .description = "Choose how much sequential patterns overlap. Default: pattern size - 1."});
+                      .description = "Choose the minimium length of a local alignment. Default: half of first query sequence."});
     parser.add_flag(arguments.compressed,
                     sharg::config{.short_id = '\0',
                     .long_id = "compressed",
@@ -72,16 +53,8 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
     parser.add_flag(arguments.write_time,
                     sharg::config{.short_id = '\0',
                     .long_id = "time",
-                    .description = "Write timing file.",
+                    .description = "Write runtime log file.",
                     .advanced = true});
-    parser.add_option(arguments.cart_max_capacity,
-                    sharg::config{.short_id = '\0',
-                    .long_id = "cart_max_capacity",
-                    .description = "Number of elements to be stored in a single cart before it is send for processing."});
-    parser.add_option(arguments.max_queued_carts,
-                    sharg::config{.short_id = '\0',
-                    .long_id = "max_queued_carts",
-                    .description = "Maximal number of carts that are full and are waiting to be processed."});
     parser.add_option(arguments.ref_meta_path,
                     sharg::config{.short_id = '\0',
                     .long_id = "ref-meta",
@@ -101,58 +74,97 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "threads",
                     .description = "Choose the number of threads.",
                     .validator = positive_integer_validator{}});
+    
+    /////////////////////////////////////////
+    // Advanced options
+    /////////////////////////////////////////
+    parser.add_option(arguments.tau,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "tau",
+                      .description = "Used in the dynamic thresholding. The higher tau, the lower the threshold.",
+                      .advanced = true,
+                      .validator = sharg::arithmetic_range_validator{0, 1}});
+    parser.add_option(arguments.threshold,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "threshold",
+                      .description = "If set, this threshold is used instead of the probabilistic models.",
+                      .advanced = true,
+                      .validator = sharg::arithmetic_range_validator{0, 1}});
+    parser.add_option(arguments.p_max,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "p_max",
+                      .description = "Used in the dynamic thresholding. The higher p_max, the lower the threshold.",
+                      .advanced = true,
+                      .validator = sharg::arithmetic_range_validator{0, 1}});
+    parser.add_option(arguments.overlap,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "overlap",
+                      .description = "Choose how much sequential patterns overlap. "
+                                     "This determines how many potential matches are skipped in prefiltering."
+                                     "(pattern_size - 1) considers all potential matches.", 
+                      .advanced = true});
+    parser.add_option(arguments.cart_max_capacity,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "cart_max_capacity",
+                    .description = "Number of elements to be stored in a single cart before it is sent for processing.", 
+                    .advanced = true});
+    parser.add_option(arguments.max_queued_carts,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "max_queued_carts",
+                    .description = "Maximal number of carts that are full and are waiting to be processed.",
+                    .advanced = true});
     parser.add_option(arguments.disableThresh,
                     sharg::config{.short_id = '\0',
                     .long_id = "disableThresh",
-                    .description = "Maximal number of verified matches before disabling verification for one query sequence.",
-                    .advanced = true,
+                    .description = "STELLAR: Maximal number of verified SWIFT filter matches before disabling verification for one query sequence.",
+                    .hidden = true,
                     .validator = sharg::arithmetic_range_validator{1, 10000}});
-
-    /////////////////////////////////////////
-    // Stellar options
-    /////////////////////////////////////////
-    /*
-    // Filtering options
-    parser.add_option(options.qGram,
-                sharg::config{.short_id = 'k',
-                                .long_id = "kmer",
-                                .description = "Length of the q-grams.",
-                                .validator = sharg::arithmetic_range_validator{1, 32}});
-    parser.add_option(options.maxRepeatPeriod,
-                sharg::config{.short_id = '\0',
-                                .long_id = "repeatPeriod",
-                                .description = "Maximal period of low complexity repeats to be filtered.",
-                                .validator = sharg::arithmetic_range_validator{1, 32}});
-    parser.add_option(options.minRepeatLength,
-                sharg::config{.short_id = '\0',
-                                .long_id = "repeatLength",
-                                .description = "Minimal length of low complexity repeats to be filtered.",
-                                .validator = sharg::arithmetic_range_validator{1u, std::numeric_limits<uint32_t>::max()}});
-    parser.add_option(options.qgramAbundanceCut,
-                sharg::config{.short_id = 'c',
-                                .long_id = "abundanceCut",
-                                .description = "k-mer overabundance cut ratio.",
-                                .validator = float_in_range_validator{0, 1}});
-
-    // Verification options
-    parser.add_option(options.xDrop,
-                sharg::config{.short_id = 'x',
-                                .long_id = "xDrop",
-                                .description = "Maximal x-drop for extension."});
-    parser.add_option(options.strVerificationMethod,
-                sharg::config{.short_id = '\0',
-                                .long_id = "verification",
-                                .description = "Verification strategy: exact or bestLocal or bandedGlobal.",
-                                .validator = sharg::value_list_validator{"exact", "bestLocal", "bandedGlobal", "bandedGlobalExtend"}});
-    parser.add_option(options.numMatches,
-                sharg::config{.short_id = 'n',
-                                .long_id = "numMatches",
-                                .description = "Maximal number of kept matches per query and database. If STELLAR finds more matches, only the longest ones are kept."});
-    parser.add_option(options.compactThresh,
-                sharg::config{.short_id = 's',
-                                .long_id = "sortThresh",
-                                .description = "Number of matches triggering removal of duplicates. Choose a smaller value for saving space."});
-    */
+    parser.add_option(arguments.compactThresh,
+                    sharg::config{.short_id = 's',
+                    .long_id = "sortThresh",
+                    .description = "STELLAR: Number of matches triggering removal of duplicates. Choose a smaller value for saving space.", 
+                    .hidden = true});
+    parser.add_option(arguments.qGram,
+                    sharg::config{.short_id = 'q',
+                    .long_id = "stellar-kmer",
+                    .description = "STELLAR: Length of the q-grams in the SWIFT algorithm.",
+                    .advanced = true,
+                    .validator = sharg::arithmetic_range_validator{1, 32}});
+    parser.add_option(arguments.qgramAbundanceCut,
+                    sharg::config{.short_id = 'c',
+                    .long_id = "abundanceCut",
+                    .description = "STELLAR: k-mer overabundance cut ratio.",
+                    .advanced = true,
+                    .validator = float_in_range_validator{0.0f, 1.0f}});
+    parser.add_option(arguments.maxRepeatPeriod,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "repeatPeriod",
+                    .description = "STELLAR: Maximal period of low complexity repeats to be filtered.",
+                    .advanced = true,
+                    .validator = sharg::arithmetic_range_validator{1, 32}});
+    parser.add_option(arguments.minRepeatLength,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "repeatLength",
+                    .description = "STELLAR: Minimal length of low complexity repeats to be filtered.",
+                    .advanced = true,
+                    .validator = sharg::arithmetic_range_validator{1u, std::numeric_limits<uint32_t>::max()}});
+    parser.add_option(arguments.xDrop,
+                    sharg::config{.short_id = 'x',
+                    .long_id = "xDrop",
+                    .description = "STELLAR: Maximal x-drop for extension.", 
+                    .advanced = true});
+    parser.add_option(arguments.strVerificationMethod,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "verification",
+                    .description = "STELLAR: Verification strategy: exact or bestLocal or bandedGlobal.",
+                    .advanced = true,
+                    .validator = sharg::value_list_validator{"exact", "bestLocal", "bandedGlobal", "bandedGlobalExtend"}});
+    parser.add_option(arguments.numMatches,
+                    sharg::config{.short_id = 'n',
+                    .long_id = "numMatches",
+                    .description = "STELLAR: Maximal number of kept matches per query and database." 
+                                   "If STELLAR finds more matches, only the longest ones are kept.",
+                    .hidden = true});
 }
 
 void run_search(sharg::parser & parser)

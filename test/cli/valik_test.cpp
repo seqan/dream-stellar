@@ -91,8 +91,8 @@ TEST_P(valik_split_short, split_many_short)
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
 
-    size_t read_count = 30;
-    if (seg_count % 30 == 0)
+    size_t read_count = 31;
+    if (seg_count % read_count == 0)
     {
         EXPECT_EQ(result.err, std::string{});
     }
@@ -131,19 +131,23 @@ TEST_P(valik_split_long, split_few_long)
 
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{});
-
 
     valik::metadata meta("reference_metadata.txt");
-    if (seg_count == meta.seq_count)
-        EXPECT_EQ(meta.seq_count, meta.seg_count);  // one-to-one pairing of sequences and segments
+     
+    if (seg_count == meta.seq_count) // one-to-one pairing of sequences and segments
+    {
+        EXPECT_EQ(result.err, std::string{"WARNING: Database was split into 5 instead of 4 segments.\n"});
+    }
     else
-        EXPECT_GE(0.1f, meta.segment_length_cv());  // create segments of roughly equal length
+    {
+        EXPECT_GE(0.2f, meta.segment_length_cv());  // create segments of roughly equal length
+        EXPECT_EQ(result.err, std::string{});
+    }
 }
 
 INSTANTIATE_TEST_SUITE_P(split_few_long_suite,
                          valik_split_long,
-                         testing::Combine(testing::Values(3, 12, 19), testing::Values(0, 1, 9)),
+                         testing::Combine(testing::Values(4, 12, 19), testing::Values(0, 1, 9)),
                          [] (testing::TestParamInfo<valik_split_long::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_seg_count_" +
@@ -155,14 +159,14 @@ struct split_options : public valik_base {};
 
 TEST_F(split_options, too_few_segments)
 {
-    size_t n = 29;
+    size_t n = 30;
     size_t o = 0;
     cli_test_result const result = execute_app("valik", "split", data("query.fastq"), "--seg-count",
                                                std::to_string(n), "--overlap", std::to_string(o),
                                                "--out", "meta.txt");
     std::string const expected
     {
-        "[Error] Can not split 30 sequences into " + std::to_string(n) + " segments.\n"
+        "[Error] Can not split 31 sequences into " + std::to_string(n) + " segments.\n"
     };
 
     EXPECT_NE(result.exit_code, 0);
