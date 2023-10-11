@@ -33,23 +33,19 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       sharg::config{.short_id = 'e',
                       .long_id = "error-rate",
                       .description = "Choose the maximum allowed error rate of a local match.",
-                      .validator = float_in_range_validator{0.0f, 0.2f}});
+                      .validator = sharg::arithmetic_range_validator{0.0, 0.2}});
     parser.add_option(arguments.pattern_size,
                       sharg::config{.short_id = '\0',
                       .long_id = "pattern",
                       .description = "Choose the minimium length of a local alignment. Default: half of first query sequence."});
+    parser.add_flag(arguments.fast,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "fast",
+                      .description = "Execute the search in fast mode when few false negatives can be tolerated."});
     parser.add_flag(arguments.compressed,
                     sharg::config{.short_id = '\0',
                     .long_id = "compressed",
                     .description = "Build a compressed IBF."});
-    parser.add_flag(arguments.cache_thresholds,
-                    sharg::config{.short_id = '\0',
-                    .long_id = "cache-thresholds",
-                    .description = "Stores the computed thresholds with an unique name next to the index. In the next search call "
-                                   "using this option, the stored thresholds are re-used.\n"
-                                   "Two files are stored:\n"
-                                   "\\fBthreshold_*.bin\\fP: Depends on pattern, window, kmer/shape, errors, and tau.\n"
-                                   "\\fBcorrection_*.bin\\fP: Depends on pattern, window, kmer/shape, p_max, and fpr."});
     parser.add_flag(arguments.write_time,
                     sharg::config{.short_id = '\0',
                     .long_id = "time",
@@ -78,6 +74,15 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
     /////////////////////////////////////////
     // Advanced options
     /////////////////////////////////////////
+    parser.add_flag(arguments.cache_thresholds,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "cache-thresholds",
+                    .description = "Stores the computed thresholds with an unique name next to the index. In the next search call "
+                                   "using this option, the stored thresholds are re-used.\n"
+                                   "Two files are stored:\n"
+                                   "\\fBthreshold_*.bin\\fP: Depends on pattern, window, kmer/shape, errors, and tau.\n"
+                                   "\\fBcorrection_*.bin\\fP: Depends on pattern, window, kmer/shape, p_max, and fpr.", 
+                    .advanced = true});
     parser.add_option(arguments.tau,
                       sharg::config{.short_id = '\0',
                       .long_id = "tau",
@@ -175,6 +180,8 @@ void run_search(sharg::parser & parser)
 
     try_parsing(parser);
 
+    arguments.errors = std::ceil(arguments.error_rate * arguments.pattern_size);
+
     // ==========================================
     // Various checks.
     // ==========================================
@@ -239,16 +246,27 @@ void run_search(sharg::parser & parser)
     // ==========================================
     // More checks.
     // ==========================================
-
     if (parser.is_option_set("overlap"))
     {
         if (arguments.overlap >= arguments.pattern_size)
                 throw sharg::validation_error{"The overlap size has to be smaller than the pattern size."};
     }
     else
-        arguments.overlap = arguments.pattern_size - 1;
+    {
+        if (arguments.fast)
+            arguments.overlap = arguments.pattern_size - 2;
+        else 
+            arguments.overlap = arguments.pattern_size - 1;
+    }
 
-    arguments.errors = std::ceil(arguments.error_rate * arguments.pattern_size);
+    // ==========================================
+    // Set strict thresholding parameters for fast mode.
+    // ==========================================
+    if (!parser.is_option_set("tau") && arguments.fast)
+        arguments.tau = 0.99999;
+
+    if (!parser.is_option_set("p_max") && arguments.fast)
+        arguments.p_max = 0.05;
 
     // ==========================================
     // Dispatch

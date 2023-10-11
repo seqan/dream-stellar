@@ -82,6 +82,7 @@ struct build_arguments
     uint64_t bits{4096};
     uint64_t hash{2};
     bool compressed{false};
+    bool fast{false};
 
     std::filesystem::path ref_meta_path{};
 };
@@ -135,6 +136,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
 
     bool compressed{false};
     bool write_time{false};
+    bool fast{false};
 
     size_t cart_max_capacity{3}; //!TODO determine suitable values
     size_t max_queued_carts{10}; //!TODO determine suitable values

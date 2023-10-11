@@ -56,6 +56,10 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                     .long_id = "threads",
                     .description = "Choose the number of threads.",
                     .validator = positive_integer_validator{}});
+    parser.add_flag(arguments.fast,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "fast",
+                      .description = "Build the index in fast mode when few false negatives can be tolerated in the following search."});
 }
 
 void run_build(sharg::parser & parser)
@@ -111,7 +115,12 @@ void run_build(sharg::parser & parser)
             throw sharg::parser_error{"The k-mer size cannot be bigger than the window size."};
     }
     else
-        arguments.window_size = arguments.shape.size();
+    {
+        if (arguments.fast)
+            arguments.window_size = arguments.shape.size() + 2;
+        else
+            arguments.window_size = arguments.shape.size();
+    }
 
     try
     {
