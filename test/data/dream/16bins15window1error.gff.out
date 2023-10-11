@@ -15,6 +15,8 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25
@@ -38,9 +40,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_11_0.fasta
+  query file      : tmp/valik/my_dir/query_4_0.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_11_0.fasta.gff
+  output file     : tmp/valik/my_dir/query_4_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -53,44 +55,8 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_5_0.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_5_0.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25
@@ -129,6 +95,8 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25
@@ -146,386 +114,6 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr3
   chr3, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_11_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_11_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_6_0.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_6_0.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_5_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_5_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_10_0.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_10_0.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_3_0.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_3_0.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
-
-# Eps-matches     : 4
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_0_0.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_0_0.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr1.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr1
-  chr1, complement
-
-# Eps-matches     : 4
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_13_0.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_13_0.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_8_0.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_8_0.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_11_2.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_11_2.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_4_0.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_4_0.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
 
 # Eps-matches     : 3
 
@@ -547,83 +135,8 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr1.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr1
-  chr1, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_12_0.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_12_0.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 3
-WARNING: Non-unique query ids. Output can be ambiguous.
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_7_0.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_7_0.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25
@@ -647,9 +160,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_9_1.fasta
+  query file      : tmp/valik/my_dir/query_0_0.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_9_1.fasta.gff
+  output file     : tmp/valik/my_dir/query_0_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -662,501 +175,8 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 4
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_6_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_6_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
-
-# Eps-matches     : 3
-WARNING: Non-unique query ids. Output can be ambiguous.
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_5_2.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_5_2.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_13_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_13_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 2 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 2
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_12_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_12_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 1 query sequence.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 1
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_11_3.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_11_3.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 1 query sequence.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 1
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_10_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_10_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 1 query sequence.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 1
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_8_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_8_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 1 query sequence.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
-
-# Eps-matches     : 1
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_7_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_7_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 1 query sequence.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
-
-# Eps-matches     : 1
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_3_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_3_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 1 query sequence.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
-
-# Eps-matches     : 1
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_1_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_1_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 2 query sequences.
-Loaded sequence chr1.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr1
-  chr1, complement
-
-# Eps-matches     : 2
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_0_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_0_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 1 query sequence.
-Loaded sequence chr1.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr1
-  chr1, complement
-
-# Eps-matches     : 1
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_14_0.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_14_0.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_2_1.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_2_1.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25
@@ -1195,6 +215,8 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25
@@ -1218,9 +240,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_10_2.fasta
+  query file      : tmp/valik/my_dir/query_7_0.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_10_2.fasta.gff
+  output file     : tmp/valik/my_dir/query_7_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1233,6 +255,49 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 3
+WARNING: Non-unique query ids. Output can be ambiguous.
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_8_0.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_8_0.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25
@@ -1256,9 +321,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_1_2.fasta
+  query file      : tmp/valik/my_dir/query_1_1.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_1_2.fasta.gff
+  output file     : tmp/valik/my_dir/query_1_1.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1271,6 +336,8 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25
@@ -1294,9 +361,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_0_2.fasta
+  query file      : tmp/valik/my_dir/query_10_0.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_0_2.fasta.gff
+  output file     : tmp/valik/my_dir/query_10_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1309,6 +376,8 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25
@@ -1319,22 +388,23 @@ Calculated parameters:
   overlap      : 0
 
 Loaded 3 query sequences.
-Loaded sequence chr1.
+Loaded sequence chr3.
 
 Constructing index...
 
 Aligning all query sequences to database sequence...
-  chr1
-  chr1, complement
+  chr3
+  chr3, complement
 
 # Eps-matches     : 3
+WARNING: Non-unique query ids. Output can be ambiguous.
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_3_2.fasta
+  query file      : tmp/valik/my_dir/query_9_1.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_3_2.fasta.gff
+  output file     : tmp/valik/my_dir/query_9_1.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1347,6 +417,88 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_11_0.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_11_0.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_6_0.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_6_0.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25
@@ -1364,44 +516,6 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr2
   chr2, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_9_2.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_9_2.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
 
 # Eps-matches     : 3
 
@@ -1423,6 +537,8 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25
@@ -1446,9 +562,9 @@ Aligning all query sequences to database sequence...
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_10_3.fasta
+  query file      : tmp/valik/my_dir/query_3_0.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_10_3.fasta.gff
+  output file     : tmp/valik/my_dir/query_3_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1461,6 +577,968 @@ User specified parameters:
   verification strategy            : exact
   maximal number of matches        : 50
   duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr2.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr2
+  chr2, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_2_1.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_2_1.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr2.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr2
+  chr2, complement
+
+# Eps-matches     : 4
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_0_1.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_0_1.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr1.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr1
+  chr1, complement
+
+# Eps-matches     : 4
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_15_0.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_15_0.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 1 query sequence.
+Loaded sequence repeat_region .
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  repeat_region 
+  repeat_region , complement
+
+# Eps-matches     : 0
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_14_0.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_14_0.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 1 query sequence.
+Loaded sequence repeat_region .
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  repeat_region 
+  repeat_region , complement
+
+# Eps-matches     : 0
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_13_0.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_13_0.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 1 query sequence.
+Loaded sequence repeat_region .
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  repeat_region 
+  repeat_region , complement
+
+# Eps-matches     : 0
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_12_0.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_12_0.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 1 query sequence.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 1
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_11_1.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_11_1.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 2 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 2
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_10_1.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_10_1.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 2 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 2
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_9_2.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_9_2.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 2 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 2
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_8_1.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_8_1.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 2 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 2
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_7_1.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_7_1.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 2 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_6_1.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_6_1.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 2 query sequences.
+Loaded sequence chr2.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr2
+  chr2, complement
+
+# Eps-matches     : 2
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_4_3.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_4_3.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 1 query sequence.
+Loaded sequence chr2.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr2
+  chr2, complement
+
+# Eps-matches     : 1
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_1_2.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_1_2.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 1 query sequence.
+Loaded sequence chr1.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr1
+  chr1, complement
+
+# Eps-matches     : 1
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_5_0.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_5_0.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr2.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr2
+  chr2, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_1_3.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_1_3.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr1.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr1
+  chr1, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_3_1.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_3_1.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr2.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr2
+  chr2, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_8_2.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_8_2.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_7_2.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_7_2.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_0_2.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_0_2.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr1.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr1
+  chr1, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_2_2.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_2_2.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr2.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr2
+  chr2, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_3_2.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_3_2.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr2.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr2
+  chr2, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_8_3.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_8_3.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+  chr3, complement
+
+# Eps-matches     : 3
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_7_3.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_7_3.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
 
 Calculated parameters:
   k-mer length : 25

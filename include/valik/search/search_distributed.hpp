@@ -101,6 +101,21 @@ bool search_distributed(search_arguments const & arguments, search_time_statisti
                 process_args.insert(process_args.end(), {"-e", std::to_string(numEpsilon),
                                                         "-l", std::to_string(arguments.pattern_size),
                                                         "-o", std::string(cart_queries_path) + ".gff"});
+                
+
+                //!TODO: process arguments --disableThresh, --sortThresh, --numMatches in consolidation
+                /*
+                if (arguments.disableThresh != std::numeric_limits<size_t>::max())
+                    process_args.insert(process_args.end(), {"--disableThresh", std::to_string(arguments.disableThresh)});
+
+                process_args.insert(process_args.end(), {"--sortThresh", std::to_string(arguments.compactThresh)});
+                process_args.insert(process_args.end(), {"--numMatches", std::to_string(arguments.numMatches)});
+                */
+                process_args.insert(process_args.end(), {"--repeatPeriod", std::to_string(arguments.maxRepeatPeriod)});
+                process_args.insert(process_args.end(), {"--repeatLength", std::to_string(arguments.minRepeatLength)});
+                process_args.insert(process_args.end(), {"--verification", arguments.strVerificationMethod});
+                process_args.insert(process_args.end(), {"--xDrop", std::to_string(arguments.xDrop)});
+                process_args.insert(process_args.end(), {"--abundanceCut", std::to_string(arguments.qgramAbundanceCut)});
 
                 auto start = std::chrono::high_resolution_clock::now();
                 external_process process(process_args);

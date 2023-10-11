@@ -25,7 +25,7 @@ pat_overlap=49        # how much adjacent patterns overlap
 ref_input="ref.fasta"
 query="query.fastq"
 
-valik split "$query" --overlap 0 --seg-count 60 --out query_seg_meta.txt
+valik split "$query" --overlap 50 --seg-count 60 --out query_seg_meta.txt
 
 e=1
 er=$(echo $e/$pattern | bc -l)
@@ -43,10 +43,11 @@ do
 
         echo "Searching IBF with $e errors"
         dist_out=$b"bins"$w"window"$e"error.gff"
-        dist_consolidated="consolidated"$b"bins"$w"window"$e"error.gff"
         #local_out="local"$b"bins"$w"window"$e"error.gff"
-        valik search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$seg_meta"
-        #valik search --index "$index" --query "$query" --output "$local_out" --error "$er" --pattern "$pattern" --overlap "$pat_overlap" --ref-meta "$seg_meta"
+        valik search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" --pattern "$pattern" --overlap "$pat_overlap" \
+                     --ref-meta "$seg_meta" --repeatPeriod 1 --repeatLength 10
+        #valik search --index "$index" --query "$query" --output "$local_out" --error "$er" --pattern "$pattern" --overlap "$pat_overlap" \
+                    # --ref-meta "$seg_meta" --repeatPeriod 1 --repeatLength 10
 
         rm $VALIK_TMP/*
     done

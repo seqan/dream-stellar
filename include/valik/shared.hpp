@@ -160,7 +160,6 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
     std::filesystem::path ref_meta_path{};
     std::filesystem::path query_meta_path{};
     bool distribute{false};
-
 };
 
 } // namespace valik
