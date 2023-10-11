@@ -22,31 +22,6 @@ struct power_of_two_validator
     }
 };
 
-struct float_in_range_validator
-{
-    using option_value_type = double; // used for all arithmetic types
-
-    option_value_type min;
-    option_value_type max;
-
-    float_in_range_validator(option_value_type min_value, option_value_type max_value) : min{min_value}, max{max_value} {}
-
-    void operator()(option_value_type const & val) const
-    {
-        if ((min > val) || (val > max))
-        {
-            throw sharg::validation_error{"Value must be in range [" + std::to_string(min) +
-                                          ", " + std::to_string(max) + "]."};
-        }
-    }
-
-    std::string get_help_page_message() const
-    {
-        return "Value must be in range [" + std::to_string(min) +
-                ", " + std::to_string(max) + "].";
-    }
-};
-
 class positive_integer_validator
 {
 public:

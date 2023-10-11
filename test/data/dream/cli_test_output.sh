@@ -50,7 +50,8 @@ do
                     # --ref-meta "$seg_meta" --repeatPeriod 1 --repeatLength 10
 
         rm $VALIK_TMP/*
-    done
+	rm $index
+	done
 done
 
 stellar_out="stellar.gff"

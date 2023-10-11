@@ -33,7 +33,7 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       sharg::config{.short_id = 'e',
                       .long_id = "error-rate",
                       .description = "Choose the maximum allowed error rate of a local match.",
-                      .validator = sharg::arithmetic_range_validator{0.0, 0.2}});
+                      .validator = sharg::arithmetic_range_validator{0.0f, 0.2f}});
     parser.add_option(arguments.pattern_size,
                       sharg::config{.short_id = '\0',
                       .long_id = "pattern",
@@ -140,7 +140,7 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "abundanceCut",
                     .description = "STELLAR: k-mer overabundance cut ratio.",
                     .advanced = true,
-                    .validator = float_in_range_validator{0.0f, 1.0f}});
+                    .validator = sharg::arithmetic_range_validator{0, 1}});
     parser.add_option(arguments.maxRepeatPeriod,
                     sharg::config{.short_id = '\0',
                     .long_id = "repeatPeriod",
