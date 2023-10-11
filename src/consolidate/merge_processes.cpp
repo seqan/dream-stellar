@@ -27,7 +27,7 @@ bool merge_processes(search_arguments const & arguments,
     external_process merge(merge_process_args);
 
     std::filesystem::path merge_out_path;
-    if (arguments.distribute)
+    if (arguments.ref_meta_path.empty())
         merge_out_path = arguments.out_file;
     else
         merge_out_path = arguments.all_matches;
