@@ -127,6 +127,7 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
                 stellar::StellarOptions threadOptions{};
                 stellar::stellar_app_runtime stellarThreadTime{};
                 threadOptions.alphabet = "dna";            // Possible values: dna, rna, protein, char
+                threadOptions.verbose = true;
                 threadOptions.queryFile = cart_queries_path.string();
                 threadOptions.prefilteredSearch = true;
                 threadOptions.referenceLength = refLen;
