@@ -68,7 +68,7 @@ bool search_distributed(search_arguments const & arguments, search_time_statisti
                 write_cart_queries(records, cart_queries_path);
 
                 std::vector<std::string> process_args{};
-                process_args.insert(process_args.end(), {var_pack.stellar_exec, "--version-check", "0", "-a", "dna", "--verbose"});
+                process_args.insert(process_args.end(), {var_pack.stellar_exec, "--version-check", "0", "--verbose", "-a", "dna"});
 
                 if (ref_meta)
                 {
