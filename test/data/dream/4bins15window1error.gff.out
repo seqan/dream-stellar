@@ -33,9 +33,14 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 220
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -73,9 +78,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 141
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 63
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -113,9 +126,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr1
+    # SWIFT hits      : 96
+    Longest hit       : 25
+    Avg hit length    : 25
   chr1, complement
+    # SWIFT hits      : 63
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 116
 
 
 I/O options:
@@ -153,9 +174,14 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 213
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -193,9 +219,14 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 213
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -234,8 +265,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr2
   chr2, complement
+    # SWIFT hits      : 169
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -274,8 +310,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr3
   chr3, complement
+    # SWIFT hits      : 172
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -313,9 +354,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr1
+    # SWIFT hits      : 64
+    Longest hit       : 25
+    Avg hit length    : 25
   chr1, complement
+    # SWIFT hits      : 168
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 4
+Longest eps-match : 152
+Avg match length  : 151
 
 
 I/O options:
@@ -353,9 +402,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 64
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 64
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 WARNING: Non-unique query ids. Output can be ambiguous.
 
 
@@ -394,9 +451,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 63
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 168
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 4
+Longest eps-match : 152
+Avg match length  : 151
 
 
 I/O options:
@@ -434,9 +499,14 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 236
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 143
 
 
 I/O options:
@@ -474,9 +544,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 163
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 101
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 4
+Longest eps-match : 152
+Avg match length  : 151
 
 
 I/O options:
@@ -514,9 +592,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 149
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 64
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -554,9 +640,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 73
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 147
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -635,8 +729,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr3
   chr3, complement
+    # SWIFT hits      : 152
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 2
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -675,8 +774,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr3
   chr3, complement
+    # SWIFT hits      : 150
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 2
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -714,9 +818,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr1
+    # SWIFT hits      : 73
+    Longest hit       : 25
+    Avg hit length    : 25
   chr1, complement
+    # SWIFT hits      : 83
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 2
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -755,8 +867,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr2
   chr2, complement
+    # SWIFT hits      : 142
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 2
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -794,9 +911,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 141
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 63
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -835,8 +960,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr1
   chr1, complement
+    # SWIFT hits      : 230
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -875,8 +1005,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr2
   chr2, complement
+    # SWIFT hits      : 230
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -915,8 +1050,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr3
   chr3, complement
+    # SWIFT hits      : 230
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -954,9 +1094,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr1
+    # SWIFT hits      : 142
+    Longest hit       : 25
+    Avg hit length    : 25
   chr1, complement
+    # SWIFT hits      : 62
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -994,9 +1142,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 142
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 62
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -1034,9 +1190,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 142
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 62
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -1074,9 +1238,14 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr1
+    # SWIFT hits      : 220
+    Longest hit       : 25
+    Avg hit length    : 25
   chr1, complement
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -1114,8 +1283,13 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 220
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 

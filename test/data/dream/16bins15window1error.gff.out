@@ -1,8 +1,8 @@
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_1_0.fasta
+  query file      : tmp/valik/my_dir/query_7_0.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_1_0.fasta.gff
+  output file     : tmp/valik/my_dir/query_7_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -27,15 +27,20 @@ Calculated parameters:
   overlap      : 0
 
 Loaded 3 query sequences.
-Loaded sequence chr1.
+Loaded sequence chr3.
 
 Constructing index...
 
 Aligning all query sequences to database sequence...
-  chr1
-  chr1, complement
+  chr3
+    # SWIFT hits      : 161
+    Longest hit       : 25
+    Avg hit length    : 25
+  chr3, complement
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -73,9 +78,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 101
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 18
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -113,9 +126,14 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 212
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -153,9 +171,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 64
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 142
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -193,9 +219,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr1
+    # SWIFT hits      : 64
+    Longest hit       : 25
+    Avg hit length    : 25
   chr1, complement
+    # SWIFT hits      : 142
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -233,16 +267,24 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 149
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 51
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_7_0.fasta
+  query file      : tmp/valik/my_dir/query_7_1.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_7_0.fasta.gff
+  output file     : tmp/valik/my_dir/query_7_1.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -273,9 +315,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 64
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 114
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 WARNING: Non-unique query ids. Output can be ambiguous.
 
 
@@ -314,16 +364,24 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 158
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 67
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_1_1.fasta
+  query file      : tmp/valik/my_dir/query_1_0.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_1_1.fasta.gff
+  output file     : tmp/valik/my_dir/query_1_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -354,9 +412,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr1
+    # SWIFT hits      : 96
+    Longest hit       : 25
+    Avg hit length    : 25
   chr1, complement
+    # SWIFT hits      : 67
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 116
 
 
 I/O options:
@@ -394,9 +460,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 64
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 43
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 WARNING: Non-unique query ids. Output can be ambiguous.
 
 
@@ -435,9 +509,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 90
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 105
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -475,9 +557,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 79
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 64
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -515,9 +605,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 138
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 64
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 143
 
 
 I/O options:
@@ -555,9 +653,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 163
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 54
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -595,9 +701,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 151
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 67
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -636,8 +750,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr2
   chr2, complement
+    # SWIFT hits      : 198
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 4
+Longest eps-match : 152
+Avg match length  : 151
 
 
 I/O options:
@@ -676,8 +795,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr1
   chr1, complement
+    # SWIFT hits      : 205
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 4
+Longest eps-match : 152
+Avg match length  : 151
 
 
 I/O options:
@@ -836,8 +960,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr3
   chr3, complement
+    # SWIFT hits      : 77
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 1
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -875,9 +1004,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 71
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 32
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 2
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -916,8 +1053,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr3
   chr3, complement
+    # SWIFT hits      : 139
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 2
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -955,9 +1097,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 23
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 67
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 2
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -995,16 +1145,24 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr3
+    # SWIFT hits      : 73
+    Longest hit       : 25
+    Avg hit length    : 25
   chr3, complement
+    # SWIFT hits      : 39
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 2
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_7_1.fasta
+  query file      : tmp/valik/my_dir/query_7_2.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_7_1.fasta.gff
+  output file     : tmp/valik/my_dir/query_7_2.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1036,8 +1194,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr3
   chr3, complement
+    # SWIFT hits      : 184
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 152
+Avg match length  : 151
 
 
 I/O options:
@@ -1075,9 +1238,17 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 71
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 64
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 2
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -1116,15 +1287,20 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr2
   chr2, complement
+    # SWIFT hits      : 67
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 1
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_1_2.fasta
+  query file      : tmp/valik/my_dir/query_1_1.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_1_2.fasta.gff
+  output file     : tmp/valik/my_dir/query_1_1.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1155,9 +1331,14 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr1
+    # SWIFT hits      : 73
+    Longest hit       : 25
+    Avg hit length    : 25
   chr1, complement
 
 # Eps-matches     : 1
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -1195,16 +1376,24 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
+    # SWIFT hits      : 63
+    Longest hit       : 25
+    Avg hit length    : 25
   chr2, complement
+    # SWIFT hits      : 110
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_1_3.fasta
+  query file      : tmp/valik/my_dir/query_1_2.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_1_3.fasta.gff
+  output file     : tmp/valik/my_dir/query_1_2.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1236,8 +1425,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr1
   chr1, complement
+    # SWIFT hits      : 213
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -1276,8 +1470,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr2
   chr2, complement
+    # SWIFT hits      : 213
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -1316,208 +1515,13 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr3
   chr3, complement
+    # SWIFT hits      : 213
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_7_2.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_7_2.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-  max low complexity repeat period : 1
-  min low complexity repeat length : 10
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_0_2.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_0_2.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-  max low complexity repeat period : 1
-  min low complexity repeat length : 10
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr1.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr1
-  chr1, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_2_2.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_2_2.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-  max low complexity repeat period : 1
-  min low complexity repeat length : 10
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_3_2.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_3_2.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-  max low complexity repeat period : 1
-  min low complexity repeat length : 10
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr2.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr2
-  chr2, complement
-
-# Eps-matches     : 3
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_8_3.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_8_3.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-  max low complexity repeat period : 1
-  min low complexity repeat length : 10
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr3.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr3
-  chr3, complement
-
-# Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
 I/O options:
@@ -1556,7 +1560,243 @@ Constructing index...
 Aligning all query sequences to database sequence...
   chr3
   chr3, complement
+    # SWIFT hits      : 149
+    Longest hit       : 25
+    Avg hit length    : 25
 
 # Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_0_2.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_0_2.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr1.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr1
+    # SWIFT hits      : 145
+    Longest hit       : 25
+    Avg hit length    : 25
+  chr1, complement
+    # SWIFT hits      : 19
+    Longest hit       : 25
+    Avg hit length    : 25
+
+# Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_2_2.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_2_2.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr2.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr2
+    # SWIFT hits      : 145
+    Longest hit       : 25
+    Avg hit length    : 25
+  chr2, complement
+    # SWIFT hits      : 12
+    Longest hit       : 25
+    Avg hit length    : 25
+
+# Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_1_3.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_1_3.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr1.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr1
+    # SWIFT hits      : 217
+    Longest hit       : 25
+    Avg hit length    : 25
+  chr1, complement
+
+# Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_3_2.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_3_2.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr2.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr2
+    # SWIFT hits      : 217
+    Longest hit       : 25
+    Avg hit length    : 25
+  chr2, complement
+
+# Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_8_3.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_8_3.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+    # SWIFT hits      : 217
+    Longest hit       : 25
+    Avg hit length    : 25
+  chr3, complement
+
+# Eps-matches     : 3
+Longest eps-match : 150
+Avg match length  : 150
 
 
