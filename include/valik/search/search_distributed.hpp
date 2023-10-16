@@ -42,10 +42,6 @@ bool search_distributed(search_arguments const & arguments, search_time_statisti
     std::mutex mutex;
     execution_metadata exec_meta(arguments.threads);
 
-    // negative (reverse complemented) database strand
-    //!TODO: add switch for reverse strand
-    bool const reverse = true /*threadOptions.reverse && threadOptions.alphabet != "protein" && threadOptions.alphabet != "char" */;
-
     bool error_in_search = false; // indicates if an error happen inside this lambda
     auto consumerThreads = std::vector<std::jthread>{};
     for (size_t threadNbr = 0; threadNbr < arguments.threads; ++threadNbr)
