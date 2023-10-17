@@ -45,9 +45,9 @@ do
         dist_out=$b"bins"$w"window"$e"error.gff"
         #local_out="local"$b"bins"$w"window"$e"error.gff"
         valik search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" --pattern "$pattern" --overlap "$pat_overlap" \
-                     --ref-meta "$seg_meta" --repeatPeriod 1 --repeatLength 10
-        #valik search --index "$index" --query "$query" --output "$local_out" --error "$er" --pattern "$pattern" --overlap "$pat_overlap" \
-                    # --ref-meta "$seg_meta" --repeatPeriod 1 --repeatLength 10
+                     --ref-meta "$seg_meta" --repeatPeriod 1 --repeatLength 10 --numMatches 2
+        #valik search --index "$index" --query "$query" --output "$local_out" --error-rate "$er" --pattern "$pattern" --overlap "$pat_overlap" \
+        #             --ref-meta "$seg_meta" --repeatPeriod 1 --repeatLength 10 --numMatches 1
 
         rm $VALIK_TMP/*
 	rm $index
@@ -56,6 +56,6 @@ done
 
 stellar_out="stellar.gff"
 sed -n '1~4s/^@/>/p;2~4p' $query > query.fasta
-stellar $ref_input query.fasta -e $er -l $pattern -o $stellar_out > /dev/null
+stellar $ref_input query.fasta -e $er -l $pattern -o $stellar_out --repeatPeriod 1 --repeatLength 10 --numMatches 2 &> /dev/null
 
 rm -r $VALIK_TMP

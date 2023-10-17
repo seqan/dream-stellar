@@ -20,7 +20,6 @@ do
     mason_genome -l $length -o $chr_out -s $SEED &>/dev/null
 
     sed -i "s/^>.*$/>chr$i/g" $chr_out
-    let i=i+1
 
     #----------- Sample reads from reference sequence -----------
     echo "Generating $read_count reads of length $read_length with error rate $error_rate"
@@ -30,11 +29,13 @@ do
         --num-matches $read_count \
         --min-match-length $read_length \
         --max-match-length $read_length \
-        --verbose-ids \
         --reverse \
         --ref-len $length \
         --seed $SEED \
         $chr_out
+    
+    sed -i "s/@.*/&_$length/" $read_dir/chr$i.fastq
+    let i=i+1
 done
 
 cat chr*.fasta > ref.fasta

@@ -71,8 +71,6 @@ target_use_datasources (valik_test FILES 8bins23window1error100pattern1overlap.g
 target_use_datasources (valik_test FILES 8bins23window1error100pattern40overlap.gff.out)
 target_use_datasources (valik_test FILES query.fq)
 
-target_use_datasources (valik_test FILES query_e0.06.fasta)
-
 add_cli_test (dream_test.cpp)
 target_use_datasources (dream_test FILES 16bins13window1error.gff)
 target_use_datasources (dream_test FILES 16bins15window1error.gff)

@@ -137,6 +137,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
     bool compressed{false};
     bool write_time{false};
     bool fast{false};
+    bool verbose{false};
 
     size_t cart_max_capacity{3}; //!TODO determine suitable values
     size_t max_queued_carts{10}; //!TODO determine suitable values
@@ -147,7 +148,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
         {
             .window_size{window_size},
             .shape{shape},
-            .pattern_size{pattern_size},
+            .query_length{pattern_size},
             .errors{errors},
             .percentage{threshold},
             .p_max{p_max},

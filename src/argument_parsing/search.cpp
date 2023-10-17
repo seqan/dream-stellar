@@ -51,6 +51,11 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "time",
                     .description = "Write runtime log file.",
                     .advanced = true});
+    parser.add_flag(arguments.verbose,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "verbose",
+                    .description = "Print verbose output.",
+                    .advanced = true});
     parser.add_option(arguments.ref_meta_path,
                     sharg::config{.short_id = '\0',
                     .long_id = "ref-meta",
@@ -122,13 +127,13 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     sharg::config{.short_id = '\0',
                     .long_id = "disableThresh",
                     .description = "STELLAR: Maximal number of verified SWIFT filter matches before disabling verification for one query sequence.",
-                    .hidden = true,
+                    .advanced = true,
                     .validator = sharg::arithmetic_range_validator{1, 10000}});
     parser.add_option(arguments.compactThresh,
                     sharg::config{.short_id = 's',
                     .long_id = "sortThresh",
                     .description = "STELLAR: Number of matches triggering removal of duplicates. Choose a smaller value for saving space.", 
-                    .hidden = true});
+                    .advanced = true});
     parser.add_option(arguments.qGram,
                     sharg::config{.short_id = 'q',
                     .long_id = "stellar-kmer",
@@ -169,7 +174,7 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "numMatches",
                     .description = "STELLAR: Maximal number of kept matches per query and database." 
                                    "If STELLAR finds more matches, only the longest ones are kept.",
-                    .hidden = true});
+                    .advanced = true});
 }
 
 void run_search(sharg::parser & parser)
@@ -188,6 +193,13 @@ void run_search(sharg::parser & parser)
 
     sharg::input_file_validator{}(arguments.query_file);
     arguments.treshold_was_set = parser.is_option_set("threshold");
+    if (parser.is_option_set("disableThresh") && parser.is_option_set("numMatches"))
+    {
+        if (arguments.numMatches > arguments.disableThresh)
+            throw sharg::validation_error{"Disabling verification for queries with disableThresh=" + std::to_string(arguments.disableThresh) + 
+                                          " or more matches.\n The threshold for maximum numer of matches per query numMatches=" + std::to_string(arguments.numMatches) + 
+                                          " can not be larger."};
+    }    
 
     // ==========================================
     // Read window and kmer size, and the bin paths.
@@ -258,6 +270,9 @@ void run_search(sharg::parser & parser)
         else 
             arguments.overlap = arguments.pattern_size - 1;
     }
+
+    if (arguments.numMatches > arguments.compactThresh)
+        throw sharg::validation_error{"Invalid parameter values: Please choose numMatches <= sortThresh.\n"};
 
     // ==========================================
     // Set strict thresholding parameters for fast mode.

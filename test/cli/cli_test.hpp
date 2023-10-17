@@ -351,12 +351,6 @@ struct valik_base : public cli_test
         using strong_bool::strong_bool;
     };
 
-    struct is_hibf : strong_bool
-    {
-        using strong_bool::value;
-        using strong_bool::strong_bool;
-    };
-
     struct compare_extension : strong_bool
     {
         using strong_bool::value;
@@ -422,10 +416,7 @@ struct valik_base : public cli_test
     {
         constexpr bool is_ibf = std::same_as<data_t, valik::index_structure::ibf> ||
                                 std::same_as<data_t, valik::index_structure::ibf_compressed>;
-        constexpr bool is_hibf = std::same_as<data_t, valik::index_structure::hibf> ||
-                                 std::same_as<data_t, valik::index_structure::hibf_compressed>;
-
-        static_assert(is_ibf || is_hibf);
+        static_assert(is_ibf);
 
         valik::valik_index<data_t> expected_index{}, actual_index{};
 
