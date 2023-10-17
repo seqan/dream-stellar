@@ -122,8 +122,9 @@ struct metadata
     size_t seq_count;
     size_t seg_count;
 
-    private:
-        std::vector<sequence_stats> sequences;
+    std::vector<sequence_stats> sequences;
+    
+    private:    
         size_t default_seg_len;
         std::vector<segment_stats> segments;
 

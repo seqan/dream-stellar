@@ -122,13 +122,13 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     sharg::config{.short_id = '\0',
                     .long_id = "disableThresh",
                     .description = "STELLAR: Maximal number of verified SWIFT filter matches before disabling verification for one query sequence.",
-                    .hidden = true,
+                    .advanced = true,
                     .validator = sharg::arithmetic_range_validator{1, 10000}});
     parser.add_option(arguments.compactThresh,
                     sharg::config{.short_id = 's',
                     .long_id = "sortThresh",
                     .description = "STELLAR: Number of matches triggering removal of duplicates. Choose a smaller value for saving space.", 
-                    .hidden = true});
+                    .advanced = true});
     parser.add_option(arguments.qGram,
                     sharg::config{.short_id = 'q',
                     .long_id = "stellar-kmer",
@@ -169,7 +169,7 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "numMatches",
                     .description = "STELLAR: Maximal number of kept matches per query and database." 
                                    "If STELLAR finds more matches, only the longest ones are kept.",
-                    .hidden = true});
+                    .advanced = true});
 }
 
 void run_search(sharg::parser & parser)

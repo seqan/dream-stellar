@@ -14,12 +14,12 @@ struct stellar_match
     uint64_t dend{};
     std::string percid;
     bool is_forward_match{true};
+    std::string qname{};
+    uint64_t qbegin{};
+    uint64_t qend{};
+    std::string alignment_attributes{};
 
-    // Stellar GFF attributes
-    // 1;seq2Range=1280,1378;cigar=97M1D2M;mutations=14A,45G,58T,92C
-    std::string attributes{};
-
-    stellar_match(std::vector<std::string> const match_vec, metadata const & meta)
+    stellar_match(std::vector<std::string> const & match_vec, metadata const & meta)
     {
         dname = match_vec[0];
 
@@ -33,8 +33,39 @@ struct stellar_match
         if (match_vec[6] == "-")
             is_forward_match = false;
 
-        attributes = match_vec[8];
+        // Stellar GFF attributes
+        // 1;seq2Range=1280,1378;cigar=97M1D2M;mutations=14A,45G,58T,92C
+
+        /*
+        for (std::string m : match_vec)
+            seqan3::debug_stream << m << '\t';        
+        seqan3::debug_stream << '\n';
+        */
+        
+        std::vector<std::string> attributes_vec = get_line_vector<std::string>(match_vec[8], ';');
+        if (attributes_vec.size() != 4)
+        {
+            std::string attributes{};
+            for (auto & field : attributes_vec)
+                attributes += field;
+        
+            throw std::runtime_error("Malformed GFF record:\n" + attributes);
+        }
+            
+        qname = attributes_vec[0];
+        qbegin = stoi(attributes_vec[1].substr(attributes_vec[1].find("=") + 1, 
+                                               attributes_vec[1].find(",") - attributes_vec[1].find("=") - 1));
+        qend = stoi(attributes_vec[1].substr(attributes_vec[1].find(",") + 1));
+        alignment_attributes = attributes_vec[2] + attributes_vec[3];
     }
+
+    struct length_order
+    {
+        inline bool operator() (stellar_match const & left, stellar_match const & right)
+        {
+            return ((left.dend - left.dbegin) < (right.dend - right.dbegin));
+        }
+    };
 
     bool operator == (stellar_match const & other) const
     {
@@ -82,7 +113,16 @@ struct stellar_match
             match_str += "-";
 
         match_str += "\t.\t";
-        match_str += attributes;
+        
+        // 1;seq2Range=1280,1378;cigar=97M1D2M;mutations=14A,45G,58T,92C
+        match_str += qname;
+        match_str += ";";
+        match_str += "seq2Range=";
+        match_str += qbegin;
+        match_str += ",";
+        match_str += qend;
+        match_str += ";";
+        match_str += alignment_attributes;
         match_str += "\n";
 
         return match_str;

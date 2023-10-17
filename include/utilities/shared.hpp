@@ -12,7 +12,7 @@ namespace valik
 {
 
 template <typename field_t>
-std::vector<field_t> get_line_vector(std::string const line, char const delim)
+std::vector<field_t> get_line_vector(std::string const & line, char const delim)
 {
     std::vector<field_t> line_vec;
 
