@@ -1,6 +1,8 @@
 #pragma once
 
 #include <filesystem>
+#include <map>
+#include <ranges>
 
 #include <valik/shared.hpp>
 #include <valik/split/metadata.hpp>

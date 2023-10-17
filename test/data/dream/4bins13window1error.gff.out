@@ -413,7 +413,6 @@ Aligning all query sequences to database sequence...
 # Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
-WARNING: Non-unique query ids. Output can be ambiguous.
 
 
 I/O options:

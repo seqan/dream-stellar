@@ -10,7 +10,6 @@
 #include <sharg/exceptions.hpp>
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
 
-#include <../lib/raptor/include/raptor/hierarchical_interleaved_bloom_filter.hpp>
 #include <valik/shared.hpp>
 
 namespace valik
@@ -21,14 +20,8 @@ namespace index_structure
     using ibf = seqan3::interleaved_bloom_filter<seqan3::data_layout::uncompressed>;
     using ibf_compressed = seqan3::interleaved_bloom_filter<seqan3::data_layout::compressed>;
 
-    // TODO: add support for HIBF
-    using hibf = raptor::hierarchical_interleaved_bloom_filter<seqan3::data_layout::uncompressed>;
-    using hibf_compressed = raptor::hierarchical_interleaved_bloom_filter<seqan3::data_layout::compressed>;
-
     template <typename return_t, typename input_t>
-    concept compressible_from =
-        (std::same_as<return_t, ibf_compressed> && std::same_as<input_t, ibf>) ||
-        (std::same_as<return_t, hibf_compressed> && std::same_as<input_t, hibf>);
+    concept compressible_from = (std::same_as<return_t, ibf_compressed> && std::same_as<input_t, ibf>);
 
 } // namespace index_structure
 
