@@ -70,7 +70,15 @@ void consolidate_matches(search_arguments const & arguments)
 
     if (disabled_queries.size() > 0)
     {
-        //!TODO: loop over all queries and write out disabled ones
+        using input_file_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq, seqan3::field::id>>;
+        input_file_t fin{arguments.query_file};
+        using query_record_type = typename decltype(fin)::record_type;
+        
+        seqan3::sequence_file_output fdisabled(arguments.disabledQueriesFile);
+        
+        for (auto & record : fin)
+            if (std::find(disabled_queries.begin(), disabled_queries.end(), record.id()) != disabled_queries.end())
+                fdisabled.push_back(record);
     }
 
     write_stellar_output(arguments.out_file, consolidated_matches);
