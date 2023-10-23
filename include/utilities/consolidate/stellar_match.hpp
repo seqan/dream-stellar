@@ -34,14 +34,7 @@ struct stellar_match
             is_forward_match = false;
 
         // Stellar GFF attributes
-        // 1;seq2Range=1280,1378;cigar=97M1D2M;mutations=14A,45G,58T,92C
-
-        /*
-        for (std::string m : match_vec)
-            seqan3::debug_stream << m << '\t';        
-        seqan3::debug_stream << '\n';
-        */
-        
+        // 1;seq2Range=1280,1378;cigar=97M1D2M;mutations=14A,45G,58T,92C        
         std::vector<std::string> attributes_vec = get_line_vector<std::string>(match_vec[8], ';');
         if (attributes_vec.size() != 4)
         {
@@ -56,7 +49,7 @@ struct stellar_match
         qbegin = stoi(attributes_vec[1].substr(attributes_vec[1].find("=") + 1, 
                                                attributes_vec[1].find(",") - attributes_vec[1].find("=") - 1));
         qend = stoi(attributes_vec[1].substr(attributes_vec[1].find(",") + 1));
-        alignment_attributes = attributes_vec[2] + attributes_vec[3];
+        alignment_attributes = attributes_vec[2] + ";" + attributes_vec[3];
     }
 
     struct length_order
@@ -118,9 +111,9 @@ struct stellar_match
         match_str += qname;
         match_str += ";";
         match_str += "seq2Range=";
-        match_str += qbegin;
+        match_str += std::to_string(qbegin);
         match_str += ",";
-        match_str += qend;
+        match_str += std::to_string(qend);
         match_str += ";";
         match_str += alignment_attributes;
         match_str += "\n";

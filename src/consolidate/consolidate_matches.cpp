@@ -14,7 +14,6 @@ void consolidate_matches(search_arguments const & arguments)
     std::unordered_map<uint32_t, std::vector<size_t>> overabundant_queries{}; 
     std::vector<std::string> disabled_queries{};
 
-    std::map<std::string, size_t> ref_id_map;
     std::map<std::string, uint32_t> query_id_map;
 
     // <ref_ind, <query_ind, match_count>>
@@ -24,14 +23,16 @@ void consolidate_matches(search_arguments const & arguments)
     
     for (auto & match : matches)
     {
+        if (!query_id_map.count(match.qname))
+            query_id_map[match.qname] = query_id_map.size();
+
         if ((overabundant_queries.count(query_id_map[match.qname]) == 0) &&
             (std::count(disabled_queries.begin(), disabled_queries.end(), match.qname) == 0))
         {
-            size_t ref_ind = ref_id_map[match.dname];
+            size_t ref_ind = ref_meta.ind_from_id(match.dname);
             uint32_t query_ind = query_id_map[match.qname];
             if (++per_ref_match_counter[ref_ind][query_ind] > arguments.numMatches)
                 overabundant_queries[query_ind].push_back(ref_ind);
-            
             if (++total_match_counter[query_ind] > arguments.disableThresh)
                 disabled_queries.push_back(match.qname);
         }
@@ -57,7 +58,7 @@ void consolidate_matches(search_arguments const & arguments)
             std::vector<stellar_match> overabundant_matches;
             auto is_query_match = [&](auto & m){
                                                     return (query_id_map[m.qname] == pair.first) && 
-                                                    (std::count(pair.second.begin(), pair.second.end(), ref_id_map[m.dname]) > 0);
+                                                    (std::count(pair.second.begin(), pair.second.end(), ref_meta.ind_from_id(m.dname)) > 0);
                                                 };
             for (auto & m : matches | std::views::filter(is_query_match)) 
                 overabundant_matches.push_back(m);
@@ -72,7 +73,7 @@ void consolidate_matches(search_arguments const & arguments)
         //!TODO: loop over all queries and write out disabled ones
     }
 
-    write_stellar_output(arguments.out_file, matches);
+    write_stellar_output(arguments.out_file, consolidated_matches);
 }
 
 }  // namespace valik
