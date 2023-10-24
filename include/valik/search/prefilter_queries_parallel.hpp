@@ -32,6 +32,7 @@ inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data
     size_t const num_records = records.size();
     size_t const records_per_thread = num_records / arguments.threads;
 
+    sync_out sync(arguments.disabledQueriesFile);
     for (size_t i = 0; i < arguments.threads; ++i)
     {
         size_t const start = records_per_thread * i;
@@ -39,12 +40,19 @@ inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data
 
         std::span<query_t const> records_slice{&records[start], &records[end]};
 
-        auto result_cb = [&queue](query_t const& record, std::unordered_set<size_t> const& bin_hits)
+        auto result_cb = [&queue,&arguments,&sync](query_t const& record, std::unordered_set<size_t> const& bin_hits)
         {
-            for (size_t const bin : bin_hits)
+            if (bin_hits.size() < (arguments.disableThresh))
             {
-                queue.insert(bin, record);
+                for (size_t const bin : bin_hits)
+                {
+                    queue.insert(bin, record);
+                }
             }
+            else
+            {
+                sync.write_record(record);
+            } 
         };
 
         // The following calls `local_prefilter(records, ibf, arguments, threshold)` on a thread.

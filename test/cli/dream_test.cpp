@@ -41,7 +41,9 @@ TEST_P(dream_short_search, short_shared_mem)
                                                         "--query ", data("query.fastq"),
                                                         "--ref-meta", ref_meta_path, 
                                                         "--repeatPeriod 1",
-                                                        "--repeatLength 10");
+                                                        "--repeatLength 10", 
+                                                        "--disableThresh 8", 
+                                                        "--numMatches 3");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 4 database sequences.\n"});
     EXPECT_EQ(result.err, std::string{"WARNING: Non-unique query ids. Output can be ambiguous.\n"});
@@ -86,9 +88,8 @@ TEST_F(dream_short_search, no_matches)
                                                         "--error-rate 0",
                                                         "--index ", ibf_path(number_of_bins, window_size),
                                                         "--query ", data("dummy_reads.fastq"),
-                                                        "--ref-meta", data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt"), 
-                                                        "--disableThresh 3", 
-                                                        "--numMatches 3");
+                                                        "--ref-meta", data("seg_meta150overlap" + std::to_string(number_of_bins) + "bins.txt"));
+
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 4 database sequences.\n"});
     EXPECT_EQ(result.err, std::string{}); // Stellar shortens query IDs until the first whitespace
@@ -144,7 +145,7 @@ TEST_P(dream_split_search, split_shared_mem)
                                                         "--query-meta", query_meta_path, 
                                                         "--repeatPeriod 1",
                                                         "--repeatLength 10", 
-                                                        "--disableThresh 3", 
+                                                        "--disableThresh 8", 
                                                         "--numMatches 3");
 
     EXPECT_EQ(search.exit_code, 0);

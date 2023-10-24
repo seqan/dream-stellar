@@ -371,7 +371,7 @@ struct metadata
         {
             auto it = std::find_if(sequences.begin(), sequences.end(), [&](const sequence_stats& seq) { return seq.id == string_id;});
             if (it == sequences.end())
-                throw seqan3::validation_error{"Sequence metadata does not contain sequence from Stellar output."};
+                throw seqan3::validation_error{"Sequence metadata does not contain sequence " + string_id + " from Stellar output."};
             else
                 return (*it).ind;
         }

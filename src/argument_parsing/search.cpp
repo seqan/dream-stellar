@@ -259,6 +259,9 @@ void run_search(sharg::parser & parser)
             arguments.overlap = arguments.pattern_size - 1;
     }
 
+    if (arguments.numMatches > arguments.compactThresh)
+        throw sharg::validation_error{"Invalid parameter values: Please choose numMatches <= sortThresh.\n"};
+
     // ==========================================
     // Set strict thresholding parameters for fast mode.
     // ==========================================

@@ -146,12 +146,8 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
                 threadOptions.outputFile = cart_queries_path.string() + ".gff";
                 
                 {
-                    //!TODO: process arguments --disableThresh, --sortThresh, --numMatches in consolidation
-                    /*
-                    threadOptions.disableThresh = arguments.disableThresh;
                     threadOptions.compactThresh = arguments.compactThresh;
                     threadOptions.numMatches = arguments.numMatches;
-                    */
                     threadOptions.maxRepeatPeriod = arguments.maxRepeatPeriod;
                     threadOptions.minRepeatLength = arguments.minRepeatLength;
                     threadOptions.strVerificationMethod = arguments.strVerificationMethod;
