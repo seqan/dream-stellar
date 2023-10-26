@@ -1,8 +1,13 @@
 #include <raptor/threshold/threshold.hpp>
 
+#include <valik/shared.hpp>
+
 namespace valik::app
 {
 
+/**
+ * @brief Class that wraps raptor::threshold::threshold to print the minimal and maximal possible threshold based on the chosen number of errors.  
+*/
 class threshold_bounds
 {
     size_t lower_bound;
