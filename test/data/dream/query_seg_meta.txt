@@ -1,33 +1,33 @@
-0 start_position=558,length=150,errors=3,reference_id='chr1',reference_file='chr1.fasta'	0	150
-1 start_position=10,length=150,errors=3,reference_id='chr1',reference_file='chr1.fasta'	1	150
-2 start_position=653,length=150,errors=3,reference_id='chr1',reference_file='chr1.fasta'	2	150
-3 start_position=282,length=150,errors=3,reference_id='chr1',reference_file='chr1.fasta'	3	150
-4 start_position=611,length=150,errors=3,reference_id='chr1',reference_file='chr1.fasta'	4	150
-5 reverse,start_position=379,length=150,errors=3,reference_id='chr1',reference_file='chr1.fasta'	5	150
-6 reverse,start_position=752,length=150,errors=3,reference_id='chr1',reference_file='chr1.fasta'	6	150
-7 reverse,start_position=318,length=150,errors=3,reference_id='chr1',reference_file='chr1.fasta'	7	150
-8 reverse,start_position=693,length=150,errors=3,reference_id='chr1',reference_file='chr1.fasta'	8	150
-9 reverse,start_position=121,length=150,errors=3,reference_id='chr1',reference_file='chr1.fasta'	9	150
-0 start_position=1374,length=150,errors=3,reference_id='chr2',reference_file='chr2.fasta'	10	150
-1 start_position=839,length=150,errors=3,reference_id='chr2',reference_file='chr2.fasta'	11	150
-2 start_position=965,length=150,errors=3,reference_id='chr2',reference_file='chr2.fasta'	12	150
-3 start_position=1140,length=150,errors=3,reference_id='chr2',reference_file='chr2.fasta'	13	150
-4 start_position=93,length=150,errors=3,reference_id='chr2',reference_file='chr2.fasta'	14	150
-5 reverse,start_position=1051,length=150,errors=3,reference_id='chr2',reference_file='chr2.fasta'	15	150
-6 reverse,start_position=197,length=150,errors=3,reference_id='chr2',reference_file='chr2.fasta'	16	150
-7 reverse,start_position=1023,length=150,errors=3,reference_id='chr2',reference_file='chr2.fasta'	17	150
-8 reverse,start_position=1642,length=150,errors=3,reference_id='chr2',reference_file='chr2.fasta'	18	150
-9 reverse,start_position=2014,length=150,errors=3,reference_id='chr2',reference_file='chr2.fasta'	19	150
-0 start_position=1841,length=150,errors=3,reference_id='chr3',reference_file='chr3.fasta'	20	150
-1 start_position=1124,length=150,errors=3,reference_id='chr3',reference_file='chr3.fasta'	21	150
-2 start_position=2153,length=150,errors=3,reference_id='chr3',reference_file='chr3.fasta'	22	150
-3 start_position=2146,length=150,errors=3,reference_id='chr3',reference_file='chr3.fasta'	23	150
-4 start_position=857,length=150,errors=3,reference_id='chr3',reference_file='chr3.fasta'	24	150
-5 reverse,start_position=1106,length=150,errors=3,reference_id='chr3',reference_file='chr3.fasta'	25	150
-6 reverse,start_position=2867,length=150,errors=3,reference_id='chr3',reference_file='chr3.fasta'	26	150
-7 reverse,start_position=1280,length=150,errors=3,reference_id='chr3',reference_file='chr3.fasta'	27	150
-8 reverse,start_position=1878,length=150,errors=3,reference_id='chr3',reference_file='chr3.fasta'	28	150
-9 reverse,start_position=399,length=150,errors=3,reference_id='chr3',reference_file='chr3.fasta'	29	150
+0_1023	0	150
+1_1023	1	150
+2_1023	2	150
+3_1023	3	150
+4_1023	4	150
+5_1023	5	150
+6_1023	6	150
+7_1023	7	150
+8_1023	8	150
+9_1023	9	150
+0_2300	10	150
+1_2300	11	150
+2_2300	12	150
+3_2300	13	150
+4_2300	14	150
+5_2300	15	150
+6_2300	16	150
+7_2300	17	150
+8_2300	18	150
+9_2300	19	150
+0_3030	20	150
+1_3030	21	150
+2_3030	22	150
+3_3030	23	150
+4_3030	24	150
+5_3030	25	150
+6_3030	26	150
+7_3030	27	150
+8_3030	28	150
+9_3030	29	150
 repeat_read	30	150
 $
 0	0	0	100

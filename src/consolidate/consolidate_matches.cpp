@@ -53,30 +53,6 @@ void consolidate_matches(search_arguments const & arguments)
         }
     }
     
-    /* debug
-    seqan3::debug_stream << "Query fasta ID\tindex\n";
-    for (auto & pair : query_id_map)
-    {
-        seqan3::debug_stream << pair.first << '\t' << pair.second << '\n';
-    }
-
-    seqan3::debug_stream << "Query ind\ttotal match count\n";
-    for (auto & pair : total_match_counter)
-    {
-        seqan3::debug_stream << pair.first << '\t' << pair.second << '\n';
-    }
-
-    seqan3::debug_stream << "Per ref match count\n";
-    for (auto & pair : per_ref_match_counter)
-    {
-        seqan3::debug_stream << pair.first << '\n';
-        for (auto & query_pair : pair.second)
-        {
-            seqan3::debug_stream << query_pair.first << '\t' << query_pair.second << '\n'; 
-        }
-    }
-    */
-
     // for <query, ref> pairs that do not appear often return all matches
     for (auto & match : matches)
     {

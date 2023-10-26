@@ -98,8 +98,6 @@ bool search_distributed(search_arguments const & arguments, search_time_statisti
                                                         "-l", std::to_string(arguments.pattern_size),
                                                         "-o", std::string(cart_queries_path) + ".gff"});
                 
-                process_args.insert(process_args.end(), {"--sortThresh", std::to_string(arguments.compactThresh)});
-                process_args.insert(process_args.end(), {"--numMatches", std::to_string(arguments.numMatches)});
                 process_args.insert(process_args.end(), {"--repeatPeriod", std::to_string(arguments.maxRepeatPeriod)});
                 process_args.insert(process_args.end(), {"--repeatLength", std::to_string(arguments.minRepeatLength)});
                 process_args.insert(process_args.end(), {"--verification", arguments.strVerificationMethod});

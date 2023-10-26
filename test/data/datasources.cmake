@@ -202,28 +202,28 @@ declare_datasource (FILE stellar_truth.gff
 
 declare_datasource (FILE 16bins13window1error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/16bins13window1error.gff
-                URL_HASH SHA256=b9fab7188e389d571ee53954ed1f006d512d2fd69e315775b2e784502bbd4fb8)
+                URL_HASH SHA256=cea1404068b636ea0e9d8be24c53612126fc2ee6fa88f3fd277c7aeeca3109fc)
 declare_datasource (FILE 16bins13window1error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/16bins13window1error.gff.out
-                URL_HASH SHA256=2e1f196eae57a89f5bb756a3cea7a111b19735773ee630fff0b415c80ffa8e21)
+                URL_HASH SHA256=e2970f75dc39643d3079e92b75603a33348548eeaa055fdb08db41debaa4565b)
 declare_datasource (FILE 16bins15window1error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/16bins15window1error.gff
-                URL_HASH SHA256=b9fab7188e389d571ee53954ed1f006d512d2fd69e315775b2e784502bbd4fb8)
+                URL_HASH SHA256=cea1404068b636ea0e9d8be24c53612126fc2ee6fa88f3fd277c7aeeca3109fc)
 declare_datasource (FILE 16bins15window1error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/16bins15window1error.gff.out
-                URL_HASH SHA256=8e22ed62ecc01b0efd966d1a59e8ac99718a4edef4da2e82b99063ef561b69f9)
+                URL_HASH SHA256=fe956ec2e331b12106ab67d338cd8bf57b7495604b2fc8a90d1111d1675aa1b7)
 declare_datasource (FILE 4bins13window1error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins13window1error.gff
-                URL_HASH SHA256=b9fab7188e389d571ee53954ed1f006d512d2fd69e315775b2e784502bbd4fb8)
+                URL_HASH SHA256=cea1404068b636ea0e9d8be24c53612126fc2ee6fa88f3fd277c7aeeca3109fc)
 declare_datasource (FILE 4bins13window1error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins13window1error.gff.out
-                URL_HASH SHA256=8b2f516e1c98359f28ef2e88425e08c3e889b26d3825c64827e91f20af91fb08)
+                URL_HASH SHA256=73451c6286a314bfc77fe95038a4d9138aa3b19d4d5f2dfa8d54a238110e7110)
 declare_datasource (FILE 4bins15window1error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins15window1error.gff
-                URL_HASH SHA256=b9fab7188e389d571ee53954ed1f006d512d2fd69e315775b2e784502bbd4fb8)
+                URL_HASH SHA256=cea1404068b636ea0e9d8be24c53612126fc2ee6fa88f3fd277c7aeeca3109fc)
 declare_datasource (FILE 4bins15window1error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/4bins15window1error.gff.out
-                URL_HASH SHA256=8b2f516e1c98359f28ef2e88425e08c3e889b26d3825c64827e91f20af91fb08)
+                URL_HASH SHA256=73451c6286a314bfc77fe95038a4d9138aa3b19d4d5f2dfa8d54a238110e7110)
 declare_datasource (FILE dummy_reads.fastq
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/dummy_reads.fastq
                 URL_HASH SHA256=f1aa9ca0fb0b87393923848f0389cc3fb5cfd4841566afaf72e6c55829b64d73)
@@ -238,7 +238,7 @@ declare_datasource (FILE query_meta.txt
                 URL_HASH SHA256=1eb7e99026c694bddfdd61125084264d1b2a526a174aae5c8422c418a29ad9f0)
 declare_datasource (FILE query_seg_meta.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/query_seg_meta.txt
-                URL_HASH SHA256=c0cafa74bf4a053e74a5dff5bf9a4a9a95cd70148f5a99b69b823adc31c3c186)
+                URL_HASH SHA256=4eea1ab7f93165dbfec9baa509a9b4d2e4deda0047da79ebcc55a5c7b2982dac)
 declare_datasource (FILE ref.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/ref.fasta
                 URL_HASH SHA256=47f808d207c4c90afebbe1c8ab28990ec0e3e777c75ec787099279005428f3da)
@@ -253,4 +253,4 @@ declare_datasource (FILE seg_meta150overlap4bins.txt
                 URL_HASH SHA256=fb54ed4ec95d134f07e78ad3fd348e379d95fa11f29e5215dd76d509211ff324)
 declare_datasource (FILE stellar.disabled.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/stellar.disabled.fasta
-                URL_HASH SHA256=35827448fb054a93cd6f2914d70d935a62c7c233fee7938e7f8500f2613c56e6)
+                URL_HASH SHA256=ec82b20c625078444055d0d5d74c0a85b91d19ad79e54f500fe5af2e4fe5b344)

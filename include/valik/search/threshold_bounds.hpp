@@ -51,7 +51,7 @@ class threshold_bounds
     public:
         void print()
         {
-            seqan3::debug_stream << "Shared minimiser threshold in range:\n[" << lower_bound << ", " << upper_bound << "]\n";
+            seqan3::debug_stream << "Shared minimiser threshold in range: [" << lower_bound << ", " << upper_bound << "]\n";
         }
 
 };

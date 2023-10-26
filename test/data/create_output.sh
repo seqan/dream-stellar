@@ -12,13 +12,13 @@ export VALIK_STELLAR=echo
 export VALIK_MERGE=echo
 
 echo "### Running valik split ###"
-#./split/cli_test_output.sh
+./split/cli_test_output.sh
 
 echo "### Running valik build ###"
-#./build/cli_test_output.sh
+./build/cli_test_output.sh
 
 echo "### Running valik search ###"
-#./search/cli_test_output.sh
+./search/cli_test_output.sh
 
 export VALIK_STELLAR=stellar
 export VALIK_MERGE=cat
