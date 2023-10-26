@@ -34,9 +34,27 @@ struct stellar_match
             is_forward_match = false;
 
         // Stellar GFF attributes
-        // 1;seq2Range=1280,1378;cigar=97M1D2M;mutations=14A,45G,58T,92C        
+        // 1;seq2Range=1280,1378;cigar=97M1D2M;mutations=14A,45G,58T,92C
+        // OR
+        // 1;seq2Range=1280,1378;;eValue=4.05784e-73;cigar=97M1D2M;mutations=14A,45G,58T,92C        
         std::vector<std::string> attributes_vec = get_line_vector<std::string>(match_vec[8], ';');
-        if (attributes_vec.size() != 4)
+    
+        if (attributes_vec.size() == 4 || attributes_vec.size() == 5)
+        {
+            qname = attributes_vec[0];
+            qbegin = stoi(attributes_vec[1].substr(attributes_vec[1].find("=") + 1, 
+                                                   attributes_vec[1].find(",") - attributes_vec[1].find("=") - 1));
+            qend = stoi(attributes_vec[1].substr(attributes_vec[1].find(",") + 1));
+
+            for (auto it = attributes_vec.begin() + 2; it < attributes_vec.end() - 1; it++)
+            {
+                alignment_attributes += *it;
+                alignment_attributes += ";";
+            }
+            
+            alignment_attributes += attributes_vec[attributes_vec.size() - 1];
+        }
+        else
         {
             std::string attributes{};
             for (auto & field : attributes_vec)
@@ -44,12 +62,6 @@ struct stellar_match
         
             throw std::runtime_error("Malformed GFF record:\n" + attributes);
         }
-            
-        qname = attributes_vec[0];
-        qbegin = stoi(attributes_vec[1].substr(attributes_vec[1].find("=") + 1, 
-                                               attributes_vec[1].find(",") - attributes_vec[1].find("=") - 1));
-        qend = stoi(attributes_vec[1].substr(attributes_vec[1].find(",") + 1));
-        alignment_attributes = attributes_vec[2] + ";" + attributes_vec[3];
     }
 
     struct length_order
