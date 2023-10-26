@@ -32,13 +32,13 @@ for exec in "${execs[@]}"; do
     fi
 done
 
-./split/api_test_input.sh $SEED
-./split/cli_test_input.sh $SEED
+#./split/api_test_input.sh $SEED
+#./split/cli_test_input.sh $SEED
 
-./build/cli_test_input.sh $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
+#./build/cli_test_input.sh $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
 
-./search/cli_test_input.sh $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
+#./search/cli_test_input.sh $SEED $BIN_NUMBER $HAPLOTYPE_COUNT
 
 ./dream/cli_test_input.sh $SEED
 
-./consolidate/api_test_input.sh
+#./consolidate/api_test_input.sh

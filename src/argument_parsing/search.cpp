@@ -51,6 +51,11 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "time",
                     .description = "Write runtime log file.",
                     .advanced = true});
+    parser.add_flag(arguments.verbose,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "verbose",
+                    .description = "Print verbose output.",
+                    .advanced = true});
     parser.add_option(arguments.ref_meta_path,
                     sharg::config{.short_id = '\0',
                     .long_id = "ref-meta",

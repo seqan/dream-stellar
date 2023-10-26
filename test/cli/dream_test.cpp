@@ -42,14 +42,17 @@ TEST_P(dream_short_search, short_shared_mem)
                                                         "--ref-meta", ref_meta_path, 
                                                         "--repeatPeriod 1",
                                                         "--repeatLength 10", 
-                                                        "--disableThresh 8", 
-                                                        "--numMatches 3");
+                                                        "--disableThresh 2", 
+                                                        "--numMatches 1");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 4 database sequences.\n"});
-    EXPECT_EQ(result.err, std::string{"WARNING: Non-unique query ids. Output can be ambiguous.\n"});
+    EXPECT_EQ(result.err, std::string{});
 
     auto distributed = valik::read_stellar_output(search_result_path(number_of_bins, window_size, number_of_errors), reference, std::ios::binary);
     auto local = valik::read_stellar_output("search.gff", reference);
+
+    auto expected_disabled = string_from_file(data("stellar.disabled.fasta"));
+    auto actual_disabled = string_from_file("stellar.disabled.fasta");
 
     compare_gff_out(distributed, local);
 }
@@ -145,16 +148,19 @@ TEST_P(dream_split_search, split_shared_mem)
                                                         "--query-meta", query_meta_path, 
                                                         "--repeatPeriod 1",
                                                         "--repeatLength 10", 
-                                                        "--disableThresh 8", 
-                                                        "--numMatches 3");
+                                                        "--disableThresh 2", 
+                                                        "--numMatches 1");
 
     EXPECT_EQ(search.exit_code, 0);
     EXPECT_EQ(search.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 4 database sequences.\n"});
-    EXPECT_EQ(search.err, std::string{"WARNING: Non-unique query ids. Output can be ambiguous.\n"});
+    EXPECT_EQ(search.err, std::string{});
 
     auto distributed = valik::read_stellar_output(search_result_path(number_of_bins, window_size, number_of_errors), reference, std::ios::binary);
     auto local = valik::read_stellar_output("search.gff", reference);
 
+    auto expected_disabled = string_from_file(data("stellar.disabled.fasta"));
+    auto actual_disabled = string_from_file("stellar.disabled.fasta");
+    
     compare_gff_out(distributed, local);
 }
 

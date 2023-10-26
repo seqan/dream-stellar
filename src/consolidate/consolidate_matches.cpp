@@ -3,6 +3,18 @@
 namespace valik
 {
 
+/**
+ * @brief Function that truncates the fasta id if it contains whitespace.
+*/
+std::string truncate_fasta_id(std::string const & id)
+{
+    auto first_whitespace = id.find_first_of(" ");
+    if (first_whitespace == std::string::npos)
+        return id;
+
+    return id.substr(0, first_whitespace);
+}
+
 void consolidate_matches(search_arguments const & arguments)
 {
     auto ref_meta = metadata(arguments.ref_meta_path);
@@ -22,6 +34,8 @@ void consolidate_matches(search_arguments const & arguments)
     // <query_ind, match_count>>
     std::unordered_map<uint32_t, size_t> total_match_counter{};
     
+    decltype(matches) consolidated_matches{};
+    
     for (auto & match : matches)
     {
         if (!query_id_map.count(match.qname))
@@ -38,8 +52,31 @@ void consolidate_matches(search_arguments const & arguments)
                 disabled_queries.push_back(match.qname);
         }
     }
+    
+    /* debug
+    seqan3::debug_stream << "Query fasta ID\tindex\n";
+    for (auto & pair : query_id_map)
+    {
+        seqan3::debug_stream << pair.first << '\t' << pair.second << '\n';
+    }
 
-    decltype(matches) consolidated_matches{};
+    seqan3::debug_stream << "Query ind\ttotal match count\n";
+    for (auto & pair : total_match_counter)
+    {
+        seqan3::debug_stream << pair.first << '\t' << pair.second << '\n';
+    }
+
+    seqan3::debug_stream << "Per ref match count\n";
+    for (auto & pair : per_ref_match_counter)
+    {
+        seqan3::debug_stream << pair.first << '\n';
+        for (auto & query_pair : pair.second)
+        {
+            seqan3::debug_stream << query_pair.first << '\t' << query_pair.second << '\n'; 
+        }
+    }
+    */
+
     // for <query, ref> pairs that do not appear often return all matches
     for (auto & match : matches)
     {
@@ -71,16 +108,18 @@ void consolidate_matches(search_arguments const & arguments)
         consolidated_matches.insert(consolidated_matches.end(), overabundant_matches.end() - arguments.numMatches, overabundant_matches.end());
     }
 
-    /* debug
-    for (auto & pair : overabundant_queries)
+    // debug
+    if (arguments.verbose)
     {
-        seqan3::debug_stream << "Query: " << pair.first << "\nHas too many matches in references ";    
-        for (auto & ref : pair.second)
-            seqan3::debug_stream << ref << '\t';
-        
-        seqan3::debug_stream << '\n';
+        for (auto & pair : overabundant_queries)
+        {
+            seqan3::debug_stream << "Query: " << pair.first << "\nHas too many matches in references ";    
+            for (auto & ref : pair.second)
+                seqan3::debug_stream << ref << '\t';
+
+            seqan3::debug_stream << '\n';
+        }
     }
-    */
     
     // write out fasta file of disabled queries
     if (disabled_queries.size() > 0)
@@ -92,12 +131,15 @@ void consolidate_matches(search_arguments const & arguments)
         seqan3::sequence_file_output fdisabled(arguments.disabledQueriesFile);
         
         for (auto & record : fin)
-            if (std::find(disabled_queries.begin(), disabled_queries.end(), record.id()) != disabled_queries.end())
+        {
+            if (std::find(disabled_queries.begin(), disabled_queries.end(), truncate_fasta_id(record.id())) != disabled_queries.end())
                 fdisabled.push_back(record);
-    }
+        }
 
-    // debug
-    //seqan3::debug_stream << "Found " << disabled_queries.size() << " disabled queries\n";
+        // debug
+        if (arguments.verbose)
+            seqan3::debug_stream << "Disabled " << disabled_queries.size() << " queries.\n";
+    }
 
     write_stellar_output(arguments.out_file, consolidated_matches);
 }

@@ -13,7 +13,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -58,7 +58,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -106,7 +106,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -154,7 +154,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -199,7 +199,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -244,7 +244,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -289,7 +289,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -334,7 +334,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -362,9 +362,9 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 4
+# Eps-matches     : 3
 Longest eps-match : 152
-Avg match length  : 151
+Avg match length  : 150
 
 
 I/O options:
@@ -382,7 +382,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -413,7 +413,6 @@ Aligning all query sequences to database sequence...
 # Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
-WARNING: Non-unique query ids. Output can be ambiguous.
 
 
 I/O options:
@@ -431,7 +430,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -459,9 +458,9 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 4
+# Eps-matches     : 3
 Longest eps-match : 152
-Avg match length  : 151
+Avg match length  : 150
 
 
 I/O options:
@@ -479,7 +478,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -524,7 +523,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -552,9 +551,9 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 4
+# Eps-matches     : 3
 Longest eps-match : 152
-Avg match length  : 151
+Avg match length  : 150
 
 
 I/O options:
@@ -572,7 +571,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -620,7 +619,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -668,7 +667,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -708,7 +707,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -753,7 +752,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -798,7 +797,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -846,7 +845,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -891,7 +890,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -939,7 +938,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -984,7 +983,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -1029,7 +1028,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -1074,7 +1073,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -1122,7 +1121,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -1170,7 +1169,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -1218,7 +1217,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10
@@ -1263,7 +1262,7 @@ User specified parameters:
   search reverse complement        : yes
 
   verification strategy            : exact
-  maximal number of matches        : 50
+  maximal number of matches        : 1
   duplicate removal every          : 500
   max low complexity repeat period : 1
   min low complexity repeat length : 10

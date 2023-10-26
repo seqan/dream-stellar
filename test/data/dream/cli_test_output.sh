@@ -45,9 +45,9 @@ do
         dist_out=$b"bins"$w"window"$e"error.gff"
         #local_out="local"$b"bins"$w"window"$e"error.gff"
         valik search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" --pattern "$pattern" --overlap "$pat_overlap" \
-                     --ref-meta "$seg_meta" --repeatPeriod 1 --repeatLength 10
-        #valik search --index "$index" --query "$query" --output "$local_out" --error "$er" --pattern "$pattern" --overlap "$pat_overlap" \
-                    # --ref-meta "$seg_meta" --repeatPeriod 1 --repeatLength 10
+                     --ref-meta "$seg_meta" --repeatPeriod 1 --repeatLength 10 --disableThresh 2 --numMatches 1
+        #valik search --index "$index" --query "$query" --output "$local_out" --error-rate "$er" --pattern "$pattern" --overlap "$pat_overlap" \
+        #             --ref-meta "$seg_meta" --repeatPeriod 1 --repeatLength 10 --disableThresh 2 --numMatches 1
 
         rm $VALIK_TMP/*
 	rm $index

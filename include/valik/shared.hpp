@@ -137,6 +137,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
     bool compressed{false};
     bool write_time{false};
     bool fast{false};
+    bool verbose{false};
 
     size_t cart_max_capacity{3}; //!TODO determine suitable values
     size_t max_queued_carts{10}; //!TODO determine suitable values

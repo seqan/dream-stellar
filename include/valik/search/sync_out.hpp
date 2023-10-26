@@ -25,19 +25,29 @@ public:
     sync_out & operator=(sync_out &&) = default;
     ~sync_out() = default;
 
-    sync_out(std::filesystem::path const & path) : fout{path} {}
+    sync_out(std::filesystem::path const & path) : file{path} {}
 
     template <typename t>
     void write_record(t && query_record)
     {
-        sequence_record_type fasta_record{std::move(query_record.sequence), std::move(query_record.sequence_id)}; 
+        //sequence_record_type fasta_record{std::move(query_record.sequence), std::move(query_record.sequence_id)};
+        //seqan3::debug_stream << fasta_record.id() << '\t' << fasta_record.sequence()[0] << '\n';
+        std::string fasta_string = ">";
+        fasta_string += query_record.sequence_id;
+        fasta_string += '\n';
+        for (auto & n : query_record.sequence)
+            fasta_string += seqan3::to_char(n);
+        fasta_string += '\n';
+
         std::lock_guard<std::mutex> lock(write_mutex);
-        fout.push_back(fasta_record);
+        seqan3::debug_stream << "[Warning] Insufficient prefiltering. Most bins match query:\n" << fasta_string << "\n"; 
+        //file << fasta_string;
     }
     // outfile gets unlocked as soon as the current threads exits the write function
 
 private:
-    seqan3::sequence_file_output<fields, output_format_types> fout;
+    //seqan3::sequence_file_output<fields, output_format_types> fout;
+    std::ofstream file;
     std::mutex write_mutex;
 };
 
