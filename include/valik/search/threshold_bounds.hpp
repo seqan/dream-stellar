@@ -1,3 +1,7 @@
+#pragma once
+
+#include <seqan3/core/debug_stream.hpp>
+
 #include <raptor/threshold/threshold.hpp>
 
 #include <valik/shared.hpp>
