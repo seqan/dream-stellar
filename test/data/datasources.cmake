@@ -179,25 +179,61 @@ declare_datasource (FILE query.fq
 
 declare_datasource (FILE 16bins50overlap_dream_all.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/16bins50overlap_dream_all.gff
-                URL_HASH SHA256=c03c2d8be51205313e42ed39fb3c17d4c8e74a47d95fd48d66a375f80901f11f)
+                URL_HASH SHA256=3ecd0e55e704cfd71442bd16805fe587de720e646cbe2d13675ed6249b30045f)
 declare_datasource (FILE 16bins50overlap_reference_metadata.tsv
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/16bins50overlap_reference_metadata.tsv
-                URL_HASH SHA256=6be46e1b07e399ee5e6db355cfe92ccd1692354b873a80cb1f024473dac722d7)
+                URL_HASH SHA256=296b7020ec5cdd78d75464dcaec82cbced9a32a22a92b857792a2a01e67effa0)
 declare_datasource (FILE 8bins50overlap_dream_all.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/8bins50overlap_dream_all.gff
-                URL_HASH SHA256=0cd79ced4d2e6437459bb45b6571420351bcbc5ab8e8608e13d9b293e43f5c6f)
+                URL_HASH SHA256=f03c93ddb758a7e9ef89e3243dca9fb49b97a1ba3239408ffc30f8ff486982c8)
 declare_datasource (FILE 8bins50overlap_reference_metadata.tsv
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/8bins50overlap_reference_metadata.tsv
-                URL_HASH SHA256=055917899564e1f3c9f0d5efdb3b8599d075faa88231737f851bf6a1166651ef)
+                URL_HASH SHA256=22ff51c797d739ebb2c12332ca7067550e191c2c5fe75ad54cb680f38e423eb5)
+declare_datasource (FILE multi_seq_query.fasta
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/multi_seq_query.fasta
+                URL_HASH SHA256=6d1260dc701802924487453c19715044cbeaa0f42021be8f2996bbaac1f24c58)
 declare_datasource (FILE multi_seq_ref.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/multi_seq_ref.fasta
-                URL_HASH SHA256=24d5bf54edf054b7407a0bc4707b72383b9467c051839a6cbd8ec8e2b6bb65f9)
-declare_datasource (FILE query_e0.06.fasta
-                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/query_e0.06.fasta
-                URL_HASH SHA256=b107238db9e0c0515b33fff570a787a86126789a0341bd2fdb52c6c607772f8d)
+                URL_HASH SHA256=a37f4be29ec99b66efb6ac235224b3145aadf8d5d6ff2c5c2f5324890170ce92)
+declare_datasource (FILE stellar_truth_disable10_num3.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable10_num3.gff
+                URL_HASH SHA256=3b042d2ce697bcdb39adfc65c0964139234260ca0cc7bc84afa4f20675d2bc46)
+declare_datasource (FILE stellar_truth_disable10_num5.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable10_num5.gff
+                URL_HASH SHA256=d52e734519b704c7feab24d2ce7e82f0559c09b0838b0195777c767a7b5595b4)
+declare_datasource (FILE stellar_truth_disable10_num9.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable10_num9.gff
+                URL_HASH SHA256=41c5bcbee5482ffb74be71d5a955762d7cc65e59a9ca63fda3a71264775d7b7d)
+declare_datasource (FILE stellar_truth_disable12_num3.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable12_num3.gff
+                URL_HASH SHA256=315f57cedc484dcf074c4d8f0c199d73480fe0d9d5a58e5072df28c8e7d1694f)
+declare_datasource (FILE stellar_truth_disable12_num5.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable12_num5.gff
+                URL_HASH SHA256=a5ab9ae23bfba6a204019f35a61bbf380bec2136179356609bf7194ca879ed3b)
+declare_datasource (FILE stellar_truth_disable12_num9.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable12_num9.gff
+                URL_HASH SHA256=95bf8d1fcbcfde4dfea3cd2055bcf35be161e6b21519e2c936b3595ef37c017b)
+declare_datasource (FILE stellar_truth_disable7_num3.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable7_num3.gff
+                URL_HASH SHA256=2afec8a11ed6219ddabd348c194782155bac669b84c4235ca31a3dca2cd12446)
+declare_datasource (FILE stellar_truth_disable7_num5.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable7_num5.gff
+                URL_HASH SHA256=4de9fbed546431321a654c10cd87b5c78df2f690f2fd8817ab3da282bb608206)
+declare_datasource (FILE stellar_truth_disable7_num9.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable7_num9.gff
+                URL_HASH SHA256=5d86fe14ccb3b07bb20000ae591da2d9151df40c8e41f2563f660a8df45ef453)
+declare_datasource (FILE stellar_truth_disable9_num3.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable9_num3.gff
+                URL_HASH SHA256=a9a4b6257c4f400fb2c3115dc8e5d7c472e54473ad3f750fc03cfe64b6683b17)
+declare_datasource (FILE stellar_truth_disable9_num5.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable9_num5.gff
+                URL_HASH SHA256=0ed76eacec07ee91caa6f4c9dd437f5cca909393209edc5504f7bfab77c5e4d7)
+declare_datasource (FILE stellar_truth_disable9_num9.gff
+                URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth_disable9_num9.gff
+                URL_HASH SHA256=bf933d08db2db066c4bf29b85f4fe579631f7c6d30c413ecfb515a42936e839b)
 declare_datasource (FILE stellar_truth.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/consolidate/stellar_truth.gff
-                URL_HASH SHA256=45be895caedf69070e3433b5b912f7a20e2ac8ffe227e762fb33e5b31d43106a)
+                URL_HASH SHA256=95bf8d1fcbcfde4dfea3cd2055bcf35be161e6b21519e2c936b3595ef37c017b)
 
 
 declare_datasource (FILE 16bins13window1error.gff
