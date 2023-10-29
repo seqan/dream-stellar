@@ -1,8 +1,8 @@
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_7_0.fasta
+  query file      : tmp/valik/my_dir/query_1_0.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_7_0.fasta.gff
+  output file     : tmp/valik/my_dir/query_1_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -27,18 +27,18 @@ Calculated parameters:
   overlap      : 0
 
 Loaded 3 query sequences.
-Loaded sequence chr3.
+Loaded sequence chr1.
 
 Constructing index...
 
 Aligning all query sequences to database sequence...
-  chr3
-    # SWIFT hits      : 161
+  chr1
+    # SWIFT hits      : 217
     Longest hit       : 25
     Avg hit length    : 25
-  chr3, complement
+  chr1, complement
 
-# Eps-matches     : 3
+# Eps-matches     : 217
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -86,7 +86,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 119
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -131,7 +131,7 @@ Aligning all query sequences to database sequence...
     Avg hit length    : 25
   chr3, complement
 
-# Eps-matches     : 3
+# Eps-matches     : 212
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -179,7 +179,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 206
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -227,7 +227,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 206
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -275,16 +275,16 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 200
 Longest eps-match : 150
 Avg match length  : 150
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_7_1.fasta
+  query file      : tmp/valik/my_dir/query_7_0.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_7_1.fasta.gff
+  output file     : tmp/valik/my_dir/query_7_0.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -323,7 +323,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 178
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -371,16 +371,16 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 225
 Longest eps-match : 150
 Avg match length  : 150
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_1_0.fasta
+  query file      : tmp/valik/my_dir/query_1_1.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_1_0.fasta.gff
+  output file     : tmp/valik/my_dir/query_1_1.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -419,9 +419,9 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 163
 Longest eps-match : 150
-Avg match length  : 116
+Avg match length  : 138
 
 
 I/O options:
@@ -467,7 +467,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 107
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -515,7 +515,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 195
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -563,7 +563,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 143
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -611,9 +611,9 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 202
 Longest eps-match : 150
-Avg match length  : 143
+Avg match length  : 142
 
 
 I/O options:
@@ -659,7 +659,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 217
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -707,7 +707,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 218
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -752,7 +752,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 4
+# Eps-matches     : 198
 Longest eps-match : 152
 Avg match length  : 151
 
@@ -797,9 +797,9 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 4
+# Eps-matches     : 205
 Longest eps-match : 152
-Avg match length  : 151
+Avg match length  : 150
 
 
 I/O options:
@@ -962,7 +962,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 1
+# Eps-matches     : 77
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1010,7 +1010,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 2
+# Eps-matches     : 103
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1055,7 +1055,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 2
+# Eps-matches     : 139
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1103,7 +1103,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 2
+# Eps-matches     : 90
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1151,16 +1151,16 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 2
+# Eps-matches     : 112
 Longest eps-match : 150
 Avg match length  : 150
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_7_2.fasta
+  query file      : tmp/valik/my_dir/query_7_1.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_7_2.fasta.gff
+  output file     : tmp/valik/my_dir/query_7_1.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1196,7 +1196,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 184
 Longest eps-match : 152
 Avg match length  : 151
 
@@ -1244,7 +1244,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 2
+# Eps-matches     : 135
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1289,16 +1289,16 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 1
+# Eps-matches     : 67
 Longest eps-match : 150
 Avg match length  : 150
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_1_1.fasta
+  query file      : tmp/valik/my_dir/query_1_2.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_1_1.fasta.gff
+  output file     : tmp/valik/my_dir/query_1_2.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1334,7 +1334,7 @@ Aligning all query sequences to database sequence...
     Avg hit length    : 25
   chr1, complement
 
-# Eps-matches     : 1
+# Eps-matches     : 73
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1382,16 +1382,16 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 173
 Longest eps-match : 150
 Avg match length  : 150
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_1_2.fasta
+  query file      : tmp/valik/my_dir/query_1_3.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_1_2.fasta.gff
+  output file     : tmp/valik/my_dir/query_1_3.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1427,7 +1427,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 213
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1472,7 +1472,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 213
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1517,16 +1517,16 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 213
 Longest eps-match : 150
 Avg match length  : 150
 
 
 I/O options:
   database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_7_3.fasta
+  query file      : tmp/valik/my_dir/query_7_2.fasta
   alphabet        : dna
-  output file     : tmp/valik/my_dir/query_7_3.fasta.gff
+  output file     : tmp/valik/my_dir/query_7_2.fasta.gff
   output format   : gff
 
 User specified parameters:
@@ -1562,7 +1562,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 149
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1610,7 +1610,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
+# Eps-matches     : 164
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1658,52 +1658,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 3
-Longest eps-match : 150
-Avg match length  : 150
-
-
-I/O options:
-  database file   : ref.fasta
-  query file      : tmp/valik/my_dir/query_1_3.fasta
-  alphabet        : dna
-  output file     : tmp/valik/my_dir/query_1_3.fasta.gff
-  output format   : gff
-
-User specified parameters:
-  minimal match length             : 50
-  maximal error rate (epsilon)     : 0.02 = (1/50)
-  maximal x-drop                   : 5
-  search forward strand            : yes
-  search reverse complement        : yes
-
-  verification strategy            : exact
-  maximal number of matches        : 50
-  duplicate removal every          : 500
-  max low complexity repeat period : 1
-  min low complexity repeat length : 10
-
-Calculated parameters:
-  k-mer length : 25
-  s^min        : 25
-  threshold    : 1
-  distance cut : 25
-  delta        : 16
-  overlap      : 0
-
-Loaded 3 query sequences.
-Loaded sequence chr1.
-
-Constructing index...
-
-Aligning all query sequences to database sequence...
-  chr1
-    # SWIFT hits      : 217
-    Longest hit       : 25
-    Avg hit length    : 25
-  chr1, complement
-
-# Eps-matches     : 3
+# Eps-matches     : 157
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1748,7 +1703,7 @@ Aligning all query sequences to database sequence...
     Avg hit length    : 25
   chr2, complement
 
-# Eps-matches     : 3
+# Eps-matches     : 217
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1793,7 +1748,52 @@ Aligning all query sequences to database sequence...
     Avg hit length    : 25
   chr3, complement
 
-# Eps-matches     : 3
+# Eps-matches     : 217
+Longest eps-match : 150
+Avg match length  : 150
+
+
+I/O options:
+  database file   : ref.fasta
+  query file      : tmp/valik/my_dir/query_7_3.fasta
+  alphabet        : dna
+  output file     : tmp/valik/my_dir/query_7_3.fasta.gff
+  output format   : gff
+
+User specified parameters:
+  minimal match length             : 50
+  maximal error rate (epsilon)     : 0.02 = (1/50)
+  maximal x-drop                   : 5
+  search forward strand            : yes
+  search reverse complement        : yes
+
+  verification strategy            : exact
+  maximal number of matches        : 50
+  duplicate removal every          : 500
+  max low complexity repeat period : 1
+  min low complexity repeat length : 10
+
+Calculated parameters:
+  k-mer length : 25
+  s^min        : 25
+  threshold    : 1
+  distance cut : 25
+  delta        : 16
+  overlap      : 0
+
+Loaded 3 query sequences.
+Loaded sequence chr3.
+
+Constructing index...
+
+Aligning all query sequences to database sequence...
+  chr3
+    # SWIFT hits      : 161
+    Longest hit       : 25
+    Avg hit length    : 25
+  chr3, complement
+
+# Eps-matches     : 161
 Longest eps-match : 150
 Avg match length  : 150
 

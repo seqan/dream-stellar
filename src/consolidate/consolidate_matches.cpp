@@ -24,57 +24,45 @@ void consolidate_matches(search_arguments const & arguments)
     matches.erase( std::unique( matches.begin(), matches.end() ), matches.end() );
 
     // <query_ind, <refs>>
-    std::unordered_map<uint32_t, std::vector<size_t>> overabundant_queries{}; 
-    std::vector<std::string> disabled_queries{};
+    std::set<std::string> overabundant_queries{}; 
+    std::set<std::string> disabled_queries{};
 
-    std::map<std::string, uint32_t> query_id_map;
-
-    // <ref_ind, <query_ind, match_count>>
-    std::unordered_map<size_t, std::unordered_map<uint32_t, size_t>> per_ref_match_counter{};
     // <query_ind, match_count>>
-    std::unordered_map<uint32_t, size_t> total_match_counter{};
+    std::map<std::string, size_t> total_match_counter{};
     
     decltype(matches) consolidated_matches{};
     
     for (auto & match : matches)
     {
-        if (!query_id_map.count(match.qname))
-            query_id_map[match.qname] = query_id_map.size();
-
-        if ((!overabundant_queries.count(query_id_map[match.qname])) &&
+        if ((std::count(overabundant_queries.begin(), overabundant_queries.end(), match.qname) == 0) &&
             (std::count(disabled_queries.begin(), disabled_queries.end(), match.qname) == 0))
         {
-            size_t ref_ind = ref_meta.ind_from_id(match.dname);
-            uint32_t query_ind = query_id_map[match.qname];
-            if (++per_ref_match_counter[ref_ind][query_ind] > arguments.numMatches)
-                overabundant_queries[query_ind].push_back(ref_ind);
-            if (++total_match_counter[query_ind] > arguments.disableThresh)
-                disabled_queries.push_back(match.qname);
+            if (++total_match_counter[match.qname] >= arguments.disableThresh)
+                disabled_queries.emplace(match.qname);
+            else
+            {
+                if (++total_match_counter[match.qname] > arguments.numMatches)
+                    overabundant_queries.emplace(match.qname);
+            }            
         }
     }
     
     // for <query, ref> pairs that do not appear often return all matches
     for (auto & match : matches)
     {
-        bool is_disabled = (std::find(disabled_queries.begin(), disabled_queries.end(), match.qname) != disabled_queries.end()) ? true : false;
-        bool is_overabundant{false};
-        if (!is_disabled && overabundant_queries.count(query_id_map[match.qname]))
-        {
-            std::vector<size_t> ref_ids = overabundant_queries[query_id_map[match.qname]];
-            is_overabundant = (std::find(ref_ids.begin(), ref_ids.end(), ref_meta.ind_from_id(match.dname)) != ref_ids.end()) ? true : false;
-        }
+        bool is_disabled = (std::find(disabled_queries.begin(), disabled_queries.end(), match.qname) != disabled_queries.end());
+        bool is_overabundant = (!is_disabled && (overabundant_queries.find(match.qname) != overabundant_queries.end()));
          
         if (!is_overabundant && !is_disabled)
             consolidated_matches.emplace_back(match);
     }
 
     // for <query, ref> pairs that appear often return arguments.numMatches longest matches
-    for (auto & pair : overabundant_queries)
+    for (auto & query_id : overabundant_queries)
     {
         std::vector<stellar_match> overabundant_matches;
         auto is_query_match = [&](auto & m){
-                                                return (query_id_map[m.qname] == pair.first) && 
-                                                (std::count(pair.second.begin(), pair.second.end(), ref_meta.ind_from_id(m.dname)) > 0);
+                                                return (m.qname == query_id);
                                             };
 
         for (auto & m : matches | std::views::filter(is_query_match))
@@ -87,13 +75,10 @@ void consolidate_matches(search_arguments const & arguments)
     // debug
     if (arguments.verbose)
     {
-        for (auto & pair : overabundant_queries)
+        seqan3::debug_stream << "Overabundant queries\n";
+        for (auto & query_id : overabundant_queries)
         {
-            seqan3::debug_stream << "Query: " << pair.first << "\nHas too many matches in references ";    
-            for (auto & ref : pair.second)
-                seqan3::debug_stream << ref << '\t';
-
-            seqan3::debug_stream << '\n';
+            seqan3::debug_stream << query_id << '\n'; 
         }
     }
     
@@ -102,7 +87,6 @@ void consolidate_matches(search_arguments const & arguments)
     {
         using input_file_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq, seqan3::field::id>>;
         input_file_t fin{arguments.query_file};
-        using query_record_type = typename decltype(fin)::record_type;
         
         seqan3::sequence_file_output fdisabled(arguments.disabledQueriesFile);
         
