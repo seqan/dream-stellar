@@ -36,7 +36,7 @@ struct stellar_match
         // Stellar GFF attributes
         // 1;seq2Range=1280,1378;cigar=97M1D2M;mutations=14A,45G,58T,92C
         // OR
-        // 1;seq2Range=1280,1378;;eValue=4.05784e-73;cigar=97M1D2M;mutations=14A,45G,58T,92C        
+        // 1;seq2Range=1280,1378;eValue=4.05784e-73;cigar=97M1D2M;mutations=14A,45G,58T,92C        
         std::vector<std::string> attributes_vec = get_line_vector<std::string>(match_vec[8], ';');
     
         if (attributes_vec.size() == 4 || attributes_vec.size() == 5)
@@ -77,7 +77,10 @@ struct stellar_match
         if (dname == other.dname &&
             dbegin == other.dbegin &&
             dend == other.dend &&
-            is_forward_match == other.is_forward_match)
+            is_forward_match == other.is_forward_match &&
+            qname == other.qname &&
+            qbegin == other.qbegin &&
+            percid_is_equal_to(other.percid))
             return true;
         else
             return false;
@@ -98,6 +101,20 @@ struct stellar_match
             else
                 return (dend > match.dend);
         }
+    }
+
+    std::string get_mutations() const
+    {
+        return alignment_attributes.substr(alignment_attributes.find("mutations="));
+    }
+
+    bool percid_is_equal_to(std::string const & other) const
+    {
+        float eps{0.001};
+        float this_percid = std::stof(percid);
+        float other_percid = std::stof(other);
+
+        return abs(this_percid - other_percid) < eps;
     }
 
     std::string to_string() const

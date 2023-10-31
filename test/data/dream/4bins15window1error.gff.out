@@ -38,7 +38,7 @@ Aligning all query sequences to database sequence...
     Avg hit length    : 25
   chr2, complement
 
-# Eps-matches     : 220
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -86,7 +86,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 204
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -134,9 +134,9 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 159
+# Eps-matches     : 3
 Longest eps-match : 150
-Avg match length  : 138
+Avg match length  : 116
 
 
 I/O options:
@@ -179,7 +179,7 @@ Aligning all query sequences to database sequence...
     Avg hit length    : 25
   chr3, complement
 
-# Eps-matches     : 213
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -224,7 +224,7 @@ Aligning all query sequences to database sequence...
     Avg hit length    : 25
   chr2, complement
 
-# Eps-matches     : 213
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -269,7 +269,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 169
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -314,7 +314,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 172
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -362,9 +362,9 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 232
+# Eps-matches     : 4
 Longest eps-match : 152
-Avg match length  : 150
+Avg match length  : 151
 
 
 I/O options:
@@ -410,7 +410,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 128
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -458,9 +458,9 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 231
+# Eps-matches     : 4
 Longest eps-match : 152
-Avg match length  : 150
+Avg match length  : 151
 
 
 I/O options:
@@ -503,7 +503,7 @@ Aligning all query sequences to database sequence...
     Avg hit length    : 25
   chr2, complement
 
-# Eps-matches     : 236
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 143
 
@@ -551,9 +551,9 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 264
+# Eps-matches     : 4
 Longest eps-match : 152
-Avg match length  : 150
+Avg match length  : 151
 
 
 I/O options:
@@ -599,7 +599,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 213
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -647,7 +647,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 220
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -732,7 +732,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 152
+# Eps-matches     : 2
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -777,7 +777,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 150
+# Eps-matches     : 2
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -825,7 +825,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 156
+# Eps-matches     : 2
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -870,7 +870,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 142
+# Eps-matches     : 2
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -918,7 +918,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 204
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -963,7 +963,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 230
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1008,7 +1008,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 230
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1053,7 +1053,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 230
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1101,7 +1101,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 204
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1149,7 +1149,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 204
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1197,7 +1197,7 @@ Aligning all query sequences to database sequence...
     Longest hit       : 25
     Avg hit length    : 25
 
-# Eps-matches     : 204
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1242,7 +1242,7 @@ Aligning all query sequences to database sequence...
     Avg hit length    : 25
   chr1, complement
 
-# Eps-matches     : 220
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 
@@ -1287,7 +1287,7 @@ Aligning all query sequences to database sequence...
     Avg hit length    : 25
   chr3, complement
 
-# Eps-matches     : 220
+# Eps-matches     : 3
 Longest eps-match : 150
 Avg match length  : 150
 

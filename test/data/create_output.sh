@@ -24,9 +24,9 @@ export VALIK_STELLAR=stellar
 export VALIK_MERGE=cat
 
 echo "### Running distributed DREAM-Stellar ###"
-./dream/cli_test_output.sh
+#./dream/cli_test_output.sh
 
 echo "### Running sequential Stellar ###"
-#./consolidate/api_test_output.sh
+./consolidate/api_test_output.sh
 
 echo "### Finished ###"

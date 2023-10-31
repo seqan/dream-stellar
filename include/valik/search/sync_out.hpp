@@ -43,7 +43,7 @@ public:
         seqan3::debug_stream << "[Warning] Insufficient prefiltering. Most bins match query:\n" << fasta_string << "\n"; 
         //file << fasta_string;
     }
-    // outfile gets unlocked as soon as the current threads exits the write function
+    // outfile gets unlocked as soon as the current thread exits the write function
 
 private:
     //seqan3::sequence_file_output<fields, output_format_types> fout;

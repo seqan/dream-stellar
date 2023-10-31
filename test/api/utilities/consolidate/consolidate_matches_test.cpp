@@ -18,6 +18,15 @@ std::filesystem::path consolidation_input_path(size_t const number_of_bins, size
     return data_path(name);
 }
 
+std::filesystem::path consolidated_matches_path(size_t const num_matches) noexcept
+{
+    std::string name{};
+    name += "stellar_truth_num";
+    name += std::to_string(num_matches);
+    name += ".gff";
+    return data_path(name);
+}
+
 std::filesystem::path consolidation_meta_path(size_t const number_of_bins, size_t const overlap) noexcept
 {
     std::string name{};
@@ -47,6 +56,19 @@ void compare_gff_out(std::vector<valik::stellar_match> const & expected,
     }
 
     EXPECT_EQ(not_actually_found, 0);
+
+    size_t only_in_actual{0};
+    for (auto & match : actual)
+    {
+        auto it = std::find(expected.begin(), expected.end(), match);
+        if (it == expected.end())
+        {
+            only_in_actual++;
+            seqan3::debug_stream << match.to_string();
+        }   
+    }
+
+    EXPECT_EQ(only_in_actual, 0);
 }
 
 TEST(consolidate_matches, bins8overlap50)
@@ -59,6 +81,7 @@ TEST(consolidate_matches, bins8overlap50)
     arguments.all_matches = consolidation_input_path(number_of_bins, segment_overlap);
     arguments.out_file = "consolidated.gff";
 
+    arguments.verbose = true;
     valik::consolidate_matches(arguments);
 
     valik::metadata reference(arguments.ref_meta_path);
@@ -87,7 +110,7 @@ TEST(consolidate_matches, bins16overlap50)
     compare_gff_out(expected, actual);
 }
 
-TEST(consolidate_matches_with_options, bins8overlap50_with_options)
+TEST(consolidate_matches_with_options, bins8overlap50matches3)
 {
     size_t number_of_bins = 8;
     size_t segment_overlap = 50;
@@ -97,24 +120,58 @@ TEST(consolidate_matches_with_options, bins8overlap50_with_options)
     arguments.all_matches = consolidation_input_path(number_of_bins, segment_overlap);
     arguments.out_file = "consolidated.gff";
 
-    for (size_t d : std::vector<size_t>{7, 9, 10, 12})
-    {
-        for (size_t n : std::vector<size_t>{3, 5, 9})
-        {
-            arguments.disableThresh = d;
-            arguments.numMatches = n;
-            valik::consolidate_matches(arguments);
+    arguments.numMatches = 3;
+    valik::consolidate_matches(arguments);
 
-            valik::metadata reference(arguments.ref_meta_path);
-            auto expected = valik::read_stellar_output(data_path("stellar_truth_disable" + std::to_string(d) + "_num" + std::to_string(n) + ".gff"), reference, std::ios::binary);
-            auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
+    valik::metadata reference(arguments.ref_meta_path);
+    auto expected = valik::read_stellar_output(consolidated_matches_path(arguments.numMatches), reference, std::ios::binary);
+    auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
 
-            compare_gff_out(expected, actual);
-        }
-    }
+    compare_gff_out(expected, actual);
 }
 
-TEST(consolidate_matches_with_options, bins16overlap50_with_options)
+TEST(consolidate_matches_with_options, bins8overlap50matches5)
+{
+    size_t number_of_bins = 8;
+    size_t segment_overlap = 50;
+
+    valik::search_arguments arguments{};
+    arguments.ref_meta_path = consolidation_meta_path(number_of_bins, segment_overlap);
+    arguments.all_matches = consolidation_input_path(number_of_bins, segment_overlap);
+    arguments.out_file = "consolidated.gff";
+
+    arguments.numMatches = 5;
+    valik::consolidate_matches(arguments);
+
+    valik::metadata reference(arguments.ref_meta_path);
+    auto expected = valik::read_stellar_output(consolidated_matches_path(arguments.numMatches), reference, std::ios::binary);
+    auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
+
+    compare_gff_out(expected, actual);
+}
+
+
+TEST(consolidate_matches_with_options, bins8overlap50matches9)
+{
+    size_t number_of_bins = 8;
+    size_t segment_overlap = 50;
+
+    valik::search_arguments arguments{};
+    arguments.ref_meta_path = consolidation_meta_path(number_of_bins, segment_overlap);
+    arguments.all_matches = consolidation_input_path(number_of_bins, segment_overlap);
+    arguments.out_file = "consolidated.gff";
+
+    arguments.numMatches = 9;
+    valik::consolidate_matches(arguments);
+
+    valik::metadata reference(arguments.ref_meta_path);
+    auto expected = valik::read_stellar_output(consolidated_matches_path(arguments.numMatches), reference, std::ios::binary);
+    auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
+
+    compare_gff_out(expected, actual);
+}
+
+TEST(consolidate_matches_with_options, bins16overlap50matches3)
 {
     size_t number_of_bins = 16;
     size_t segment_overlap = 50;
@@ -124,19 +181,54 @@ TEST(consolidate_matches_with_options, bins16overlap50_with_options)
     arguments.all_matches = consolidation_input_path(number_of_bins, segment_overlap);
     arguments.out_file = "consolidated.gff";
 
-    for (size_t d : std::vector<size_t>{7, 9, 10, 12})
-    {
-        for (size_t n : std::vector<size_t>{3, 5, 9})
-        {
-            arguments.disableThresh = d;
-            arguments.numMatches = n;
-            valik::consolidate_matches(arguments);
+    arguments.numMatches = 3;
+    valik::consolidate_matches(arguments);
 
-            valik::metadata reference(arguments.ref_meta_path);
-            auto expected = valik::read_stellar_output(data_path("stellar_truth_disable" + std::to_string(d) + "_num" + std::to_string(n) + ".gff"), reference, std::ios::binary);
-            auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
+    valik::metadata reference(arguments.ref_meta_path);
+    auto expected = valik::read_stellar_output(consolidated_matches_path(arguments.numMatches), reference, std::ios::binary);
+    auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
 
-            compare_gff_out(expected, actual);
-        }
-    }
+    compare_gff_out(expected, actual);
+}
+
+TEST(consolidate_matches_with_options, bins16overlap50matches5)
+{
+    size_t number_of_bins = 16;
+    size_t segment_overlap = 50;
+
+    valik::search_arguments arguments{};
+    arguments.ref_meta_path = consolidation_meta_path(number_of_bins, segment_overlap);
+    arguments.all_matches = consolidation_input_path(number_of_bins, segment_overlap);
+    arguments.out_file = "consolidated.gff";
+
+    arguments.numMatches = 5;
+    valik::consolidate_matches(arguments);
+
+    valik::metadata reference(arguments.ref_meta_path);
+    auto expected = valik::read_stellar_output(consolidated_matches_path(arguments.numMatches), reference, std::ios::binary);
+    auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
+
+    compare_gff_out(expected, actual);
+}
+
+
+TEST(consolidate_matches_with_options, bins16overlap50matches9)
+{
+    size_t number_of_bins = 16;
+    size_t segment_overlap = 50;
+
+    valik::search_arguments arguments{};
+    arguments.ref_meta_path = consolidation_meta_path(number_of_bins, segment_overlap);
+    arguments.all_matches = consolidation_input_path(number_of_bins, segment_overlap);
+    arguments.out_file = "consolidated.gff";
+
+    arguments.numMatches = 9;
+    arguments.verbose = true;
+    valik::consolidate_matches(arguments);
+
+    valik::metadata reference(arguments.ref_meta_path);
+    auto expected = valik::read_stellar_output(consolidated_matches_path(arguments.numMatches), reference, std::ios::binary);
+    auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
+
+    compare_gff_out(expected, actual);
 }
