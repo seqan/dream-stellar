@@ -128,6 +128,11 @@ void iterate_split_queries(search_arguments const & arguments,
     using TId = seqan2::CharString;
     std::vector<shared_query_record<TSequence>> query_records{};
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
+    seqan3::debug_stream << "Iterate queries\n";
+    for (size_t i{12}; i <= 36; i++)
+        seqan3::debug_stream << "Threshold\t" << i << '\t' << thresholder.get(i) << '\n';
+    seqan3::debug_stream << "\n";
+
     if (arguments.verbose)
     {
         threshold_bounds bounds(arguments, thresholder);

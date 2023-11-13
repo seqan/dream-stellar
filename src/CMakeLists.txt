@@ -27,6 +27,7 @@ target_link_libraries ("${PROJECT_NAME}_build_lib" PUBLIC "${PROJECT_NAME}_inter
 
 # Valik search
 add_library ("raptor_threshold" STATIC
+             ../lib/raptor/src/threshold/threshold.cpp
              ../lib/raptor/src/threshold/one_indirect_error_model.cpp
              ../lib/raptor/src/threshold/multiple_error_model.cpp
              ../lib/raptor/src/threshold/pascal_row.cpp

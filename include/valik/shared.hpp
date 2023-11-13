@@ -148,7 +148,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
         {
             .window_size{window_size},
             .shape{shape},
-            .pattern_size{pattern_size},
+            .query_length{pattern_size},
             .errors{errors},
             .percentage{threshold},
             .p_max{p_max},
