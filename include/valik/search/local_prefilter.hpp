@@ -111,14 +111,17 @@ void find_pattern_bins(pattern_bounds const & pattern,
                         binning_bitvector_t const & counting_table,
                         std::unordered_set<size_t> & sequence_hits)
 {
-    // counting vector for the current pattern
-    for (auto row : counting_table)
-    {
-	seqan3::debug_stream << "Minimiser binning vector\t";
-	for (auto cell : row)
-		seqan3::debug_stream << cell;
+    seqan3::counting_vector<uint8_t> total_counts(bin_count, 0);
 
-    seqan3::debug_stream << '\n';
+    for (size_t i{0}; i < counting_table.size(); i++)
+    {
+	if (i >= pattern.begin_position && i < pattern.end_position)
+		seqan3::debug_stream << "Pattern binning vector\t";
+	else 
+		seqan3::debug_stream << "Minimiser binning vector\t";
+	for (auto const & cell : counting_table[i])
+		seqan3::debug_stream << cell << ' ';
+    	seqan3::debug_stream << '\n';
     }
 
 	
@@ -129,13 +132,12 @@ void find_pattern_bins(pattern_bounds const & pattern,
 	total_counts += counting_table[i];
     }
 
-    seqan3::debug_stream << "Pattern begin\tPattern end\tCount\tThreshold\tBin\n";
     for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
     {
         auto &&count = total_counts[current_bin];
         if (count >= pattern.threshold)
         {
-	    seqan3::debug_stream << "Bin hit\t" << pattern.begin_position << '\t' << pattern.end_position << '\t' << count << '\t' << pattern.threshold << '\t' << current_bin << '\n';
+	        seqan3::debug_stream << "Bin hit\t" << pattern.begin_position << '\t' << pattern.end_position << '\t' << count << '\t' << pattern.threshold << '\t' << current_bin << '\n';
             // the result_set is a union of results from all patterns of a read
             sequence_hits.insert(current_bin);
         }
@@ -176,7 +178,7 @@ void local_prefilter(
 
     for (query_t const & record : records)
     {        
-	std::vector<seqan3::dna4> const & seq = record.sequence;
+	    std::vector<seqan3::dna4> const & seq = record.sequence;
 
         // sequence can't contain local match if it's shorter than pattern length
         if (seq.size() < arguments.pattern_size)
@@ -191,7 +193,7 @@ void local_prefilter(
             for (; it != sentinel; ++it)
                 minimiser.emplace_back(*it, it.base() - hash_begin);
         }
-	//-----------------------------
+	    //-----------------------------
         //
         // Table of counting vectors newly created for each read
         // rows: each minimiser of read
@@ -218,7 +220,7 @@ void local_prefilter(
         pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.overlap, [&](size_t const begin)
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
-	    seqan3::debug_stream << "pattern with bounds [" << pattern.begin_position << ", " << pattern.end_position <<  "] and length " << pattern.end_position - pattern.begin_position <<  " has to share " << pattern.threshold << " kmers with bin\n";
+	        //seqan3::debug_stream << "pattern with bounds [" << pattern.begin_position << ", " << pattern.end_position <<  "] and length " << pattern.end_position - pattern.begin_position <<  " has to share " << pattern.threshold << " kmers with bin\n";
             find_pattern_bins(pattern, bin_count, counting_table, sequence_hits);
         });
 

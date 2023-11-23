@@ -13,7 +13,6 @@ struct search_time_statistics
     double index_io_time{0.0};
     std::vector<double> cart_processing_times;
     double total_search_time{0.0};
-    double search_time{0.0};
     double consolidation_time{0.0};
 
     double get_cart_min() const
@@ -47,13 +46,12 @@ inline void write_time_statistics(search_time_statistics const & time_statistics
     // the effective query count gives an estimate on how many total queries were done across all reference segments
     // this helps assess the effectiveness of the prefiltering
     // the effective query count is an upper bound because some carts are only partially filled
-    file_handle << "Total search time\tRef I/O\tIBF I/O\t\tSearch\tEffective query count\tMin cart time\tAvg cart time\tMax cart time\tConsolidation\n";
+    file_handle << "Total search time\tRef I/O\tIBF I/O\tEffective query count\tMin cart time\tAvg cart time\tMax cart time\tConsolidation\n";
     file_handle << std::fixed
                 << std::setprecision(2)
 		<< time_statistics.total_search_time << '\t'
                 << time_statistics.ref_io_time << '\t'
-                << time_statistics.index_io_time << '\t'
-                << time_statistics.search_time << '\t';
+                << time_statistics.index_io_time << '\t';
     if (!time_statistics.cart_processing_times.empty())
     {
         file_handle << std::fixed

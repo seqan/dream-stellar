@@ -128,13 +128,9 @@ bool search_distributed(search_arguments const & arguments, search_time_statisti
         });
     }
 
-    auto start = std::chrono::high_resolution_clock::now();
     iterate_distributed_queries(arguments, index.ibf(), queue);
-
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();
-    auto end = std::chrono::high_resolution_clock::now();
-    time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
     // merge output files and metadata from threads
     bool error_in_merge = merge_processes(arguments, time_statistics, exec_meta, var_pack);

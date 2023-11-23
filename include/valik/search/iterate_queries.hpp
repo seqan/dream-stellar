@@ -127,12 +127,15 @@ void iterate_split_queries(search_arguments const & arguments,
     using TSequence = seqan2::String<seqan2::Dna>;
     using TId = seqan2::CharString;
     std::vector<shared_query_record<TSequence>> query_records{};
-    raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
-    seqan3::debug_stream << "Iterate queries\n";
-    for (size_t i{12}; i <= 36; i++)
-        seqan3::debug_stream << "Threshold\t" << i << '\t' << thresholder.get(i) << '\n';
-    seqan3::debug_stream << "\n";
 
+    auto start = std::chrono::high_resolution_clock::now();
+    raptor::threshold::threshold_parameters thresh_param = arguments.make_threshold_parameters(); 
+    raptor::threshold::threshold const thresholder{thresh_param};
+    auto end = std::chrono::high_resolution_clock::now();
+    double threshold_time{0.0};
+    threshold_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+    std::cout << "\tThreshold time: \t" << std::to_string(threshold_time) << '\n';
+    
     if (arguments.verbose)
     {
         threshold_bounds bounds(arguments, thresholder);

@@ -5,6 +5,7 @@
 #include <valik/split/metadata.hpp>
 
 #include <seqan3/search/views/minimiser_hash.hpp>
+#include <seqan3/alphabet/views/to_char.hpp> 
 
 namespace valik
 {
@@ -72,6 +73,11 @@ private:
             {
                 for (auto & seg : meta.segments_from_ind(i))
                 {
+                    seqan3::debug_stream << ">bin" << seg.id << '\n'; 
+                    for (auto && b : seq | seqan3::views::slice(seg.start, seg.start + seg.len) | seqan3::views::to_char)
+                        seqan3::debug_stream << b;
+                    seqan3::debug_stream << '\n';
+                    
                     for (auto && value : seq | seqan3::views::slice(seg.start, seg.start + seg.len) | hash_view())
                         ibf.emplace(value, seqan3::bin_index{seg.id});
                 }

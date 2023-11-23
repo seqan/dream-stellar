@@ -13,7 +13,7 @@ void valik_search(search_arguments const & arguments)
 {
 
     search_time_statistics time_statistics{};
-
+    auto start = std::chrono::high_resolution_clock::now();
     bool failed;
     if (arguments.distribute)
     {
@@ -43,9 +43,13 @@ void valik_search(search_arguments const & arguments)
                 failed = search_local<false, true>(arguments, time_statistics);
         }
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    time_statistics.total_search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+
+    std::cout << "Search time:\t" << std::to_string(time_statistics.total_search_time) << '\n';
 
     // Consolidate matches (not necessary when searching a metagenomic database)
-    auto start = std::chrono::high_resolution_clock::now();
+    start = std::chrono::high_resolution_clock::now();
     if (!arguments.ref_meta_path.empty())
     {
         consolidate_matches(arguments);
@@ -54,8 +58,10 @@ void valik_search(search_arguments const & arguments)
             std::cerr << "Could not clean up intermediate file: \t" << std::string(arguments.all_matches) << '\n';
         failed = failed || error_in_delete;
     }
-    auto end = std::chrono::high_resolution_clock::now();
+    end = std::chrono::high_resolution_clock::now();
     time_statistics.consolidation_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+
+    std::cout << "Consolidation time:\t" << std::to_string(time_statistics.consolidation_time) << '\n';
 
     if (arguments.write_time)
         write_time_statistics(time_statistics, arguments.out_file.string() + ".time", arguments);

@@ -43,6 +43,8 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
         time_statistics.index_io_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
     }
 
+    std::cout << "Index IO time:\t" << std::to_string(time_statistics.index_io_time) << '\n';
+
     metadata ref_meta = metadata(arguments.ref_meta_path);
     env_var_pack var_pack{};
 
@@ -102,9 +104,11 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
     }
 
     time_statistics.ref_io_time += input_databases_time.milliseconds() / 1000;
+    std::cout << "\tRef IO time:\t" << std::to_string(time_statistics.ref_io_time) << '\n';
     stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
     stellar::DatabaseIDMap<TAlphabet> reverseDatabaseIDMap{reverseDatabases, databaseIDs};
 
+    auto threads_start = std::chrono::high_resolution_clock::now();
     bool error_in_search = false; // indicates if an error happened inside this lambda
     auto consumerThreads = std::vector<std::jthread>{};
     for (size_t threadNbr = 0; threadNbr < arguments.threads; ++threadNbr)
@@ -320,7 +324,6 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
         });
     }
 
-    auto start = std::chrono::high_resolution_clock::now();
     if constexpr (is_split)
         iterate_split_queries(arguments, index.ibf(), queue, *query_meta);
     else
@@ -328,8 +331,6 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
 
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();
-    auto end = std::chrono::high_resolution_clock::now();
-    time_statistics.search_time += std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
 
     // merge output files and metadata from threads
     bool error_in_merge = merge_processes(arguments, time_statistics, exec_meta, var_pack);
