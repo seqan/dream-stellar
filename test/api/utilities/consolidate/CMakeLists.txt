@@ -16,3 +16,6 @@ target_use_datasources (consolidate_matches_test FILES stellar_truth_num9_dis13.
 target_use_datasources (consolidate_matches_test FILES stellar_truth_num3_dis3.gff)
 target_use_datasources (consolidate_matches_test FILES stellar_truth_num3_dis8.gff)
 target_use_datasources (consolidate_matches_test FILES stellar_truth_num3_dis13.gff)
+
+add_api_test (stellar_match_test.cpp)
+target_use_datasources (stellar_match_test FILES 8bins50overlap_reference_metadata.tsv)
