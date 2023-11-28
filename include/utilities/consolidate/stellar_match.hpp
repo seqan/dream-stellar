@@ -58,7 +58,12 @@ struct stellar_match
         {
             std::string attributes{};
             for (auto & field : attributes_vec)
+            {
                 attributes += field;
+                attributes += ";";
+            }
+            if (attributes.size() > 0)
+                attributes.pop_back();
         
             throw std::runtime_error("Malformed GFF record:\n" + attributes);
         }
