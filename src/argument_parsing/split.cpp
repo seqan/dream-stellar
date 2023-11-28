@@ -26,7 +26,7 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       sharg::config{.short_id = 'n',
                       .long_id = "seg-count",
                       .description = "The suggested number of database segments that might be adjusted by the split algorithm.",
-                      .validator = sharg::arithmetic_range_validator{1, 65534}});
+                      .validator = positive_integer_validator{false}});
     parser.add_flag(arguments.split_index,
                       sharg::config{.short_id = '\0',
                       .long_id = "split-index",
