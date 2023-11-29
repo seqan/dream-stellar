@@ -35,48 +35,41 @@ void consolidate_matches(search_arguments const & arguments)
     
     for (auto & match : matches)
     {
-        if ( std::count(disabled_queries.begin(), disabled_queries.end(), match.qname) == 0 )
+        if ( total_match_counter[match.qname] < arguments.disableThresh )
         {
             total_match_counter[match.qname]++;
-            if (total_match_counter[match.qname] >= arguments.disableThresh)
-                disabled_queries.emplace(match.qname);
-            else if (total_match_counter[match.qname] > arguments.numMatches)
-                overabundant_queries.emplace(match.qname);
-            else
-                continue;            
         }
     }
     
     // for <query, ref> pairs that do not appear often return all matches
     for (auto & match : matches)
     {
-        bool is_disabled = (disabled_queries.find(match.qname) != disabled_queries.end());
-        bool is_overabundant = (!is_disabled && (overabundant_queries.find(match.qname) != overabundant_queries.end()));
+        bool is_disabled = total_match_counter[match.qname] >= arguments.disableThresh;
+        bool is_overabundant = total_match_counter[match.qname] > arguments.numMatches;
          
         if (!is_overabundant && !is_disabled)
             consolidated_matches.emplace_back(match);
+        else if (is_disabled)
+            disabled_queries.emplace(match.qname);
+        else
+            overabundant_queries.emplace(match.qname);
     }
 
     // for <query, ref> pairs that appear often return arguments.numMatches longest matches
     for (auto & query_id : overabundant_queries)
     {
-        bool not_disabled = (disabled_queries.find(query_id) == disabled_queries.end());
-        if (not_disabled)
+        std::vector<stellar_match> overabundant_matches{};
+        auto is_query_match = [&](auto & m){
+                                                return (m.qname == query_id);
+                                            };
+
+        for (auto & m : matches | std::views::filter(is_query_match))
         {
-            std::vector<stellar_match> overabundant_matches{};
-            auto is_query_match = [&](auto & m){
-                                                    return (m.qname == query_id);
-                                                };
+            overabundant_matches.push_back(m);
+        }
 
-            for (auto & m : matches | std::views::filter(is_query_match))
-            {
-                overabundant_matches.push_back(m);
-                //seqan3::debug_stream << "Overabundant match\t" << m.to_string();
-            }
-
-            std::sort(overabundant_matches.begin(), overabundant_matches.end(), stellar_match::length_order()); // sort in order of increasing length
-            consolidated_matches.insert(consolidated_matches.end(), overabundant_matches.end() - arguments.numMatches, overabundant_matches.end());
-        }    
+        std::sort(overabundant_matches.begin(), overabundant_matches.end(), stellar_match::length_order()); // sort in order of increasing length
+        consolidated_matches.insert(consolidated_matches.end(), overabundant_matches.end() - arguments.numMatches, overabundant_matches.end());    
     }
 
     // debug
