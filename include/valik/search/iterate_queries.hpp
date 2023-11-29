@@ -2,7 +2,6 @@
 
 #include <valik/search/prefilter_queries_parallel.hpp>
 #include <valik/search/search_time_statistics.hpp>
-#include <valik/search/threshold_bounds.hpp>
 #include <valik/split/metadata.hpp>
 
 #include <stellar/utils/stellar_app_runtime.hpp>
@@ -28,11 +27,6 @@ void iterate_distributed_queries(search_arguments const & arguments,
     using fields = seqan3::fields<seqan3::field::id, seqan3::field::seq>;
     std::vector<query_record> query_records{};
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
-    if (arguments.verbose)
-    {
-        threshold_bounds bounds(arguments, thresholder);
-        bounds.print();
-    }
     seqan3::sequence_file_input<dna4_traits, fields> fin{arguments.query_file};
     for (auto &&chunked_records : fin | seqan3::views::chunk((1ULL << 20) * 10))
     {
@@ -61,11 +55,6 @@ void iterate_short_queries(search_arguments const & arguments,
     using TId = seqan2::CharString;
     std::vector<shared_query_record<TSequence>> query_records{};
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
-    if (arguments.verbose)
-    {
-        threshold_bounds bounds(arguments, thresholder);
-        bounds.print();
-    }
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
     seqan2::SeqFileIn inSeqs;
@@ -128,11 +117,6 @@ void iterate_split_queries(search_arguments const & arguments,
     using TId = seqan2::CharString;
     std::vector<shared_query_record<TSequence>> query_records{};
     raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
-    if (arguments.verbose)
-    {
-        threshold_bounds bounds(arguments, thresholder);
-        bounds.print();
-    }
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
     seqan2::SeqFileIn inSeqs;
