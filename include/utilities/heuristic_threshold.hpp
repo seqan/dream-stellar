@@ -231,17 +231,46 @@ void runner()
     float tau{0.25};
     float mu{0.05};
 
-    //!TODO: define an objective function to minimize FNR and FPR
+    param_set best_params(attribute_vec[0].k, 1, parameter_space());
+    auto best_score = attribute_vec[0].score(request, best_params);
+
+    std::vector<std::vector<double>> scores;
+    scores.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
+    size_t i{0};
+
+    std::cout << '\t';
     for (const auto & att : attribute_vec)
     {
+        std::vector<double> kmer_scores;
         size_t k = att.k;
         for (size_t t = 1; t <= space.max_thresh; t++)
         {
             param_set params(k, t, parameter_space());
-
-            auto fnr = att.fnr_for_parameter_set(request, params);
-            std::cout << "FNR=" << fnr << '\n';
-            std::cout << "FPR=" << att.fpr << '\n';
+            auto score = att.score(request, params);
+            kmer_scores.push_back(score);
+            if (score < best_score)
+            {
+                best_score = score;
+                best_params = params;
+            }
         }
+        scores.push_back(kmer_scores);
+        i++;
     }
+
+    
+    std::cout << '\t';
+    for (size_t t{1}; t <= scores[0].size(); t++)
+        std::cout << t << '\t';
+    std::cout << '\n';
+    for (size_t i{0}; i < scores.size(); i++)
+    {
+        std::cout << std::get<0>(space.kmer_range) + i << '\t';
+        for (size_t j{0}; j < scores[0].size(); j++)
+        {
+            std::cout << scores[i][j] << '\t';
+        }
+        std::cout << '\n';
+    }
+    std::cout << "Chose k=" << best_params.k << " and t=" <<  best_params.t << '\n';
 }
