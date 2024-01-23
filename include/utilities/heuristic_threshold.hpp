@@ -1,8 +1,12 @@
+#pragma once
+
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <numbers>
 #include <vector>
 #include <utility>
+#include <filesystem>
 
 template <typename val_t>
 val_t stirling_factorial(val_t const n)
@@ -20,6 +24,9 @@ val_t exact_factorial(val_t const n)
     return fact;
 }
 
+/**
+ * @brief Factorial of integer n. 
+*/
 template <typename val_t>
 val_t factorial(val_t const n)
 {
@@ -29,44 +36,29 @@ val_t factorial(val_t const n)
         return stirling_factorial(n);
 }
 
-template <typename vec_t>
-void print_matrix(vec_t const & matrix)
-{
-    using par_t = vec_t::value_type::value_type::value_type;
-    for (auto table : matrix)
-    {
-        std::cout << "\t";
-        for (par_t l = 0; l < table[0].size(); l++)
-        {
-            std::cout << l << '\t';
-        }
-        std::cout << '\n';
-
-        for (par_t e = 0; e < table.size(); e++)
-        {
-            std::cout << e << '\t';
-            for (par_t l = 0; l < table[e].size(); l++)
-            {
-                auto cell = table[e][l];
-                std::cout << cell << '\t';
-            }
-            std::cout << '\n';
-        }
-    }
-}
-
 /**
-* @brief Assuming k-mers are distributed uniformly randomly, what is the expected count of a k-mer in a bin.
+ *  @brief Assuming k-mers are distributed uniformly randomly, what is the expected count of a k-mer in a bin.
+ * 
+ * @param bin_size Size of reference segment in bases.
+ * @param kmer_size K-mer size.
+ * 
 */
 template <typename var_t, typename par_t>
 float expected_kmer_occurrences(var_t const & bin_size,
                                par_t const & kmer_size)
 {
-    size_t alphabet_size = 4;
+    constexpr size_t alphabet_size{4};
     return (float) (bin_size - kmer_size + 1) / (float) pow(alphabet_size, kmer_size);
 }
 
-// Define the search space for the parameter tuning algorithm
+/**
+ * @brief Definition of the search space for the parameter tuning algorithm.
+ * 
+ * @param max_errors Maximum number of errors.
+ * @param max_thresh Maximum thershold for the number of k-mers that are shared after introducing errors.
+ * @param max_len The highest minimum local match length to consider.
+ * @param kmer_range The range of k-mer sizes.
+*/
 struct parameter_space
 {
     constexpr static size_t max_errors{3};    
@@ -75,6 +67,12 @@ struct parameter_space
     constexpr static std::pair<size_t, size_t> kmer_range{9, 15};
 };
 
+/**
+ * @brief Total number of error configurations. Same as the number of combinations of len take error_count. 
+ * 
+ * @param error_count Number of errors.
+ * @param len Sequence length.
+*/
 uint64_t total_err_conf_count(size_t const error_count, size_t const len)
 {
     if (len >= error_count)
@@ -89,14 +87,20 @@ uint64_t total_err_conf_count(size_t const error_count, size_t const len)
         return (uint64_t) 0;
 }
 
-// The user requests filtering by setting the following parameters 
+/**
+ * @brief The user requests filtering by setting the following parameters.
+ * 
+ * @param e Number of errors.
+ * @param l Minimum length of local match.
+ * @param s Reference size in bases.
+ * @param b Number of reference segments.
+*/
 struct filtering_request
 {
-    size_t e;   // chosen error count
-    size_t l;   // chosen length
-    uint64_t total_conf_count;  // how many error conf in total
-    uint64_t const s;   // reference size
-    size_t const b; // number of bins
+    size_t e;
+    size_t l;
+    uint64_t const s;
+    size_t const b;
 
     filtering_request(size_t const errors, size_t const min_len,  
                       uint64_t const ref_size, 
@@ -112,14 +116,32 @@ struct filtering_request
         if (min_len > space.max_len)
             std::cout << "Error: min len out of range\n";
         else
-            l = min_len;
-        
-        total_conf_count = total_err_conf_count(e, l);
+            l = min_len;        
+    }
+
+    /**
+     * @brief Total number of error configurations.
+    */
+    uint64_t total_conf_count() const
+    {
+        return total_err_conf_count(e, l);
+    }
+
+    /**
+     * @brief Expected number of spuriously matching k-mers in a bin.
+    */
+    double fpr(size_t const & kmer_size) const
+    {
+        return expected_kmer_occurrences(std::round(s / (float) b), kmer_size);
     }
 };
 
-// Represents a point in the parameter tuning search space
-// for all possible values for kmer length and threshold
+/**
+ * @brief A point in the parameter tuning search space.
+ * 
+ * @param k K-mer size.
+ * @param t Threshold for minimum number of shared k-mers.
+*/
 struct param_set
 {
     size_t k;
@@ -140,26 +162,24 @@ struct param_set
     }
 };
 
-// For a reference of certain size and number of bins and a set kmer length
-// Consider how the FNR changes for various values of the parameters t, e, l
+/**
+ * @brief For a kmer size k consider how the FNR changes for various values of the parameters t, e and l. 
+ *   
+ * @param k Chosen k-mer size.
+ * @param fn_conf_counts Number of configurations of e errors that do not retain at least t shared kmers after mutation.
+*/
 struct kmer_attributes
 {
     using row_t = std::vector<uint64_t>;
     using table_t = std::vector<row_t>;
     using mat_t = std::vector<table_t>;
     
-    const size_t k; 
-    const double fpr;
-    const std::vector<std::vector<std::vector<uint64_t>>> fn_conf_counts;
+    const size_t k;
+    const mat_t fn_conf_counts;  // false negative configuration counts
 
     /**
      * @brief For a maximum error count find the number of error configurations 
      *        that do not retain at least the threshold number of k-mers after mutation.
-     * 
-     * @param kmer_size K-mer length.
-     * @param threshold Minimum number of shared k-mers for success.
-     * @param error_count Number of errors.
-     * @param len Length of sequences being compared.
     */
     mat_t count_err_conf_below_thresh()
     {
@@ -199,55 +219,172 @@ struct kmer_attributes
         return matrix;
     }
 
-    kmer_attributes(size_t const kmer_size, filtering_request const & request) : 
+    kmer_attributes(size_t const kmer_size) : 
                 k(kmer_size), 
-                fpr(expected_kmer_occurrences(std::round(request.s / (float) request.b), kmer_size)),
-                fn_conf_counts(count_err_conf_below_thresh()) 
+                fn_conf_counts(count_err_conf_below_thresh()) { }
+
+    kmer_attributes(size_t const kmer_size, mat_t const & matrix) : k(kmer_size), fn_conf_counts(matrix) {}
+
+    /**
+     * @brief False negative rate for a parameter set.
+    */
+    double fnr_for_param_set(filtering_request const & request, param_set const & params) const
     {
-        std::cout << "Calculating FN count matrix for k=" << kmer_size << '\n'; 
+        return fn_conf_counts[params.t - 1][request.e][request.l] / (double) request.total_conf_count();
     }
 
-    double fnr_for_parameter_set(filtering_request const & request, param_set const & params) const
+    /**
+     * @brief Score of the objective function for a parameter set. Smaller values are better.
+    */
+    double score(filtering_request const & request, param_set const & params) const
     {
-        return fn_conf_counts[params.t - 1][request.e][request.l] / (double) request.total_conf_count;
+        return fnr_for_param_set(request, params) + pow(request.fpr(k), params.t);
+    }
+
+    /**
+     * @brief Stream out flattened 3D matrix of false negative configuration counts.
+    */
+    template <typename str_t>
+    void serialize(str_t & outstr)
+    {
+        outstr << "k=" << k << '\n'; 
+        size_t t = 1;
+        for (auto threshold_table : fn_conf_counts)
+        {   
+            outstr << "t=" << t << '\n';
+            for (auto error_row : threshold_table)
+            {
+                for (auto cell : error_row)
+                    outstr << cell << '\t';
+                outstr << '\n';
+            }
+            t++;
+        }
     }
 };
 
+/**
+ * @brief Precalculate and write out FN configuration count tables.
+*/
+void write_precalc_fn_confs(std::filesystem::path const & outfile)
+{
+    auto space = parameter_space();
+    for (auto k = std::get<0>(space.kmer_range); k <= std::get<1>(space.kmer_range); k++)
+    {
+        kmer_attributes attr(k);
+        std::ofstream outstr;
+        outstr.open(outfile, std::ios_base::app);
+        attr.serialize(outstr);
+    }
+}
+
+/**
+ * @brief Deserialize kmer_attributes for a single k-mer size.
+*/
+kmer_attributes deserialize_kmer_attributes(std::string const & kmer_attr_str)
+{
+    std::istringstream matrix_str(kmer_attr_str);
+    std::string line;
+    std::getline(matrix_str, line);
+    size_t k = stoi(line.substr(line.find("k=") + 2));
+        
+    std::vector<std::vector<std::vector<uint64_t>>> matrix;
+    std::vector<std::vector<uint64_t>> table;
+    for (; std::getline(matrix_str, line); )
+    {
+        std::istringstream row_str(line);
+        if (line.find("t=") == std::string::npos)
+        {
+            std::string cell;
+            std::vector<uint64_t> row;
+            for (; std::getline(row_str, cell, '\t'); )
+            {
+                row.push_back(stoi(cell));
+            }
+            table.push_back(row);
+        }
+        else if (stoi(line.substr(line.find("t=") + 2)) == 1)
+        {
+            continue;
+        }
+        else
+        {
+            matrix.push_back(table);
+            table.clear();
+        }
+    }
+    
+    matrix.push_back(table);
+    return kmer_attributes(k, matrix);
+}
+
+/**
+ * @brief Read precalculated FN error configuration count tables across all k-mer sizes. 
+*/
+std::vector<kmer_attributes> read_fn_confs(std::filesystem::path const & infile)
+{
+    std::ifstream instr(infile);
+
+    std::string line;
+    std::string kmer_attr_str;
+    std::vector<kmer_attributes> attr_vec;
+    bool past_first(false);
+    while (std::getline(instr, line)) 
+    {
+        if (line.find("k=") != std::string::npos)
+        {
+            if (past_first)
+            {
+                attr_vec.push_back(deserialize_kmer_attributes(kmer_attr_str));
+                kmer_attr_str.clear();
+            }
+            past_first = true;
+        }
+        kmer_attr_str += line + '\n';
+    }
+
+    return attr_vec;
+}
+
 void runner() 
 {
+    std::string outfile = "outfile.tsv";
+    write_precalc_fn_confs(outfile);
+
+    auto attribute_vec = read_fn_confs(outfile);
+    
+    auto space = parameter_space();
+
     size_t l = 20;
     size_t e = 3;
 
     uint64_t ref_size = 1024*1024*1024;
     size_t bins = 64;
 
-    auto space = parameter_space();
     filtering_request request(e, l, ref_size, bins);
-    
-    std::vector<kmer_attributes> attribute_vec;
-    for (auto k = std::get<0>(space.kmer_range); k <= std::get<1>(space.kmer_range); k++)
-        attribute_vec.emplace_back(k, request); // call kmer_attributes constructor
-
-    float tau{0.25};
-    float mu{0.05};
-
-    param_set best_params(attribute_vec[0].k, 1, parameter_space());
+    param_set best_params(attribute_vec[0].k, 1, space);
     auto best_score = attribute_vec[0].score(request, best_params);
 
     std::vector<std::vector<double>> scores;
+    std::vector<std::vector<double>> fn_rates;
+    std::vector<double> fp_rates;
     scores.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
+    fn_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
+    fp_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
     size_t i{0};
 
     std::cout << '\t';
     for (const auto & att : attribute_vec)
     {
         std::vector<double> kmer_scores;
+        std::vector<double> kmer_fn;
         size_t k = att.k;
         for (size_t t = 1; t <= space.max_thresh; t++)
         {
             param_set params(k, t, parameter_space());
             auto score = att.score(request, params);
             kmer_scores.push_back(score);
+            kmer_fn.push_back(att.fnr_for_param_set(request, params));
             if (score < best_score)
             {
                 best_score = score;
@@ -255,22 +392,23 @@ void runner()
             }
         }
         scores.push_back(kmer_scores);
+        fn_rates.push_back(kmer_fn);
+        fp_rates.push_back(request.fpr(att.k));
         i++;
     }
 
-    
     std::cout << '\t';
     for (size_t t{1}; t <= scores[0].size(); t++)
-        std::cout << t << '\t';
-    std::cout << '\n';
+        std::cout << "t=" << t << '\t';
+    std::cout << "FPR" << '\n';
     for (size_t i{0}; i < scores.size(); i++)
     {
-        std::cout << std::get<0>(space.kmer_range) + i << '\t';
+        std::cout << "k=" << std::get<0>(space.kmer_range) + i << '\t';
         for (size_t j{0}; j < scores[0].size(); j++)
         {
-            std::cout << scores[i][j] << '\t';
+            std::cout << fn_rates[i][j] << '\t';
         }
-        std::cout << '\n';
+        std::cout << '\t' << fp_rates[i] << '\n';
     }
     std::cout << "Chose k=" << best_params.k << " and t=" <<  best_params.t << '\n';
 }
