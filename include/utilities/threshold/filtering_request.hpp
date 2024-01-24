@@ -1,5 +1,8 @@
 #pragma once
 
+namespace valik
+{
+
 /**
  * @brief The user requests filtering by setting the following parameters.
  * 
@@ -19,7 +22,7 @@ struct filtering_request
                       uint64_t const ref_size, 
                       size_t const bins) : s(ref_size), b(bins) 
     {
-        auto space = parameter_space();
+        auto space = param_space();
         std::cout << "Find suitable parameters for e=" << errors << " and l=" << min_len << '\n';
         if (errors > space.max_errors)
             std::cout << "Error: error count out of range\n";
@@ -48,3 +51,5 @@ struct filtering_request
         return expected_kmer_occurrences(std::round(s / (float) b), kmer_size);
     }
 };
+
+}   // namespace valik

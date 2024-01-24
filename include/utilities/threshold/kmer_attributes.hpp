@@ -1,5 +1,10 @@
 #pragma once
 
+#include <utilities/threshold/shared.hpp>
+
+namespace valik
+{
+
 /**
  * @brief For a kmer size k consider how the FNR changes for various values of the parameters t, e and l. 
  *   
@@ -21,7 +26,7 @@ struct kmer_attributes
     */
     mat_t count_err_conf_below_thresh()
     {
-        auto space = parameter_space();
+        auto space = param_space();
         mat_t matrix;
         for (size_t t = 1; t <= space.max_thresh; t++)
         {
@@ -100,3 +105,5 @@ struct kmer_attributes
         }
     }
 };
+
+}   // namespace valik

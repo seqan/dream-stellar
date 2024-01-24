@@ -53,6 +53,19 @@ void run_split(sharg::parser & parser)
     // ==========================================
     // Dispatch
     // ==========================================
+    std::string outfile = "outfile.tsv";
+    write_precalc_fn_confs(outfile);
+
+    auto attribute_vec = read_fn_confs(outfile);
+    auto space = param_space();
+
+    filtering_request request(4, arguments.overlap, arguments., arguments.);
+    get_best_params(space, request, attribute_vec);
+
+
+    // ==========================================
+    // Dispatch
+    // ==========================================
     valik_split(arguments);
 }
 

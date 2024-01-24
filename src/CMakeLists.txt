@@ -14,6 +14,10 @@ target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/seqan/i
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/robin-hood-hashing/src/include)
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
 
+# Parameter tuning
+add_library ("${PROJECT_NAME}_threshold_lib" STATIC threshold/io.cpp)
+target_link_libraries ("${PROJECT_NAME}_threshold_lib" PUBLIC "${PROJECT_NAME}_interface")
+
 # Valik split
 add_library ("${PROJECT_NAME}_split_lib" STATIC valik_split.cpp)
 target_link_libraries ("${PROJECT_NAME}_split_lib" PUBLIC "${PROJECT_NAME}_interface")
@@ -50,7 +54,7 @@ target_link_libraries ("${PROJECT_NAME}_consolidation_io_lib" PUBLIC "raptor_thr
 add_library ("${PROJECT_NAME}_merge_processes_lib" STATIC consolidate/merge_processes.cpp)
 target_link_libraries ("${PROJECT_NAME}_merge_processes_lib" PUBLIC "raptor_threshold")
 
-# Sliding window argument parsing
+# Argument parsing
 add_library ("${PROJECT_NAME}_argument_parsing_shared_lib" STATIC argument_parsing/shared.cpp)
 target_link_libraries ("${PROJECT_NAME}_argument_parsing_shared_lib" PUBLIC "${PROJECT_NAME}_interface")
 
@@ -66,7 +70,7 @@ target_link_libraries ("${PROJECT_NAME}_argument_parsing_search_lib" PUBLIC "${P
 add_library ("${PROJECT_NAME}_argument_parsing_top_level_lib" STATIC argument_parsing/top_level.cpp)
 target_link_libraries ("${PROJECT_NAME}_argument_parsing_top_level_lib" PUBLIC "${PROJECT_NAME}_argument_parsing_shared_lib")
 
-# Sliding window library
+# Valik library
 add_library ("${PROJECT_NAME}_lib" INTERFACE)
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_split_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_build_lib")
@@ -80,6 +84,7 @@ target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_search_l
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_consolidation_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_consolidation_io_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_merge_processes_lib")
+target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_threshold_lib")
 
 # Sliding window executable
 add_executable ("${PROJECT_NAME}" valik_main.cpp)
