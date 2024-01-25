@@ -5,6 +5,8 @@
 namespace valik
 {
 
+std::filesystem::path fn_filename();
+
 /**
  * @brief Precalculate and write out FN configuration count tables.
 */

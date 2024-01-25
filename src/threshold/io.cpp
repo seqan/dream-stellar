@@ -98,6 +98,7 @@ bool read_fn_confs(std::vector<kmer_attributes> & attr_vec)
         kmer_attr_str += line + '\n';
     }
 
+    attr_vec.push_back(deserialize_kmer_attributes(kmer_attr_str));
     return true;
 }
 
