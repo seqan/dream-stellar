@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utilities/threshold/shared.hpp>
+
 namespace valik
 {
 
@@ -16,8 +18,7 @@ struct param_set
 
     param_set(size_t const kmer_size, size_t const thresh, param_space const & space)
     {
-        std::cout << "Considering k=" << kmer_size << " and t=" << thresh << '\n';
-        if (kmer_size < std::get<0>(space.kmer_range) | kmer_size > std::get<1>(space.kmer_range))
+        if ((kmer_size < std::get<0>(space.kmer_range)) | (kmer_size > std::get<1>(space.kmer_range)))
             std::cout << "Error: k out of range\n";
         else
             k = kmer_size;

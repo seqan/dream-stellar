@@ -1,7 +1,4 @@
-#include <valik/argument_parsing/shared.hpp>
-#include <valik/shared.hpp>
-#include <valik/split/metadata.hpp>
-#include <valik/split/write_seg_sequences.hpp>
+#include <valik/split/split.hpp>
 
 namespace valik::app
 {
@@ -20,6 +17,18 @@ void valik_split(split_arguments & arguments)
 
     metadata meta(arguments);
     meta.to_file(arguments.meta_out);
+
+    // ==========================================
+    // Search parameter tuning
+    // ==========================================
+    auto space = param_space();
+    std::vector<kmer_attributes> attr_vec;
+    if (!read_fn_confs(attr_vec))
+        precalc_fn_confs(attr_vec);
+
+    size_t max_errors = 2;
+    filtering_request request(max_errors, arguments.overlap, meta.total_len, meta.seg_count);
+    get_best_params(space, request, attr_vec);
 
     if (arguments.write_ref)
         write_reference_segments(meta, arguments.meta_out);

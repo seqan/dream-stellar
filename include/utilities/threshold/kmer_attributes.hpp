@@ -1,6 +1,7 @@
 #pragma once
 
-#include <utilities/threshold/shared.hpp>
+#include <utilities/threshold/filtering_request.hpp>
+#include <utilities/threshold/param_set.hpp>
 
 namespace valik
 {
@@ -38,7 +39,7 @@ struct kmer_attributes
                 {       
                     int shared_base_count = l - e;
                     if ((int) (k + t) - 1 > shared_base_count) // all error distributions destroy enough k-mers
-                        row.push_back(total_err_conf_count(e, l));
+                        row.push_back(total_err_conf_count<size_t, uint64_t>(e, l));
                     else if (e == 0)
                         row.push_back(0);
                     else
@@ -74,14 +75,6 @@ struct kmer_attributes
     double fnr_for_param_set(filtering_request const & request, param_set const & params) const
     {
         return fn_conf_counts[params.t - 1][request.e][request.l] / (double) request.total_conf_count();
-    }
-
-    /**
-     * @brief Score of the objective function for a parameter set. Smaller values are better.
-    */
-    double score(filtering_request const & request, param_set const & params) const
-    {
-        return fnr_for_param_set(request, params) + request.fpr(k) / (double) params.t;
     }
 
     /**

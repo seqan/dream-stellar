@@ -64,10 +64,10 @@ float expected_kmer_occurrences(var_t const & bin_size,
 */
 struct param_space
 {
-    constexpr static size_t max_errors{20};    
-    constexpr static size_t max_thresh{5};
-    constexpr static size_t max_len{200};
-    constexpr static std::pair<size_t, size_t> kmer_range{9, 21};
+    constexpr static size_t max_errors{3};    
+    constexpr static size_t max_thresh{3};
+    constexpr static size_t max_len{20};
+    constexpr static std::pair<size_t, size_t> kmer_range{9, 11};
 };
 
 /**

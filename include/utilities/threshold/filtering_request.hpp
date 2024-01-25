@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utilities/threshold/shared.hpp>
+
 namespace valik
 {
 
@@ -40,7 +42,7 @@ struct filtering_request
     */
     uint64_t total_conf_count() const
     {
-        return total_err_conf_count(e, l);
+        return total_err_conf_count<size_t, uint64_t>(e, l);
     }
 
     /**

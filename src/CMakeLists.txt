@@ -15,8 +15,11 @@ target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../lib/robin-h
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
 
 # Parameter tuning
-add_library ("${PROJECT_NAME}_threshold_lib" STATIC threshold/io.cpp)
+add_library ("${PROJECT_NAME}_threshold_lib" STATIC threshold/find.cpp)
 target_link_libraries ("${PROJECT_NAME}_threshold_lib" PUBLIC "${PROJECT_NAME}_interface")
+
+add_library ("${PROJECT_NAME}_threshold_io_lib" STATIC threshold/io.cpp)
+target_link_libraries ("${PROJECT_NAME}_threshold_io_lib" PUBLIC "${PROJECT_NAME}_interface")
 
 # Valik split
 add_library ("${PROJECT_NAME}_split_lib" STATIC valik_split.cpp)
@@ -85,7 +88,8 @@ target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_consolid
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_consolidation_io_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_merge_processes_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_threshold_lib")
+target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_threshold_io_lib")
 
-# Sliding window executable
+# Valik executable
 add_executable ("${PROJECT_NAME}" valik_main.cpp)
 target_link_libraries ("${PROJECT_NAME}" PUBLIC "${PROJECT_NAME}_lib")

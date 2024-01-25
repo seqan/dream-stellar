@@ -34,6 +34,8 @@ void trim_fasta_id(id_t & id)
 /**
  * @brief Struct that stores the metadata for a split database.
  *  \param total_len    Total database length.
+ *  \param seq_count    Number of sequences.
+ *  \param seg_count    Database was divided into this many segments.
  *  \param sequences    Collection of database sequences.
  *  \param default_seg_len  Default length of a segment that is dynamically updated.
  *  \param segments     Collection of database segments.

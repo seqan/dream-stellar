@@ -3,12 +3,20 @@
 namespace valik
 {
 
+/**
+ * @brief Score of the objective function for a parameter set. Smaller values are better.
+*/
+double param_score(filtering_request const & request, param_set const & params, kmer_attributes const & attr)
+{
+    return attr.fnr_for_param_set(request, params) + request.fpr(params.k) / (double) params.t;
+}
+
 void get_best_params(param_space const & space, 
                      filtering_request const & request,
                      std::vector<kmer_attributes> const & attribute_vec) 
 {
     param_set best_params(attribute_vec[0].k, 1, space);
-    auto best_score = attribute_vec[0].score(request, best_params);
+    auto best_score = param_score(request, best_params, attribute_vec[0]);
 
     std::vector<std::vector<double>> scores;
     std::vector<std::vector<double>> fn_rates;
@@ -17,7 +25,7 @@ void get_best_params(param_space const & space,
     fn_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
     fp_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
 
-    for (size_t i{i}; i < attribute_vec.size(); i++)
+    for (size_t i{1}; i < attribute_vec.size(); i++)
     {
         auto att = attribute_vec[i];
         std::vector<double> kmer_scores;
@@ -26,7 +34,7 @@ void get_best_params(param_space const & space,
         for (size_t t = 1; t <= space.max_thresh; t++)
         {
             param_set params(k, t, param_space());
-            auto score = att.score(request, params);
+            auto score = param_score(request, params, att);
             kmer_scores.push_back(score);
             kmer_fn.push_back(att.fnr_for_param_set(request, params));
             if (score < best_score)
@@ -54,8 +62,9 @@ void get_best_params(param_space const & space,
         }
         std::cout << '\t' << fp_rates[i] << '\n';
     }
-    std::cout << "Chose k=" << best_params.k << " and t=" <<  best_params.t << '\n';
     */
+   
+    std::cout << "Chose k=" << best_params.k << " and t=" <<  best_params.t << '\n';
 }
 
 }   // namespace valik

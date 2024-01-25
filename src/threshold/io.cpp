@@ -3,15 +3,28 @@
 namespace valik
 {
 
+std::filesystem::path fn_filename()
+{
+    auto space = param_space();
+    std::string outfile = "fn_err_conf_e" + std::to_string(space.max_errors) + "_t" + std::to_string(space.max_thresh) + 
+                                        "_l" + std::to_string(space.max_len) + "_k" + std::to_string(std::get<0>(space.kmer_range)) + "_" + 
+                                        std::to_string(std::get<1>(space.kmer_range)) + ".tsv";
+    return outfile;
+}
+
+
 /**
  * @brief Precalculate and write out FN configuration count tables.
 */
-void write_precalc_fn_confs(std::filesystem::path const & outfile)
+void precalc_fn_confs(std::vector<kmer_attributes> & attr_vec)
 {
     auto space = param_space();
+    auto outfile = fn_filename();
     for (auto k = std::get<0>(space.kmer_range); k <= std::get<1>(space.kmer_range); k++)
     {
+        std::cout << "considering k=" << k << '\n';
         kmer_attributes attr(k);
+        attr_vec.push_back(attr);
         std::ofstream outstr;
         outstr.open(outfile, std::ios_base::app);
         attr.serialize(outstr);
@@ -61,13 +74,15 @@ kmer_attributes deserialize_kmer_attributes(std::string const & kmer_attr_str)
 /**
  * @brief Read precalculated FN error configuration count tables across all k-mer sizes. 
 */
-std::vector<kmer_attributes> read_fn_confs(std::filesystem::path const & infile)
+bool read_fn_confs(std::vector<kmer_attributes> & attr_vec)
 {
-    std::ifstream instr(infile);
+    auto infile = fn_filename();
+    if (!std::filesystem::exists(infile))
+        return false;
 
+    std::ifstream instr(infile);
     std::string line;
     std::string kmer_attr_str;
-    std::vector<kmer_attributes> attr_vec;
     bool past_first(false);
     while (std::getline(instr, line)) 
     {
@@ -83,7 +98,7 @@ std::vector<kmer_attributes> read_fn_confs(std::filesystem::path const & infile)
         kmer_attr_str += line + '\n';
     }
 
-    return attr_vec;
+    return true;
 }
 
 }   // namespace valik
