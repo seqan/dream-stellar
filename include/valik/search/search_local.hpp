@@ -30,7 +30,7 @@ namespace valik::app
  * @param time_statistics Run-time statistics.
  * @return false if search failed.
  */
-template <bool compressed, bool is_split, bool manual_threshold>
+template <bool compressed, bool is_split>
 bool search_local(search_arguments const & arguments, search_time_statistics & time_statistics)
 {
     using index_structure_t = std::conditional_t<compressed, index_structure::ibf_compressed, index_structure::ibf>;
@@ -323,7 +323,7 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
     auto start = std::chrono::high_resolution_clock::now();
     if constexpr (is_split)
     {
-        if constexpr (manual_threshold)
+        if (arguments.manual_threshold)
         {
             valik::threshold::threshold const thresholder(arguments.threshold);
             iterate_split_queries(arguments, index.ibf(), thresholder, queue, *query_meta);
@@ -336,7 +336,7 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
     }
     else
     {
-        if constexpr (manual_threshold)
+        if (arguments.manual_threshold)
         {
             valik::threshold::threshold const thresholder(arguments.threshold);
             iterate_short_queries(arguments, index.ibf(), thresholder, queue);

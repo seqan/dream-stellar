@@ -38,12 +38,30 @@ kmer_attributes deserialize_kmer_attributes(std::string const & kmer_attr_str)
     std::istringstream matrix_str(kmer_attr_str);
     std::string line;
     std::getline(matrix_str, line);
-    size_t k = stoi(line.substr(line.find("k=") + 2));
+    size_t k;
+    try
+    {
+        k = stoi(line.substr(line.find("k=") + 2));
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << "\nCan't convert " << line.substr(line.find("k=") + 2)  << "to k-mer size\n";
+    }
         
     std::vector<std::vector<std::vector<uint64_t>>> matrix;
     std::vector<std::vector<uint64_t>> table;
     for (; std::getline(matrix_str, line); )
     {
+        bool is_first_thresh_row{false};
+        try
+        {
+            is_first_thresh_row = (stoi(line.substr(line.find("t=") + 2)) == 1);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << "\nCan't convert " << line.substr(line.find("t=") + 2) << " to threshold\n";
+        }
+        
         std::istringstream row_str(line);
         if (line.find("t=") == std::string::npos)
         {
@@ -51,11 +69,18 @@ kmer_attributes deserialize_kmer_attributes(std::string const & kmer_attr_str)
             std::vector<uint64_t> row;
             for (; std::getline(row_str, cell, '\t'); )
             {
-                row.push_back(stoi(cell));
+                try
+                {
+                    row.push_back(std::stoull(cell));
+                }
+                catch(const std::exception& e)
+                {
+                    std::cerr << e.what() << "\nCan't convert cell value\t" << cell << '\n';
+                }
             }
             table.push_back(row);
         }
-        else if (stoi(line.substr(line.find("t=") + 2)) == 1)
+        else if (is_first_thresh_row)
         {
             continue;
         }

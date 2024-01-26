@@ -19,7 +19,7 @@ namespace valik::app
  * @param time_statistics Run-time statistics.
  * @return false if search failed.
  */
-template <bool compressed, bool manual_threshold>
+template <bool compressed>
 bool search_distributed(search_arguments const & arguments, search_time_statistics & time_statistics)
 {
     using index_structure_t = std::conditional_t<compressed, index_structure::ibf_compressed, index_structure::ibf>;
@@ -129,7 +129,7 @@ bool search_distributed(search_arguments const & arguments, search_time_statisti
     }
 
     auto start = std::chrono::high_resolution_clock::now();
-    if constexpr (manual_threshold)
+    if (arguments.manual_threshold)
     {
         valik::threshold::threshold const thresholder(arguments.threshold);
         iterate_distributed_queries(arguments, index.ibf(), thresholder, queue);

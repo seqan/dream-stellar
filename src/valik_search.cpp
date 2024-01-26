@@ -19,20 +19,13 @@ void valik_search(search_arguments const & arguments)
     {
         if (arguments.compressed)
         {
-            if (arguments.manual_threshold)
-                failed = search_distributed<true, true>(arguments, time_statistics);
-            else
-                failed = search_distributed<true, false>(arguments, time_statistics);
+            failed = search_distributed<true>(arguments, time_statistics);
         }
         else
         {
-            if (arguments.manual_threshold)
-                failed = search_distributed<false, true>(arguments, time_statistics);
-            else
-                failed = search_distributed<false, false>(arguments, time_statistics);
+            failed = search_distributed<false>(arguments, time_statistics);
         }
     }
-
     // Shared memory execution
     else
     {
@@ -40,34 +33,22 @@ void valik_search(search_arguments const & arguments)
         {
             if (arguments.query_meta_path.empty())
             {
-                if (arguments.manual_threshold)
-                    failed = search_local<true, false, true>(arguments, time_statistics);
-                else
-                    failed = search_local<true, false, false>(arguments, time_statistics);
+                failed = search_local<true, false>(arguments, time_statistics);
             }
             else // Split long query sequences
             {
-                if (arguments.manual_threshold)
-                    failed = search_local<true, true, true>(arguments, time_statistics);
-                else
-                    failed = search_local<true, true, false>(arguments, time_statistics);
+                failed = search_local<true, true>(arguments, time_statistics);
             }
         }
         else
         {
             if (arguments.query_meta_path.empty())
             {
-                if (arguments.manual_threshold)
-                    failed = search_local<false, false, true>(arguments, time_statistics);
-                else
-                    failed = search_local<false, false, false>(arguments, time_statistics);
+                failed = search_local<false, false>(arguments, time_statistics);
             }
             else // Split long query sequences
             {
-                if (arguments.manual_threshold)
-                    failed = search_local<false, true, true>(arguments, time_statistics);
-                else
-                    failed = search_local<false, true, false>(arguments, time_statistics);
+                failed = search_local<false, true>(arguments, time_statistics);
             }
         }
     }

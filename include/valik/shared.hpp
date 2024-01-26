@@ -92,7 +92,6 @@ struct minimiser_threshold_arguments
     virtual ~minimiser_threshold_arguments() = 0;   // make an abstract base struct
 
     double tau{0.9999};
-    double threshold{std::numeric_limits<double>::quiet_NaN()};
     double p_max{0.15};
     double fpr{0.05};
     uint8_t errors{0};
@@ -150,7 +149,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
             .shape{shape},
             .query_length{pattern_size},
             .errors{errors},
-            .percentage{threshold},
+            .percentage{std::numeric_limits<double>::quiet_NaN()},
             .p_max{p_max},
             .fpr{fpr},
             .tau{tau},
@@ -160,6 +159,8 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
     }
 
     float error_rate{};
+    size_t threshold{};
+    bool manual_threshold{false};
     std::filesystem::path ref_meta_path{};
     std::filesystem::path query_meta_path{};
     bool distribute{false};
