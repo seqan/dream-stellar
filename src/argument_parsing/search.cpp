@@ -66,6 +66,12 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "query-meta",
                     .description = "Path to query genome metadata for finding all local alignment between two long sequences.",
                     .validator = sharg::input_file_validator{}});
+    parser.add_option(arguments.threshold,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "threshold",
+                      .description = "If set, this threshold is used instead of the kmer lemma.",
+                      .advanced = true,
+                      .validator = sharg::arithmetic_range_validator{1, 100}});
     parser.add_flag(arguments.distribute,
                     sharg::config{.short_id = '\0',
                     .long_id = "distribute",
@@ -92,12 +98,6 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       sharg::config{.short_id = '\0',
                       .long_id = "tau",
                       .description = "Used in the dynamic thresholding. The higher tau, the lower the threshold.",
-                      .advanced = true,
-                      .validator = sharg::arithmetic_range_validator{0, 1}});
-    parser.add_option(arguments.threshold,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "threshold",
-                      .description = "If set, this threshold is used instead of the probabilistic models.",
                       .advanced = true,
                       .validator = sharg::arithmetic_range_validator{0, 1}});
     parser.add_option(arguments.p_max,
@@ -218,15 +218,21 @@ void run_search(sharg::parser & parser)
     }
 
     // ==========================================
+    // Process --threshold.
+    // ==========================================
+    if (parser.is_option_set("threshold"))
+    {
+        arguments.manual_threshold = true;  // otherwise use raptor::threshold
+    }
+
+    // ==========================================
     // Process --pattern.
     // ==========================================
-
     if (parser.is_option_set("pattern"))
     {
         if (arguments.pattern_size < arguments.window_size)
             throw sharg::validation_error{"The minimiser window cannot be bigger than the pattern."};
     }
-    else
 
     // ==========================================
     // Set default pattern size.

@@ -10,19 +10,22 @@
 #include <valik/search/local_prefilter.hpp>
 #include <valik/search/query_record.hpp>
 #include <valik/search/sync_out.hpp>
+#include <utilities/cart_queue.hpp>
+#include <utilities/threshold/shared.hpp>
 
 #include <raptor/threshold/threshold.hpp>
-
-#include "utilities/cart_queue.hpp"
 
 namespace valik::app
 {
 
-template <typename query_t, seqan3::data_layout ibf_data_layout>
+/**
+ * @brief Create parallel prefiltering jobs.
+*/
+template <typename query_t, seqan3::data_layout ibf_data_layout, typename thresh_t>
 inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
                                        search_arguments const & arguments,
                                        std::vector<query_t> const & records,
-                                       raptor::threshold::threshold const & thresholder,
+                                       thresh_t const & thresholder,
                                        cart_queue<query_t> & queue)
 {
     if (records.empty())

@@ -25,7 +25,7 @@ void get_best_params(param_space const & space,
     fn_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
     fp_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
 
-    for (size_t i{1}; i < attribute_vec.size(); i++)
+    for (size_t i{0}; i < attribute_vec.size(); i++)
     {
         auto att = attribute_vec[i];
         std::vector<double> kmer_scores;
@@ -63,8 +63,9 @@ void get_best_params(param_space const & space,
         std::cout << '\t' << fp_rates[i] << '\n';
     }
     */
-   
-    std::cout << "Chose k=" << best_params.k << " and t=" <<  best_params.t << '\n';
+     
+    std::cout << best_params.k << '\t' <<  best_params.t << '\t' 
+              << fn_rates[best_params.k - std::get<0>(space.kmer_range)][best_params.t - 1] << '\n';
 }
 
 }   // namespace valik

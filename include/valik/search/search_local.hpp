@@ -30,7 +30,7 @@ namespace valik::app
  * @param time_statistics Run-time statistics.
  * @return false if search failed.
  */
-template <bool compressed, bool is_split>
+template <bool compressed, bool is_split, bool manual_threshold>
 bool search_local(search_arguments const & arguments, search_time_statistics & time_statistics)
 {
     using index_structure_t = std::conditional_t<compressed, index_structure::ibf_compressed, index_structure::ibf>;
@@ -322,9 +322,31 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
 
     auto start = std::chrono::high_resolution_clock::now();
     if constexpr (is_split)
-        iterate_split_queries(arguments, index.ibf(), queue, *query_meta);
+    {
+        if constexpr (manual_threshold)
+        {
+            valik::threshold::threshold const thresholder(arguments.threshold);
+            iterate_split_queries(arguments, index.ibf(), thresholder, queue, *query_meta);
+        }
+        else
+        {
+            raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
+            iterate_split_queries(arguments, index.ibf(), thresholder, queue, *query_meta);
+        }
+    }
     else
-        iterate_short_queries(arguments, index.ibf(), queue);
+    {
+        if constexpr (manual_threshold)
+        {
+            valik::threshold::threshold const thresholder(arguments.threshold);
+            iterate_short_queries(arguments, index.ibf(), thresholder, queue);
+        }
+        else
+        {            
+            raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
+            iterate_short_queries(arguments, index.ibf(), thresholder, queue);
+        }
+    }
 
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();

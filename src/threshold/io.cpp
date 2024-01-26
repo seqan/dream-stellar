@@ -22,7 +22,6 @@ void precalc_fn_confs(std::vector<kmer_attributes> & attr_vec)
     auto outfile = fn_filename();
     for (auto k = std::get<0>(space.kmer_range); k <= std::get<1>(space.kmer_range); k++)
     {
-        std::cout << "considering k=" << k << '\n';
         kmer_attributes attr(k);
         attr_vec.push_back(attr);
         std::ofstream outstr;

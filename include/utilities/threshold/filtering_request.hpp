@@ -25,7 +25,6 @@ struct filtering_request
                       size_t const bins) : s(ref_size), b(bins) 
     {
         auto space = param_space();
-        std::cout << "Find suitable parameters for e=" << errors << " and l=" << min_len << '\n';
         if (errors > space.max_errors)
             std::cout << "Error: error count out of range\n";
         else 
