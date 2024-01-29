@@ -77,12 +77,14 @@ struct build_arguments
     std::vector<std::vector<std::string>> bin_path{};
     std::filesystem::path bin_file{};
     std::filesystem::path out_path{"./"};
+    float error_rate{0.05};
     std::string size{};
     uint64_t bins{64};
     uint64_t bits{4096};
     uint64_t hash{2};
     bool compressed{false};
     bool fast{false};
+    bool verbose{false};
 
     std::filesystem::path ref_meta_path{};
 };

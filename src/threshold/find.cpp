@@ -11,9 +11,9 @@ double param_score(filtering_request const & request, param_set const & params, 
     return attr.fnr_for_param_set(request, params) + request.fpr(params.k) / (double) params.t;
 }
 
-void get_best_params(param_space const & space, 
-                     filtering_request const & request,
-                     std::vector<kmer_attributes> const & attribute_vec) 
+param_set get_best_params(param_space const & space, 
+                          filtering_request const & request,
+                          std::vector<kmer_attributes> const & attribute_vec) 
 {
     param_set best_params(attribute_vec[0].k, 1, space);
     auto best_score = param_score(request, best_params, attribute_vec[0]);
@@ -48,25 +48,50 @@ void get_best_params(param_space const & space,
         fp_rates.push_back(request.fpr(att.k));
     }
 
-    /*
-    std::cout << '\t';
-    for (size_t t{1}; t <= scores[0].size(); t++)
-        std::cout << "t=" << t << '\t';
-    std::cout << "FPR" << '\n';
-    for (size_t i{0}; i < scores.size(); i++)
-    {
-        std::cout << "k=" << std::get<0>(space.kmer_range) + i << '\t';
-        for (size_t j{0}; j < scores[0].size(); j++)
-        {
-            std::cout << fn_rates[i][j] << '\t';
-        }
-        std::cout << '\t' << fp_rates[i] << '\n';
-    }
-    */
-     
-    std::cout << best_params.k << '\t' <<  best_params.t << '\t' 
-              << fn_rates[best_params.k - std::get<0>(space.kmer_range)][best_params.t - 1] << '\t'
-              << fp_rates[best_params.k - std::get<0>(space.kmer_range)] << '\n';
+    return best_params;
 }
+
+/**
+ * @brief For a chosen kmer size and some maximum error rate find the best threshold. 
+*/
+void find_thresholds_for_kmer_size(param_space const & space, 
+                                  metadata const & meta,
+                                  kmer_attributes const att, 
+                                  double const max_err)
+{
+    std::cout.precision(3);
+    std::cout << "Recommended shared " << att.k << "-mer thresholds for different error rates\n";
+    std::cout << "error_rate\tthreshold_kind\tthreshold\tFNR\tFP_per_bin\n";
+
+    auto best_params = param_set(att.k, space.max_thresh, space);
+    for (size_t errors{1}; errors < (meta.segment_overlap() * max_err); errors++)
+    {
+        filtering_request request(errors, meta.segment_overlap(), meta.total_len, meta.seg_count);
+        std::cout << errors / (double) request.l << '\t';
+        if (att.fnr_for_param_set(request, best_params) == 0)
+        {
+            std::cout << "kmer lemma\t" << kmer_lemma_threshold(request.l, att.k, errors) << '\t' << 0;
+        }
+        else
+        {
+            std::cout << "heuristic\t";
+            double best_score = request.l;
+            for (size_t t{1}; t <= space.max_thresh; t++)
+            {
+                auto params = param_set(att.k, t, space);
+                auto score = param_score(request, params, att);
+                if (score < best_score)
+                {
+                    best_params = params;
+                    best_score = score;
+                }
+            }
+            std::cout << best_params.t << '\t' << att.fnr_for_param_set(request, best_params);
+        }
+
+        std::cout << '\t' << request.fpr(att.k) << '\n';
+    }
+}
+
 
 }   // namespace valik

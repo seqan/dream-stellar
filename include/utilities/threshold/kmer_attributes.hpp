@@ -67,7 +67,7 @@ struct kmer_attributes
                 k(kmer_size), 
                 fn_conf_counts(count_err_conf_below_thresh()) { }
 
-    kmer_attributes(size_t const kmer_size, mat_t const & matrix) : k(kmer_size), fn_conf_counts(matrix) {}
+    kmer_attributes(size_t const kmer_size, mat_t const & matrix) : k(kmer_size), fn_conf_counts(matrix) { }
 
     /**
      * @brief False negative rate for a parameter set.

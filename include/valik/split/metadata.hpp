@@ -463,6 +463,12 @@ struct metadata
 
             return stdev / mean;
         }
+
+        size_t segment_overlap() const
+        {
+            assert(segments.size() > 1);
+            return segments[0].len - segments[1].start;
+        }
 };
 
 } // namespace valik

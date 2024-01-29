@@ -18,29 +18,6 @@ void valik_split(split_arguments & arguments)
     metadata meta(arguments);
     meta.to_file(arguments.meta_out);
 
-    if (arguments.split_index)
-    {
-        // ==========================================
-        // Search parameter tuning
-        // ==========================================
-        auto space = param_space();
-        std::vector<kmer_attributes> attr_vec;
-        if (!read_fn_confs(attr_vec))
-            precalc_fn_confs(attr_vec);
-
-        std::cout << "db length: " << meta.total_len << "bp\n";
-        std::cout << "min local match length: " << arguments.overlap << "bp\n";
-        std::cout << "Recommended parameters depending on the chosen error rate\n\n";
-        std::cout << "max_error_rate\tkmer_size\tthreshold\tFNR\tFP_per_bin\n";
-        for (size_t errors{1}; errors <= std::round(arguments.overlap * 0.1); errors++)
-        {
-            std::cout.precision(3);
-            std::cout << errors / (double) arguments.overlap  << '\t';   
-            filtering_request request(errors, arguments.overlap, meta.total_len, meta.seg_count);
-            get_best_params(space, request, attr_vec);
-        }
-    }
-
     if (arguments.write_ref)
         write_reference_segments(meta, arguments.meta_out);
     if (arguments.write_query)

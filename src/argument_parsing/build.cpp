@@ -1,7 +1,4 @@
 #include <valik/argument_parsing/build.hpp>
-#include <valik/build/build.hpp>
-
-#include <valik/split/metadata.hpp>
 
 namespace valik::app
 {
@@ -13,33 +10,23 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                                  sharg::config{.description = "File containing one file per line per bin when building from clustered sequences. "
                                                               "Input sequence file when building from overlapping segments.",
                                  .validator = sharg::input_file_validator{}});
-    parser.add_option(arguments.window_size,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "window",
-                      .description = "Choose the window size.",
-                      .validator = positive_integer_validator{}});
-    parser.add_option(arguments.kmer_size,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "kmer",
-                      .description = "Choose the kmer size.",
-                      .validator = sharg::arithmetic_range_validator{1, 32}});
     parser.add_option(arguments.out_path,
                       sharg::config{.short_id = '\0',
                       .long_id = "output",
                       .description = "Provide an output filepath.",
                       .required = true,
                       .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {}}});
+    parser.add_option(arguments.error_rate,
+                      sharg::config{.short_id = 'e',
+                      .long_id = "error-rate",
+                      .description = "Choose the upper bound for the maximum allowed error rate of a local match.",
+                      .validator = sharg::arithmetic_range_validator{0.0f, 0.1f}});
     parser.add_option(arguments.size,
                       sharg::config{.short_id = '\0',
                       .long_id = "size",
                       .description = "Choose the size of the resulting IBF.",
                       .required = true,
                       .validator = size_validator{"\\d+\\s{0,1}[k,m,g,t,K,M,G,T]"}});
-    parser.add_option(arguments.hash,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "hash",
-                      .description = "Choose the number of hashes.",
-                      .validator = sharg::arithmetic_range_validator{1, 5}});
     parser.add_flag(arguments.compressed,
                     sharg::config{.short_id = '\0',
                     .long_id = "compressed",
@@ -60,6 +47,33 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                       sharg::config{.short_id = '\0',
                       .long_id = "fast",
                       .description = "Build the index in fast mode when few false negatives can be tolerated in the following search."});
+    parser.add_flag(arguments.verbose,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "verbose",
+                    .description = "Print verbose output.",
+                    .advanced = true});
+    
+    /////////////////////////////////////////
+    // Advanced options
+    /////////////////////////////////////////
+    parser.add_option(arguments.window_size,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "window",
+                      .description = "Choose the window size.",
+                      .advanced = true,
+                      .validator = positive_integer_validator{}});
+    parser.add_option(arguments.kmer_size,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "kmer",
+                      .description = "Choose the kmer size.",
+                      .advanced = true,
+                      .validator = sharg::arithmetic_range_validator{1, 32}});
+    parser.add_option(arguments.hash,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "hash",
+                      .description = "Choose the number of hashes.",
+                      .advanced = true,
+                      .validator = sharg::arithmetic_range_validator{1, 5}});
 }
 
 void run_build(sharg::parser & parser)
@@ -99,6 +113,33 @@ void run_build(sharg::parser & parser)
         sequence_file_validator(arguments.bin_file);
         std::string bin_string{arguments.bin_file.string()};
         arguments.bin_path.emplace_back(std::vector<std::string>{bin_string});
+
+        if (!parser.is_option_set("kmer") && !parser.is_option_set("window"))
+        {
+            // ==========================================
+            // Search parameter tuning
+            // ==========================================
+            auto space = param_space();
+            std::vector<kmer_attributes> attr_vec;
+            if (!read_fn_confs(attr_vec))
+                precalc_fn_confs(attr_vec);
+
+            size_t errors = meta.segment_overlap() * arguments.error_rate;   
+            filtering_request request(errors, meta.segment_overlap(), meta.total_len, meta.seg_count);
+            auto best_params = get_best_params(space, request, attr_vec);
+
+            std::cout.precision(3);
+            if (arguments.verbose)
+            {
+                std::cout << "db length: " << meta.total_len << "bp\n";
+                std::cout << "min local match length: " << meta.segment_overlap() << "bp\n";
+                std::cout << "max error rate: " << arguments.error_rate << "\n";
+                std::cout << "best kmer size: " << best_params.k << '\n';
+
+                find_thresholds_for_kmer_size(space, meta, attr_vec[best_params.k - std::get<0>(space.kmer_range)], arguments.error_rate);
+            }
+            
+        }
     }
 
     // ==========================================
