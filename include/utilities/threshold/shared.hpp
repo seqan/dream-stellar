@@ -70,21 +70,6 @@ struct param_space
     constexpr static std::pair<size_t, size_t> kmer_range{9, 21};
 };
 
-namespace threshold
-{
-
-struct threshold
-{
-    size_t value;
-
-    size_t get(size_t dummy) const
-    {
-        return value;
-    }
-};
-
-}   // namespace valik::threshold
-
 /**
  * @brief Total number of error configurations. Same as the number of combinations of len take error_count. 
  * 

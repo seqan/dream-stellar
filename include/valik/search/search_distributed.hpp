@@ -129,16 +129,8 @@ bool search_distributed(search_arguments const & arguments, search_time_statisti
     }
 
     auto start = std::chrono::high_resolution_clock::now();
-    if (arguments.manual_threshold)
-    {
-        valik::threshold::threshold const thresholder(arguments.threshold);
-        iterate_distributed_queries(arguments, index.ibf(), thresholder, queue);
-    }
-    else
-    {
-        raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
-        iterate_distributed_queries(arguments, index.ibf(), thresholder, queue);
-    }
+    raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
+    iterate_distributed_queries(arguments, index.ibf(), thresholder, queue);
 
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();

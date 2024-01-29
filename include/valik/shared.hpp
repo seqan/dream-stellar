@@ -96,7 +96,8 @@ struct minimiser_threshold_arguments
     double fpr{0.05};
     uint8_t errors{0};
     size_t pattern_size{};
-    bool treshold_was_set{false};
+    double threshold_percentage{std::numeric_limits<double>::quiet_NaN()};
+    bool threshold_was_set{false};
     bool cache_thresholds{false};
 
     protected:
@@ -124,6 +125,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
     uint8_t shape_size{shape.size()};
     uint8_t shape_weight{shape.count()};
     uint64_t overlap{};
+    size_t threshold{};
 
     uint8_t threads{1u};
 
@@ -149,7 +151,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
             .shape{shape},
             .query_length{pattern_size},
             .errors{errors},
-            .percentage{std::numeric_limits<double>::quiet_NaN()},
+            .percentage{threshold_percentage},
             .p_max{p_max},
             .fpr{fpr},
             .tau{tau},
@@ -159,8 +161,6 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
     }
 
     float error_rate{};
-    size_t threshold{};
-    bool manual_threshold{false};
     std::filesystem::path ref_meta_path{};
     std::filesystem::path query_meta_path{};
     bool distribute{false};

@@ -20,10 +20,10 @@ namespace valik::app
  * @param thresholder Threshold for number of shared k-mers.
  * @param queue Shopping cart queue for load balancing between prefiltering and Stellar search.
  */
-template <typename ibf_t, typename cart_queue_t, typename thresh_t>
+template <typename ibf_t, typename cart_queue_t>
 void iterate_distributed_queries(search_arguments const & arguments,
                                  ibf_t const & ibf,
-                                 thresh_t const & thresholder,
+                                 raptor::threshold::threshold const & thresholder,
                                  cart_queue_t & queue)
 {
     using fields = seqan3::fields<seqan3::field::id, seqan3::field::seq>;
@@ -48,10 +48,10 @@ void iterate_distributed_queries(search_arguments const & arguments,
  * @param thresholder Threshold for number of shared k-mers.
  * @param queue Shopping cart queue for load balancing between Valik prefiltering and Stellar search.
  */
-template <typename ibf_t, typename thresh_t>
+template <typename ibf_t>
 void iterate_short_queries(search_arguments const & arguments,
                         ibf_t const & ibf,
-                        thresh_t const & thresholder,
+                        raptor::threshold::threshold const & thresholder,
                         cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue)
 {
     using TSequence = seqan2::String<seqan2::Dna>;
@@ -110,10 +110,10 @@ void iterate_short_queries(search_arguments const & arguments,
  * @param queue Shopping cart queue for load balancing between Valik prefiltering and Stellar search.
  * @param meta Metadata table for split query segments.
  */
-template <typename ibf_t, typename thresh_t>
+template <typename ibf_t>
 void iterate_split_queries(search_arguments const & arguments,
                         ibf_t const & ibf,
-                        thresh_t const & thresholder,
+                        raptor::threshold::threshold const & thresholder,
                         cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue,
                         metadata & meta)
 {

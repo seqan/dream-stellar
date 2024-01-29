@@ -192,7 +192,6 @@ void run_search(sharg::parser & parser)
     // ==========================================
 
     sharg::input_file_validator{}(arguments.query_file);
-    arguments.treshold_was_set = parser.is_option_set("threshold");
     if (parser.is_option_set("disableThresh") && parser.is_option_set("numMatches"))
     {
         if (arguments.numMatches > arguments.disableThresh)
@@ -218,14 +217,6 @@ void run_search(sharg::parser & parser)
     }
 
     // ==========================================
-    // Process --threshold.
-    // ==========================================
-    if (parser.is_option_set("threshold"))
-    {
-        arguments.manual_threshold = true;  // otherwise use raptor::threshold
-    }
-
-    // ==========================================
     // Process --pattern.
     // ==========================================
     if (parser.is_option_set("pattern"))
@@ -244,6 +235,15 @@ void run_search(sharg::parser & parser)
         {
             arguments.pattern_size = std::ranges::size(seq) / 2;
         }
+    }
+
+    // ==========================================
+    // Process --threshold.
+    // ==========================================
+    if (parser.is_option_set("threshold"))
+    {
+        arguments.threshold_was_set = true;  // use raptor::threshold_kinds::percentage
+        arguments.threshold_percentage = arguments.threshold / (double) (arguments.pattern_size - arguments.shape.size() + 1);
     }
 
     // ==========================================

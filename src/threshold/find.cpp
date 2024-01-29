@@ -65,7 +65,8 @@ void get_best_params(param_space const & space,
     */
      
     std::cout << best_params.k << '\t' <<  best_params.t << '\t' 
-              << fn_rates[best_params.k - std::get<0>(space.kmer_range)][best_params.t - 1] << '\n';
+              << fn_rates[best_params.k - std::get<0>(space.kmer_range)][best_params.t - 1] << '\t'
+              << fp_rates[best_params.k - std::get<0>(space.kmer_range)] << '\n';
 }
 
 }   // namespace valik

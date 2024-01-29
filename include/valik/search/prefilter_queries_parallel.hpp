@@ -21,11 +21,11 @@ namespace valik::app
 /**
  * @brief Create parallel prefiltering jobs.
 */
-template <typename query_t, seqan3::data_layout ibf_data_layout, typename thresh_t>
+template <typename query_t, seqan3::data_layout ibf_data_layout>
 inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
                                        search_arguments const & arguments,
                                        std::vector<query_t> const & records,
-                                       thresh_t const & thresholder,
+                                       raptor::threshold::threshold const & thresholder,
                                        cart_queue<query_t> & queue)
 {
     if (records.empty())

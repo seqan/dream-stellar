@@ -30,8 +30,8 @@ void valik_split(split_arguments & arguments)
 
         std::cout << "db length: " << meta.total_len << "bp\n";
         std::cout << "min local match length: " << arguments.overlap << "bp\n";
-        std::cout << "Recommended parameters for a chosen error rate:\n";
-        std::cout << "max_error_rate\tkmer_size\tthreshold\tFNR\n";
+        std::cout << "Recommended parameters depending on the chosen error rate\n\n";
+        std::cout << "max_error_rate\tkmer_size\tthreshold\tFNR\tFP_per_bin\n";
         for (size_t errors{1}; errors <= std::round(arguments.overlap * 0.1); errors++)
         {
             std::cout.precision(3);

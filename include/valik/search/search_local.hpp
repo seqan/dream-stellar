@@ -323,29 +323,13 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
     auto start = std::chrono::high_resolution_clock::now();
     if constexpr (is_split)
     {
-        if (arguments.manual_threshold)
-        {
-            valik::threshold::threshold const thresholder(arguments.threshold);
-            iterate_split_queries(arguments, index.ibf(), thresholder, queue, *query_meta);
-        }
-        else
-        {
-            raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
-            iterate_split_queries(arguments, index.ibf(), thresholder, queue, *query_meta);
-        }
+        raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
+        iterate_split_queries(arguments, index.ibf(), thresholder, queue, *query_meta);
     }
     else
     {
-        if (arguments.manual_threshold)
-        {
-            valik::threshold::threshold const thresholder(arguments.threshold);
-            iterate_short_queries(arguments, index.ibf(), thresholder, queue);
-        }
-        else
-        {            
-            raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
-            iterate_short_queries(arguments, index.ibf(), thresholder, queue);
-        }
+        raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
+        iterate_short_queries(arguments, index.ibf(), thresholder, queue);
     }
 
     queue.finish(); // Flush carts that are not empty yet
