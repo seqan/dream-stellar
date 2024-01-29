@@ -20,6 +20,14 @@ param_set get_best_params(param_space const & space,
                           std::vector<kmer_attributes> const & attribute_vec);
 
 /**
+ * @brief For a chosen kmer size and error rate find the best threshold. 
+*/
+size_t find_threshold(param_space const & space, 
+                      metadata const & meta,
+                      search_arguments const & arguments,
+                      kmer_attributes const att);
+
+/**
  * @brief For a chosen kmer size and some maximum error rate find the best threshold. 
 */
 void find_thresholds_for_kmer_size(param_space const & space, 

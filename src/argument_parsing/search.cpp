@@ -66,12 +66,6 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "query-meta",
                     .description = "Path to query genome metadata for finding all local alignment between two long sequences.",
                     .validator = sharg::input_file_validator{}});
-    parser.add_option(arguments.threshold,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "threshold",
-                      .description = "If set, this threshold is used instead of the kmer lemma.",
-                      .advanced = true,
-                      .validator = sharg::arithmetic_range_validator{1, 100}});
     parser.add_flag(arguments.distribute,
                     sharg::config{.short_id = '\0',
                     .long_id = "distribute",
@@ -85,6 +79,12 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
     /////////////////////////////////////////
     // Advanced options
     /////////////////////////////////////////
+    parser.add_option(arguments.threshold,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "threshold",
+                      .description = "If set, this threshold is used instead of the kmer lemma or probabilistic minimiser threshold.",
+                      .advanced = true,
+                      .validator = sharg::arithmetic_range_validator{1, 500}});
     parser.add_flag(arguments.cache_thresholds,
                     sharg::config{.short_id = '\0',
                     .long_id = "cache-thresholds",
@@ -216,6 +216,9 @@ void run_search(sharg::parser & parser)
         arguments.bin_path = tmp.bin_path();
     }
 
+    //!TODO: why no kmer length??
+    std::cout << "kmer_length\t" << arguments.shape_size << '\n';
+
     // ==========================================
     // Process --pattern.
     // ==========================================
@@ -238,9 +241,34 @@ void run_search(sharg::parser & parser)
     }
 
     // ==========================================
+    // Parameter deduction
+    // ==========================================
+    //!TODO: the parameter deduction should not necessarily depend on the metadata
+    //       also the metadata is deserialised twice currently
+    if (!arguments.ref_meta_path.empty() && 
+        kmer_lemma_threshold(arguments.pattern_size, (size_t) arguments.shape_size, (size_t) arguments.errors) <= 1)
+    {
+        metadata meta = metadata(arguments.ref_meta_path);
+        std::cout.precision(3);
+        std::cout << "Can not search database with an exact k-mer lemma threshold with parameters\n";
+        std::cout << "min local match length " << arguments.pattern_size << "bp\n";
+        std::cout << "error rate " << arguments.error_rate << "\n";
+        std::cout << "kmer size " << arguments.shape_size << '\n';
+
+        std::cout << "Applying heuristic threshold\n";
+        auto space = param_space();
+        std::vector<kmer_attributes> attr_vec;
+        if (!read_fn_confs(attr_vec))
+            precalc_fn_confs(attr_vec);
+
+        arguments.threshold = find_threshold(space, meta, arguments, attr_vec[arguments.shape_size - std::get<0>(space.kmer_range)]);
+        arguments.threshold_was_set = true;
+    }
+
+    // ==========================================
     // Process --threshold.
     // ==========================================
-    if (parser.is_option_set("threshold"))
+    if (arguments.threshold_was_set || parser.is_option_set("threshold"))
     {
         arguments.threshold_was_set = true;  // use raptor::threshold_kinds::percentage
         arguments.threshold_percentage = arguments.threshold / (double) (arguments.pattern_size - arguments.shape.size() + 1);

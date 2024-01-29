@@ -52,7 +52,41 @@ param_set get_best_params(param_space const & space,
 }
 
 /**
- * @brief For a chosen kmer size and some maximum error rate find the best threshold. 
+ * @brief For a chosen kmer size and error rate find the best threshold. 
+*/
+size_t find_threshold(param_space const & space, 
+                      metadata const & meta,
+                      search_arguments const & arguments,
+                      kmer_attributes const att)
+{
+
+    filtering_request request(arguments.errors, arguments.pattern_size, meta.total_len, meta.seg_count);
+    auto best_params = param_set(arguments.shape_size, space.max_thresh, space);
+    double best_score = arguments.pattern_size;
+    for (size_t t{1}; t <= space.max_thresh; t++)
+    {
+        auto params = param_set(att.k, t, space);
+        auto score = param_score(request, params, att);
+        if (score <= best_score)
+        {
+            best_params = params;
+            best_score = score;
+        }
+    }
+
+    std::cout.precision(3);
+    if (arguments.verbose)
+    {
+        std::cout << "threshold " << best_params.t << '\n';
+        std::cout << "FNR " <<  att.fnr_for_param_set(request, best_params) << '\n';
+        std::cout << "FP_per_bin " << request.fpr(att.k) << '\n';
+    }
+
+    return best_params.t;
+}
+
+/**
+ * @brief For a chosen kmer size and up to some maximum error rate find the best thresholds. 
 */
 void find_thresholds_for_kmer_size(param_space const & space, 
                                   metadata const & meta,
@@ -80,7 +114,7 @@ void find_thresholds_for_kmer_size(param_space const & space,
             {
                 auto params = param_set(att.k, t, space);
                 auto score = param_score(request, params, att);
-                if (score < best_score)
+                if (score <= best_score)
                 {
                     best_params = params;
                     best_score = score;

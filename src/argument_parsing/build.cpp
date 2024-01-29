@@ -117,7 +117,7 @@ void run_build(sharg::parser & parser)
         if (!parser.is_option_set("kmer") && !parser.is_option_set("window"))
         {
             // ==========================================
-            // Search parameter tuning
+            // Parameter deduction
             // ==========================================
             auto space = param_space();
             std::vector<kmer_attributes> attr_vec;
@@ -127,18 +127,18 @@ void run_build(sharg::parser & parser)
             size_t errors = meta.segment_overlap() * arguments.error_rate;   
             filtering_request request(errors, meta.segment_overlap(), meta.total_len, meta.seg_count);
             auto best_params = get_best_params(space, request, attr_vec);
+            arguments.kmer_size = best_params.k;
 
-            std::cout.precision(3);
             if (arguments.verbose)
             {
-                std::cout << "db length: " << meta.total_len << "bp\n";
-                std::cout << "min local match length: " << meta.segment_overlap() << "bp\n";
-                std::cout << "max error rate: " << arguments.error_rate << "\n";
-                std::cout << "best kmer size: " << best_params.k << '\n';
+                std::cout << "Build index for:\n";
+                std::cout << "db length " << meta.total_len << "bp\n";
+                std::cout << "min local match length " << meta.segment_overlap() << "bp\n";
+                std::cout << "max error rate " << arguments.error_rate << "\n";
+                std::cout << "kmer size " << best_params.k << '\n';
 
                 find_thresholds_for_kmer_size(space, meta, attr_vec[best_params.k - std::get<0>(space.kmer_range)], arguments.error_rate);
             }
-            
         }
     }
 

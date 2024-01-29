@@ -60,6 +60,9 @@ float expected_kmer_occurrences(var_t const & bin_size,
 template <typename var_t>
 var_t kmer_lemma_threshold(var_t const l, var_t const k, var_t const e)
 {
+    if ((l - k + 1) <= e*k)
+        return 0;
+    
     return l - k + 1 - e * k;
 }
 
