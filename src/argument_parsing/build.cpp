@@ -135,7 +135,7 @@ void run_build(sharg::parser & parser)
                 std::cout << "db length " << meta.total_len << "bp\n";
                 std::cout << "min local match length " << meta.segment_overlap() << "bp\n";
                 std::cout << "max error rate " << arguments.error_rate << "\n";
-                std::cout << "kmer size " << best_params.k << '\n';
+                std::cout << "kmer size " << std::to_string(arguments.kmer_size) << '\n';
 
                 find_thresholds_for_kmer_size(space, meta, attr_vec[best_params.k - std::get<0>(space.kmer_range)], arguments.error_rate);
             }
@@ -145,10 +145,8 @@ void run_build(sharg::parser & parser)
     // ==========================================
     // Various checks.
     // ==========================================
-    if (parser.is_option_set("kmer")){
-        arguments.shape = seqan3::shape{seqan3::ungapped{arguments.kmer_size}};
-        arguments.shape_weight = arguments.shape.count();
-    }
+    arguments.shape = seqan3::shape{seqan3::ungapped{arguments.kmer_size}};
+    arguments.shape_weight = arguments.shape.count();
 
     if (parser.is_option_set("window"))
     {

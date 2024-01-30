@@ -38,16 +38,16 @@ kmer_attributes deserialize_kmer_attributes(std::string const & kmer_attr_str)
     std::istringstream matrix_str(kmer_attr_str);
     std::string line;
     std::getline(matrix_str, line);
-    size_t k;
+    uint8_t k{0};
     try
     {
-        k = stoi(line.substr(line.find("k=") + 2));
+        k = std::stoi(line.substr(line.find("k=") + 2));
     }
     catch(const std::exception& e)
     {
         std::cerr << e.what() << "\nCan't convert " << line.substr(line.find("k=") + 2)  << "to k-mer size\n";
     }
-        
+    
     std::vector<std::vector<std::vector<uint64_t>>> matrix;
     std::vector<std::vector<uint64_t>> table;
     for (; std::getline(matrix_str, line); )

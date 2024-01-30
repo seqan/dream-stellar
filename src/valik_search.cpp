@@ -12,7 +12,7 @@ void runtime_to_compile_time(func_t const & func, bool b1)
         func.template operator()<false>();
 }
 
-template <typename func_t, typename ...bs_t>
+template <typename func_t, std::same_as<bool> ...bs_t>
 void runtime_to_compile_time(func_t const & func, bool b1, bs_t... bs)
 {
     runtime_to_compile_time([&]<bool...compile_bs>()

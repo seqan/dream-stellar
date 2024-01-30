@@ -48,9 +48,9 @@ val_t factorial(val_t const n)
 */
 template <typename var_t, typename par_t>
 float expected_kmer_occurrences(var_t const & bin_size,
-                               par_t const & kmer_size)
+                                par_t const & kmer_size)
 {
-    constexpr size_t alphabet_size{4};
+    constexpr uint8_t alphabet_size{4};
     return (float) (bin_size - kmer_size + 1) / (float) pow(alphabet_size, kmer_size);
 }
 
@@ -58,7 +58,7 @@ float expected_kmer_occurrences(var_t const & bin_size,
  * @brief K-mer lemma threhold.
 */
 template <typename var_t>
-var_t kmer_lemma_threshold(var_t const l, var_t const k, var_t const e)
+var_t kmer_lemma_threshold(size_t const l, var_t const k, var_t const e)
 {
     if ((l - k + 1) <= e*k)
         return 0;
@@ -76,10 +76,10 @@ var_t kmer_lemma_threshold(var_t const l, var_t const k, var_t const e)
 */
 struct param_space
 {
-    constexpr static size_t max_errors{15};    
-    constexpr static size_t max_thresh{5};
+    constexpr static uint8_t max_errors{15};    
+    constexpr static uint8_t max_thresh{5};
     constexpr static size_t max_len{150};
-    constexpr static std::pair<size_t, size_t> kmer_range{9, 21};
+    constexpr static std::pair<uint8_t, uint8_t> kmer_range{9, 21};
 };
 
 /**
@@ -89,12 +89,12 @@ struct param_space
  * @param len Sequence length.
 */
 template <typename par_t, typename val_t>
-val_t total_err_conf_count(par_t const error_count, par_t const len)
+val_t total_err_conf_count(par_t const error_count, size_t const len)
 {
     if (len >= error_count)
     {
         val_t combinations{1};
-        for (par_t i = len - error_count + 1; i <= len; i++)
+        for (size_t i = len - error_count + 1; i <= len; i++)
             combinations *= i;
         combinations = combinations / factorial(error_count);
         return combinations;   // same as (uint64_t) (factorial(len) / (factorial(len - error_count) * factorial(error_count)));

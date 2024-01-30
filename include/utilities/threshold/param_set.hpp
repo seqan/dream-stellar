@@ -13,20 +13,16 @@ namespace valik
 */
 struct param_set
 {
-    size_t k;
-    size_t t;
+    uint8_t k;
+    uint8_t t;
 
-    param_set(size_t const kmer_size, size_t const thresh, param_space const & space)
+    param_set(uint8_t const kmer_size, uint8_t const thresh, param_space const & space) : k(kmer_size), t(thresh)
     {
         if ((kmer_size < std::get<0>(space.kmer_range)) | (kmer_size > std::get<1>(space.kmer_range)))
             std::cout << "Error: k out of range\n";
-        else
-            k = kmer_size;
         
         if (thresh > space.max_thresh)
             std::cout << "Error: thresh out of range\n";
-        else 
-            t = thresh;
     }
 };
 

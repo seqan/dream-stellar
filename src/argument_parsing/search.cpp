@@ -216,9 +216,6 @@ void run_search(sharg::parser & parser)
         arguments.bin_path = tmp.bin_path();
     }
 
-    //!TODO: why no kmer length??
-    std::cout << "kmer_length\t" << arguments.shape_size << '\n';
-
     // ==========================================
     // Process --pattern.
     // ==========================================
@@ -253,7 +250,7 @@ void run_search(sharg::parser & parser)
         std::cout << "Can not search database with an exact k-mer lemma threshold with parameters\n";
         std::cout << "min local match length " << arguments.pattern_size << "bp\n";
         std::cout << "error rate " << arguments.error_rate << "\n";
-        std::cout << "kmer size " << arguments.shape_size << '\n';
+        std::cout << "kmer size " << std::to_string(arguments.shape_size) << '\n';
 
         std::cout << "Applying heuristic threshold\n";
         auto space = param_space();

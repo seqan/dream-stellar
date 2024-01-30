@@ -30,8 +30,8 @@ param_set get_best_params(param_space const & space,
         auto att = attribute_vec[i];
         std::vector<double> kmer_scores;
         std::vector<double> kmer_fn;
-        size_t k = att.k;
-        for (size_t t = 1; t <= space.max_thresh; t++)
+        uint8_t k = att.k;
+        for (uint8_t t = 1; t <= space.max_thresh; t++)
         {
             param_set params(k, t, param_space());
             auto score = param_score(request, params, att);
@@ -54,16 +54,16 @@ param_set get_best_params(param_space const & space,
 /**
  * @brief For a chosen kmer size and error rate find the best threshold. 
 */
-size_t find_threshold(param_space const & space, 
-                      metadata const & meta,
-                      search_arguments const & arguments,
-                      kmer_attributes const att)
+uint8_t find_threshold(param_space const & space, 
+                       metadata const & meta,
+                       search_arguments const & arguments,
+                       kmer_attributes const att)
 {
 
     filtering_request request(arguments.errors, arguments.pattern_size, meta.total_len, meta.seg_count);
     auto best_params = param_set(arguments.shape_size, space.max_thresh, space);
     double best_score = arguments.pattern_size;
-    for (size_t t{1}; t <= space.max_thresh; t++)
+    for (uint8_t t{1}; t <= space.max_thresh; t++)
     {
         auto params = param_set(att.k, t, space);
         auto score = param_score(request, params, att);
@@ -77,7 +77,7 @@ size_t find_threshold(param_space const & space,
     std::cout.precision(3);
     if (arguments.verbose)
     {
-        std::cout << "threshold " << best_params.t << '\n';
+        std::cout << "threshold " << std::to_string(best_params.t) << '\n';
         std::cout << "FNR " <<  att.fnr_for_param_set(request, best_params) << '\n';
         std::cout << "FP_per_bin " << request.fpr(att.k) << '\n';
     }
@@ -94,23 +94,23 @@ void find_thresholds_for_kmer_size(param_space const & space,
                                   double const max_err)
 {
     std::cout.precision(3);
-    std::cout << "Recommended shared " << att.k << "-mer thresholds for different error rates\n";
+    std::cout << "Recommended shared " << std::to_string(att.k) << "-mer thresholds for different error rates\n";
     std::cout << "error_rate\tthreshold_kind\tthreshold\tFNR\tFP_per_bin\n";
 
     auto best_params = param_set(att.k, space.max_thresh, space);
-    for (size_t errors{1}; errors < (meta.segment_overlap() * max_err); errors++)
+    for (uint8_t errors{1}; errors < (meta.segment_overlap() * max_err); errors++)
     {
         filtering_request request(errors, meta.segment_overlap(), meta.total_len, meta.seg_count);
         std::cout << errors / (double) request.l << '\t';
         if (att.fnr_for_param_set(request, best_params) == 0)
         {
-            std::cout << "kmer lemma\t" << kmer_lemma_threshold(request.l, att.k, errors) << '\t' << 0;
+            std::cout << "kmer lemma\t" << std::to_string(kmer_lemma_threshold(request.l, att.k, errors)) << '\t' << 0;
         }
         else
         {
             std::cout << "heuristic\t";
             double best_score = request.l;
-            for (size_t t{1}; t <= space.max_thresh; t++)
+            for (uint8_t t{1}; t <= space.max_thresh; t++)
             {
                 auto params = param_set(att.k, t, space);
                 auto score = param_score(request, params, att);
@@ -120,7 +120,7 @@ void find_thresholds_for_kmer_size(param_space const & space,
                     best_score = score;
                 }
             }
-            std::cout << best_params.t << '\t' << att.fnr_for_param_set(request, best_params);
+            std::cout << std::to_string(best_params.t) << '\t' << att.fnr_for_param_set(request, best_params);
         }
 
         std::cout << '\t' << request.fpr(att.k) << '\n';

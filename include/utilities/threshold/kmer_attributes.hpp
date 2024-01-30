@@ -18,7 +18,7 @@ struct kmer_attributes
     using table_t = std::vector<row_t>;
     using mat_t = std::vector<table_t>;
     
-    const size_t k;
+    const uint8_t k;
     const mat_t fn_conf_counts;  // false negative configuration counts
 
     /**
@@ -29,10 +29,10 @@ struct kmer_attributes
     {
         auto space = param_space();
         mat_t matrix;
-        for (size_t t = 1; t <= space.max_thresh; t++)
+        for (uint8_t t = 1; t <= space.max_thresh; t++)
         {
             table_t table;
-            for (size_t e = 0; e <= space.max_errors; e++)
+            for (uint8_t e = 0; e <= space.max_errors; e++)
             {
                 row_t row;
                 for(size_t l = 0; l <= space.max_len; l++)
@@ -49,7 +49,7 @@ struct kmer_attributes
                         size_t band = l - k - t;
                         row.back() -= table.back()[band + t - 1];
 
-                        for (size_t i = 1; i < t; i++)
+                        for (uint8_t i = 1; i < t; i++)
                         {
                             row.back() -= matrix[matrix.size() - i][e - 1][band + t - i - 1];
                             row.back() += matrix[matrix.size() - i][e - 1][band + t - i];
@@ -63,11 +63,11 @@ struct kmer_attributes
         return matrix;
     }
 
-    kmer_attributes(size_t const kmer_size) : 
-                k(kmer_size), 
-                fn_conf_counts(count_err_conf_below_thresh()) { }
+    kmer_attributes(uint8_t const kmer_size) : 
+                    k(kmer_size), 
+                    fn_conf_counts(count_err_conf_below_thresh()) { }
 
-    kmer_attributes(size_t const kmer_size, mat_t const & matrix) : k(kmer_size), fn_conf_counts(matrix) { }
+    kmer_attributes(uint8_t const kmer_size, mat_t const & matrix) : k(kmer_size), fn_conf_counts(matrix) { }
 
     /**
      * @brief False negative rate for a parameter set.

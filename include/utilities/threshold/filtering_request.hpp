@@ -15,12 +15,12 @@ namespace valik
 */
 struct filtering_request
 {
-    size_t e;
+    uint8_t e;
     size_t l;
     uint64_t const s;
     size_t const b;
 
-    filtering_request(size_t const errors, size_t const min_len,  
+    filtering_request(uint8_t const errors, size_t const min_len,  
                       uint64_t const ref_size, 
                       size_t const bins) : s(ref_size), b(bins) 
     {
@@ -48,7 +48,7 @@ struct filtering_request
     /**
      * @brief Expected number of spuriously matching k-mers in a bin.
     */
-    double fpr(size_t const & kmer_size) const
+    double fpr(uint8_t const & kmer_size) const
     {
         return expected_kmer_occurrences(std::round(s / (float) b), kmer_size);
     }
