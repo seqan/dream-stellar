@@ -3,6 +3,27 @@
 namespace valik::app
 {
 
+template <typename func_t>
+void runtime_to_compile_time(func_t const & func, bool b1)
+{
+    if (b1) 
+        func.template operator()<true>();
+    else
+        func.template operator()<false>();
+}
+
+template <typename func_t, typename ...bs_t>
+void runtime_to_compile_time(func_t const & func, bool b1, bs_t... bs)
+{
+    runtime_to_compile_time([&]<bool...compile_bs>()
+    {
+        if (b1)
+            func.template operator()<true, compile_bs...>();
+        else
+            func.template operator()<false, compile_bs...>();
+    }, bs...);
+}
+
 /**
  * @brief Function that loads the index and launches local or distributed search.
  *
@@ -17,40 +38,18 @@ void valik_search(search_arguments const & arguments)
     bool failed;
     if (arguments.distribute)
     {
-        if (arguments.compressed)
+        runtime_to_compile_time([&]<bool is_compressed>()
         {
-            failed = search_distributed<true>(arguments, time_statistics);
-        }
-        else
-        {
-            failed = search_distributed<false>(arguments, time_statistics);
-        }
+            failed = search_distributed<is_compressed>(arguments, time_statistics);
+        }, arguments.compressed);
     }
     // Shared memory execution
     else
     {
-        if (arguments.compressed)
+        runtime_to_compile_time([&]<bool is_compressed, bool is_split>()
         {
-            if (arguments.query_meta_path.empty())
-            {
-                failed = search_local<true, false>(arguments, time_statistics);
-            }
-            else // Split long query sequences
-            {
-                failed = search_local<true, true>(arguments, time_statistics);
-            }
-        }
-        else
-        {
-            if (arguments.query_meta_path.empty())
-            {
-                failed = search_local<false, false>(arguments, time_statistics);
-            }
-            else // Split long query sequences
-            {
-                failed = search_local<false, true>(arguments, time_statistics);
-            }
-        }
+            failed = search_local<is_compressed, is_split>(arguments, time_statistics);
+        }, arguments.compressed, arguments.query_meta_path.empty());
     }
 
     // Consolidate matches (not necessary when searching a metagenomic database)
