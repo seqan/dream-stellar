@@ -39,7 +39,7 @@ struct kmer_attributes
                 {       
                     int shared_base_count = l - e;
                     if ((int) (k + t) - 1 > shared_base_count) // all error distributions destroy enough k-mers
-                        row.push_back(total_err_conf_count<size_t, uint64_t>(e, l));
+                        row.push_back(combinations<size_t, uint64_t>(e, l));
                     else if (e == 0)
                         row.push_back(0);
                     else

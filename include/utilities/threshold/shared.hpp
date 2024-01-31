@@ -83,21 +83,20 @@ struct param_space
 };
 
 /**
- * @brief Total number of error configurations. Same as the number of combinations of len take error_count. 
+ * @brief Number of combinations of n take k.
  * 
- * @param error_count Number of errors.
- * @param len Sequence length.
+ * Same as the number of different error configurations if n=sequence length and k=error_count. 
 */
 template <typename par_t, typename val_t>
-val_t total_err_conf_count(par_t const error_count, size_t const len)
+val_t combinations(par_t const k, size_t const n)
 {
-    if (len >= error_count)
+    if (n >= k)
     {
         val_t combinations{1};
-        for (size_t i = len - error_count + 1; i <= len; i++)
+        for (size_t i = n - k + 1; i <= n; i++)
             combinations *= i;
-        combinations = combinations / factorial(error_count);
-        return combinations;   // same as (uint64_t) (factorial(len) / (factorial(len - error_count) * factorial(error_count)));
+        combinations = combinations / factorial(k);
+        return combinations;   // same as (uint64_t) (factorial(n) / (factorial(n - k) * factorial(k)));
     }
     else
         return (val_t) 0;

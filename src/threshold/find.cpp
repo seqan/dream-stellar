@@ -8,7 +8,7 @@ namespace valik
 */
 double param_score(filtering_request const & request, param_set const & params, kmer_attributes const & attr)
 {
-    return attr.fnr_for_param_set(request, params) + request.fpr(params.k) / (double) params.t;
+    return attr.fnr_for_param_set(request, params) + request.fpr(params);
 }
 
 param_set get_best_params(param_space const & space, 
@@ -20,16 +20,17 @@ param_set get_best_params(param_space const & space,
 
     std::vector<std::vector<double>> scores;
     std::vector<std::vector<double>> fn_rates;
-    std::vector<double> fp_rates;
+    std::vector<std::vector<double>> fp_rates;
     scores.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
     fn_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
-    fp_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
+    fp_rates.reserve(space.max_thresh);
 
     for (size_t i{0}; i < attribute_vec.size(); i++)
     {
         auto att = attribute_vec[i];
         std::vector<double> kmer_scores;
         std::vector<double> kmer_fn;
+        std::vector<double> kmer_fp;
         uint8_t k = att.k;
         for (uint8_t t = 1; t <= space.max_thresh; t++)
         {
@@ -37,6 +38,7 @@ param_set get_best_params(param_space const & space,
             auto score = param_score(request, params, att);
             kmer_scores.push_back(score);
             kmer_fn.push_back(att.fnr_for_param_set(request, params));
+            kmer_fp.push_back(request.fpr(params));
             if (score < best_score)
             {
                 best_score = score;
@@ -45,7 +47,7 @@ param_set get_best_params(param_space const & space,
         }
         scores.push_back(kmer_scores);
         fn_rates.push_back(kmer_fn);
-        fp_rates.push_back(request.fpr(att.k));
+        fp_rates.push_back(kmer_fp);
     }
 
     return best_params;
@@ -79,7 +81,7 @@ uint8_t find_threshold(param_space const & space,
     {
         std::cout << "threshold " << std::to_string(best_params.t) << '\n';
         std::cout << "FNR " <<  att.fnr_for_param_set(request, best_params) << '\n';
-        std::cout << "FP_per_bin " << request.fpr(att.k) << '\n';
+        std::cout << "FP_per_bin " << request.fpr(best_params) << '\n';
     }
 
     return best_params.t;
@@ -123,7 +125,7 @@ void find_thresholds_for_kmer_size(param_space const & space,
             std::cout << std::to_string(best_params.t) << '\t' << att.fnr_for_param_set(request, best_params);
         }
 
-        std::cout << '\t' << request.fpr(att.k) << '\n';
+        std::cout << '\t' << request.fpr(best_params) << '\n';
     }
 }
 

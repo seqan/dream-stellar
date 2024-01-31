@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utilities/threshold/shared.hpp>
+#include <utilities/threshold/param_set.hpp>
 
 namespace valik
 {
@@ -22,19 +23,15 @@ struct filtering_request
 
     filtering_request(uint8_t const errors, size_t const min_len,  
                       uint64_t const ref_size, 
-                      size_t const bins) : s(ref_size), b(bins) 
+                      size_t const bins) : e(errors), l(min_len), s(ref_size), b(bins)
     {
         auto space = param_space();
         //!TODO: error handling
         if (errors > space.max_errors)
             std::cout << "Error: error count out of range\n";
-        else 
-            e = errors;
         
         if (min_len > space.max_len)
             std::cout << "Error: min len out of range\n";
-        else
-            l = min_len;        
     }
 
     /**
@@ -42,15 +39,32 @@ struct filtering_request
     */
     uint64_t total_conf_count() const
     {
-        return total_err_conf_count<size_t, uint64_t>(e, l);
+        return combinations<size_t, uint64_t>(e, l);
     }
 
     /**
      * @brief Expected number of spuriously matching k-mers in a bin.
     */
-    double fpr(uint8_t const & kmer_size) const
+    double spurious_matches(uint8_t const kmer_size) const
     {
-        return expected_kmer_occurrences(std::round(s / (float) b), kmer_size);
+        return std::min(1.0f, expected_kmer_occurrences(std::round(s / (float) b), kmer_size));
+    }
+
+    /**
+     * @brief The probability of at least threshold k-mers matching spuriously.
+    */
+    double fpr(param_set const & params) const
+    {
+        double fpr{1};
+        double p = spurious_matches(params.k);
+        //std::cout << "Calc fpr\n";
+        for (uint8_t matching_kmer_count{1}; matching_kmer_count < params.t; matching_kmer_count++)
+        {
+          //  std::cout << fpr << '\n';
+            fpr -= combinations<uint8_t, uint64_t>(matching_kmer_count, l) * pow(p, matching_kmer_count) * pow(1 - p, l - matching_kmer_count); 
+        }
+
+        return fpr;
     }
 };
 
