@@ -62,8 +62,14 @@ struct split_arguments
     uint32_t seg_count{64};
     uint32_t seg_count_in{64};
     bool split_index{false};
-    bool write_ref{false};
-    bool write_query{false};
+    float error_rate{0.05};
+    uint8_t errors{0};
+    size_t pattern_size{100};
+    uint8_t kmer_size{20};
+    size_t threshold{};
+    std::filesystem::path ref_meta_path{};
+    bool write_out{false};
+    bool verbose{false};
 };
 
 struct build_arguments
@@ -77,7 +83,6 @@ struct build_arguments
     std::vector<std::vector<std::string>> bin_path{};
     std::filesystem::path bin_file{};
     std::filesystem::path out_path{"./"};
-    float error_rate{0.05};
     std::string size{};
     uint64_t bins{64};
     uint64_t bits{4096};

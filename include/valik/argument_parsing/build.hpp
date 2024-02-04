@@ -3,8 +3,6 @@
 #include <valik/argument_parsing/shared.hpp>
 #include <valik/build/build.hpp>
 #include <valik/split/metadata.hpp>
-#include <utilities/threshold/io.hpp>
-#include <utilities/threshold/find.hpp>
 
 namespace valik::app
 {

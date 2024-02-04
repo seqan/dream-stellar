@@ -49,7 +49,7 @@ void valik_search(search_arguments const & arguments)
         runtime_to_compile_time([&]<bool is_compressed, bool is_split>()
         {
             failed = search_local<is_compressed, is_split>(arguments, time_statistics);
-        }, arguments.compressed, arguments.query_meta_path.empty());
+        }, arguments.compressed, !arguments.query_meta_path.empty());
     }
 
     // Consolidate matches (not necessary when searching a metagenomic database)

@@ -23,8 +23,9 @@ param_set get_best_params(param_space const & space,
  * @brief For a chosen kmer size and error rate find the best threshold. 
 */
 uint8_t find_threshold(param_space const & space, 
-                      metadata const & meta,
-                      search_arguments const & arguments,
+                      metadata const & ref_meta,
+                      metadata const & query_meta,
+                      split_arguments const & arguments,
                       kmer_attributes const att);
 
 /**

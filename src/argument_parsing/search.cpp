@@ -240,25 +240,10 @@ void run_search(sharg::parser & parser)
     // ==========================================
     // Parameter deduction
     // ==========================================
-    //!TODO: the parameter deduction should not necessarily depend on the metadata
-    //       also the metadata is deserialised twice currently
-    if (!arguments.ref_meta_path.empty() && 
-        kmer_lemma_threshold(arguments.pattern_size, (size_t) arguments.shape_size, (size_t) arguments.errors) <= 1)
+    if (kmer_lemma_threshold(arguments.pattern_size, (size_t) arguments.shape_size, (size_t) arguments.errors) <= 1)
     {
-        metadata meta = metadata(arguments.ref_meta_path);
-        std::cout.precision(3);
-        std::cout << "Can not search database with an exact k-mer lemma threshold with parameters\n";
-        std::cout << "min local match length " << arguments.pattern_size << "bp\n";
-        std::cout << "error rate " << arguments.error_rate << "\n";
-        std::cout << "kmer size " << std::to_string(arguments.shape_size) << '\n';
-
-        std::cout << "Applying heuristic threshold\n";
-        auto space = param_space();
-        std::vector<kmer_attributes> attr_vec;
-        if (!read_fn_confs(attr_vec))
-            precalc_fn_confs(attr_vec);
-
-        arguments.threshold = find_threshold(space, meta, arguments, attr_vec[arguments.shape_size - std::get<0>(space.kmer_range)]);
+        //!TODO: read in parameter metadata file
+        arguments.threshold = 2;
         arguments.threshold_was_set = true;
     }
 

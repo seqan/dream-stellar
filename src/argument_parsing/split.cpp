@@ -22,6 +22,11 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       .long_id = "overlap",
                       .description = "Choose how much consecutive segments overlap.",
                       .validator = positive_integer_validator{true}});
+    parser.add_option(arguments.error_rate,
+                      sharg::config{.short_id = 'e',
+                      .long_id = "error-rate",
+                      .description = "Choose the upper bound for the maximum allowed error rate of a local match.",
+                      .validator = sharg::arithmetic_range_validator{0.0f, 0.1f}});
     parser.add_option(arguments.seg_count_in,
                       sharg::config{.short_id = 'n',
                       .long_id = "seg-count",
@@ -31,15 +36,20 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       sharg::config{.short_id = '\0',
                       .long_id = "split-index",
                       .description = "Adjust the suggested segment count to create a multiple of 64 segments instead. This is suitable for building an IBF."});
-    parser.add_flag(arguments.write_ref,
+    parser.add_option(arguments.ref_meta_path,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "ref-meta",
+                    .description = "Path to reference metadata file created by split.",
+                    .validator = sharg::input_file_validator{}});
+    parser.add_flag(arguments.write_out,
                       sharg::config{.short_id = '\0',
                       .long_id = "write-ref",
-                      .description = "Write an output FASTA file for each segment.",
+                      .description = "Write an output FASTA file for each reference segment or write all query segments into a single output FASTA file..",
                       .advanced = true});
-    parser.add_flag(arguments.write_query,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "write-query",
-                      .description = "Write segments into a single output FASTA file.",
+    parser.add_flag(arguments.verbose,
+                      sharg::config{.short_id = 'v',
+                      .long_id = "verbose",
+                      .description = "Print verbose output.",
                       .advanced = true});
 
 }
@@ -49,6 +59,17 @@ void run_split(sharg::parser & parser)
     split_arguments arguments{};
     init_split_parser(parser, arguments);
     try_parsing(parser);
+
+    arguments.errors = std::ceil(arguments.error_rate * arguments.pattern_size);
+
+    if (!parser.is_option_set("out"))
+    {
+        arguments.meta_out = arguments.seq_file;
+        arguments.meta_out.replace_extension("meta");
+    }
+
+    if (!arguments.split_index && !parser.is_option_set("ref-meta-path"))
+        throw sharg::parser_error{"Need to provide path to reference metadata to process a query database."};
 
     // ==========================================
     // Dispatch

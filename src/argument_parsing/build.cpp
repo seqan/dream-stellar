@@ -16,11 +16,6 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                       .description = "Provide an output filepath.",
                       .required = true,
                       .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {}}});
-    parser.add_option(arguments.error_rate,
-                      sharg::config{.short_id = 'e',
-                      .long_id = "error-rate",
-                      .description = "Choose the upper bound for the maximum allowed error rate of a local match.",
-                      .validator = sharg::arithmetic_range_validator{0.0f, 0.1f}});
     parser.add_option(arguments.size,
                       sharg::config{.short_id = '\0',
                       .long_id = "size",
@@ -116,29 +111,9 @@ void run_build(sharg::parser & parser)
 
         if (!parser.is_option_set("kmer") && !parser.is_option_set("window"))
         {
-            // ==========================================
-            // Parameter deduction
-            // ==========================================
-            auto space = param_space();
-            std::vector<kmer_attributes> attr_vec;
-            if (!read_fn_confs(attr_vec))
-                precalc_fn_confs(attr_vec);
-
-            size_t errors = meta.segment_overlap() * arguments.error_rate;   
-            filtering_request request(errors, meta.segment_overlap(), meta.total_len, meta.seg_count);
-            auto best_params = get_best_params(space, request, attr_vec);
-            arguments.kmer_size = best_params.k;
-
-            if (arguments.verbose)
-            {
-                std::cout << "Build index for:\n";
-                std::cout << "db length " << meta.total_len << "bp\n";
-                std::cout << "min local match length " << meta.segment_overlap() << "bp\n";
-                std::cout << "max error rate " << arguments.error_rate << "\n";
-                std::cout << "kmer size " << std::to_string(arguments.kmer_size) << '\n';
-
-                find_thresholds_for_kmer_size(space, meta, attr_vec[best_params.k - std::get<0>(space.kmer_range)], arguments.error_rate);
-            }
+            //!TODO: read in parameter metadata file
+            arguments.kmer_size = 12;
+            arguments.window_size = 12;
         }
     }
 
