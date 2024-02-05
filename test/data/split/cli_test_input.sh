@@ -37,7 +37,8 @@ echo "Generating $read_count reads of length $read_length with error rate $error
 read_dir=reads_$read_length
 mkdir -p $read_dir
 generate_local_matches \
-    --output $read_dir \
+    --matches-out single_query.fasta \
+    --genome-out genome.fasta \
     --max-error-rate $error_rate \
     --num-matches $read_count \
     --min-match-length $read_length \
@@ -46,6 +47,3 @@ generate_local_matches \
     --ref-len $ref_len \
     --seed $SEED \
     $ref_out
-
-mv $read_dir/single_reference.fastq single_query.fq
-rm -r $read_dir

@@ -12,13 +12,13 @@ mkdir -p $VALIK_TMP
 #----------- Split multiple sequences of various lengths -----------
 
 seg_input="various_chromosome_lengths.fasta"
-for o in 0 20
+for p in 20
 do
     for b in 4 16
     do
-        echo "Splitting the genome into $b segments that overlap by $o"
-        seg_meta="multi/"$o"overlap"$b"bins.txt"
-        valik split "$seg_input" --overlap "$o" --seg-count "$b" --out "$seg_meta"
+        echo "Splitting the genome into $b segments that overlap by $p"
+        seg_meta="multi/"$p"overlap"$b"bins.txt"
+        valik split "$seg_input" --pattern "$p" --seg-count "$b" --out "$seg_meta" --without-parameter-tuning
     done
 done
 
@@ -39,13 +39,13 @@ tau=0.75
 p_max=0.25
 
 ref_input="single_reference.fasta"
-query="single_query.fq"
+query="single_query.fasta"
 for b in 4 16
 do
     echo "Splitting the genome into $b segments that overlap by $seg_overlap"
     seg_meta="single/"$seg_overlap"overlap"$b"bins.txt"
 
-    valik split "$ref_input" --overlap "$seg_overlap" --seg-count "$b" --out "$seg_meta"
+    valik split "$ref_input" --pattern "$seg_overlap" --seg-count "$b" --out "$seg_meta" --without-parameter-tuning
 
     for w in 13 15
     do
@@ -61,4 +61,4 @@ do
     done
 done
 
-rm -r $VALIK_TMP
+rm -r $VALIK_TMP stellar.disabled.fasta

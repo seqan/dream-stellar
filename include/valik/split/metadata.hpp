@@ -275,10 +275,10 @@ struct metadata
         void scan_database_sequences(split_arguments const & arguments)
         {
             default_seg_len = total_len / arguments.seg_count + 1;
-            if (default_seg_len <= arguments.overlap)
+            if (default_seg_len <= arguments.pattern_size)
             {
                 throw std::runtime_error("Segments of length " + std::to_string(default_seg_len) + "bp can not overlap by " +
-                                         std::to_string(arguments.overlap) + "bp.\nDecrease the overlap or the number of segments.");
+                                         std::to_string(arguments.pattern_size) + "bp.\nDecrease the overlap or the number of segments.");
             }
 
             size_t len_lower_bound = default_seg_len / 10;
@@ -298,9 +298,9 @@ struct metadata
             }
 
             if (arguments.split_index)
-                make_exactly_n_segments(arguments.seg_count, arguments.overlap, first_long_seq);
+                make_exactly_n_segments(arguments.seg_count, arguments.pattern_size, first_long_seq);
             else
-                make_equal_length_segments(arguments.seg_count, arguments.overlap, first_long_seq);
+                make_equal_length_segments(arguments.seg_count, arguments.pattern_size, first_long_seq);
 
             std::stable_sort(sequences.begin(), sequences.end(), fasta_order());
             std::stable_sort(segments.begin(), segments.end(), fasta_order());

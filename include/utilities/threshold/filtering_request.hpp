@@ -93,7 +93,7 @@ struct filtering_request
     /**
      * @brief An approximation of the probability of a query segment having a spurious match in a reference bin. 
     */
-    double fpr(param_set const & params, uint64_t const & query_seg_len, uint64_t const & overlap) const
+    double fpr(param_set const & params, uint64_t const & query_seg_len) const
     {
         double pattern_p = pattern_spurious_match_prob(params);
         /*
@@ -101,7 +101,8 @@ struct filtering_request
         double independent_patterns_p = std::min(1.0, pattern_p * independent_patterns_per_segment);
         std::cout << "independent_patterns_p\t" << independent_patterns_p << '\n';
         */
-        uint64_t total_patterns_per_segment = std::round((query_seg_len - l + 1) / (double) (l - overlap));
+        constexpr uint8_t query_every = 2; // query every 2nd pattern by default
+        uint64_t total_patterns_per_segment = std::round((query_seg_len - l + 1) / (double) query_every);
         double total_patterns_p = std::min(1.0, pattern_p * total_patterns_per_segment);
         std::cout << "total_patterns_p\t" << total_patterns_p << '\n';
         return total_patterns_p;

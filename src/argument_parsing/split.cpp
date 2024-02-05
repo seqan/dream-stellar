@@ -17,10 +17,10 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       .long_id = "out",
                       .description = "Please provide a valid path to the database metadata output.",
                       .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create}});
-    parser.add_option(arguments.overlap,
+    parser.add_option(arguments.pattern_size,
                       sharg::config{.short_id = '\0',
-                      .long_id = "overlap",
-                      .description = "Choose how much consecutive segments overlap.",
+                      .long_id = "pattern",
+                      .description = "Choose how much consecutive segments overlap. This is the minimum length of a local alignment.",
                       .validator = positive_integer_validator{true}});
     parser.add_option(arguments.error_rate,
                       sharg::config{.short_id = 'e',
@@ -46,6 +46,11 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       .long_id = "write-ref",
                       .description = "Write an output FASTA file for each reference segment or write all query segments into a single output FASTA file..",
                       .advanced = true});
+    parser.add_flag(arguments.only_split,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "without-parameter-tuning",
+                      .description = "Preprocess database without setting default parameters.",
+                      .advanced = true});                      
     parser.add_flag(arguments.verbose,
                       sharg::config{.short_id = 'v',
                       .long_id = "verbose",
@@ -68,7 +73,7 @@ void run_split(sharg::parser & parser)
         arguments.meta_out.replace_extension("meta");
     }
 
-    if (!arguments.split_index && !parser.is_option_set("ref-meta-path"))
+    if (!arguments.split_index && !arguments.only_split && !parser.is_option_set("ref-meta"))
         throw sharg::parser_error{"Need to provide path to reference metadata to process a query database."};
 
     // ==========================================

@@ -58,17 +58,17 @@ struct split_arguments
     std::filesystem::path seq_file{};
     std::filesystem::path meta_out{"metadata.txt"};
 
-    size_t overlap{150};
+    size_t pattern_size{150};
     uint32_t seg_count{64};
     uint32_t seg_count_in{64};
     bool split_index{false};
     float error_rate{0.05};
     uint8_t errors{0};
-    size_t pattern_size{100};
     uint8_t kmer_size{20};
     size_t threshold{};
     std::filesystem::path ref_meta_path{};
     bool write_out{false};
+    bool only_split{false};
     bool verbose{false};
 };
 

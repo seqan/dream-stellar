@@ -32,24 +32,31 @@ param_set get_best_params(param_space const & space,
         std::vector<double> kmer_fn;
         std::vector<double> kmer_fp;
         uint8_t k = att.k;
-        for (uint8_t t = 1; t <= space.max_thresh; t++)
+        if (k > request.l)
+            break;
+        else
         {
-            param_set params(k, t, param_space());
-            auto score = param_score(request, params, att);
-            kmer_scores.push_back(score);
-            kmer_fn.push_back(att.fnr_for_param_set(request, params));
-            kmer_fp.push_back(request.pattern_spurious_match_prob(params));
-            if (score < best_score)
+            for (uint8_t t = 1; t <= space.max_thresh; t++)
             {
-                best_score = score;
-                best_params = params;
+                param_set params(k, t, param_space());
+                auto score = param_score(request, params, att);
+                std::cout << std::to_string(k) << '\t' << std::to_string(t) << '\t' << score << '\n';
+                kmer_scores.push_back(score);
+                kmer_fn.push_back(att.fnr_for_param_set(request, params));
+                kmer_fp.push_back(request.pattern_spurious_match_prob(params));
+                if (score <= best_score)
+                {
+                    best_score = score;
+                    best_params = params;
+                }
             }
+            scores.push_back(kmer_scores);
+            fn_rates.push_back(kmer_fn);
+            fp_rates.push_back(kmer_fp);
         }
-        scores.push_back(kmer_scores);
-        fn_rates.push_back(kmer_fn);
-        fp_rates.push_back(kmer_fp);
     }
 
+    /*
     std::cout << '\t';
     for (size_t i{1}; i <= space.max_thresh; i++)
         std::cout << i << '\t';
@@ -75,6 +82,7 @@ param_set get_best_params(param_space const & space,
             std::cout << cell << '\t';
         std::cout << '\n';
     }
+    */
 
     return best_params;
 }
@@ -151,7 +159,7 @@ uint8_t find_threshold(param_space const & space,
         std::cout << "threshold " << std::to_string(best_params.t) << '\n';
         std::cout << "FNR " <<  att.fnr_for_param_set(request, best_params) << '\n';
         std::cout << "segment len " << std::to_string(std::round(query_meta.total_len / (double) query_meta.seg_count)) << '\n';
-        std::cout << "FPR " << request.fpr(best_params, std::round(query_meta.total_len / (double) query_meta.seg_count), arguments.overlap) << '\n';
+        std::cout << "FPR " << request.fpr(best_params, std::round(query_meta.total_len / (double) query_meta.seg_count)) << '\n';
     }
 
     return best_params.t;

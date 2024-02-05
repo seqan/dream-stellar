@@ -83,7 +83,7 @@ struct kmer_attributes
     template <typename str_t>
     void serialize(str_t & outstr)
     {
-        outstr << "k=" << k << '\n'; 
+        outstr << "k=" << std::to_string(k) << '\n'; 
         size_t t = 1;
         for (auto threshold_table : fn_conf_counts)
         {   

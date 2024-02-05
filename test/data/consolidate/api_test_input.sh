@@ -34,7 +34,8 @@ do
     #----------- Sample reads from reference sequence -----------
     echo "Generating $read_count reads of length $read_length with error rate $error_rate"
     generate_local_matches \
-        --output $read_dir \
+        --matches-out $read_dir/chr$i.fasta \
+        --genome-out $read_dir/genome.fasta \
         --max-error-rate $error_rate \
         --num-matches $read_count \
         --min-match-length $read_length \
@@ -44,7 +45,7 @@ do
         --seed $SEED \
         $chr_out
     
-    sed -i "s/@.*/&_$i/" $read_dir/chr$i.fastq
+    sed -i "s/>.*/&_$i/" $read_dir/chr$i.fasta
     let i=i+1
 done
 
@@ -56,16 +57,16 @@ rm chr$(expr $i - 1).fasta
 
 cat chr*.fasta > $ref_file
 rm chr*.fasta
-cat $read_dir/chr*.fastq > query_tmp.fastq
+cat $read_dir/chr*.fasta > query_tmp.fasta
+awk '/^>/ { if(NR>1) print "";  printf("%s\n",$0); next; } { printf("%s",$0);}  END {printf("\n");}' < query_tmp.fasta > $query_file
 rm -r $read_dir
-sed -n '1~4s/^@/>/p;2~4p' query_tmp.fastq > $query_file
-rm query_tmp.fastq
+rm query_tmp.fasta
 
 min_len=50
 
 for bin in 8 16
 do
-        valik split $ref_file --out ${bin}bins${min_len}overlap_reference_metadata.tsv --seg-count $bin --overlap $min_len
+        valik split $ref_file --out ${bin}bins${min_len}overlap_reference_metadata.tsv --seg-count $bin --pattern $min_len --without-parameter-tuning
 
         tail -n $((bin + 1)) ${bin}bins${min_len}overlap_reference_metadata.tsv | head -n $bin > segments.tsv
         while read -r bin_id id start len;

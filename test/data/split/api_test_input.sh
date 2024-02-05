@@ -20,13 +20,13 @@ done
 cat chr*.fasta > database.fasta
 rm chr*.fasta
 
-for overlap in 0 20
+for pattern in 20
 do
     for bins in 4 16
     do
-        out_dir=write_out_${overlap}_${bins}
+        out_dir=write_out_${pattern}_${bins}
         mkdir -p ${out_dir}
 
-        valik split database.fasta --overlap ${overlap} --seg-count ${bins} --out ${out_dir}/reference_metadata.txt
+        valik split database.fasta --pattern ${pattern} --seg-count ${bins} --out ${out_dir}/reference_metadata.txt --without-parameter-tuning
     done
 done

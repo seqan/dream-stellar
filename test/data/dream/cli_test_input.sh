@@ -24,7 +24,8 @@ do
     #----------- Sample reads from reference sequence -----------
     echo "Generating $read_count reads of length $read_length with error rate $error_rate"
     generate_local_matches \
-        --output $read_dir \
+        --matches-out $read_dir/chr$i.fasta \
+        --genome-out $read_dir/genome.fasta \
         --max-error-rate $error_rate \
         --num-matches $read_count \
         --min-match-length $read_length \
@@ -34,7 +35,7 @@ do
         --seed $SEED \
         $chr_out
     
-    sed -i "s/@.*/&_$length/" $read_dir/chr$i.fastq
+    sed -i "s/>.*/&_$length/" $read_dir/chr$i.fasta
     let i=i+1
 done
 
@@ -66,11 +67,10 @@ echo -e ">repeat_region" \
 "\n""AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" \
 "\n""AAAAAAAAAAAAAAAAAAAA" >> ref.fasta
 
-cat $read_dir/chr*.fastq > query.fastq
-rm -r $read_dir
+cat $read_dir/chr*.fasta > query_multi_line.fasta
+awk '/^>/ { if(NR>1) print "";  printf("%s\n",$0); next; } { printf("%s",$0);}  END {printf("\n");}' < query_multi_line.fasta > query.fasta
+rm -r $read_dir query_multi_line.fasta
 
-echo -e "@repeat_read" \
+echo -e ">repeat_read" \
 "\n""AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" \
-"\n""+" \
-"\n""IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII" \
->> query.fastq
+>> query.fasta

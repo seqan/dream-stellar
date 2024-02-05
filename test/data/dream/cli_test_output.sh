@@ -23,9 +23,9 @@ pattern=50            # min local match length
 pat_overlap=49        # how much adjacent patterns overlap
 
 ref_input="ref.fasta"
-query="query.fastq"
+query="query.fasta"
 
-valik split "$query" --overlap 50 --seg-count 60 --out query_seg_meta.txt
+valik split "$query" --pattern 50 --seg-count 60 --out query_seg_meta.txt --without-parameter-tuning
 
 e=1
 er=$(echo $e/$pattern | bc -l)
@@ -33,7 +33,7 @@ for b in 4 16
 do
     echo "Splitting the genome into $b segments that overlap by $seg_overlap"
     seg_meta="seg_meta"$seg_overlap"overlap"$b"bins.txt"
-    valik split "$ref_input" --overlap "$seg_overlap" --seg-count "$b" --out "$seg_meta"
+    valik split "$ref_input" --pattern "$seg_overlap" --seg-count "$b" --out "$seg_meta" --without-parameter-tuning
 
     for w in 13 15
     do
@@ -55,7 +55,7 @@ do
 done
 
 stellar_out="stellar.gff"
-sed -n '1~4s/^@/>/p;2~4p' $query > query.fasta
-stellar $ref_input query.fasta -e $er -l $pattern -o $stellar_out --repeatPeriod 1 --repeatLength 10 --numMatches 2 &> /dev/null
+stellar $ref_input $query -e $er -l $pattern -o $stellar_out --repeatPeriod 1 --repeatLength 10 --numMatches 2 &> /dev/null
+rm stellar.disabled.fasta
 
 rm -r $VALIK_TMP

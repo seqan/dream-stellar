@@ -121,7 +121,8 @@ TEST_P(dream_split_search, split_shared_mem)
                                                         data("query.fastq"),
                                                         "--out", query_meta_path,
                                                         "--seg-count ", std::to_string(query_seg_count),
-                                                        "--overlap 0");
+                                                        "--ref-meta", ref_meta_path,
+                                                        "--pattern 0");
     EXPECT_EQ(split_query.exit_code, 0);
 
     cli_test_result const build = execute_app("valik", "build",
