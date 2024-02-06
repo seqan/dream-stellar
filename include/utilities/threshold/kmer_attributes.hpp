@@ -45,14 +45,12 @@ struct kmer_attributes
                     else
                     {
                         row.push_back(row.back() + table.back()[l - 1]);
-
-                        size_t band = l - k - t;
-                        row.back() -= table.back()[band + t - 1];
+                        row.back() -= table.back()[l - k - 1];
 
                         for (uint8_t i = 1; i < t; i++)
                         {
-                            row.back() -= matrix[matrix.size() - i][e - 1][band + t - i - 1];
-                            row.back() += matrix[matrix.size() - i][e - 1][band + t - i];
+                            row.back() -= matrix[matrix.size() - i][e - 1][l - k - i - 1];
+                            row.back() += matrix[matrix.size() - i][e - 1][l - k - i];
                         }
                     }
                 }

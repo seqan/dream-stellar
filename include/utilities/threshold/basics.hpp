@@ -47,20 +47,20 @@ val_t factorial(val_t const n)
  * 
 */
 template <typename var_t, typename par_t>
-float expected_kmer_occurrences(var_t const & bin_size,
+double expected_kmer_occurrences(var_t const & bin_size,
                                 par_t const & kmer_size)
 {
     constexpr uint8_t alphabet_size{4};
-    return (float) (bin_size - kmer_size + 1) / (float) pow(alphabet_size, kmer_size);
+    return (double) (bin_size - kmer_size + 1) / (double) pow(alphabet_size, kmer_size);
 }
 
 /**
- * @brief K-mer lemma threhold.
+ * @brief K-mer lemma threshold.
 */
 template <typename var_t>
 var_t kmer_lemma_threshold(size_t const l, var_t const k, var_t const e)
 {
-    if ((l - k + 1) <= e*k)
+    if (((int64_t) l - k + 1) <= (int64_t) e*k)
         return 0;
     
     return l - k + 1 - e * k;
@@ -76,7 +76,7 @@ var_t kmer_lemma_threshold(size_t const l, var_t const k, var_t const e)
 */
 struct param_space
 {
-    constexpr static uint8_t max_errors{15};    
+    constexpr static uint8_t max_errors{5};    
     constexpr static uint8_t max_thresh{5};
     constexpr static size_t max_len{150};
     constexpr static std::pair<uint8_t, uint8_t> kmer_range{9, 21};
@@ -87,6 +87,8 @@ struct param_space
  * 
  * Same as the number of different error configurations if n=sequence length and k=error_count. 
 */
+//!TODO: need strong types to not mess up the order of these parameters
+// should this be an inline function?
 template <typename par_t, typename val_t>
 val_t combinations(par_t const k, size_t const n)
 {

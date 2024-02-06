@@ -1,6 +1,6 @@
 #pragma once
 
-#include <utilities/threshold/shared.hpp>
+#include <utilities/threshold/basics.hpp>
 #include <utilities/threshold/param_set.hpp>
 
 namespace valik
@@ -10,7 +10,7 @@ namespace valik
  * @brief The user requests filtering by setting the following parameters.
  * 
  * @param e Number of errors.
- * @param l Minimum length of local match.
+ * @param l Minimum length of local match i.e pattern length.
  * @param s Reference size in bases.
  * @param b Number of reference segments.
 */
@@ -26,12 +26,12 @@ struct filtering_request
                       size_t const bins) : e(errors), l(min_len), s(ref_size), b(bins)
     {
         auto space = param_space();
-        //!TODO: error handling
         if (errors > space.max_errors)
-            std::cout << "Error: error count out of range\n";
-        
+            throw std::runtime_error{"error_count=" + std::to_string(errors) + " out of range [0, " + 
+                                     std::to_string(space.max_errors) + "]"};
         if (min_len > space.max_len)
-            std::cout << "Error: min len out of range\n";
+            throw std::runtime_error{"min_len=" + std::to_string(min_len) + " out of range [0, " + 
+                                     std::to_string(space.max_len) + "]"};
     }
 
     /**
@@ -47,7 +47,7 @@ struct filtering_request
     */
     double kmer_spurious_match_prob(uint8_t const kmer_size) const
     {
-        return std::min(1.0f, expected_kmer_occurrences(std::round(s / (float) b), kmer_size));
+        return std::min(1.0, expected_kmer_occurrences(std::round(s / (double) b), kmer_size));
     }
 
     /**

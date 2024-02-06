@@ -11,7 +11,7 @@
 #include <valik/search/query_record.hpp>
 #include <valik/search/sync_out.hpp>
 #include <utilities/cart_queue.hpp>
-#include <utilities/threshold/shared.hpp>
+#include <utilities/threshold/basics.hpp>
 
 #include <raptor/threshold/threshold.hpp>
 
