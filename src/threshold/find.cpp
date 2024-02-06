@@ -40,7 +40,6 @@ param_set get_best_params(param_space const & space,
             {
                 param_set params(k, t, param_space());
                 auto score = param_score(request, params, att);
-                std::cout << std::to_string(k) << '\t' << std::to_string(t) << '\t' << score << '\n';
                 kmer_scores.push_back(score);
                 kmer_fn.push_back(att.fnr_for_param_set(request, params));
                 kmer_fp.push_back(request.pattern_spurious_match_prob(params));

@@ -37,6 +37,7 @@ target_use_datasources (valik_test FILES 0overlap16bins.txt)
 target_use_datasources (valik_test FILES 20overlap16bins.txt)
 
 target_use_datasources (valik_test FILES single_reference.fasta)
+target_use_datasources (valik_test FILES single_query.fasta)
 
 target_use_datasources (valik_test FILES 150overlap4bins.txt)
 target_use_datasources (valik_test FILES 150overlap4bins13window.ibf)

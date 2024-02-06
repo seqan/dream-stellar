@@ -28,8 +28,6 @@ void valik_split(split_arguments & arguments)
         if (!read_fn_confs(attr_vec))
             precalc_fn_confs(attr_vec);
 
-        std::cout << arguments.pattern_size << '\n';
-    
         if (arguments.split_index)
         {
             filtering_request request(arguments.errors, arguments.pattern_size, meta.total_len, meta.seg_count);
