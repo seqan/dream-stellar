@@ -73,7 +73,7 @@ static void check_len_less_than_kmer_size(valik::kmer_attributes const & attr)
             auto error_row = thresh_table[e];
             for (size_t l{0}; l < attr.k; l++)
             {
-                EXPECT_EQ(error_row[l], (valik::combinations<size_t, uint64_t>(e, l)));
+                EXPECT_EQ(error_row[l], (valik::combinations(e, l)));
             }
         }
     }
@@ -113,38 +113,6 @@ TEST(kmer_attributes, edge_cases)
     if (!valik::read_fn_confs(attr_vec))
         valik::precalc_fn_confs(attr_vec);
 
-    /*
-    size_t k = 9;
-    size_t t = 5;
-    size_t e = 15;
-    size_t l = 148;
-
-    // what it should be
-    for (size_t i{1}; i <= k; i++)
-        std::cout << std::to_string(attr_vec[k - 9].fn_conf_counts[t - 1][e - 1][l - i]) << '\n';
-    
-    std::cout << "extra\n";
-    
-    for (size_t j{1}; j < t; j++)
-        std::cout << std::to_string(attr_vec[k - 9].fn_conf_counts[t - 1 - j][e - 1][l - k - j]) << '\n';
-
-    std::cout << "------------------shortcut------------------\n";
-    //row.push_back(row.back() + table.back()[l - 1]);
-    std::cout << "+" << std::to_string(attr_vec[k - 9].fn_conf_counts[t - 1][e][l - 1]) << '\n';
-    std::cout << "+" << std::to_string(attr_vec[k - 9].fn_conf_counts[t - 1][e - 1][l - 1]) << '\n';
-    
-    //row.back() -= table.back()[band + t - 1];
-    std::cout << "-" << std::to_string(attr_vec[k - 9].fn_conf_counts[t - 1][e - 1][l - k - 1]) << '\n';
-    
-    for (uint8_t i = 1; i < t; i++)
-    {
-        //row.back() -= matrix[matrix.size() - i][e - 1][band + t - i - 1];
-        std::cout << "-" << std::to_string(attr_vec[k - 9].fn_conf_counts[t - 1 - i][e - 1][l - k - i - 1]) << '\n';
-    
-        //row.back() += matrix[matrix.size() - i][e - 1][band + t - i];
-        std::cout << "+" << std::to_string(attr_vec[k - 9].fn_conf_counts[t - 1 - i][e - 1][l - k - i]) << '\n';
-    }
-    */
     for (auto & attr : attr_vec)
     {
         check_len_less_than_kmer_size(attr);
@@ -152,13 +120,16 @@ TEST(kmer_attributes, edge_cases)
     }
 }
 
+/*
+    Let f(k, t, e, l) be the number of error configurations that destroy more than t k-mers. 
+    The number of error configurations can be calculated in two ways.
+*/
 TEST(kmer_attributes, exhaustive_comparison)
 {
     std::vector<valik::kmer_attributes> attr_vec;
     if (!valik::read_fn_confs(attr_vec))
         valik::precalc_fn_confs(attr_vec);
 
-    //e = 15; // why does this not work?    
     valik::param_space space;
     for (uint8_t k{std::get<0>(space.kmer_range)}; k <= std::get<1>(space.kmer_range); k++)
     {   
@@ -167,25 +138,21 @@ TEST(kmer_attributes, exhaustive_comparison)
         {
             for (size_t e{1}; e <= space.max_errors; e++)
             {
-                for (size_t l = k + t - 1; l <= space.max_len; l++)
+                for (size_t l = k + t - 1 + e; l <= space.max_len; l++)
                 {
-                    uint64_t calc_sum = attr_vec[k - 9].fn_conf_counts[t - 1][e][l];    
-                    uint64_t proper_sum{0};
-                    // what it should be
-                    for (size_t i{1}; i <= k; i++)
-                        proper_sum += attr_vec[k - 9].fn_conf_counts[t - 1][e - 1][l - i];
+                    // f(k, t, e, l) is calculated based on f(k, t, e, l - 1)
+                    uint64_t calc_conf_count = attr_vec[k - 9].fn_conf_counts[t - 1][e][l];
 
-                    uint64_t row_sum = proper_sum;
+                    // f(k, t, e, l) is calculated based on a subvector sum in row (e - 1) 
+                    // i.e f(k, t, e, l) = f(k, t, e - 1, l - 1) + f(k, t, e - 1, l - 2) ...     
+                    uint64_t row_sum_conf_count{0};
+                    for (size_t i{1}; i <= k; i++)
+                        row_sum_conf_count += attr_vec[k - 9].fn_conf_counts[t - 1][e - 1][l - i];
         
                     for (size_t j{1}; j < t; j++)
-                        proper_sum += attr_vec[k - 9].fn_conf_counts[t - 1 - j][e - 1][l - k - j];
+                        row_sum_conf_count += attr_vec[k - 9].fn_conf_counts[t - 1 - j][e - 1][l - k - j];
     
-                    if (calc_sum != proper_sum)
-                    {
-                        std::cout << "row_sum\tproper_sum\tcalc_sum\tk\tt\te\tl\n";
-                        std::cout << row_sum << '\t' << proper_sum << '\t' << calc_sum << '\t' << std::to_string(k) << '\t' << t << '\t' << e << '\t' << l << '\n';
-                    }
-                    EXPECT_EQ(proper_sum, calc_sum);
+                    EXPECT_EQ(row_sum_conf_count, calc_conf_count);
                 }
             }
         }

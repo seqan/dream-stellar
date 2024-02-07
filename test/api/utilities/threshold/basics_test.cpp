@@ -2,22 +2,6 @@
 
 #include <utilities/threshold/basics.hpp>
 
-TEST(factorial, manual_check)
-{
-    EXPECT_EQ(valik::factorial((uint64_t) 0), 1);
-    EXPECT_EQ(valik::factorial((uint64_t) 1), 1);
-    EXPECT_EQ(valik::factorial((uint64_t)7), 5040);
-}
-
-TEST(factorial, stirling_accuracy)
-{
-    double accuracy_bound = 0.05;   // allow 5% error
-    std::vector<uint64_t> test_n{5, 10, 12, 17};
-
-    for (auto n : test_n)
-        EXPECT_TRUE(std::abs(1 - valik::exact_factorial(n) / (double) valik::stirling_factorial(n)) < accuracy_bound);
-}
-
 TEST(kmer_occurrences, small)
 {
     uint8_t kmer_size = 4;
@@ -52,24 +36,28 @@ TEST(combinations, edge_cases)
 {
     uint8_t k = 3;
     size_t n = 3;
-    EXPECT_EQ((valik::combinations<uint8_t, uint64_t>(k, n)), 1);
+    EXPECT_EQ((valik::combinations(k, n)), 1);
 
     k = 4;
-    EXPECT_EQ((valik::combinations<uint8_t, uint64_t>(k, n)), 0);
+    EXPECT_EQ((valik::combinations(k, n)), 0);
 
     k = 0;
     n = 0;
-    EXPECT_EQ((valik::combinations<uint8_t, uint64_t>(k, n)), 1);
+    EXPECT_EQ((valik::combinations(k, n)), 1);
 }
 
 TEST(combinations, manual_test)
 {
     uint8_t k = 3;
     size_t n = 4;
-    EXPECT_EQ((valik::combinations<uint8_t, uint64_t>(k, n)), 4);
-    EXPECT_EQ((valik::combinations<uint8_t, uint64_t>(k, n)), (valik::combinations<uint8_t, uint64_t>(n - k, n)));
+    EXPECT_EQ((valik::combinations(k, n)), 4);
+    EXPECT_EQ((valik::combinations(k, n)), (valik::combinations(n - k, n)));
 
     n = 5;
-    EXPECT_EQ((valik::combinations<uint8_t, uint64_t>(k, n)), 10);
-    EXPECT_EQ((valik::combinations<uint8_t, uint64_t>(k, n)), (valik::combinations<uint8_t, uint64_t>(n - k, n)));
+    EXPECT_EQ((valik::combinations(k, n)), 10);
+    EXPECT_EQ((valik::combinations(k, n)), (valik::combinations(n - k, n)));
+
+    k = 13;
+    n = 37;
+    EXPECT_EQ((valik::combinations(k, n)), 3562467300); // check for numerical overflow
 }

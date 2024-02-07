@@ -1,43 +1,16 @@
 #pragma once
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <cmath>
-#include <numbers>
+#include <numeric>
 #include <vector>
 #include <utility>
 #include <filesystem>
 
 namespace valik
 {
-
-template <typename val_t>
-val_t stirling_factorial(val_t const n)
-{
-    return sqrt(2 * std::numbers::pi * n) * pow((n / std::numbers::e), (double) n);
-}
-
-template <typename val_t>
-val_t exact_factorial(val_t const n)
-{
-    val_t fact{1};
-    for (size_t i = 2; i <= n; i++)
-        fact *= i;
-
-    return fact;
-}
-
-/**
- * @brief Factorial of integer n. 
-*/
-template <typename val_t>
-val_t factorial(val_t const n)
-{
-    if (n < 25)
-        return exact_factorial(n);
-    else 
-        return stirling_factorial(n);
-}
 
 /**
  *  @brief Assuming k-mers are distributed uniformly randomly, what is the expected count of a k-mer in a bin.
@@ -76,7 +49,7 @@ var_t kmer_lemma_threshold(size_t const l, var_t const k, var_t const e)
 */
 struct param_space
 {
-    constexpr static uint8_t max_errors{5};    
+    constexpr static uint8_t max_errors{15};    
     constexpr static uint8_t max_thresh{5};
     constexpr static size_t max_len{150};
     constexpr static std::pair<uint8_t, uint8_t> kmer_range{9, 21};
@@ -87,21 +60,47 @@ struct param_space
  * 
  * Same as the number of different error configurations if n=sequence length and k=error_count. 
 */
-//!TODO: need strong types to not mess up the order of these parameters
-// should this be an inline function?
-template <typename par_t, typename val_t>
-val_t combinations(par_t const k, size_t const n)
+inline uint64_t combinations(size_t const k, size_t const n)
 {
     if (n >= k)
     {
-        val_t combinations{1};
+        std::vector<size_t> divisors(k);
+        std::iota(divisors.begin(), divisors.end(), 1); // fill vector with 1, 2, ..., k
+        std::vector<bool> was_divided(k);
+
+        uint64_t combinations{1};
         for (size_t i = n - k + 1; i <= n; i++)
+        {
+            // avoid overflowing 64bits
+            if (combinations >= (std::numeric_limits<uint64_t>::max() / n))
+            {
+                for (size_t i{0}; i < divisors.size(); i++)
+                {
+                    if (!was_divided[i])
+                    {
+                        if (combinations % divisors[i] == 0)
+                        {
+                            combinations = combinations / divisors[i];
+                            was_divided[i] = true;
+                        }
+                    }
+                }
+            }
             combinations *= i;
-        combinations = combinations / factorial(k);
+        }
+        
+        if (std::find(was_divided.begin(), was_divided.end(), false) != was_divided.end())
+        {
+            for (size_t i{0}; i < divisors.size(); i++)
+            {
+                if (!was_divided[i])
+                    combinations = combinations / divisors[i];
+            }
+        }
         return combinations;   // same as (uint64_t) (factorial(n) / (factorial(n - k) * factorial(k)));
     }
     else
-        return (val_t) 0;
+        return 0;
 }
 
 }   //namespace valik

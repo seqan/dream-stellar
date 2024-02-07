@@ -39,7 +39,7 @@ struct filtering_request
     */
     uint64_t total_conf_count() const
     {
-        return combinations<size_t, uint64_t>(e, l);
+        return combinations(e, l);
     }
 
     /**
@@ -82,9 +82,9 @@ struct filtering_request
         size_t kmers_per_pattern = l - params.k + 1;
         for (uint8_t matching_kmer_count{0}; matching_kmer_count < params.t; matching_kmer_count++)
         {
-            fpr -= combinations<uint8_t, uint64_t>(matching_kmer_count, kmers_per_pattern) * 
-                                                  pow(p, matching_kmer_count) * 
-                                                  pow(1 - p, kmers_per_pattern - matching_kmer_count);
+            fpr -= combinations(matching_kmer_count, kmers_per_pattern) * 
+                                pow(p, matching_kmer_count) * 
+                                pow(1 - p, kmers_per_pattern - matching_kmer_count);
         }
 
         return std::max(0.0, fpr);
