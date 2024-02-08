@@ -27,6 +27,11 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       .long_id = "error-rate",
                       .description = "Choose the upper bound for the maximum allowed error rate of a local match.",
                       .validator = sharg::arithmetic_range_validator{0.0f, 0.1f}});
+    parser.add_option(arguments.kmer_size,
+                      sharg::config{.short_id = 'k',
+                      .long_id = "kmer",
+                      .description = "Choose the kmer size.",
+                      .validator = positive_integer_validator{true}});
     parser.add_option(arguments.seg_count_in,
                       sharg::config{.short_id = 'n',
                       .long_id = "seg-count",

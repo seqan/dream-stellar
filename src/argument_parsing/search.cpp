@@ -243,7 +243,6 @@ void run_search(sharg::parser & parser)
     if (kmer_lemma_threshold(arguments.pattern_size, (size_t) arguments.shape_size, (size_t) arguments.errors) <= 1)
     {
         //!TODO: read in parameter metadata file
-        arguments.threshold = 2;
         arguments.threshold_was_set = true;
     }
 

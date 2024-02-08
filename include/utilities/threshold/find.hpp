@@ -22,18 +22,17 @@ param_set get_best_params(param_space const & space,
 /**
  * @brief For a chosen kmer size and error rate find the best threshold. 
 */
-uint8_t find_threshold(param_space const & space, 
-                      metadata const & ref_meta,
-                      metadata const & query_meta,
-                      split_arguments const & arguments,
-                      kmer_attributes const att);
+uint8_t find_heuristic_threshold(metadata const & ref_meta,
+                                 metadata const & query_meta, 
+                                 split_arguments const & arguments,
+                                 kmer_attributes const attr);
 
 /**
  * @brief For a chosen kmer size and some maximum error rate find the best threshold. 
 */
 void find_thresholds_for_kmer_size(param_space const & space, 
                                    metadata const & meta,
-                                   kmer_attributes const att, 
+                                   kmer_attributes const attr, 
                                    double const max_err);
 
 }   // namespace valik

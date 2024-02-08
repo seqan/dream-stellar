@@ -28,43 +28,61 @@ void valik_split(split_arguments & arguments)
         if (!read_fn_confs(attr_vec))
             precalc_fn_confs(attr_vec);
 
+        filtering_request request(arguments.errors, arguments.pattern_size, meta.total_len, meta.seg_count);
         if (arguments.split_index)
         {
-            filtering_request request(arguments.errors, arguments.pattern_size, meta.total_len, meta.seg_count);
             auto best_params = get_best_params(space, request, attr_vec);
             arguments.kmer_size = best_params.k;
+            kmer_attributes attr = attr_vec[arguments.kmer_size - std::get<0>(space.kmer_range)];
 
             if (arguments.verbose)
             {
-                std::cout << "Build index for:\n";
+                std::cout << "\n-----------Index build parameters-----------\n";
                 std::cout << "db length " << meta.total_len << "bp\n";
                 std::cout << "min local match length " << arguments.pattern_size << "bp\n";
                 std::cout << "max error rate " << arguments.error_rate << "\n";
                 std::cout << "kmer size " << std::to_string(arguments.kmer_size) << '\n';
     
-                find_thresholds_for_kmer_size(space, meta, attr_vec[best_params.k - std::get<0>(space.kmer_range)], arguments.error_rate);
+                find_thresholds_for_kmer_size(space, meta, attr, arguments.error_rate);
             }
         }
         else
         {
-            if (kmer_lemma_threshold(arguments.pattern_size, (size_t) arguments.kmer_size, (size_t) arguments.errors) <= 1)
+            kmer_attributes attr = attr_vec[arguments.kmer_size - std::get<0>(space.kmer_range)];
+            auto best_threshold = kmer_lemma_threshold(arguments.pattern_size, (size_t) arguments.kmer_size, (size_t) arguments.errors);
+            if (arguments.verbose)
             {
-                metadata ref_meta = metadata(arguments.ref_meta_path);
-                auto best_threshold = find_threshold(space, ref_meta, meta, arguments, attr_vec[arguments.kmer_size - std::get<0>(space.kmer_range)]); 
+                std::cout.precision(3);
+                std::cout << "\n-----------Search parameters-----------\n";
+                std::cout << "segment len " << std::to_string((uint64_t) std::round(meta.total_len / (double) meta.seg_count)) << '\n';
+                std::cout << "min local match length " << arguments.pattern_size << "bp\n";
+                std::cout << "error rate " << arguments.error_rate << "\n";
+                std::cout << "kmer size " << std::to_string(arguments.kmer_size) << '\n';
+            }
+            
+            metadata ref_meta = metadata(arguments.ref_meta_path);
+            if (best_threshold <= 1)
+            {
+                best_threshold = find_heuristic_threshold(ref_meta, meta, arguments, attr); 
                 if (arguments.verbose)
                 {
-                    std::cout.precision(3);
-                    std::cout << "Can not search database with an exact k-mer lemma threshold with parameters\n";
-                    std::cout << "min local match length " << arguments.pattern_size << "bp\n";
-                    std::cout << "error rate " << arguments.error_rate << "\n";
-                    std::cout << "kmer size " << std::to_string(arguments.kmer_size) << '\n';
-
-                    std::cout << "Applying heuristic threshold\n";
-                    std::cout << "use threshold " << best_threshold;
+                    std::cout << "Apply heuristic threshold ";
                 }
             }
-        }
+            else
+            {
+                if (arguments.verbose)
+                    std::cout << "Use k-mer lemma threshold ";
+            }
 
+            if (arguments.verbose)
+            {
+                param_set best_params(arguments.kmer_size, best_threshold, space);
+                std::cout << best_threshold << '\n';
+                std::cout << "FNR " <<  attr.fnr_for_param_set(request, best_params) << '\n';
+                std::cout << "FPR " << request.fpr(best_params, std::round(meta.total_len / (double) meta.seg_count), ref_meta.total_len, ref_meta.seg_count) << '\n';
+            }
+        }
     }
 
     if (arguments.write_out)
