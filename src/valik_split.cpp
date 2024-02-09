@@ -28,10 +28,10 @@ void valik_split(split_arguments & arguments)
         if (!read_fn_confs(attr_vec))
             precalc_fn_confs(attr_vec);
 
-        filtering_request request(arguments.errors, arguments.pattern_size, meta.total_len, meta.seg_count);
+        search_pattern pattern(arguments.errors, arguments.pattern_size);
         if (arguments.split_index)
         {
-            auto best_params = get_best_params(space, request, attr_vec);
+            auto best_params = get_best_params(pattern, meta, attr_vec);
             arguments.kmer_size = best_params.k;
             kmer_attributes attr = attr_vec[arguments.kmer_size - std::get<0>(space.kmer_range)];
 
@@ -43,7 +43,7 @@ void valik_split(split_arguments & arguments)
                 std::cout << "max error rate " << arguments.error_rate << "\n";
                 std::cout << "kmer size " << std::to_string(arguments.kmer_size) << '\n';
     
-                find_thresholds_for_kmer_size(space, meta, attr, arguments.error_rate);
+                find_thresholds_for_kmer_size(meta, attr, arguments.error_rate);
             }
         }
         else
@@ -61,9 +61,10 @@ void valik_split(split_arguments & arguments)
             }
             
             metadata ref_meta = metadata(arguments.ref_meta_path);
+            filtering_request request(pattern, ref_meta, meta);
             if (best_threshold <= 1)
             {
-                best_threshold = find_heuristic_threshold(ref_meta, meta, arguments, attr); 
+                best_threshold = request.find_heuristic_threshold(attr); 
                 if (arguments.verbose)
                 {
                     std::cout << "Apply heuristic threshold ";
@@ -79,8 +80,8 @@ void valik_split(split_arguments & arguments)
             {
                 param_set best_params(arguments.kmer_size, best_threshold, space);
                 std::cout << best_threshold << '\n';
-                std::cout << "FNR " <<  attr.fnr_for_param_set(request, best_params) << '\n';
-                std::cout << "FPR " << request.fpr(best_params, std::round(meta.total_len / (double) meta.seg_count), ref_meta.total_len, ref_meta.seg_count) << '\n';
+                std::cout << "FNR " <<  attr.fnr_for_param_set(pattern, best_params) << '\n';
+                std::cout << "FPR " << request.fpr(best_params) << '\n';
             }
         }
     }

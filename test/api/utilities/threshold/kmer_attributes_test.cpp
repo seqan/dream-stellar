@@ -89,7 +89,7 @@ static void check_thresh_from_kmer_lemma(valik::kmer_attributes const & attr)
         for (uint8_t e{0}; e < thresh_table.size(); e++)
         {
             auto error_row = thresh_table[e];
-            for (size_t l{0}; l < error_row.size(); l++)
+            for (size_t l{attr.k}; l < error_row.size(); l++)
             {
                 if (valik::kmer_lemma_threshold(l, attr.k, e) >= t)
                 {

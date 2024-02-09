@@ -1,7 +1,7 @@
 #pragma once
 
-#include <utilities/threshold/filtering_request.hpp>
 #include <utilities/threshold/param_set.hpp>
+#include <utilities/threshold/search_pattern.hpp>
 
 namespace valik
 {
@@ -70,11 +70,11 @@ struct kmer_attributes
     /**
      * @brief False negative rate for a parameter set.
     */
-    double fnr_for_param_set(filtering_request const & request, param_set const & params) const
+    double fnr_for_param_set(search_pattern const & pattern, param_set const & params) const
     {        
-        if (kmer_lemma_threshold(request.l, params.k, request.e) > 1)
+        if (kmer_lemma_threshold(pattern.l, params.k, pattern.e) > 1)
             return 0.0;
-        return fn_conf_counts[params.t - 1][request.e][request.l] / (double) request.total_conf_count();
+        return fn_conf_counts[params.t - 1][pattern.e][pattern.l] / (double) pattern.total_conf_count();
     }
 
     /**

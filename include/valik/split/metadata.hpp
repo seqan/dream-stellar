@@ -4,6 +4,7 @@
 #include <seqan3/core/debug_stream.hpp>
 #include <seqan3/io/sequence_file/all.hpp>
 
+#include <utilities/threshold/param_set.hpp>
 #include <valik/shared.hpp>
 
 #include <iostream>
@@ -468,6 +469,54 @@ struct metadata
         {
             assert(segments.size() > 1);
             return segments[0].len - segments[1].start;
+        }
+
+        /**
+        * @brief Probability of a k-mer appearing spuriously in a bin.
+        */
+        double kmer_spurious_match_prob(uint8_t const kmer_size) const
+        {
+            return std::min(1.0, expected_kmer_occurrences(std::round(total_len / (double) seg_count), kmer_size));
+        }
+
+        /**
+        * @brief The probability of at least threshold k-mers matching spuriously between a query pattern and a reference bin.
+        */
+        double pattern_spurious_match_prob(param_set const & params) const
+        {
+            double fpr{1};
+            double p = kmer_spurious_match_prob(params.k);
+            /*
+            For parameters 
+        
+            s reference size
+            b number of bins
+            k kmer size
+            l min match length  (equal to segment overlap)
+            t threshold 
+
+            find the probability of t or more k-mers matching spuriously between a pattern of length l and a reference bin.   
+        
+            The probability of a pattern exceeding the threshold by chance is equal to 1 - P(0 k-mers match) - 
+                                                                                       P(1 k-mer matches) - 
+                                                                                       ... - 
+                                                                                       P(t - 1 k-mers match).
+
+            Given p which is the probability of a single k-mer appearing spuriously in the reference bin and n = (l - k + 1) k-mers per pattern 
+            the probability of 0 k-mers matching spuriously is P(0 k-mers match) = (1 - p)^n 
+            and
+            the probability of 1 k-mer out of n matching is P(1 k-mer matches) = (n take 1) * p^1 * (1 - p)^(n - 1).
+            */
+
+            size_t kmers_per_pattern = segment_overlap() - params.k + 1;
+            for (uint8_t matching_kmer_count{0}; matching_kmer_count < params.t; matching_kmer_count++)
+            {
+                fpr -= combinations(matching_kmer_count, kmers_per_pattern) * 
+                                    pow(p, matching_kmer_count) * 
+                                    pow(1 - p, kmers_per_pattern - matching_kmer_count);
+            }
+
+            return std::max(0.0, fpr);
         }
 };
 

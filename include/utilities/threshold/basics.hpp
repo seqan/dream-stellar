@@ -32,7 +32,9 @@ double expected_kmer_occurrences(var_t const & bin_size,
 */
 inline size_t kmer_lemma_threshold(size_t const l, uint8_t const k, uint8_t const e)
 {
-    if ((l - k + 1) <= (size_t) e*k)
+    if (l < k)
+        return 0;
+    if (((int64_t) l - k + 1) <= (int64_t) e*k)
         return 0;
     
     return l - k + 1 - e * k;
