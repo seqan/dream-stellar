@@ -64,7 +64,7 @@ struct pattern_bounds
  * @param begin Begin position of the pattern on the query.
  * @param arguments Command line arguments.
  * @param window_span_begin Vector containing for each minimiser the beginning of the first window to which it is the minimiser.
- * @param thresholder Probabilistic threshold for the number of overlapping k-mers to constitute a likely local match.
+ * @param thresholder Threshold for the number of shared k-mers to constitute a likely local match.
  * @return pattern_bounds The interval of minimisers corresponding to the pattern.
  */
 template <typename span_vec_t>
@@ -135,7 +135,7 @@ void find_pattern_bins(pattern_bounds const & pattern,
  * @param arguments Command line arguments.
  *                  arguments.pattern_size and arguments.error_rate define the minimum length and maximum error rate of a local match respectively.
  *                  arguments.overlap defines how many match locations are considered per record.
- * @param thresholder Probabilistic threshold for the number of overlapping k-mers to constitute a likely local match.
+ * @param thresholder Threshold for the number of shared k-mers to constitute a likely local match.
  * @param result_cb Lambda that inserts the prefiltering results (record-bin pairs) into the shopping carts.
  */
 template <seqan3::data_layout ibf_data_layout, typename result_cb_t, typename query_t>

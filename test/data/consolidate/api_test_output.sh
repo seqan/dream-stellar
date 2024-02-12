@@ -41,3 +41,5 @@ do
                 stellar -e $errRate -l $minLen -o stellar_truth_num${n}_dis${d}.gff $ref_file $query_file --numMatches $n --disableThresh $d > /dev/null
         done
 done
+
+rm stellar.disabled.fasta

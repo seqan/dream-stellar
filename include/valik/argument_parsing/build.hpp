@@ -1,6 +1,8 @@
 #pragma once
 
 #include <valik/argument_parsing/shared.hpp>
+#include <valik/build/build.hpp>
+#include <valik/split/metadata.hpp>
 
 namespace valik::app
 {

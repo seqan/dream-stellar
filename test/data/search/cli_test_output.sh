@@ -33,3 +33,4 @@ do
 done
 
 rm -r $VALIK_TMP
+rm stellar.disabled.fasta

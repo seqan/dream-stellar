@@ -322,9 +322,15 @@ bool search_local(search_arguments const & arguments, search_time_statistics & t
 
     auto start = std::chrono::high_resolution_clock::now();
     if constexpr (is_split)
-        iterate_split_queries(arguments, index.ibf(), queue, *query_meta);
+    {
+        raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
+        iterate_split_queries(arguments, index.ibf(), thresholder, queue, *query_meta);
+    }
     else
-        iterate_short_queries(arguments, index.ibf(), queue);
+    {
+        raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
+        iterate_short_queries(arguments, index.ibf(), thresholder, queue);
+    }
 
     queue.finish(); // Flush carts that are not empty yet
     consumerThreads.clear();

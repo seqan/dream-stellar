@@ -33,7 +33,7 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       sharg::config{.short_id = 'e',
                       .long_id = "error-rate",
                       .description = "Choose the maximum allowed error rate of a local match.",
-                      .validator = sharg::arithmetic_range_validator{0.0f, 0.2f}});
+                      .validator = sharg::arithmetic_range_validator{0.0f, 0.1f}});
     parser.add_option(arguments.pattern_size,
                       sharg::config{.short_id = '\0',
                       .long_id = "pattern",
@@ -79,6 +79,12 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
     /////////////////////////////////////////
     // Advanced options
     /////////////////////////////////////////
+    parser.add_option(arguments.threshold,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "threshold",
+                      .description = "If set, this threshold is used instead of the kmer lemma or probabilistic minimiser threshold.",
+                      .advanced = true,
+                      .validator = sharg::arithmetic_range_validator{1, 500}});
     parser.add_flag(arguments.cache_thresholds,
                     sharg::config{.short_id = '\0',
                     .long_id = "cache-thresholds",
@@ -92,12 +98,6 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       sharg::config{.short_id = '\0',
                       .long_id = "tau",
                       .description = "Used in the dynamic thresholding. The higher tau, the lower the threshold.",
-                      .advanced = true,
-                      .validator = sharg::arithmetic_range_validator{0, 1}});
-    parser.add_option(arguments.threshold,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "threshold",
-                      .description = "If set, this threshold is used instead of the probabilistic models.",
                       .advanced = true,
                       .validator = sharg::arithmetic_range_validator{0, 1}});
     parser.add_option(arguments.p_max,
@@ -192,7 +192,6 @@ void run_search(sharg::parser & parser)
     // ==========================================
 
     sharg::input_file_validator{}(arguments.query_file);
-    arguments.treshold_was_set = parser.is_option_set("threshold");
     if (parser.is_option_set("disableThresh") && parser.is_option_set("numMatches"))
     {
         if (arguments.numMatches > arguments.disableThresh)
@@ -220,13 +219,11 @@ void run_search(sharg::parser & parser)
     // ==========================================
     // Process --pattern.
     // ==========================================
-
     if (parser.is_option_set("pattern"))
     {
         if (arguments.pattern_size < arguments.window_size)
             throw sharg::validation_error{"The minimiser window cannot be bigger than the pattern."};
     }
-    else
 
     // ==========================================
     // Set default pattern size.
@@ -238,6 +235,26 @@ void run_search(sharg::parser & parser)
         {
             arguments.pattern_size = std::ranges::size(seq) / 2;
         }
+    }
+
+    // ==========================================
+    // Parameter deduction
+    // ==========================================
+    if (kmer_lemma_threshold(arguments.pattern_size, (size_t) arguments.shape_size, (size_t) arguments.errors) <= 1)
+    {
+        //!TODO: read in parameter metadata file
+        arguments.threshold_was_set = true;
+    }
+
+    // ==========================================
+    // Process --threshold.
+    // ==========================================
+    if (arguments.threshold_was_set || parser.is_option_set("threshold"))
+    {
+        arguments.threshold_was_set = true;  // use raptor::threshold_kinds::percentage
+        if (arguments.threshold > arguments.pattern_size - arguments.shape.size() + 1)
+            throw sharg::validation_error("Threshold can not be larger than the number of k-mers per pattern.");
+        arguments.threshold_percentage = arguments.threshold / (double) (arguments.pattern_size - arguments.shape.size() + 1);
     }
 
     // ==========================================

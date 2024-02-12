@@ -17,16 +17,17 @@ namespace valik::app
  *
  * @param arguments Command line arguments.
  * @param ibf Interleaved Bloom Filter.
+ * @param thresholder Threshold for number of shared k-mers.
  * @param queue Shopping cart queue for load balancing between prefiltering and Stellar search.
  */
 template <typename ibf_t, typename cart_queue_t>
 void iterate_distributed_queries(search_arguments const & arguments,
                                  ibf_t const & ibf,
+                                 raptor::threshold::threshold const & thresholder,
                                  cart_queue_t & queue)
 {
     using fields = seqan3::fields<seqan3::field::id, seqan3::field::seq>;
     std::vector<query_record> query_records{};
-    raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
     seqan3::sequence_file_input<dna4_traits, fields> fin{arguments.query_file};
     for (auto &&chunked_records : fin | seqan3::views::chunk((1ULL << 20) * 10))
     {
@@ -44,17 +45,18 @@ void iterate_distributed_queries(search_arguments const & arguments,
  * @tparam ibf_t Interleaved Bloom Filter type.
  * @param arguments Command line arguments.
  * @param ibf Interleaved Bloom Filter of the reference database.
+ * @param thresholder Threshold for number of shared k-mers.
  * @param queue Shopping cart queue for load balancing between Valik prefiltering and Stellar search.
  */
 template <typename ibf_t>
 void iterate_short_queries(search_arguments const & arguments,
                         ibf_t const & ibf,
+                        raptor::threshold::threshold const & thresholder,
                         cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue)
 {
     using TSequence = seqan2::String<seqan2::Dna>;
     using TId = seqan2::CharString;
     std::vector<shared_query_record<TSequence>> query_records{};
-    raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
     seqan2::SeqFileIn inSeqs;
@@ -104,19 +106,20 @@ void iterate_short_queries(search_arguments const & arguments,
  * @tparam ibf_t Interleaved Bloom Filter type.
  * @param arguments Command line arguments.
  * @param ibf Interleaved Bloom Filter of the reference database.
+ * @param thresholder Threshold for number of shared k-mers.
  * @param queue Shopping cart queue for load balancing between Valik prefiltering and Stellar search.
  * @param meta Metadata table for split query segments.
  */
 template <typename ibf_t>
 void iterate_split_queries(search_arguments const & arguments,
                         ibf_t const & ibf,
+                        raptor::threshold::threshold const & thresholder,
                         cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue,
                         metadata & meta)
 {
     using TSequence = seqan2::String<seqan2::Dna>;
     using TId = seqan2::CharString;
     std::vector<shared_query_record<TSequence>> query_records{};
-    raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
     seqan2::SeqFileIn inSeqs;

@@ -58,12 +58,18 @@ struct split_arguments
     std::filesystem::path seq_file{};
     std::filesystem::path meta_out{"metadata.txt"};
 
-    size_t overlap{150};
+    size_t pattern_size{150};
     uint32_t seg_count{64};
     uint32_t seg_count_in{64};
     bool split_index{false};
-    bool write_ref{false};
-    bool write_query{false};
+    float error_rate{0.05};
+    uint8_t errors{0};
+    uint8_t kmer_size{20};
+    size_t threshold{};
+    std::filesystem::path ref_meta_path{};
+    bool write_out{false};
+    bool only_split{false};
+    bool verbose{false};
 };
 
 struct build_arguments
@@ -92,12 +98,12 @@ struct minimiser_threshold_arguments
     virtual ~minimiser_threshold_arguments() = 0;   // make an abstract base struct
 
     double tau{0.9999};
-    double threshold{std::numeric_limits<double>::quiet_NaN()};
     double p_max{0.15};
     double fpr{0.05};
     uint8_t errors{0};
     size_t pattern_size{};
-    bool treshold_was_set{false};
+    double threshold_percentage{std::numeric_limits<double>::quiet_NaN()};
+    bool threshold_was_set{false};
     bool cache_thresholds{false};
 
     protected:
@@ -125,6 +131,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
     uint8_t shape_size{shape.size()};
     uint8_t shape_weight{shape.count()};
     uint64_t overlap{};
+    size_t threshold{};
 
     uint8_t threads{1u};
 
@@ -150,7 +157,7 @@ struct search_arguments final : public minimiser_threshold_arguments, public ste
             .shape{shape},
             .query_length{pattern_size},
             .errors{errors},
-            .percentage{threshold},
+            .percentage{threshold_percentage},
             .p_max{p_max},
             .fpr{fpr},
             .tau{tau},

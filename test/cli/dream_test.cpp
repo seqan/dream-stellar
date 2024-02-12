@@ -38,7 +38,7 @@ TEST_P(dream_short_search, short_shared_mem)
                                                         "--overlap ", std::to_string(pattern_size - 1),
                                                         "--error-rate ", std::to_string(error_rate),
                                                         "--index ", index_path,
-                                                        "--query ", data("query.fastq"),
+                                                        "--query ", data("query.fasta"),
                                                         "--ref-meta", ref_meta_path, 
                                                         "--repeatPeriod 1",
                                                         "--repeatLength 10", 
@@ -118,10 +118,11 @@ TEST_P(dream_split_search, split_shared_mem)
     std::filesystem::path query_meta_path = data("query_seg_meta.txt");
 
     cli_test_result const split_query = execute_app("valik", "split",
-                                                        data("query.fastq"),
+                                                        data("query.fasta"),
                                                         "--out", query_meta_path,
                                                         "--seg-count ", std::to_string(query_seg_count),
-                                                        "--overlap 0");
+                                                        "--ref-meta", ref_meta_path,
+                                                        "--pattern 0");
     EXPECT_EQ(split_query.exit_code, 0);
 
     cli_test_result const build = execute_app("valik", "build",
@@ -139,7 +140,7 @@ TEST_P(dream_split_search, split_shared_mem)
                                                         "--overlap ", std::to_string(pattern_size - 1),
                                                         "--error-rate ", std::to_string(error_rate),
                                                         "--index ", index_path,
-                                                        "--query ", data("query.fastq"),
+                                                        "--query ", data("query.fasta"),
                                                         "--ref-meta", ref_meta_path,
                                                         "--query-meta", query_meta_path, 
                                                         "--repeatPeriod 1",

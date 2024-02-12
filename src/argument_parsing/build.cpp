@@ -1,7 +1,4 @@
 #include <valik/argument_parsing/build.hpp>
-#include <valik/build/build.hpp>
-
-#include <valik/split/metadata.hpp>
 
 namespace valik::app
 {
@@ -13,16 +10,6 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                                  sharg::config{.description = "File containing one file per line per bin when building from clustered sequences. "
                                                               "Input sequence file when building from overlapping segments.",
                                  .validator = sharg::input_file_validator{}});
-    parser.add_option(arguments.window_size,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "window",
-                      .description = "Choose the window size.",
-                      .validator = positive_integer_validator{}});
-    parser.add_option(arguments.kmer_size,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "kmer",
-                      .description = "Choose the kmer size.",
-                      .validator = sharg::arithmetic_range_validator{1, 32}});
     parser.add_option(arguments.out_path,
                       sharg::config{.short_id = '\0',
                       .long_id = "output",
@@ -35,11 +22,6 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                       .description = "Choose the size of the resulting IBF.",
                       .required = true,
                       .validator = size_validator{"\\d+\\s{0,1}[k,m,g,t,K,M,G,T]"}});
-    parser.add_option(arguments.hash,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "hash",
-                      .description = "Choose the number of hashes.",
-                      .validator = sharg::arithmetic_range_validator{1, 5}});
     parser.add_flag(arguments.compressed,
                     sharg::config{.short_id = '\0',
                     .long_id = "compressed",
@@ -60,6 +42,28 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                       sharg::config{.short_id = '\0',
                       .long_id = "fast",
                       .description = "Build the index in fast mode when few false negatives can be tolerated in the following search."});
+    
+    /////////////////////////////////////////
+    // Advanced options
+    /////////////////////////////////////////
+    parser.add_option(arguments.window_size,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "window",
+                      .description = "Choose the window size.",
+                      .advanced = true,
+                      .validator = positive_integer_validator{}});
+    parser.add_option(arguments.kmer_size,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "kmer",
+                      .description = "Choose the kmer size.",
+                      .advanced = true,
+                      .validator = sharg::arithmetic_range_validator{1, 32}});
+    parser.add_option(arguments.hash,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "hash",
+                      .description = "Choose the number of hashes.",
+                      .advanced = true,
+                      .validator = sharg::arithmetic_range_validator{1, 5}});
 }
 
 void run_build(sharg::parser & parser)
@@ -99,15 +103,20 @@ void run_build(sharg::parser & parser)
         sequence_file_validator(arguments.bin_file);
         std::string bin_string{arguments.bin_file.string()};
         arguments.bin_path.emplace_back(std::vector<std::string>{bin_string});
+
+        if (!parser.is_option_set("kmer") && !parser.is_option_set("window"))
+        {
+            //!TODO: read in parameter metadata file
+            arguments.kmer_size = 12;
+            arguments.window_size = 12;
+        }
     }
 
     // ==========================================
     // Various checks.
     // ==========================================
-    if (parser.is_option_set("kmer")){
-        arguments.shape = seqan3::shape{seqan3::ungapped{arguments.kmer_size}};
-        arguments.shape_weight = arguments.shape.count();
-    }
+    arguments.shape = seqan3::shape{seqan3::ungapped{arguments.kmer_size}};
+    arguments.shape_weight = arguments.shape.count();
 
     if (parser.is_option_set("window"))
     {

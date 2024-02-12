@@ -10,14 +10,17 @@
 #include <valik/search/local_prefilter.hpp>
 #include <valik/search/query_record.hpp>
 #include <valik/search/sync_out.hpp>
+#include <utilities/cart_queue.hpp>
+#include <utilities/threshold/basics.hpp>
 
 #include <raptor/threshold/threshold.hpp>
-
-#include "utilities/cart_queue.hpp"
 
 namespace valik::app
 {
 
+/**
+ * @brief Create parallel prefiltering jobs.
+*/
 template <typename query_t, seqan3::data_layout ibf_data_layout>
 inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
                                        search_arguments const & arguments,

@@ -4,6 +4,7 @@
 #include <seqan3/core/debug_stream.hpp>
 #include <seqan3/io/sequence_file/all.hpp>
 
+#include <utilities/threshold/param_set.hpp>
 #include <valik/shared.hpp>
 
 #include <iostream>
@@ -34,6 +35,8 @@ void trim_fasta_id(id_t & id)
 /**
  * @brief Struct that stores the metadata for a split database.
  *  \param total_len    Total database length.
+ *  \param seq_count    Number of sequences.
+ *  \param seg_count    Database was divided into this many segments.
  *  \param sequences    Collection of database sequences.
  *  \param default_seg_len  Default length of a segment that is dynamically updated.
  *  \param segments     Collection of database segments.
@@ -273,10 +276,10 @@ struct metadata
         void scan_database_sequences(split_arguments const & arguments)
         {
             default_seg_len = total_len / arguments.seg_count + 1;
-            if (default_seg_len <= arguments.overlap)
+            if (default_seg_len <= arguments.pattern_size)
             {
                 throw std::runtime_error("Segments of length " + std::to_string(default_seg_len) + "bp can not overlap by " +
-                                         std::to_string(arguments.overlap) + "bp.\nDecrease the overlap or the number of segments.");
+                                         std::to_string(arguments.pattern_size) + "bp.\nDecrease the overlap or the number of segments.");
             }
 
             size_t len_lower_bound = default_seg_len / 10;
@@ -296,9 +299,9 @@ struct metadata
             }
 
             if (arguments.split_index)
-                make_exactly_n_segments(arguments.seg_count, arguments.overlap, first_long_seq);
+                make_exactly_n_segments(arguments.seg_count, arguments.pattern_size, first_long_seq);
             else
-                make_equal_length_segments(arguments.seg_count, arguments.overlap, first_long_seq);
+                make_equal_length_segments(arguments.seg_count, arguments.pattern_size, first_long_seq);
 
             std::stable_sort(sequences.begin(), sequences.end(), fasta_order());
             std::stable_sort(segments.begin(), segments.end(), fasta_order());
@@ -460,6 +463,72 @@ struct metadata
             double stdev = std::sqrt(sq_sum / segments.size() - mean * mean);
 
             return stdev / mean;
+        }
+
+        size_t segment_overlap() const
+        {
+            assert(segments.size() > 1);
+            return segments[0].len - segments[1].start;
+        }
+
+        /**
+        * @brief Probability of a k-mer appearing spuriously in a bin.
+        */
+        double kmer_spurious_match_prob(uint8_t const kmer_size) const
+        {
+            return std::min(1.0, expected_kmer_occurrences(std::round(total_len / (double) seg_count), kmer_size));
+        }
+
+        /**
+        * @brief The probability of at least threshold k-mers matching spuriously between a query pattern and a reference bin.
+        */
+        double pattern_spurious_match_prob(param_set const & params) const
+        {
+            double fpr{1};
+            double p = kmer_spurious_match_prob(params.k);
+            /*
+            For parameters 
+        
+            s reference size
+            b number of bins
+            k kmer size
+            l min match length  (equal to segment overlap)
+            t threshold 
+
+            find the probability of t or more k-mers matching spuriously between a pattern of length l and a reference bin.   
+        
+            The probability of a pattern exceeding the threshold by chance is equal to 1 - P(0 k-mers match) - 
+                                                                                       P(1 k-mer matches) - 
+                                                                                       ... - 
+                                                                                       P(t - 1 k-mers match).
+
+            Given p which is the probability of a single k-mer appearing spuriously in the reference bin and n = (l - k + 1) k-mers per pattern 
+            the probability of 0 k-mers matching spuriously is P(0 k-mers match) = (1 - p)^n 
+            and
+            the probability of 1 k-mer out of n matching is P(1 k-mer matches) = (n take 1) * p^1 * (1 - p)^(n - 1).
+            */
+
+            size_t kmers_per_pattern = segment_overlap() - params.k + 1;
+            for (uint8_t matching_kmer_count{0}; matching_kmer_count < params.t; matching_kmer_count++)
+            {
+                fpr -= combinations(matching_kmer_count, kmers_per_pattern) * 
+                                    pow(p, matching_kmer_count) * 
+                                    pow(1 - p, kmers_per_pattern - matching_kmer_count);
+            }
+
+            return std::max(0.0, fpr);
+        }
+
+        /**
+        * @brief The maximum length of a query segment that does not appear spuriously in reference bins. 
+        */
+        uint64_t max_segment_len(param_set const & params) const
+        {
+            double pattern_p = pattern_spurious_match_prob(params);
+            if (pattern_p < 9e-6) // avoid very small floating point numbers
+                return 100000;
+            size_t max_patterns_per_segment = std::round(1.0 / pattern_p) - 1;
+            return segment_overlap() + query_every * (std::max(max_patterns_per_segment, (size_t) 2) - 1);
         }
 };
 
