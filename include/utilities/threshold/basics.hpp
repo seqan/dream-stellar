@@ -12,6 +12,8 @@
 namespace valik
 {
 
+constexpr uint8_t query_every = 2; // query every 2nd pattern by default
+
 /**
  *  @brief Assuming k-mers are distributed uniformly randomly, what is the expected count of a k-mer in a bin.
  * 
@@ -34,7 +36,7 @@ inline size_t kmer_lemma_threshold(size_t const l, uint8_t const k, uint8_t cons
 {
     if (l < k)
         return 0;
-    if (((int64_t) l - k + 1) <= (int64_t) e*k)
+    if ((l - k + 1) <= (size_t) e*k)
         return 0;
     
     return l - k + 1 - e * k;

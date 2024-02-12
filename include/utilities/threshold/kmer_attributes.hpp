@@ -72,8 +72,11 @@ struct kmer_attributes
     */
     double fnr_for_param_set(search_pattern const & pattern, param_set const & params) const
     {        
-        if (kmer_lemma_threshold(pattern.l, params.k, pattern.e) > 1)
+        if (kmer_lemma_threshold(pattern.l, params.k, pattern.e) >= params.t)
             return 0.0;
+        if (params.t > fn_conf_counts.size())
+            throw std::runtime_error("Calculated configuration count table for t=[1, " + std::to_string(fn_conf_counts.size()) + "]. " 
+                                     "Can't find FNR for t=" + std::to_string(params.t));
         return fn_conf_counts[params.t - 1][pattern.e][pattern.l] / (double) pattern.total_conf_count();
     }
 

@@ -4,6 +4,8 @@
 
 #include <utilities/threshold/kmer_attributes.hpp>
 #include <utilities/threshold/io.hpp>
+#include <utilities/threshold/search_pattern.hpp>
+#include <utilities/threshold/param_set.hpp>
 
 #include <seqan3/test/expect_range_eq.hpp>
 #include <seqan3/core/debug_stream.hpp>
@@ -157,4 +159,48 @@ TEST(kmer_attributes, exhaustive_comparison)
             }
         }
     }
+}
+
+void try_fnr(uint8_t e, size_t l, uint8_t k, uint8_t t, double expected_fnr)
+{
+    valik::param_space space;
+    valik::search_pattern pattern(e, l);
+    valik::param_set param(k, t, space);
+
+    std::vector<valik::kmer_attributes> attr_vec;
+    if (!valik::read_fn_confs(attr_vec))
+        valik::precalc_fn_confs(attr_vec);
+
+    EXPECT_EQ(attr_vec[k - std::get<0>(space.kmer_range)].fnr_for_param_set(pattern, param), expected_fnr); 
+}
+
+TEST(false_negative, try_kmer_lemma_thershold)
+{
+    try_fnr(0u, (size_t) 50, 16u, 35u, 0.0);
+    try_fnr(1u, (size_t) 50, 16u, 19u, 0.0);
+    try_fnr(2u, (size_t) 50, 16u, 3u, 0.0);
+}
+
+TEST(false_negative, try_threshold_above_kmer_lemma)
+{
+    uint8_t t{35};
+    EXPECT_THROW({
+        try
+        {
+            try_fnr(0u, (size_t) 15, 16u, t, 1.0);
+        }
+        catch( const std::runtime_error& e )
+        {
+            EXPECT_STREQ( ("Calculated configuration count table for t=[1, 5]. " 
+                           "Can't find FNR for t=" + std::to_string(t)).c_str(), e.what() );
+            throw;
+        }
+    }, std::runtime_error );
+}
+
+TEST(false_negative, try_all_destroyed)
+{
+    try_fnr(5u, (size_t) 10, 9u, 3u, 1.0);
+    try_fnr(4u, (size_t) 10, 9u, 3u, 1.0);
+    try_fnr(3u, (size_t) 10, 9u, 3u, 1.0);
 }

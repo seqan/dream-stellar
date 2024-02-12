@@ -518,6 +518,18 @@ struct metadata
 
             return std::max(0.0, fpr);
         }
+
+        /**
+        * @brief The maximum length of a query segment that does not appear spuriously in reference bins. 
+        */
+        uint64_t max_segment_len(param_set const & params) const
+        {
+            double pattern_p = pattern_spurious_match_prob(params);
+            if (pattern_p < 9e-6) // avoid very small floating point numbers
+                return 100000;
+            size_t max_patterns_per_segment = std::round(1.0 / pattern_p) - 1;
+            return segment_overlap() + query_every * (std::max(max_patterns_per_segment, (size_t) 2) - 1);
+        }
 };
 
 } // namespace valik

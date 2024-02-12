@@ -8,8 +8,6 @@
 namespace valik
 {
 
-constexpr uint8_t query_every = 2; // query every 2nd pattern by default
-
 /**
  * @brief The user requests filtering by setting the following parameters.
  * 
@@ -50,16 +48,6 @@ struct filtering_request
         uint64_t total_patterns_per_segment = std::round((query_meta.total_len / (double) query_meta.seg_count - pattern.l + 1) / (double) query_every);
         double total_patterns_p = std::min(1.0, pattern_p * total_patterns_per_segment);
         return total_patterns_p;
-    }
-
-    /**
-     * @brief The maximum length of a query segment that does not appear spuriously in reference bins. 
-    */
-    uint64_t max_segment_len(param_set const & params) const
-    {
-        double pattern_p = ref_meta.pattern_spurious_match_prob(params);
-        size_t max_patterns_per_segment = std::round(1.0 / pattern_p) - 1;
-        return pattern.l + query_every * (std::max(max_patterns_per_segment, (size_t) 2) - 1);
     }
 
     /**

@@ -119,8 +119,8 @@ void find_thresholds_for_kmer_size(metadata const & ref_meta,
         }
 
         std::cout << std::to_string(best_params.t) << '\t' << attr.fnr_for_param_set(pattern, best_params) << '\t'
-                  << ref_meta.pattern_spurious_match_prob(best_params) << '\n';
-                  // << request.max_segment_len(best_params) << '\n';
+                  << ref_meta.pattern_spurious_match_prob(best_params) << '\t' 
+                  << std::to_string(ref_meta.max_segment_len(best_params) << '\n';
     }
 }
 
