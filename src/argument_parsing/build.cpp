@@ -42,11 +42,6 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                       sharg::config{.short_id = '\0',
                       .long_id = "fast",
                       .description = "Build the index in fast mode when few false negatives can be tolerated in the following search."});
-    parser.add_flag(arguments.verbose,
-                    sharg::config{.short_id = '\0',
-                    .long_id = "verbose",
-                    .description = "Print verbose output.",
-                    .advanced = true});
     
     /////////////////////////////////////////
     // Advanced options
