@@ -252,6 +252,8 @@ void run_search(sharg::parser & parser)
     if (arguments.threshold_was_set || parser.is_option_set("threshold"))
     {
         arguments.threshold_was_set = true;  // use raptor::threshold_kinds::percentage
+        if (arguments.threshold > arguments.pattern_size - arguments.shape.size() + 1)
+            throw sharg::validation_error("Threshold can not be larger than the number of k-mers per pattern.");
         arguments.threshold_percentage = arguments.threshold / (double) (arguments.pattern_size - arguments.shape.size() + 1);
     }
 

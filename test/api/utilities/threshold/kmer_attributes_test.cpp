@@ -68,14 +68,22 @@ TEST(kmer_attributes, basic_checks)
 //       the conf count is equal to (l take e) because all possible error configuration destroy all shared k-mers
 static void check_len_less_than_kmer_size(valik::kmer_attributes const & attr)
 {
-    for (auto & thresh_table : attr.fn_conf_counts)
+    for (uint8_t t{1}; t <= attr.fn_conf_counts.size(); t++)
     {
+        auto thresh_table = attr.fn_conf_counts[t - 1];
         for (size_t e{0}; e < thresh_table.size(); e++)
         {
             auto error_row = thresh_table[e];
             for (size_t l{0}; l < attr.k; l++)
             {
-                EXPECT_EQ(error_row[l], (valik::combinations(e, l)));
+                if (error_row[l] != valik::combinations(e, l))
+                {
+                    std::cout << "l\t" << std::to_string(l) << '\n';
+                    std::cout << "k\t" << std::to_string(attr.k) << '\n';
+                    std::cout << "e\t" << std::to_string(e) << '\n';
+                    std::cout << "t\t" << std::to_string(t) << '\n';
+                }
+                EXPECT_EQ(error_row[l], valik::combinations(e, l));
             }
         }
     }

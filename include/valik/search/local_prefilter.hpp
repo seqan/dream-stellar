@@ -67,11 +67,11 @@ struct pattern_bounds
  * @param thresholder Threshold for the number of shared k-mers to constitute a likely local match.
  * @return pattern_bounds The interval of minimisers corresponding to the pattern.
  */
-template <typename span_vec_t, typename thresh_t>
+template <typename span_vec_t>
 pattern_bounds make_pattern_bounds(size_t const & begin,
                                    search_arguments const & arguments,
                                    span_vec_t const & window_span_begin,
-                                   thresh_t const & thresholder)
+                                   raptor::threshold::threshold const & thresholder)
 {
     assert(window_span_begin.size() >= 1);
     assert(window_span_begin[0] == 0);
@@ -138,12 +138,12 @@ void find_pattern_bins(pattern_bounds const & pattern,
  * @param thresholder Threshold for the number of shared k-mers to constitute a likely local match.
  * @param result_cb Lambda that inserts the prefiltering results (record-bin pairs) into the shopping carts.
  */
-template <seqan3::data_layout ibf_data_layout, typename result_cb_t, typename query_t, typename thresh_t>
+template <seqan3::data_layout ibf_data_layout, typename result_cb_t, typename query_t>
 void local_prefilter(
     std::span<query_t const> const & records,
     seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
     search_arguments const & arguments,
-    thresh_t const & thresholder,
+    raptor::threshold::threshold const & thresholder,
     result_cb_t result_cb)
 {
     // concurrent invocations of the membership agent are not thread safe

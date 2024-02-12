@@ -89,7 +89,6 @@ struct build_arguments
     uint64_t hash{2};
     bool compressed{false};
     bool fast{false};
-    bool verbose{false};
 
     std::filesystem::path ref_meta_path{};
 };

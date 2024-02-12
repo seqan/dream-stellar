@@ -48,7 +48,7 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                     .validator = sharg::input_file_validator{}});
     parser.add_flag(arguments.write_out,
                       sharg::config{.short_id = '\0',
-                      .long_id = "write-ref",
+                      .long_id = "write-out",
                       .description = "Write an output FASTA file for each reference segment or write all query segments into a single output FASTA file..",
                       .advanced = true});
     parser.add_flag(arguments.only_split,
