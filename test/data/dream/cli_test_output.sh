@@ -25,21 +25,19 @@ pat_overlap=49        # how much adjacent patterns overlap
 ref_input="ref.fasta"
 query="query.fasta"
 
-valik split "$query" --pattern 50 --seg-count 60 --out query_seg_meta.txt --without-parameter-tuning
-
 e=1
 er=$(echo $e/$pattern | bc -l)
 for b in 4 16
 do
     echo "Splitting the genome into $b segments that overlap by $seg_overlap"
-    seg_meta="seg_meta"$seg_overlap"overlap"$b"bins.txt"
+    seg_meta="seg_meta"$seg_overlap"overlap"$b"bins.bin"
     valik split "$ref_input" --pattern "$seg_overlap" --seg-count "$b" --out "$seg_meta" --without-parameter-tuning
 
     for w in 13 15
     do
         echo "Creating IBF for w=$w and k=$k where segments overlap by $seg_overlap"
         index=$b"bins"$w"window.ibf"
-        valik build "$ref_input" --kmer "$k" --window "$w" --size "$ibf_size" --output "$index" --ref-meta "$seg_meta"
+        valik build --kmer "$k" --window "$w" --size "$ibf_size" --output "$index" --ref-meta "$seg_meta"
 
         echo "Searching IBF with $e errors"
         dist_out=$b"bins"$w"window"$e"error.gff"
@@ -52,6 +50,7 @@ do
         rm $VALIK_TMP/*
 	rm $index
 	done
+    rm "$seg_meta"
 done
 
 stellar_out="stellar.gff"
