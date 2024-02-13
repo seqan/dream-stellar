@@ -55,17 +55,19 @@ TEST_P(valik_split_various, split_various_lengths)
 
     cli_test_result const result = execute_app("valik", "split",
                                                          data("various_chromosome_lengths.fasta"),
-                                                         "--out reference_metadata.txt",
+                                                         "--out query_metadata.txt",
                                                          "--seg-count ", std::to_string(seg_count),
                                                          "--pattern ", std::to_string(overlap), 
                                                          "--ref-meta ", segment_metadata_path(150, 4));
 
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"Sequence: chr5 is too short and will be skipped.\n"});
-    std::string const expected_segments = string_from_file(segment_metadata_path(overlap, seg_count), std::ios::binary);
-    std::string const actual_segments = string_from_file("reference_metadata.txt", std::ios::binary);
-    EXPECT_TRUE(expected_segments == actual_segments);
+    EXPECT_EQ(result.err, std::string{"Sequence: chr5 is too short and will be skipped.\n"}); 
+    auto expected_segments = valik::metadata(segment_metadata_path(overlap, seg_count));
+    std::string expected_segment_str = expected_segments.to_string();
+    auto actual_segments = valik::metadata("query_metadata.txt");
+    std::string actual_segment_str = actual_segments.to_string();
+    EXPECT_TRUE(expected_segment_str == actual_segment_str);
 }
 
 

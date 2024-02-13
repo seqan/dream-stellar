@@ -11,6 +11,9 @@
 #include <fstream>
 #include <ranges>
 
+#include <cereal/archives/binary.hpp> 
+#include <cereal/types/vector.hpp>
+
 namespace valik
 {
 
@@ -55,11 +58,24 @@ struct metadata
         size_t ind;
         uint64_t len;
 
+        constexpr sequence_stats() noexcept = default;
+        constexpr sequence_stats(sequence_stats const &) noexcept = default;
+        constexpr sequence_stats(sequence_stats &&) noexcept = default;
+        constexpr sequence_stats & operator=(sequence_stats const &) noexcept = default;
+        constexpr sequence_stats & operator=(sequence_stats &&) noexcept = default;
+        ~sequence_stats() noexcept = default;
+        
         sequence_stats(std::string const fasta_id, size_t const fasta_ind, uint64_t const seq_length)
         {
             id = fasta_id;
             ind = fasta_ind;
             len = seq_length;
+        }
+
+        template <class Archive>
+        void serialize(Archive & archive)
+        {
+            archive(id, ind, len);
         }
     };
 
@@ -87,6 +103,13 @@ struct metadata
         uint64_t start;
         uint64_t len;
 
+        constexpr segment_stats() noexcept = default;
+        constexpr segment_stats(segment_stats const &) noexcept = default;
+        constexpr segment_stats(segment_stats &&) noexcept = default;
+        constexpr segment_stats & operator=(segment_stats const &) noexcept = default;
+        constexpr segment_stats & operator=(segment_stats &&) noexcept = default;
+        ~segment_stats() noexcept = default;
+
         segment_stats(size_t const i, size_t const ind, uint64_t const s, uint64_t const l)
         {
             id = i;
@@ -105,6 +128,12 @@ struct metadata
         std::string unique_id()
         {
             return std::to_string(seq_ind) + "_" + std::to_string(start) + "_" + std::to_string(len);
+        }
+
+        template <class Archive>
+        void serialize(Archive & archive)
+        {
+            archive(id, seq_ind, start, len);
         }
     };
 
@@ -326,44 +355,8 @@ struct metadata
          */
         metadata(std::filesystem::path const & filepath)
         {
-            std::ifstream in_file(filepath);
-            if (in_file.is_open())
-            {
-                std::string seq_meta;
-                std::getline(in_file, seq_meta, '$');
-                std::stringstream seq_str(seq_meta);
-
-                std::string seq_id, fasta_ind, length;
-                total_len = 0;
-                while(std::getline(seq_str, seq_id, '\t'))
-                {
-                    std::getline(seq_str, fasta_ind, '\t');
-                    std::getline(seq_str, length, '\n');
-                    total_len += stoi(length);
-                    sequences.push_back(sequence_stats(seq_id, stoi(fasta_ind), stoi(length)));
-                }
-
-                std::string seg_meta;
-                std::getline(in_file, seg_meta);    // newline
-                std::getline(in_file, seg_meta, '$');
-                std::stringstream seg_str(seg_meta);
-
-                size_t id, seq_ind, start;
-                while (seg_str >> id)
-                {
-                    seg_str >> seq_ind;
-                    seg_str >> start;
-                    seg_str >> length;
-
-                    add_segment(id, seq_ind, start, stoi(length));
-                }
-            }
-
-            in_file.close();
-            seq_count = sequences.size();
-            seg_count = segments.size();
+            load(filepath);
         }
-
 
         /**
          * @brief Function that returns the numerical index of a sequence based on its fasta ID.
@@ -407,28 +400,34 @@ struct metadata
         }
 
         /**
-         * @brief Function that serializes the metadata struct.
+         * @brief Serialize the metadata struct.
          *
          * @param filepath Output file path.
          */
-        void to_file(std::filesystem::path const & filepath)
+        void save(std::filesystem::path const & filepath) const
         {
-            std::ofstream out_file;
-            out_file.open(filepath);
-
-            stream_out(out_file);
-
-            out_file.close();
+            std::ofstream os(filepath, std::ios::binary);
+            cereal::BinaryOutputArchive archive(os);
+            archive(total_len, sequences, segments);
+        }
+      
+        /**
+         * @brief Deserialise the metadata struct.
+         *
+         * @param filepath Input file path.
+         */
+        void load(std::filesystem::path const & filepath)
+        {
+            std::ifstream is(filepath, std::ios::binary);
+            cereal::BinaryInputArchive archive(is);
+            archive(total_len, sequences, segments);
+            seq_count = sequences.size();
+            seg_count = segments.size();
         }
 
-        /**
-         * @brief Function that streams out the metadata table.
-         *
-         * @param out_str Output stream.
-         */
-        template <typename str_t>
-        void stream_out(str_t & out_str)
+        std::string to_string()
         {
+            std::stringstream out_str;
             for (sequence_stats const & seq : sequences)
                 out_str << seq.id << '\t' << seq.ind << '\t' << seq.len << '\n';
 
@@ -438,6 +437,8 @@ struct metadata
                 out_str << seg.id << '\t' << seg.seq_ind << '\t' << seg.start << '\t' << seg.len << '\n';
 
             out_str << "$\n";
+
+            return out_str.str();
         }
 
         double segment_length_stdev()

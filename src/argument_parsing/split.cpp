@@ -10,7 +10,7 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
 {
     init_shared_meta(parser);
     parser.add_positional_option(arguments.seq_file,
-                      sharg::config{.description = "File containing database sequences.",
+                      sharg::config{.description = "File containing database sequences. If splitting --metagenome provide a list of cluster paths.",
                       .validator = sharg::input_file_validator{}});
     parser.add_option(arguments.meta_out,
                       sharg::config{.short_id = 'o',
@@ -41,6 +41,10 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       sharg::config{.short_id = '\0',
                       .long_id = "split-index",
                       .description = "Adjust the suggested segment count to create a multiple of 64 segments instead. This is suitable for building an IBF."});
+    parser.add_flag(arguments.metagenome,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "metagenome",
+                      .description = "Split a clustered metagenome database. Reference input is a list of cluster paths"});
     parser.add_option(arguments.ref_meta_path,
                     sharg::config{.short_id = '\0',
                     .long_id = "ref-meta",
@@ -77,6 +81,9 @@ void run_split(sharg::parser & parser)
         arguments.meta_out = arguments.seq_file;
         arguments.meta_out.replace_extension("meta");
     }
+
+    if (!arguments.split_index && arguments.metagenome)
+        arguments.split_index = true;
 
     if (!arguments.split_index && !arguments.only_split && !parser.is_option_set("ref-meta"))
         throw sharg::parser_error{"Need to provide path to reference metadata to process a query database."};

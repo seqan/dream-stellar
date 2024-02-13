@@ -19,7 +19,8 @@ void valik_split(split_arguments & arguments)
     }
 
     metadata meta(arguments);
-    meta.to_file(arguments.meta_out);
+    meta.save(arguments.meta_out);
+
     if (!arguments.only_split)
     {
         // ==========================================
@@ -91,9 +92,9 @@ void valik_split(split_arguments & arguments)
     if (arguments.write_out)
     {
         if (arguments.split_index)
-            write_reference_segments(meta, arguments.meta_out);
+            write_reference_segments(meta, arguments.seq_file);
         else
-            write_query_segments(meta, arguments.meta_out);
+            write_query_segments(meta, arguments.seq_file);
     }
 }
 

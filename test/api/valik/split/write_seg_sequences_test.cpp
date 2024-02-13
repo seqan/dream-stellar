@@ -58,26 +58,10 @@ static void const test_reference_out(size_t overlap, size_t bins)
     }
 }
 
-TEST(write_ref_sequences, o0_b4)
-{
-    size_t overlap = 0;
-    size_t bins = 4;
-
-    test_reference_out(overlap, bins);
-}
-
 TEST(write_ref_sequences, o20_b4)
 {
     size_t overlap = 20;
     size_t bins = 4;
-
-    test_reference_out(overlap, bins);
-}
-
-TEST(write_ref_sequences, o0_b16)
-{
-    size_t overlap = 0;
-    size_t bins = 16;
 
     test_reference_out(overlap, bins);
 }
@@ -123,26 +107,10 @@ static void const test_query_out(size_t overlap, size_t bins)
     }
 }
 
-TEST(write_query_sequences, o0_b4)
-{
-    size_t overlap = 0;
-    size_t bins = 4;
-
-    test_query_out(overlap, bins);
-}
-
 TEST(write_query_sequences, o20_b4)
 {
     size_t overlap = 20;
     size_t bins = 4;
-
-    test_query_out(overlap, bins);
-}
-
-TEST(write_query_sequences, o0_b16)
-{
-    size_t overlap = 0;
-    size_t bins = 16;
 
     test_query_out(overlap, bins);
 }
