@@ -66,6 +66,7 @@ struct split_arguments
     uint8_t errors{0};
     uint8_t kmer_size{20};
     size_t threshold{};
+    bool metagenome{false};
     std::filesystem::path ref_meta_path{};
     bool write_out{false};
     bool only_split{false};
