@@ -168,16 +168,6 @@ TEST_F(argparse_build, output_wrong)
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option --output: Cannot write \"foo/out.ibf\"!\n"});
 }
 
-TEST_F(argparse_build, size_missing)
-{
-    cli_test_result const result = execute_app("valik", "build",
-                                                         "--output ./ibf.out",
-                                                         "--ref-meta ", meta_file.file_path);
-    EXPECT_NE(result.exit_code, 0);
-    EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] Option --size is required but not set.\n"});
-}
-
 TEST_F(argparse_build, size_wrong_space)
 {
     cli_test_result const result = execute_app("valik", "build",
@@ -209,7 +199,8 @@ TEST_F(argparse_build, kmer_window)
                                                          "--window 19",
                                                          "--size 8m",
                                                          "--output ibf.out",
-                                                         "--ref-meta ", meta_file.file_path);
+                                                         "--ref-meta ", meta_file.file_path, 
+                                                         "--without-parameter-tuning");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] The k-mer size cannot be bigger than the window size.\n"});
@@ -287,7 +278,8 @@ TEST_F(argparse_search, pattern_window)
                                                          "--query ", data("query.fq"),
                                                          "--index ", data("8bins19window.ibf"),
                                                          "--output search.gff",
-                                                         "--pattern 12");
+                                                         "--pattern 12",
+                                                         "--without-parameter-tuning");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] The minimiser window cannot be bigger than the pattern.\n"});
@@ -305,16 +297,15 @@ TEST_F(argparse_search, incorrect_error_rate)
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option -e/--error-rate: Value 0.110000 is not in range [0.000000,0.100000].\n"});
 }
 
-TEST_F(argparse_search, not_dist_no_meta)
+TEST_F(argparse_search, not_manual_no_meta)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                          "--query ", data("query.fq"),
                                                          "--index ", data("8bins19window.ibf"),
-                                                         "--output search.gff",
-                                                         "--pattern 100");
+                                                         "--output search.gff");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] Provide --ref-meta to search a single genome or launch a --distribute run to search multiple reference files instead.\n"});
+    EXPECT_EQ(result.err, std::string{"[Error] Provide --ref-meta to deduce suitable search parameters or set --without-parameter-tuning and --pattern size.\n"});
 }
 
 TEST_F(argparse_search, shared_mem_metagenome)
@@ -324,7 +315,8 @@ TEST_F(argparse_search, shared_mem_metagenome)
                                                          "--index ", data("8bins19window.ibf"),
                                                          "--output search.gff",
                                                          "--ref-meta ", data("150overlap4bins.bin"),
-                                                         "--pattern 100");
+                                                         "--pattern 100",
+                                                         "--without-parameter-tuning");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{"[Error] Multiple reference files can not be searched in shared memory mode. "

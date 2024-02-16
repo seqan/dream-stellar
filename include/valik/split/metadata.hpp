@@ -5,6 +5,8 @@
 #include <seqan3/io/sequence_file/all.hpp>
 
 #include <utilities/threshold/param_set.hpp>
+#include <utilities/threshold/search_pattern.hpp>
+#include <utilities/threshold/basics.hpp>
 #include <valik/shared.hpp>
 
 #include <algorithm>
@@ -195,11 +197,11 @@ struct metadata
          *
          * @param db_path Path to input file.
          */
-        void scan_database_file(std::vector<std::vector<std::string>> const & bin_path)
+        void scan_database_file(std::string const & db_file)
         {
             using traits_type = seqan3::sequence_file_input_default_traits_dna;
-            files.emplace_back(0, bin_path[0][0]);
-            seqan3::sequence_file_input<traits_type> fin{bin_path[0][0]};   // single input file
+            files.emplace_back(0, db_file);
+            seqan3::sequence_file_input<traits_type> fin{db_file};   // single input file
             size_t fasta_ind = sequences.size();
             for (auto & record : fin)
             {
@@ -314,12 +316,11 @@ struct metadata
         /**
          * @brief Function that splits the database into partially overlapping segments of roughly equal length.
          *
-         * @param seg_count_in Suggested number of segments.
          * @param overlap Length of overlap between adjacent segments.
          * @param seq_it Iterator to first sequence of sufficient length.
          */
         template <typename it_t>
-        void make_equal_length_segments(size_t const & seg_count_in, size_t const & overlap, it_t & seq_it)
+        void make_equal_length_segments(size_t const & overlap, it_t & seq_it)
         {
             for (auto it = seq_it; it != sequences.end(); it++)
             {
@@ -351,10 +352,6 @@ struct metadata
                     }
                 }
             }
-
-            if (segments.size() != seg_count_in)
-                seqan3::debug_stream << "WARNING: Database was split into " << segments.size() << " instead of " << seg_count_in << " segments.\n";
-
         }
 
         /**
@@ -364,7 +361,8 @@ struct metadata
          * @param n Actual number of segments.
          * @param overlap Length of overlap between adjacent segments.
          */
-        void scan_database_sequences(split_arguments const & arguments)
+        template <typename arg_t>
+        void scan_database_sequences(arg_t const & arguments)
         {
             default_seg_len = total_len / arguments.seg_count + 1;
             if (default_seg_len <= arguments.pattern_size)
@@ -381,6 +379,7 @@ struct metadata
             for (auto it = sequences.begin(); it < first_long_seq; it++)
             {
                 seqan3::debug_stream << "Sequence: " << (*it).id << " is too short and will be skipped.\n";
+                total_len -= (*it).len;
             }
 
             if (arguments.seg_count < (sequences.size() - discarded_short_sequences))
@@ -389,10 +388,10 @@ struct metadata
                                          " sequences into " + std::to_string(arguments.seg_count) + " segments.");
             }
 
-            if (arguments.split_index)
+            if constexpr (std::is_same<arg_t, split_arguments>::value)
                 make_exactly_n_segments(arguments.seg_count, arguments.pattern_size, first_long_seq);
             else
-                make_equal_length_segments(arguments.seg_count, arguments.pattern_size, first_long_seq);
+                make_equal_length_segments(arguments.pattern_size, first_long_seq);
 
             std::stable_sort(sequences.begin(), sequences.end(), fasta_order());
             std::stable_sort(segments.begin(), segments.end(), fasta_order());
@@ -401,6 +400,33 @@ struct metadata
         }
 
     public:
+
+        template <typename arg_t>
+        void update_segments_for_distributed_stellar(arg_t arguments)
+        {
+            segments.clear();
+            default_seg_len = total_len / arguments.seg_count + 1;
+            if (default_seg_len <= arguments.pattern_size)
+            {
+                throw std::runtime_error("Segments of length " + std::to_string(default_seg_len) + "bp can not overlap by " +
+                                         std::to_string(arguments.pattern_size) + "bp.\nDecrease the overlap or the number of segments.");
+            }
+
+            size_t len_lower_bound = default_seg_len / 10;
+            // Check how many sequences are discarded for being too short
+            auto first_long_seq = std::find_if(sequences.begin(), sequences.end(), [&](auto const & seq){return (seq.len > len_lower_bound);});
+            size_t discarded_short_sequences = first_long_seq - sequences.begin();
+
+            arguments.seg_count = std::max(arguments.seg_count, (uint32_t) (sequences.size() - discarded_short_sequences));
+            make_exactly_n_segments(arguments.seg_count, arguments.pattern_size, first_long_seq);
+            seg_count = segments.size();
+
+            std::stable_sort(sequences.begin(), sequences.end(), fasta_order());
+            std::stable_sort(segments.begin(), segments.end(), fasta_order());
+            for (size_t i = 0; i < segments.size(); i++)
+                segments[i].id = i;
+        }
+
         /**
          * @brief Constructor that scans a sequence database to create a metadata struct.
         */
@@ -412,9 +438,29 @@ struct metadata
             }
             else
             {
-                scan_database_file(arguments.bin_path);
+                scan_database_file(arguments.bin_path[0][0]);
                 scan_database_sequences(arguments);
             }
+
+            seq_count = sequences.size();
+            seg_count = segments.size();
+            pattern_size = arguments.pattern_size;
+        }
+
+        metadata(search_arguments & arguments)
+        {
+            scan_database_file(arguments.query_file);
+            if (!arguments.manual_parameters)
+            {
+                if (total_len > (arguments.max_segment_len * 10))
+                    arguments.seg_count = std::round(total_len / (arguments.max_segment_len - arguments.pattern_size));
+                else
+                    arguments.seg_count = std::max(arguments.seg_count, (uint32_t) sequences.size() * 2);
+            }
+
+            scan_database_sequences(arguments);
+            if (arguments.manual_parameters && (segments.size() != arguments.seg_count))
+                seqan3::debug_stream << "WARNING: Database was split into " << segments.size() << " instead of " << arguments.seg_count << " segments.\n";
 
             seq_count = sequences.size();
             seg_count = segments.size();
@@ -561,6 +607,7 @@ struct metadata
         {
             double fpr{1};
             double p = kmer_spurious_match_prob(params.k);
+            const double precision{1e-9};
             /*
             For parameters 
         
@@ -586,12 +633,14 @@ struct metadata
             size_t kmers_per_pattern = pattern_size - params.k + 1;
             for (uint8_t matching_kmer_count{0}; matching_kmer_count < params.t; matching_kmer_count++)
             {
+                if (fpr < precision) 
+                    break;
                 fpr -= combinations(matching_kmer_count, kmers_per_pattern) * 
                                     pow(p, matching_kmer_count) * 
                                     pow(1 - p, kmers_per_pattern - matching_kmer_count);
             }
 
-            return std::max(0.0, fpr);
+            return std::max(0.0, fpr - precision);
         }
 
         /**
@@ -599,10 +648,13 @@ struct metadata
         */
         uint64_t max_segment_len(param_set const & params) const
         {
-            double pattern_p = pattern_spurious_match_prob(params);
-            if (pattern_p < 9e-6) // avoid very small floating point numbers
-                return 100000;
-            size_t max_patterns_per_segment = std::round(1.0 / pattern_p) - 1;
+            double fp_per_pattern = pattern_spurious_match_prob(params);
+            if (fp_per_pattern < 9e-6) // avoid very small floating point numbers
+                return 1e4;
+
+            constexpr double fpr_limit = 0.05; // allow FPR of 5% per query segment
+            size_t max_patterns_per_segment = std::floor(log(1 - fpr_limit) / log(1 - fp_per_pattern)); 
+            
             return pattern_size + query_every * (std::max(max_patterns_per_segment, (size_t) 2) - 1);
         }
 };
