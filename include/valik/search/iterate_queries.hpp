@@ -1,6 +1,6 @@
 #pragma once
 
-#include <valik/search/prefilter_queries_parallel.hpp>
+#include <valik/search/producer_threads_parallel.hpp>
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/split/metadata.hpp>
 
@@ -40,6 +40,64 @@ void iterate_distributed_queries(search_arguments const & arguments,
 }
 
 /**
+ * @brief Function that creates a query record from each query sequence and sends it to Stellar search.
+ *
+ * @param ref_seg_count Number of reference segments i.e the distribution granularity.
+ * @param arguments Command line arguments.
+ * @param queue Shopping cart queue for sending queries over to Stellar search.
+ */
+template <typename count_t>
+void iterate_all_queries(count_t const ref_seg_count,
+                         search_arguments const & arguments,
+                         cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue)
+{
+    using TSequence = seqan2::String<seqan2::Dna>;
+    using TId = seqan2::CharString;
+    std::vector<shared_query_record<TSequence>> query_records{};
+    constexpr uint64_t chunk_size = (1ULL << 20) * 10;
+
+    seqan2::SeqFileIn inSeqs;
+    if (!open(inSeqs, arguments.query_file.c_str()))
+    {
+        throw std::runtime_error("Failed to open " + arguments.query_file.string() + " file.");
+    }
+
+    std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
+    bool idsUnique = true;
+
+    TSequence seq;
+    TId id;
+    size_t seqCount{0};
+    for (; !atEnd(inSeqs); ++seqCount)
+    {
+        readRecord(id, seq, inSeqs);
+        idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
+
+        auto query_ptr = std::make_shared<TSequence>(seq);
+        std::vector<seqan3::dna4> seg_vec{};
+        for (auto & c : *query_ptr)
+        {
+            seqan3::dna4 nuc;
+            nuc.assign_char(c);
+            seg_vec.push_back(nuc);
+        }
+
+        query_records.emplace_back(seqan2::toCString(id), std::move(seg_vec), seqan2::infix(*query_ptr, 0, seqan2::length(*query_ptr)), query_ptr);
+
+        if (query_records.size() > chunk_size)
+        {
+            search_all_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ref_seg_count, arguments, query_records, queue);
+            query_records.clear();
+        }
+    }
+
+    if (!idsUnique)
+        std::cerr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
+
+    search_all_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ref_seg_count, arguments, query_records, queue);    
+}
+
+/**
  * @brief Function that creates short query records from fasta file input and sends them for prefiltering.
  *
  * @tparam ibf_t Interleaved Bloom Filter type.
@@ -50,9 +108,9 @@ void iterate_distributed_queries(search_arguments const & arguments,
  */
 template <typename ibf_t>
 void iterate_short_queries(search_arguments const & arguments,
-                        ibf_t const & ibf,
-                        raptor::threshold::threshold const & thresholder,
-                        cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue)
+                           ibf_t const & ibf,
+                           raptor::threshold::threshold const & thresholder,
+                           cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue)
 {
     using TSequence = seqan2::String<seqan2::Dna>;
     using TId = seqan2::CharString;
@@ -90,6 +148,7 @@ void iterate_short_queries(search_arguments const & arguments,
         if (query_records.size() > chunk_size)
         {
             prefilter_queries_parallel<shared_query_record<seqan2::String<seqan2::Dna>>>(ibf, arguments, query_records, thresholder, queue);
+         
             query_records.clear();
         }
     }
@@ -112,10 +171,10 @@ void iterate_short_queries(search_arguments const & arguments,
  */
 template <typename ibf_t>
 void iterate_split_queries(search_arguments const & arguments,
-                        ibf_t const & ibf,
-                        raptor::threshold::threshold const & thresholder,
-                        cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue,
-                        metadata & meta)
+                           ibf_t const & ibf,
+                           raptor::threshold::threshold const & thresholder,
+                           cart_queue<shared_query_record<seqan2::String<seqan2::Dna>>> & queue,
+                           metadata & meta)
 {
     using TSequence = seqan2::String<seqan2::Dna>;
     using TId = seqan2::CharString;
