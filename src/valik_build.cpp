@@ -5,20 +5,21 @@
 namespace valik::app
 {
 
-template <bool compressed>
-void run_program(build_arguments const & arguments)
-{
-    index_factory<compressed> generator{arguments};
-    auto index = generator();
-    store_index(arguments.out_path, index);
-}
-
 void valik_build(build_arguments const & arguments)
 {
-    if (arguments.compressed)
-        run_program<true>(arguments);
-    else
-        run_program<false>(arguments);
+    if (arguments.verbose)
+    {
+        std::cout << "\n-----------Index parameters-----------\n";
+        std::cout << "kmer size " << std::to_string(arguments.kmer_size) << '\n';
+        std::cout << "window size " << std::to_string(arguments.window_size) << '\n';
+        std::cout << "bins " << std::to_string(arguments.bins) << '\n';
+        std::cout << "bits " << std::to_string(arguments.bits) << '\n';        
+        std::cout << "FPR " << std::to_string(arguments.fpr) << '\n'; 
+    }
+
+    index_factory generator{arguments};
+    auto index = generator();
+    store_index(arguments.out_path, index);
     return;
 }
 

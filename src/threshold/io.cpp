@@ -30,6 +30,7 @@ void precalc_fn_confs(std::vector<kmer_loss> & attr_vec)
     }
 }
 
+//!TODO: use cereal
 /**
  * @brief Deserialize kmer_loss for a single k-mer size.
 */

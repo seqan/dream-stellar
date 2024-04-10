@@ -57,7 +57,7 @@ struct search_error_profile
         search_type = static_cast<search_kind>(type_int);
     }
 
-    void print()
+    void print() const
     {
         switch (search_type)
         {
@@ -148,15 +148,21 @@ struct search_kmer_profile
         max_errors = error_table.size();
     }
 
-    void print()
+    double max_error_rate() const
+    {
+        return max_errors / (double) l;
+    }
+
+    void print() const 
     {
         std::cout.precision(3);
-        std::cout << "\nRecommended shared " << std::to_string(k) << "-mer thresholds for different error rates\n";
-        std::cout << "error_rate\tthreshold_kind\tthreshold\tFNR\tFP_per_pattern\tmax_segment_len\n";
+        std::cout << "\nRecommended shared " << std::to_string(k) << "-mer thresholds for matches of (min_length=" << std::to_string(l) 
+                  << "; max_error_rate=" << max_error_rate() << ")\n";
+        std::cout << "errors\tthreshold_kind\tthreshold\tFNR\tFP_per_pattern\tmax_segment_len\n";
 
-        for (uint8_t er{1}; er <= max_errors; er++)
+        for (uint8_t er{0}; er <= max_errors; er++)
         {
-            std::cout << er / (double) l << '\t';
+            std::cout << std::to_string(er) << '\t';
             auto error_thresh = error_table.find(er);
             if (error_thresh != error_table.end())
                 error_thresh->second.print();

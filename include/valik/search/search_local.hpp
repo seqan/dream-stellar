@@ -26,16 +26,15 @@ namespace valik::app
 /**
  * @brief Function that calls Valik prefiltering and launches parallel threads of Stellar search.
  *
- * @tparam compressed IBF layout type.
  * @tparam is_split Split query sequences.
  * @param arguments Command line arguments.
  * @param time_statistics Run-time statistics.
  * @return false if search failed.
  */
-template <bool compressed, bool is_split, bool stellar_only>
+template <bool is_split, bool stellar_only>
 bool search_local(search_arguments & arguments, search_time_statistics & time_statistics)
 {
-    using index_structure_t = std::conditional_t<compressed, index_structure::ibf_compressed, index_structure::ibf>;
+    using index_structure_t = index_structure::ibf;
     auto index = valik_index<index_structure_t>{};
 
     if (!stellar_only)
@@ -67,6 +66,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     std::optional<metadata> query_meta;
     if (arguments.split_query && !stellar_only)
     {
+        
         query_meta = metadata(arguments);
         if (arguments.verbose)
         {
@@ -79,14 +79,6 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
         if (!arguments.manual_parameters)
         {
-            //!TODO: search profile is processed twice
-            // 1. extract parameters pattern_size, max_segment_len, (<- needed before query split) and threshold
-            // 2. access FNR after linear scan of sequences
-            std::filesystem::path search_profile_file{arguments.ref_meta_path};
-            search_profile_file.replace_extension("arg");
-            search_kmer_profile search_profile{search_profile_file};
-            search_error_profile error_thresh = search_profile.get_error_profile(arguments.errors);     
-
             search_pattern pattern(arguments.errors, arguments.pattern_size);
             param_space space;
             param_set params(arguments.shape_size, arguments.threshold, space);
@@ -100,10 +92,11 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                 std::cout << "\n-----------Search parameters-----------\n";
                 std::cout << "kmer size " << std::to_string(arguments.shape_size) << '\n';
+                std::cout << "window size " << std::to_string(arguments.window_size) << '\n';
                 switch (arguments.search_type)
                 {
                     case search_kind::LEMMA: std::cout << "k-mer lemma "; break;
-                    //case search_kind::MINIMISER: std::cout << "minimiser "; break;
+                    case search_kind::MINIMISER: std::cout << "minimiser "; break;
                     case search_kind::HEURISTIC: std::cout << "heuristic "; break;
                     default: break;
                 }

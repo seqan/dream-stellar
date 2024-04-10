@@ -27,6 +27,11 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       .long_id = "error-rate",
                       .description = "Choose the upper bound for the maximum allowed error rate of a local match.",
                       .validator = sharg::arithmetic_range_validator{0.0f, 0.1f}});
+    parser.add_option(arguments.fpr,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "fpr",
+                      .description = "False positive rate of IBF.",
+                      .validator = sharg::arithmetic_range_validator{0.0001f, 0.5f}});
     parser.add_option(arguments.kmer_size,
                       sharg::config{.short_id = 'k',
                       .long_id = "kmer",

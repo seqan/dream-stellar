@@ -67,8 +67,8 @@ struct split_arguments
     uint32_t seg_count_in{std::numeric_limits<uint32_t>::max()};
     float error_rate{0.05};
     uint8_t errors{0};
+    float fpr{0.05};
     uint8_t kmer_size{20};
-    size_t threshold{};
     bool metagenome{false};
     std::filesystem::path ref_meta_path{};
     bool write_out{false};
@@ -93,7 +93,6 @@ struct build_arguments
     uint64_t bins{64};
     uint64_t bits{4096};
     uint64_t hash{2};
-    bool compressed{false};
     bool fast{false};
     bool manual_parameters{false};
     bool input_is_minimiser{false};
@@ -102,6 +101,7 @@ struct build_arguments
     bool use_filesize_dependent_cutoff{false};
 
     std::filesystem::path ref_meta_path{};
+    bool verbose{false};
 };
 
 struct minimiser_threshold_arguments
@@ -177,7 +177,6 @@ struct search_arguments final : public minimiser_threshold_arguments, search_pro
     std::filesystem::path all_matches{};
     std::filesystem::path out_file{"search.gff"};
 
-    bool compressed{false};
     bool write_time{false};
     bool fast{false};
     bool verbose{false};

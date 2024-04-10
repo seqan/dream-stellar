@@ -44,6 +44,7 @@ void trim_fasta_id(id_t & id)
  *  \param seq_count    Number of sequences.
  *  \param seg_count    Database was divided into this many segments.
  *  \param sequences    Collection of database sequences.
+ *  \param ibf_fpr  FPR of a k-mer query in the IBF.
  *  \param default_seg_len  Default length of a segment that is dynamically updated.
  *  \param segments     Collection of database segments.
  */
@@ -184,6 +185,7 @@ struct metadata
     size_t seq_count;
     size_t seg_count;
     size_t pattern_size;
+    float ibf_fpr;
 
     std::vector<sequence_file> files;
     std::vector<sequence_stats> sequences;
@@ -432,6 +434,7 @@ struct metadata
         */
         metadata(split_arguments const & arguments)
         {
+            ibf_fpr = arguments.fpr;
             if (arguments.metagenome)
             {
                 scan_metagenome_bins(arguments.bin_path);
@@ -452,10 +455,16 @@ struct metadata
             scan_database_file(arguments.query_file);
             if (!arguments.manual_parameters)
             {
+                //!TODO: what is a suitable value for this magic const
+                //!TODO: switch between prefiltered and stellar_only search?
                 if (total_len > (arguments.max_segment_len * 10))
                     arguments.seg_count = std::round(total_len / (arguments.max_segment_len - arguments.pattern_size));
                 else
                     arguments.seg_count = std::max(arguments.seg_count, (uint32_t) sequences.size() * 2);
+            }
+            else
+            {
+                arguments.seg_count = arguments.seg_count_in;
             }
 
             scan_database_sequences(arguments);
@@ -528,7 +537,7 @@ struct metadata
         {
             std::ofstream os(filepath, std::ios::binary);
             cereal::BinaryOutputArchive archive(os);
-            archive(total_len, pattern_size, files, sequences, segments);
+            archive(total_len, pattern_size, files, sequences, segments, ibf_fpr);
         }
       
         /**
@@ -540,7 +549,7 @@ struct metadata
         {
             std::ifstream is(filepath, std::ios::binary);
             cereal::BinaryInputArchive archive(is);
-            archive(total_len, pattern_size, files, sequences, segments);
+            archive(total_len, pattern_size, files, sequences, segments, ibf_fpr);
             seq_count = sequences.size();
             seg_count = segments.size();
         }
@@ -606,7 +615,7 @@ struct metadata
         double pattern_spurious_match_prob(param_set const & params) const
         {
             double fpr{1};
-            double p = kmer_spurious_match_prob(params.k);
+            double p = ibf_fpr + kmer_spurious_match_prob(params.k);
             const double precision{1e-9};
             /*
             For parameters 
@@ -652,8 +661,8 @@ struct metadata
             if (fp_per_pattern < 9e-6) // avoid very small floating point numbers
                 return 1e4;
 
-            constexpr double fpr_limit = 0.05; // allow FPR of 5% per query segment
-            size_t max_patterns_per_segment = std::floor(log(1 - fpr_limit) / log(1 - fp_per_pattern)); 
+            constexpr double FPR_LIMIT = 0.05; // allow FPR of 5% per query segment
+            size_t max_patterns_per_segment = std::floor(log(1 - FPR_LIMIT) / log(1 - fp_per_pattern)); 
             
             return pattern_size + query_every * (std::max(max_patterns_per_segment, (size_t) 2) - 1);
         }

@@ -25,7 +25,7 @@ do
                 output="8bins"$w"window"$e"error"$p"pattern"$n"query_every.gff"
                 er=$( echo $e/$p | bc -l )
                 valik search --distribute --index ../build/8bins${w}window.ibf --query query.fq --output "$output" --error-rate "$er" --pattern "$p" \
-                             --query-every "$n" --tau "$tau" --p_max "$p_max" --threads 1 --without-parameter-tuning
+                             --query-every "$n" --tau "$tau" --p_max "$p_max" --threads 1 --without-parameter-tuning --cart-max-capacity 3 --max-queued-carts 10
                 rm "$output"
             done
         done
