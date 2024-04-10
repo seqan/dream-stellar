@@ -245,7 +245,6 @@ void run_search(sharg::parser & parser)
         arguments.shape_size = arguments.shape.size();
         arguments.shape_weight = arguments.shape.count();
         arguments.window_size = tmp.window_size();
-        arguments.compressed = tmp.compressed();
         arguments.bin_path = tmp.bin_path();
     }
 
@@ -320,6 +319,9 @@ void run_search(sharg::parser & parser)
         sharg::input_file_validator argument_input_validator{{"arg"}};
         argument_input_validator(search_profile_file);
         search_kmer_profile search_profile{search_profile_file};
+
+
+        
         arguments.pattern_size = search_profile.l;
         arguments.errors = std::ceil(arguments.error_rate * arguments.pattern_size);    // update based on pattern size in metadata
         search_error_profile error_profile = search_profile.get_error_profile(arguments.errors);
@@ -341,6 +343,9 @@ void run_search(sharg::parser & parser)
             arguments.threshold_percentage = arguments.threshold / (double) (arguments.pattern_size - arguments.shape.size() + 1);
             arguments.fnr = error_profile.fnr;
         }
+
+        if (arguments.window_size > arguments.shape_size)
+            arguments.search_type = search_kind::MINIMISER;
     }
 
     // ==========================================

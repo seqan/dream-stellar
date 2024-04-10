@@ -25,6 +25,7 @@ TEST_P(dream_short_search, short_shared_mem)
     
     cli_test_result const split_ref = execute_app("valik", "split",
                                                            data("ref.fasta"),
+                                                           "--fpr 0.001",
                                                            "--out", ref_meta_path,
                                                            "--pattern ", std::to_string(pattern_size), 
                                                            "--error-rate ", std::to_string(max_error_rate));
@@ -32,7 +33,6 @@ TEST_P(dream_short_search, short_shared_mem)
     valik::metadata reference(ref_meta_path);
 
     cli_test_result const build = execute_app("valik", "build",
-                                                       "--fpr 0.001",
                                                        "--ref-meta", ref_meta_path,
                                                        "--output ", index_path);
     EXPECT_EQ(build.exit_code, 0);
@@ -124,6 +124,7 @@ TEST_P(dream_split_search, split_shared_mem)
 
     cli_test_result const split_ref = execute_app("valik", "split",
                                                            data("ref.fasta"),
+                                                           "--fpr 0.001",
                                                            "--out", ref_meta_path,
                                                            "--pattern ", std::to_string(pattern_size), 
                                                            "--error-rate ", std::to_string(max_error_rate));
@@ -132,7 +133,6 @@ TEST_P(dream_split_search, split_shared_mem)
     valik::metadata reference(ref_meta_path);
 
     cli_test_result const build = execute_app("valik", "build",
-                                                       "--fpr 0.001",
                                                        "--ref-meta", ref_meta_path,
                                                        "--output ", index_path);
     EXPECT_EQ(build.exit_code, 0);

@@ -107,6 +107,6 @@ inline uint64_t combinations(size_t const k, size_t const n)
         return 0;
 }
 
-enum class search_kind {LEMMA, HEURISTIC, STELLAR};
+enum class search_kind {LEMMA, HEURISTIC, MINIMISER, STELLAR};
 
 }   //namespace valik

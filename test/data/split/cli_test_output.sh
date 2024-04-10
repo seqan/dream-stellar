@@ -57,7 +57,7 @@ do
         error_rate=$(echo $errors/$pattern| bc -l )
         valik search --distribute --index "$index" --query "$query" --output "$search_out" --error-rate "$error_rate" \
                      --pattern "$pattern" --query-every 1 --tau "$tau" --p_max "$p_max" --ref-meta "$seg_meta" --threads 1 \
-                     --without-parameter-tuning
+                     --without-parameter-tuning --cart-max-capacity 3 --max-queued-carts 10
     rm "$search_out"    # only look at .gff.out
     done
 done

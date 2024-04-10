@@ -336,12 +336,6 @@ struct valik_base : public cli_test
         }
     };
 
-    struct is_compressed : strong_bool
-    {
-        using strong_bool::value;
-        using strong_bool::strong_bool;
-    };
-
     struct compare_extension : strong_bool
     {
         using strong_bool::value;
@@ -405,8 +399,7 @@ struct valik_base : public cli_test
                                      std::filesystem::path const & actual_result,
                                      compare_extension const compare_ext = compare_extension::yes)
     {
-        constexpr bool is_ibf = std::same_as<data_t, valik::index_structure::ibf> ||
-                                std::same_as<data_t, valik::index_structure::ibf_compressed>;
+        constexpr bool is_ibf = std::same_as<data_t, valik::index_structure::ibf>;
         static_assert(is_ibf);
 
         valik::valik_index<data_t> expected_index{}, actual_index{};
@@ -424,7 +417,6 @@ struct valik_base : public cli_test
 
         EXPECT_EQ(expected_index.window_size(), actual_index.window_size());
         EXPECT_EQ(expected_index.shape(), actual_index.shape());
-        EXPECT_EQ(expected_index.compressed(), actual_index.compressed());
 
         if constexpr(is_ibf)
         {

@@ -14,9 +14,14 @@ namespace valik
 inline double score(kmer_loss const & attr, 
                     search_pattern const & pattern, 
                     param_set const & params, 
-                    metadata const & ref_meta)
+                    metadata const & ref_meta,
+                    size_t const PATTERNS_PER_SEGMENT)
 {
-    return attr.fnr_for_param_set(pattern, params) + ref_meta.pattern_spurious_match_prob(params);
+    
+    double none_match_p = pow(1 - ref_meta.pattern_spurious_match_prob(params), PATTERNS_PER_SEGMENT);
+    double fpr = std::min(1 - none_match_p, 1.0);
+
+    return attr.fnr_for_param_set(pattern, params) + fpr;
 }
 
 /**

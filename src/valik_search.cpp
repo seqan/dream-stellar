@@ -27,7 +27,6 @@ void runtime_to_compile_time(func_t const & func, bool b1, bs_t... bs)
 /**
  * @brief Function that loads the index and launches local or distributed search.
  *
- * @tparam compressed Interleaved Bloom Filter layout type.
  * @param arguments Command line arguments.
  */
 void valik_search(search_arguments & arguments)
@@ -44,18 +43,18 @@ void valik_search(search_arguments & arguments)
     bool failed;
     if (arguments.distribute)
     {
-        runtime_to_compile_time([&]<bool is_compressed, bool stellar_only>()
+        runtime_to_compile_time([&]<bool stellar_only>()
         {
-            failed = search_distributed<is_compressed, stellar_only>(arguments, time_statistics);
-        }, arguments.compressed, (arguments.search_type == search_kind::STELLAR));
+            failed = search_distributed<stellar_only>(arguments, time_statistics);
+        }, (arguments.search_type == search_kind::STELLAR));
     }
     // Shared memory execution
     else
     {
-        runtime_to_compile_time([&]<bool is_compressed, bool is_split, bool stellar_only>()
+        runtime_to_compile_time([&]<bool is_split, bool stellar_only>()
         {
-            failed = search_local<is_compressed, is_split, stellar_only>(arguments, time_statistics);
-        }, arguments.compressed, arguments.split_query, (arguments.search_type == search_kind::STELLAR));
+            failed = search_local<is_split, stellar_only>(arguments, time_statistics);
+        }, arguments.split_query, (arguments.search_type == search_kind::STELLAR));
     }
 
     // Consolidate matches (not necessary when searching a metagenomic database)

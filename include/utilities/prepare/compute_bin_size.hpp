@@ -20,7 +20,8 @@
 
 #include <valik/shared.hpp>
 #include <valik/build/call_parallel_on_bins.hpp>
-#include <utilities/prepare/cutoff.hpp>
+#include <valik/split/metadata.hpp>
+#include <utilities/prepare/parse_bin_paths.hpp>
 
 namespace seqan::hibf::build
 {

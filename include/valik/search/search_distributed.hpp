@@ -14,15 +14,14 @@ namespace valik::app
 /**
  * @brief Function that calls Valik prefiltering and launches parallel processes of Stellar search.
  *
- * @tparam compressed IBF layout type.
  * @param arguments Command line arguments.
  * @param time_statistics Run-time statistics.
  * @return false if search failed.
  */
-template <bool compressed, bool stellar_only>
+template <bool stellar_only>
 bool search_distributed(search_arguments & arguments, search_time_statistics & time_statistics)
 {
-    using index_structure_t = std::conditional_t<compressed, index_structure::ibf_compressed, index_structure::ibf>;
+    using index_structure_t = index_structure::ibf;
     auto index = valik_index<index_structure_t>{};
 
     std::optional<metadata> ref_meta;

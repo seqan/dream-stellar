@@ -45,28 +45,6 @@ struct filtering_request
         return std::min(1 - none_match_p, 1.0);
     }
 
-    /**
-    * @brief For a chosen kmer size and error rate find the best heuristic threshold. 
-    */
-    uint8_t find_heuristic_threshold(kmer_loss const attr) const
-    {
-        param_space space;
-        auto best_thresh = space.max_thresh;
-        double best_score = pattern.l;
-        for (uint8_t t{1}; t <= space.max_thresh; t++)
-        {
-            auto params = param_set(attr.k, t, space);
-            auto param_score = score(attr, pattern, params, ref_meta); 
-        
-            if (param_score <= best_score)
-            {
-                best_thresh = params.t;
-                best_score = param_score;
-            }
-        }    
-
-        return best_thresh;
-    }
 };
 
 }   // namespace valik

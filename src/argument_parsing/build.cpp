@@ -12,15 +12,6 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                       .description = "Provide an output filepath.",
                       .required = true,
                       .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {}}});
-    parser.add_option(arguments.fpr,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "fpr",
-                      .description = "False positive rate of IBF.",
-                      .validator = sharg::arithmetic_range_validator{0.0001f, 0.5f}});
-    parser.add_flag(arguments.compressed,
-                    sharg::config{.short_id = '\0',
-                    .long_id = "compressed",
-                    .description = "Build a compressed IBF."});
     parser.add_option(arguments.ref_meta_path,
                     sharg::config{.short_id = '\0',
                     .long_id = "ref-meta",
@@ -45,13 +36,13 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
     // Advanced options
     /////////////////////////////////////////
     parser.add_option(arguments.window_size,
-                      sharg::config{.short_id = '\0',
+                      sharg::config{.short_id = 'w',
                       .long_id = "window",
                       .description = "Choose the window size.",
                       .advanced = true,
                       .validator = positive_integer_validator{}});
     parser.add_option(arguments.kmer_size,
-                      sharg::config{.short_id = '\0',
+                      sharg::config{.short_id = 'k',
                       .long_id = "kmer",
                       .description = "Choose the kmer size.",
                       .advanced = true,
@@ -67,7 +58,12 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                       .long_id = "size",
                       .description = "Choose the size of the resulting IBF.",
                       .advanced = true,
-                      .validator = size_validator{"\\d+\\s{0,1}[k,m,g,t,K,M,G,T]"}});    
+                      .validator = size_validator{"\\d+\\s{0,1}[k,m,g,t,K,M,G,T]"}});
+    parser.add_flag(arguments.verbose,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "verbose",
+                    .description = "Print verbose output.",
+                    .advanced = true});    
     
     parser.add_subsection("Processing options");
     parser.add_option(arguments.kmer_count_cutoff,
@@ -112,31 +108,10 @@ void run_build(sharg::parser & parser)
         arguments.window_size = search_profile.k;
     }
 
-    // ==========================================
-    // Various checks.
-    // ==========================================
-    if (parser.is_option_set("kmer-count-cutoff") && parser.is_option_set("use-filesize-dependent-cutoff"))
-        throw sharg::parser_error{"You cannot use both --kmer-count-cutoff and --use-filesize-dependent-cutoff."};
-
-    if (parser.is_option_set("window"))
+    if (arguments.kmer_size > arguments.window_size)
     {
-        if (arguments.kmer_size > arguments.window_size)
-            throw sharg::parser_error{"The k-mer size cannot be bigger than the window size."};
+        throw sharg::parser_error{"The k-mer size cannot be bigger than the window size."};
     }
-    else
-    {
-        if (arguments.fast)
-        {
-            arguments.window_size = arguments.kmer_size + 2;
-            raptor::compute_minimiser(arguments);
-            arguments.input_is_minimiser = true;
-        }
-        else
-            arguments.window_size = arguments.kmer_size;
-    }
-
-    arguments.shape = seqan3::shape{seqan3::ungapped{arguments.kmer_size}};
-    arguments.shape_weight = arguments.shape.count();
 
     // ==========================================
     // Process bin_path:
@@ -167,6 +142,27 @@ void run_build(sharg::parser & parser)
         }
     }
 
+    // ==========================================
+    // Process minimiser parameters for IBF size calculation.
+    // ==========================================
+    if (parser.is_option_set("kmer-count-cutoff") && parser.is_option_set("use-filesize-dependent-cutoff"))
+        throw sharg::parser_error{"You cannot use both --kmer-count-cutoff and --use-filesize-dependent-cutoff."};
+
+    arguments.shape = seqan3::shape{seqan3::ungapped{arguments.kmer_size}};
+    arguments.shape_weight = arguments.shape.count();
+
+    if (!parser.is_option_set("window"))
+    {
+        if (arguments.fast)
+        {
+            arguments.window_size = arguments.kmer_size + 2;
+            raptor::compute_minimiser(arguments);   // requires bin_path
+            arguments.input_is_minimiser = true;
+        }
+        else
+            arguments.window_size = arguments.kmer_size;
+    }
+
     try
     {
         sharg::output_file_validator{sharg::output_file_open_options::open_or_create}(arguments.out_path);
@@ -181,10 +177,7 @@ void run_build(sharg::parser & parser)
     // ==========================================
     // Find IBF size.
     // ==========================================
-    if (parser.is_option_set("size") && parser.is_option_set("fpr"))
-        throw sharg::parser_error{"You cannot use both --size and --fpr."};
-
-    if (arguments.manual_parameters)
+    if (parser.is_option_set("size"))
     {
         arguments.size.erase(std::remove(arguments.size.begin(), arguments.size.end(), ' '), arguments.size.end());
 
@@ -213,13 +206,9 @@ void run_build(sharg::parser & parser)
         size *= multiplier;
         arguments.bits = size / (((arguments.bins + 63) >> 6) << 6);
     }
-    else
+    else 
     {
-        if (parser.is_option_set("size"))
-        {
-            seqan3::debug_stream << "WARNING: size=" << arguments.size << " will be updated. " 
-                                 << "Set --without-parameter-tuning to force manual input.";
-        }
+        arguments.fpr = meta.ibf_fpr;
         arguments.bits = raptor::compute_bin_size(arguments);
     }
     
