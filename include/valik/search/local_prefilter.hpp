@@ -92,7 +92,7 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
     size_t const minimiser_count = pattern.end_position - pattern.begin_position;
 
     pattern.threshold = thresholder.get(minimiser_count);
-
+    //seqan3::debug_stream << "threshold\t" << pattern.threshold << '\n';
     return pattern;
 }
 

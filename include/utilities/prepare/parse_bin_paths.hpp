@@ -24,12 +24,16 @@ inline auto parse_bin_paths(build_arguments const & arguments)
     }
     else
     {
-        valik::metadata meta(arguments.ref_meta_path); 
         for (size_t bin{0}; bin < arguments.bins; bin++)
         {
-            std::filesystem::path file = arguments.bin_path[0][0];
-            minimiser_files.emplace_back((std::vector<std::string>){file.replace_extension(std::to_string(bin) + ".minimiser")});
-            //seqan3::debug_stream << minimiser_files[minimiser_files.size() - 1][0] << '\n';
+            std::filesystem::path const ref_file{arguments.bin_path[0][0]};
+            std::filesystem::path file = arguments.out_dir;
+            file /= ref_file.stem();
+            file += ".";
+            file += std::to_string(bin);
+            file += ".minimiser";
+            minimiser_files.emplace_back((std::vector<std::string>){file});
+            seqan3::debug_stream << minimiser_files[minimiser_files.size() - 1][0] << '\n';
         }
     }
 

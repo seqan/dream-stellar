@@ -116,7 +116,7 @@ void compute_minimiser(valik::build_arguments const & arguments)
                 else
                     std::ofstream outfile{progress_file, std::ios::binary};
 
-                std::unordered_set<uint64_t> distinct_minimisers{};
+                std::unordered_map<uint64_t, uint8_t> minimiser_table{};
                 // The map is (re-)constructed for each segment. The alternative is to construct it once for each thread
                 // and clear+reuse it for every file that a thread works on. However, this dramatically increases
                 // memory consumption because the map will stay as big as needed for the biggest encountered file.
@@ -130,16 +130,19 @@ void compute_minimiser(valik::build_arguments const & arguments)
 
                 for (auto && value : seq | seqan3::views::slice(seg.start, seg.start + seg.len) | hash_view())
                 {
-                    distinct_minimisers.insert(value);  
+                    minimiser_table[value] = std::min<uint8_t>(254u, minimiser_table[value] + 1);  
                 }
 
                 uint64_t count{};
                 {
                     std::ofstream outfile{minimiser_file, std::ios::binary};
-                    for (auto && hash : distinct_minimisers)
+                    for (auto && [hash, occurrences] : minimiser_table)
                     {
-                        outfile.write(reinterpret_cast<const char *>(&hash), sizeof(hash));
-                        ++count;
+                        if (occurrences > arguments.kmer_count_min_cutoff && occurrences < arguments.kmer_count_max_cutoff)
+                        {
+                            outfile.write(reinterpret_cast<const char *>(&hash), sizeof(hash));
+                            ++count;
+                        }
                     }
                 }
 

@@ -97,7 +97,8 @@ struct build_arguments
     bool manual_parameters{false};
     bool input_is_minimiser{false};
 
-    bool kmer_count_cutoff{false};
+    uint8_t kmer_count_min_cutoff{2};
+    uint8_t kmer_count_max_cutoff{64};
     bool use_filesize_dependent_cutoff{false};
 
     std::filesystem::path ref_meta_path{};
