@@ -157,21 +157,6 @@ void run_build(sharg::parser & parser)
     arguments.shape = seqan3::shape{seqan3::ungapped{arguments.kmer_size}};
     arguments.shape_weight = arguments.shape.count();
 
-    if (!parser.is_option_set("window"))
-    {
-        if (arguments.fast)
-        {
-            arguments.window_size = arguments.kmer_size + 2;
-            raptor::compute_minimiser(arguments);   // requires bin_path
-            arguments.input_is_minimiser = true;
-        }
-        else
-            arguments.window_size = arguments.kmer_size;
-    }
-
-    seqan3::debug_stream << "Computed minimisers\n";    
-    
-    /*
     try
     {
         sharg::output_file_validator{sharg::output_file_open_options::open_or_create}(arguments.out_path);
@@ -182,8 +167,21 @@ void run_build(sharg::parser & parser)
         std::cerr << "[Error] " << ext.what() << '\n';
         std::exit(-1);
     }
-    */
 
+    if (!parser.is_option_set("window"))
+    {
+        if (arguments.fast)
+        {
+            arguments.window_size = arguments.kmer_size + 2;
+            arguments.input_is_minimiser = true;
+        }
+        else
+            arguments.window_size = arguments.kmer_size;
+    }
+
+    if (arguments.fast)
+        raptor::compute_minimiser(arguments);   // requires bin_path
+    
     // ==========================================
     // Find IBF size.
     // ==========================================

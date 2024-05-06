@@ -16,7 +16,7 @@ inline auto parse_bin_paths(build_arguments const & arguments)
             std::vector<std::string> bin_headers;
             for (std::filesystem::path file : bin_files)
             {
-                bin_headers.push_back(file.replace_extension("minimiser"));
+                bin_headers.emplace_back(arguments.out_dir / file.stem().replace_extension("minimiser"));
                 //seqan3::debug_stream << bin_headers[bin_headers.size() - 1] << '\n';
             }
             minimiser_files.push_back(bin_headers);

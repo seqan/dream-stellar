@@ -65,9 +65,7 @@ private:
             };
 
             std::vector<std::vector<std::string>> file_paths = parse_bin_paths(*arguments);
-            seqan3::debug_stream << "Parsed bin paths\n";
             call_parallel_on_bins(minimiser_worker, file_paths, arguments->threads);
-            seqan3::debug_stream << "Called parallel on bins\n";
         }
         else if (arguments->bin_path.size() > 1)
         {
