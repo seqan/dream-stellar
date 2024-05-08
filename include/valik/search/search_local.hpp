@@ -186,6 +186,8 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                 stellar::StellarOptions threadOptions{};
                 stellar::stellar_app_runtime stellarThreadTime{};
+                auto current_time = stellarThreadTime.now();
+
                 threadOptions.alphabet = "dna";            // Possible values: dna, rna, protein, char
                 threadOptions.verbose = true;
                 threadOptions.queryFile = "in memory";
@@ -222,11 +224,15 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 // import query sequences
                 seqan2::StringSet<TQuerySegment, seqan2::Dependent<>> queries;
                 seqan2::StringSet<seqan2::CharString> queryIDs;
-                get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out);
+                
+                stellarThreadTime.input_queries_time.measure_time([&]()
+                {
+                    get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out);
+                });
 
                 stellar::_writeMoreCalculatedParams(threadOptions, threadOptions.referenceLength, queries, thread_meta.text_out);
 
-                auto current_time = stellarThreadTime.swift_index_construction_time.now();
+                auto swift_index_time = stellarThreadTime.swift_index_construction_time.now();
                 stellar::StellarIndex<TAlphabet> stellarIndex{queries, threadOptions};
                 stellar::StellarSwiftPattern<TAlphabet> swiftPattern = stellarIndex.createSwiftPattern();
 
@@ -234,7 +240,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 thread_meta.text_out << "Constructing index..." << '\n';
                 stellarIndex.construct();
                 thread_meta.text_out << std::endl;
-                stellarThreadTime.swift_index_construction_time.manual_timing(current_time);
+                stellarThreadTime.swift_index_construction_time.manual_timing(swift_index_time);
 
                 std::vector<size_t> disabledQueryIDs{};
 
@@ -282,7 +288,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
                         if (!outputFile.is_open())
                         {
-                            std::cerr << "Could not open output file." << std::endl;
+                            std::cerr << "Could not open output file\t" << threadOptions.outputFile.c_str() << std::endl;
                             error_in_search = true;
                         }
                         stellarThreadTime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
@@ -291,7 +297,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                             stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, "gff", outputFile);
                         }); // measure_time
 
-                    outputStatistics = stellar::_computeOutputStatistics(forwardMatches);
+                        outputStatistics = stellar::_computeOutputStatistics(forwardMatches);
                     }); // measure_time
                 }
 
@@ -346,7 +352,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::app);
                         if (!outputFile.is_open())
                         {
-                            std::cerr << "Could not open output file." << std::endl;
+                            std::cerr << "Could not open output file\t" << threadOptions.outputFile.c_str() << std::endl;
                             error_in_search = true;
                         }
                         stellarThreadTime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
@@ -355,7 +361,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                             stellar::_writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, "gff", outputFile);
                         }); // measure_time
 
-                    outputStatistics.mergeIn(stellar::_computeOutputStatistics(reverseMatches));
+                        outputStatistics.mergeIn(stellar::_computeOutputStatistics(reverseMatches));
                     }); // measure_time
                 }
 
@@ -373,7 +379,11 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                 thread_meta.time_statistics.emplace_back(stellarThreadTime.milliseconds() / 1000);
                 if (arguments.write_time)
+                {
+                    stellarThreadTime.manual_timing(current_time);
                     stellar::_print_stellar_app_time(stellarThreadTime, thread_meta.text_out);
+                }
+                    
             }
         });
     }
