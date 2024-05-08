@@ -66,10 +66,16 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                     .advanced = true});    
     
     parser.add_subsection("Processing options");
-    parser.add_option(arguments.kmer_count_cutoff,
+    parser.add_option(arguments.kmer_count_min_cutoff,
                       sharg::config{.short_id = '\0',
-                                    .long_id = "kmer-count-cutoff",
+                                    .long_id = "kmer-count-min",
                                     .description = "Only store k-mers with at least (>=) x occurrences. "
+                                                   "Mutually exclusive with --use-filesize-dependent-cutoff.",
+                                    .validator = sharg::arithmetic_range_validator{0, 254}});
+    parser.add_option(arguments.kmer_count_max_cutoff,
+                      sharg::config{.short_id = '\0',
+                                    .long_id = "kmer-count-max",
+                                    .description = "Only store k-mers with no more than (<=) x occurrences. "
                                                    "Mutually exclusive with --use-filesize-dependent-cutoff.",
                                     .validator = sharg::arithmetic_range_validator{1, 254}});
     parser.add_flag(arguments.use_filesize_dependent_cutoff,
@@ -145,23 +151,11 @@ void run_build(sharg::parser & parser)
     // ==========================================
     // Process minimiser parameters for IBF size calculation.
     // ==========================================
-    if (parser.is_option_set("kmer-count-cutoff") && parser.is_option_set("use-filesize-dependent-cutoff"))
+    if ((parser.is_option_set("kmer-count-min") || parser.is_option_set("kmer-count-max")) && parser.is_option_set("use-filesize-dependent-cutoff"))
         throw sharg::parser_error{"You cannot use both --kmer-count-cutoff and --use-filesize-dependent-cutoff."};
 
     arguments.shape = seqan3::shape{seqan3::ungapped{arguments.kmer_size}};
     arguments.shape_weight = arguments.shape.count();
-
-    if (!parser.is_option_set("window"))
-    {
-        if (arguments.fast)
-        {
-            arguments.window_size = arguments.kmer_size + 2;
-            raptor::compute_minimiser(arguments);   // requires bin_path
-            arguments.input_is_minimiser = true;
-        }
-        else
-            arguments.window_size = arguments.kmer_size;
-    }
 
     try
     {
@@ -174,6 +168,20 @@ void run_build(sharg::parser & parser)
         std::exit(-1);
     }
 
+    if (!parser.is_option_set("window"))
+    {
+        if (arguments.fast)
+        {
+            arguments.window_size = arguments.kmer_size + 2;
+            arguments.input_is_minimiser = true;
+        }
+        else
+            arguments.window_size = arguments.kmer_size;
+    }
+
+    if (arguments.fast)
+        raptor::compute_minimiser(arguments);   // requires bin_path
+    
     // ==========================================
     // Find IBF size.
     // ==========================================
