@@ -9,6 +9,15 @@ namespace valik
 {
 
 /**
+ * @brief The false positive probability of a query segment that contains partially overlapping patterns.
+*/
+inline double segment_fpr(double const pattern_p, size_t const patterns_per_segment)
+{
+    double none_match_p = pow(1 - pattern_p, patterns_per_segment);
+    return std::min(1 - none_match_p, 1.0);
+}
+
+/**
 * @brief Score of the objective function for a parameter set. Smaller values are better.
 */
 inline double score(kmer_loss const & attr, 
