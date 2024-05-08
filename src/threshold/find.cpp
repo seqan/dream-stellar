@@ -111,7 +111,7 @@ search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
         auto best_params = param_set(attr.k, kmer_lemma_threshold(pattern.l, attr.k, errors), space);
 
         if ((best_params.t < THRESH_LOWER) ||  
-        (1 - pow(1 - ref_meta.pattern_spurious_match_prob(best_params), PATTERNS_PER_SEGMENT)) > FPR_UPPER)
+        segment_fpr(ref_meta.pattern_spurious_match_prob(best_params), PATTERNS_PER_SEGMENT) > FPR_UPPER)
         {
             search_type = search_kind::HEURISTIC;
             double best_score = pattern.l;
