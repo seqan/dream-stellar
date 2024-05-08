@@ -71,7 +71,7 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                                     .long_id = "kmer-count-min",
                                     .description = "Only store k-mers with at least (>=) x occurrences. "
                                                    "Mutually exclusive with --use-filesize-dependent-cutoff.",
-                                    .validator = sharg::arithmetic_range_validator{1, 254}});
+                                    .validator = sharg::arithmetic_range_validator{0, 254}});
     parser.add_option(arguments.kmer_count_max_cutoff,
                       sharg::config{.short_id = '\0',
                                     .long_id = "kmer-count-max",
