@@ -3,7 +3,7 @@
 #include <filesystem>
 
 #include <utilities/threshold/kmer_loss.hpp>
-#include <utilities/threshold/io.hpp>
+#include <utilities/threshold/fn_confs.hpp>
 #include <utilities/threshold/search_pattern.hpp>
 #include <utilities/threshold/param_set.hpp>
 
@@ -18,23 +18,29 @@ std::filesystem::path data_path(std::string const & filename)
 
 TEST(kmer_loss, equal_after_serialization)
 {
+    valik::param_space space{};
+    valik::fn_confs initial_fn_attr(space);
     std::filesystem::remove(valik::fn_filename());
-    std::vector<valik::kmer_loss> precalc_attr_vec;
-    valik::precalc_fn_confs(precalc_attr_vec);
+    valik::fn_confs precalc_fn_attr(space);
 
-    std::vector<valik::kmer_loss> deserialized_attr_vec;
-    valik::read_fn_confs(deserialized_attr_vec);
-    EXPECT_EQ(precalc_attr_vec.size(), deserialized_attr_vec.size());
-    for (size_t i{0}; i < precalc_attr_vec.size(); i++)
+    valik::fn_confs deserialized_fn_attr(space);
+
+    EXPECT_EQ(deserialized_fn_attr.space.min_k(), precalc_fn_attr.space.min_k());
+    EXPECT_EQ(deserialized_fn_attr.space.max_k(), precalc_fn_attr.space.max_k());
+
+    for (uint8_t k{space.min_k()}; k <= space.max_k(); k++)
     {
-        EXPECT_EQ(precalc_attr_vec[i].k, deserialized_attr_vec[i].k);
-        EXPECT_EQ(precalc_attr_vec[i].fn_conf_counts.size(), deserialized_attr_vec[i].fn_conf_counts.size());
-        for (size_t j{0}; j < precalc_attr_vec[i].fn_conf_counts.size(); j++)
+        const valik::kmer_loss & precalc_loss = precalc_fn_attr.get_kmer_loss(k);
+        const valik::kmer_loss & deserialized_loss = deserialized_fn_attr.get_kmer_loss(k);
+        
+        EXPECT_EQ(precalc_loss.k, deserialized_loss.k);
+        EXPECT_EQ(precalc_loss.fn_conf_counts.size(), deserialized_loss.fn_conf_counts.size());
+        for (size_t j{0}; j < precalc_loss.fn_conf_counts.size(); j++)
         {
-            EXPECT_EQ(precalc_attr_vec[i].fn_conf_counts[j].size(), deserialized_attr_vec[i].fn_conf_counts[j].size());
-            for (size_t k{0}; k < precalc_attr_vec[i].fn_conf_counts[j].size(); k++)
+            EXPECT_EQ(precalc_loss.fn_conf_counts[j].size(), deserialized_loss.fn_conf_counts[j].size());
+            for (size_t k{0}; k < precalc_loss.fn_conf_counts[j].size(); k++)
             {
-                EXPECT_RANGE_EQ(precalc_attr_vec[i].fn_conf_counts[j][k], deserialized_attr_vec[i].fn_conf_counts[j][k]);
+                EXPECT_RANGE_EQ(precalc_loss.fn_conf_counts[j][k], deserialized_loss.fn_conf_counts[j][k]);
             }
         }
     }
@@ -42,16 +48,14 @@ TEST(kmer_loss, equal_after_serialization)
 
 TEST(kmer_loss, basic_checks)
 {
-    valik::param_space space;
+    valik::param_space space{};
 
-    std::vector<valik::kmer_loss> attr_vec;
-    if (!valik::read_fn_confs(attr_vec))
-        valik::precalc_fn_confs(attr_vec);
-
-    EXPECT_EQ(attr_vec.size(), std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
-
-    for (auto & attr : attr_vec)
+    valik::fn_confs fn_attr = fn_confs(space);
+    EXPECT_EQ(space.min_k(), fn_attr.space.min_k());
+    EXPECT_EQ(space.max_k(), fn_attr.space.max_k());
+    for (uint8_t k{space.min_k()}; k < space.max_k(); k++)
     {
+        const valik::kmer_loss & attr = fn_attr.get_kmer_loss(k);
         EXPECT_EQ(attr.fn_conf_counts.size(), space.max_thresh);
         for (auto & thresh_table : attr.fn_conf_counts)
         {
@@ -119,12 +123,12 @@ static void check_thresh_from_kmer_lemma(valik::kmer_loss const & attr)
 
 TEST(kmer_loss, edge_cases)
 {
-    std::vector<valik::kmer_loss> attr_vec;
-    if (!valik::read_fn_confs(attr_vec))
-        valik::precalc_fn_confs(attr_vec);
+    valik::param_space space{};
+    valik::fn_confs fn_attr(space);
 
-    for (auto & attr : attr_vec)
+    for (uint8_t k{space.min_k()}; k <= space.max_k(); k++)
     {
+        const valik::kmer_loss & attr = fn_attr.get_kmer_loss(k);
         check_len_less_than_kmer_size(attr);
         check_thresh_from_kmer_lemma(attr);
     }
@@ -136,14 +140,12 @@ TEST(kmer_loss, edge_cases)
 */
 TEST(kmer_loss, exhaustive_comparison)
 {
-    std::vector<valik::kmer_loss> attr_vec;
-    if (!valik::read_fn_confs(attr_vec))
-        valik::precalc_fn_confs(attr_vec);
+    valik::param_space space{};
+    valik::fn_confs fn_attr(space);
 
-    valik::param_space space;
-    for (uint8_t k{std::get<0>(space.kmer_range)}; k <= std::get<1>(space.kmer_range); k++)
+    for (uint8_t k{space.min_k()}; k <= space.max_k(); k++)
     {   
-        auto kmer_attr = attr_vec[k - 9];
+        const valik::kmer_loss & kmer_attr = fn_attr.get_kmer_loss(k);
         for (size_t t{1}; t <= space.max_thresh; t++)
         {
             for (size_t e{1}; e <= space.max_errors; e++)
@@ -151,16 +153,16 @@ TEST(kmer_loss, exhaustive_comparison)
                 for (size_t l = k + t - 1 + e; l <= space.max_len; l++)
                 {
                     // f(k, t, e, l) is calculated based on f(k, t, e, l - 1)
-                    uint64_t calc_conf_count = attr_vec[k - 9].fn_conf_counts[t - 1][e][l];
+                    uint64_t calc_conf_count = kmer_attr.fn_conf_counts[t - 1][e][l];
 
                     // f(k, t, e, l) is calculated based on a subvector sum in row (e - 1) 
                     // i.e f(k, t, e, l) = f(k, t, e - 1, l - 1) + f(k, t, e - 1, l - 2) ...     
                     uint64_t row_sum_conf_count{0};
                     for (size_t i{1}; i <= k; i++)
-                        row_sum_conf_count += attr_vec[k - 9].fn_conf_counts[t - 1][e - 1][l - i];
+                        row_sum_conf_count += kmer_attr.fn_conf_counts[t - 1][e - 1][l - i];
         
                     for (size_t j{1}; j < t; j++)
-                        row_sum_conf_count += attr_vec[k - 9].fn_conf_counts[t - 1 - j][e - 1][l - k - j];
+                        row_sum_conf_count += kmer_attr.fn_conf_counts[t - 1 - j][e - 1][l - k - j];
     
                     EXPECT_EQ(row_sum_conf_count, calc_conf_count);
                 }
@@ -171,15 +173,13 @@ TEST(kmer_loss, exhaustive_comparison)
 
 void try_fnr(uint8_t e, size_t l, uint8_t k, uint8_t t, double expected_fnr)
 {
-    valik::param_space space;
+    valik::param_space space{};
     valik::search_pattern pattern(e, l);
     valik::param_set param(k, t, space);
 
-    std::vector<valik::kmer_loss> attr_vec;
-    if (!valik::read_fn_confs(attr_vec))
-        valik::precalc_fn_confs(attr_vec);
+    valik::fn_confs fn_attr(space);
 
-    EXPECT_EQ(attr_vec[k - std::get<0>(space.kmer_range)].fnr_for_param_set(pattern, param), expected_fnr); 
+    EXPECT_EQ(fn_attr.get_kmer_loss(k).fnr_for_param_set(pattern, param), expected_fnr); 
 }
 
 TEST(false_negative, try_kmer_lemma_thershold)
@@ -192,7 +192,7 @@ TEST(false_negative, try_kmer_lemma_thershold)
 TEST(false_negative, try_threshold_above_kmer_lemma)
 {
     uint8_t t{35};
-    valik::param_space space;
+    valik::param_space space{};
     EXPECT_THROW({
         try
         {
