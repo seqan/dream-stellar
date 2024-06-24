@@ -25,9 +25,8 @@ struct kmer_loss
      * @brief For a maximum error count find the number of error configurations 
      *        that do not retain at least the threshold number of k-mers after mutation.
     */
-    mat_t count_err_conf_below_thresh()
+    mat_t count_err_conf_below_thresh(param_space const & space)
     {
-        auto space = param_space();
         mat_t matrix;
         for (uint8_t t = 1; t <= space.max_thresh; t++)
         {
@@ -61,11 +60,16 @@ struct kmer_loss
         return matrix;
     }
 
-    kmer_loss(uint8_t const kmer_size) : 
+    kmer_loss(uint8_t const kmer_size, param_space const & space) : 
                     k(kmer_size), 
-                    fn_conf_counts(count_err_conf_below_thresh()) { }
+                    fn_conf_counts(count_err_conf_below_thresh(space)) { }
 
     kmer_loss(uint8_t const kmer_size, mat_t const & matrix) : k(kmer_size), fn_conf_counts(matrix) { }
+
+    kmer_loss(std::string const & kmer_attr_str) : 
+    {
+        deserialize_kmer_loss(kmer_attr_str);
+    }
 
     /**
      * @brief False negative rate for a parameter set.
@@ -80,7 +84,7 @@ struct kmer_loss
         return fn_conf_counts[params.t - 1][pattern.e][pattern.l] / (double) pattern.total_conf_count();
     }
 
-    /**
+    /** //!TODO: use cereal
      * @brief Stream out flattened 3D matrix of false negative configuration counts.
     */
     template <typename str_t>
@@ -100,6 +104,71 @@ struct kmer_loss
             t++;
         }
     }
+
+    private:
+        //!TODO: use cereal
+        /**
+         * @brief Deserialize kmer_loss for a single k-mer size.
+        */
+        kmer_loss deserialize_kmer_loss(std::string const & kmer_attr_str)
+        {
+            std::istringstream matrix_str(kmer_attr_str);
+            std::string line;
+            std::getline(matrix_str, line);
+            k{0};
+            try
+            {
+                k = std::stoi(line.substr(line.find("k=") + 2));
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << "\nCan't convert " << line.substr(line.find("k=") + 2)  << "to k-mer size\n";
+            }
+
+            std::vector<std::vector<uint64_t>> table;
+            for (; std::getline(matrix_str, line); )
+            {
+                bool is_first_thresh_row{false};
+                try
+                {
+                    is_first_thresh_row = (stoi(line.substr(line.find("t=") + 2)) == 1);
+                }
+                catch(const std::exception& e)
+                {
+                    std::cerr << e.what() << "\nCan't convert " << line.substr(line.find("t=") + 2) << " to threshold\n";
+                }
+
+                std::istringstream row_str(line);
+                if (line.find("t=") == std::string::npos)
+                {
+                    std::string cell;
+                    std::vector<uint64_t> row;
+                    for (; std::getline(row_str, cell, '\t'); )
+                    {
+                        try
+                        {
+                            row.push_back(std::stoull(cell));
+                        }
+                        catch(const std::exception& e)
+                        {
+                            std::cerr << e.what() << "\nCan't convert cell value\t" << cell << '\n';
+                        }
+                    }
+                    table.push_back(row);
+                }
+                else if (is_first_thresh_row)
+                {
+                    continue;
+                }
+                else
+                {
+                    fn_conf_counts.push_back(table);
+                    table.clear();
+                }
+            }   
+
+            fn_conf_counts.push_back(table);
+        }
 };
 
 }   // namespace valik

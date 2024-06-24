@@ -2,6 +2,7 @@
 
 #include <utilities/threshold/kmer_loss.hpp>
 #include <utilities/threshold/search_kmer_profile.hpp>
+#include <utilities/threshold/fn_confs.hpp>
 
 #include <valik/split/metadata.hpp>
 
@@ -54,14 +55,14 @@ inline double score(kmer_loss const & attr,
 */
 param_set get_best_params(search_pattern const & pattern, 
                           metadata const & ref_meta,
-                          std::vector<kmer_loss> const & attribute_vec, 
+                          fn_confs const & fn_attr, 
                           bool const verbose);
 
 /**
  * @brief For a chosen kmer size and some maximum error rate find the best threshold. 
 */
 search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
-                                             kmer_loss const attr, 
-                                             uint8_t const max_errors);
+                                                  kmer_loss const attr, 
+                                                  uint8_t const max_errors);
 
 }   // namespace valik

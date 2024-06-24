@@ -8,27 +8,26 @@ namespace valik
 */
 param_set get_best_params(search_pattern const & pattern,
                           metadata const & ref_meta,
-                          std::vector<kmer_loss> const & attribute_vec, 
+                          fn_confs const & fn_attr,
                           bool const verbose) 
 {
-    param_space space;
-    param_set best_params(attribute_vec[0].k, 1, space);
-    auto best_score = score(attribute_vec[0], pattern, best_params, ref_meta, PATTERNS_PER_SEGMENT);
+    param_space space = fn_attr.space;
+    param_set best_params(space.min_k(), 1, space);
+    auto best_score = score(fn_attr.get_kmer_loss(space.min_k()), pattern, best_params, ref_meta, PATTERNS_PER_SEGMENT);
 
     std::vector<std::vector<double>> scores;
     std::vector<std::vector<double>> fn_rates;
     std::vector<std::vector<double>> fp_rates;
-    scores.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
-    fn_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
-    fp_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
+    scores.reserve(space.max_k() - space.min_k() + 1);
+    fn_rates.reserve(space.max_k() - space.min_k() + 1);
+    fp_rates.reserve(space.max_k() - space.min_k() + 1);
 
-    for (size_t i{0}; i < attribute_vec.size(); i++)
+    for (uint8_t k{space.min_k()}; k <= space.max_k(); k++)
     {
-        auto attr = attribute_vec[i];
+        kmer_loss & attr = fn_attr.get_kmer_loss(k); 
         std::vector<double> kmer_scores;
         std::vector<double> kmer_fn;
         std::vector<double> kmer_fp;
-        uint8_t k = attr.k;
         if (k > pattern.l)
             break;
         else
@@ -62,7 +61,7 @@ param_set get_best_params(search_pattern const & pattern,
 
         for (size_t i{0}; i < fn_rates.size(); i++)
         {
-            std::cout << "k=" << std::get<0>(space.kmer_range) + i << '\t';
+            std::cout << "k=" << space.min_k() + i << '\t';
             for (auto & cell : fn_rates[i])
                 std::cout << cell << '\t';
             std::cout << '\n';
@@ -76,7 +75,7 @@ param_set get_best_params(search_pattern const & pattern,
 
         for (size_t i{0}; i < fp_rates.size(); i++)
         {
-            std::cout << "k=" << std::get<0>(space.kmer_range) + i << '\t';
+            std::cout << "k=" << space.min_k() + i << '\t';
             for (auto & cell : fp_rates[i])
                 std::cout << cell << '\t';
             std::cout << '\n';
@@ -92,10 +91,10 @@ param_set get_best_params(search_pattern const & pattern,
  *        Consider different error rates up to max_err.
 */
 search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
-                                                  kmer_loss const attr, 
+                                                  kmer_loss attr, 
                                                   uint8_t const max_errors)
 {
-    param_space space;
+    param_space space{};
     search_kmer_profile kmer_thresh{attr.k, ref_meta.pattern_size};
     for (uint8_t errors{0}; errors <= max_errors && errors <= space.max_errors; errors++)
     {
@@ -108,8 +107,13 @@ search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
         {
             search_type = search_kind::STELLAR;
             uint8_t t{best_params.t + 1u};
-            while ((t < space.max_thresh) && (attr.fnr_for_param_set(pattern, best_params) < FNR_UPPER))
+            while (attr.fnr_for_param_set(pattern, best_params) < FNR_UPPER)
             {
+                if (t == space.max_thresh)
+                {
+                    space = param_space(t * 2);
+                    attr = kmer_loss(attr.k, space);
+                }
                 param_set try_params = param_set(attr.k, t, space);
                 if (segment_fpr(ref_meta.pattern_spurious_match_prob(try_params), PATTERNS_PER_SEGMENT) <= FPR_UPPER)
                 {
@@ -118,8 +122,6 @@ search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
                 }
                 t++;
             }
-            if (t >= space.max_thresh)
-                seqan3::debug_stream << "TODO: Need to calculate a bigger FNR table\n";
         }
         
         if (search_type == search_kind::STELLAR)
