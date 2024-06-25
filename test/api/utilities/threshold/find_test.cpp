@@ -13,7 +13,7 @@ std::filesystem::path data(std::string const & filename)
 TEST(best_params, small)
 {
     valik::param_space space{};
-    fn_confs fn_attr = fn_confs(space);
+    valik::fn_confs fn_attr(space);
     
     valik::search_pattern pattern(4 /*e*/, 50 /*l*/);
     valik::metadata ref_meta(data("150overlap4bins.bin"));
@@ -27,7 +27,7 @@ TEST(best_params, small)
 TEST(find_thresholds, small)
 {
     valik::param_space space{};
-    fn_confs fn_attr = fn_confs(space);
+    valik::fn_confs fn_attr(space);
 
     valik::metadata ref_meta(data("150overlap4bins.bin"));
     

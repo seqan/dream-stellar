@@ -20,7 +20,7 @@ TEST(kmer_loss, equal_after_serialization)
 {
     valik::param_space space{};
     valik::fn_confs initial_fn_attr(space);
-    std::filesystem::remove(valik::fn_filename());
+    std::filesystem::remove(initial_fn_attr.fn_filename());
     valik::fn_confs precalc_fn_attr(space);
 
     valik::fn_confs deserialized_fn_attr(space);
@@ -50,7 +50,7 @@ TEST(kmer_loss, basic_checks)
 {
     valik::param_space space{};
 
-    valik::fn_confs fn_attr = fn_confs(space);
+    valik::fn_confs fn_attr(space);
     EXPECT_EQ(space.min_k(), fn_attr.space.min_k());
     EXPECT_EQ(space.max_k(), fn_attr.space.max_k());
     for (uint8_t k{space.min_k()}; k < space.max_k(); k++)
