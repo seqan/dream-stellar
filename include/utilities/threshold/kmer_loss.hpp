@@ -3,6 +3,9 @@
 #include <utilities/threshold/param_set.hpp>
 #include <utilities/threshold/search_pattern.hpp>
 
+#include <cereal/archives/binary.hpp> 
+#include <cereal/types/vector.hpp>
+
 namespace valik
 {
 
@@ -18,8 +21,14 @@ struct kmer_loss
     using table_t = std::vector<row_t>;
     using mat_t = std::vector<table_t>;
     
-    const uint8_t k;
-    const mat_t fn_conf_counts;  // false negative configuration counts
+    uint8_t k;
+    mat_t fn_conf_counts;  // false negative configuration counts
+
+    kmer_loss() noexcept = default;
+    kmer_loss(kmer_loss const &) noexcept = default;
+    kmer_loss & operator=(kmer_loss const &) noexcept = default;
+    kmer_loss & operator=(kmer_loss &&) noexcept = default;
+    ~kmer_loss() noexcept = default;
 
     /**
      * @brief For a maximum error count find the number of error configurations 
@@ -64,13 +73,6 @@ struct kmer_loss
                     k(kmer_size), 
                     fn_conf_counts(count_err_conf_below_thresh(space)) { }
 
-    kmer_loss(uint8_t const kmer_size, mat_t const & matrix) : k(kmer_size), fn_conf_counts(matrix) { }
-
-    kmer_loss(std::string const & kmer_attr_str) : 
-    {
-        deserialize_kmer_loss(kmer_attr_str);
-    }
-
     /**
      * @brief False negative rate for a parameter set.
     */
@@ -84,91 +86,11 @@ struct kmer_loss
         return fn_conf_counts[params.t - 1][pattern.e][pattern.l] / (double) pattern.total_conf_count();
     }
 
-    /** //!TODO: use cereal
-     * @brief Stream out flattened 3D matrix of false negative configuration counts.
-    */
-    template <typename str_t>
-    void serialize(str_t & outstr)
+    template<class Archive>
+    void serialize(Archive & archive)
     {
-        outstr << "k=" << std::to_string(k) << '\n'; 
-        size_t t = 1;
-        for (auto threshold_table : fn_conf_counts)
-        {   
-            outstr << "t=" << t << '\n';
-            for (auto error_row : threshold_table)
-            {
-                for (auto cell : error_row)
-                    outstr << cell << '\t';
-                outstr << '\n';
-            }
-            t++;
-        }
+      archive(k, fn_conf_counts);
     }
-
-    private:
-        //!TODO: use cereal
-        /**
-         * @brief Deserialize kmer_loss for a single k-mer size.
-        */
-        kmer_loss deserialize_kmer_loss(std::string const & kmer_attr_str)
-        {
-            std::istringstream matrix_str(kmer_attr_str);
-            std::string line;
-            std::getline(matrix_str, line);
-            k{0};
-            try
-            {
-                k = std::stoi(line.substr(line.find("k=") + 2));
-            }
-            catch(const std::exception& e)
-            {
-                std::cerr << e.what() << "\nCan't convert " << line.substr(line.find("k=") + 2)  << "to k-mer size\n";
-            }
-
-            std::vector<std::vector<uint64_t>> table;
-            for (; std::getline(matrix_str, line); )
-            {
-                bool is_first_thresh_row{false};
-                try
-                {
-                    is_first_thresh_row = (stoi(line.substr(line.find("t=") + 2)) == 1);
-                }
-                catch(const std::exception& e)
-                {
-                    std::cerr << e.what() << "\nCan't convert " << line.substr(line.find("t=") + 2) << " to threshold\n";
-                }
-
-                std::istringstream row_str(line);
-                if (line.find("t=") == std::string::npos)
-                {
-                    std::string cell;
-                    std::vector<uint64_t> row;
-                    for (; std::getline(row_str, cell, '\t'); )
-                    {
-                        try
-                        {
-                            row.push_back(std::stoull(cell));
-                        }
-                        catch(const std::exception& e)
-                        {
-                            std::cerr << e.what() << "\nCan't convert cell value\t" << cell << '\n';
-                        }
-                    }
-                    table.push_back(row);
-                }
-                else if (is_first_thresh_row)
-                {
-                    continue;
-                }
-                else
-                {
-                    fn_conf_counts.push_back(table);
-                    table.clear();
-                }
-            }   
-
-            fn_conf_counts.push_back(table);
-        }
 };
 
 }   // namespace valik
