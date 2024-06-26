@@ -23,6 +23,39 @@
 namespace valik::app
 {
 
+template <typename TSize, typename id_t>
+static inline stellar::StellarOptions make_thread_options(search_arguments const & arguments, metadata const & ref_meta, 
+                                                          std::filesystem::path const & cart_queries_path, TSize const refLen, id_t const bin_id)
+{
+    stellar::StellarOptions threadOptions{};
+    threadOptions.alphabet = "dna";            // one of: dna, rna, protein, char
+    threadOptions.verbose = true;
+    threadOptions.queryFile = "in memory";
+    threadOptions.prefilteredSearch = true;
+    threadOptions.referenceLength = refLen;
+    threadOptions.searchSegment = true;
+    auto seg = ref_meta.segment_from_bin(bin_id);
+    //!TODO: deal with metagenome database
+    threadOptions.binSequences.emplace_back(seg.seq_vec[0]);
+    threadOptions.segmentBegin = seg.start;
+    threadOptions.segmentEnd = seg.start + seg.len;
+    threadOptions.minLength = arguments.pattern_size;
+    threadOptions.epsilon = stellar::utils::fraction::from_double_with_limit(arguments.error_rate, arguments.pattern_size).limit_denominator();
+    threadOptions.outputFile = cart_queries_path.string() + ".gff";
+    
+    {
+        threadOptions.maxRepeatPeriod = arguments.maxRepeatPeriod;
+        threadOptions.minRepeatLength = arguments.minRepeatLength;
+        threadOptions.strVerificationMethod = arguments.strVerificationMethod;
+        threadOptions.xDrop = arguments.xDrop;
+        threadOptions.qgramAbundanceCut = arguments.qgramAbundanceCut;
+        threadOptions.numMatches = std::max(2u, (unsigned) std::round(arguments.numMatches / (double) ref_meta.seg_count * 1.2));
+        threadOptions.compactThresh = std::max(threadOptions.numMatches + 1, (size_t) std::round(arguments.compactThresh / (double) ref_meta.seg_count)) * 1.2;
+    }
+
+    return threadOptions;
+}
+
 /**
  * @brief Function that calls Valik prefiltering and launches parallel threads of Stellar search.
  *
@@ -184,34 +217,9 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                 thread_meta.output_files.push_back(cart_queries_path.string() + ".gff");
 
-                stellar::StellarOptions threadOptions{};
                 stellar::stellar_app_runtime stellarThreadTime{};
                 auto current_time = stellarThreadTime.now();
-
-                threadOptions.alphabet = "dna";            // Possible values: dna, rna, protein, char
-                threadOptions.verbose = true;
-                threadOptions.queryFile = "in memory";
-                threadOptions.prefilteredSearch = true;
-                threadOptions.referenceLength = refLen;
-                threadOptions.searchSegment = true;
-                auto seg = ref_meta.segment_from_bin(bin_id);
-                //!TODO: deal with metagenome database
-                threadOptions.binSequences.emplace_back(seg.seq_vec[0]);
-                threadOptions.segmentBegin = seg.start;
-                threadOptions.segmentEnd = seg.start + seg.len;
-                threadOptions.minLength = arguments.pattern_size;
-                threadOptions.epsilon = stellar::utils::fraction::from_double_with_limit(arguments.error_rate, arguments.pattern_size).limit_denominator();
-                threadOptions.outputFile = cart_queries_path.string() + ".gff";
-                
-                {
-                    threadOptions.maxRepeatPeriod = arguments.maxRepeatPeriod;
-                    threadOptions.minRepeatLength = arguments.minRepeatLength;
-                    threadOptions.strVerificationMethod = arguments.strVerificationMethod;
-                    threadOptions.xDrop = arguments.xDrop;
-                    threadOptions.qgramAbundanceCut = arguments.qgramAbundanceCut;
-                    threadOptions.numMatches = std::max(2u, (unsigned) std::round(arguments.numMatches / (double) ref_meta.seg_count * 1.2));
-                    threadOptions.compactThresh = std::max(threadOptions.numMatches + 1, (size_t) std::round(arguments.compactThresh / (double) ref_meta.seg_count)) * 1.2;
-                }
+                stellar::StellarOptions threadOptions = make_thread_options(arguments, ref_meta, cart_queries_path, refLen, bin_id);
 
                 using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
                 using TQuerySegment = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
