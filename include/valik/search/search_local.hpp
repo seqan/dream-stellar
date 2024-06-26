@@ -6,7 +6,6 @@
 #include <valik/search/iterate_queries.hpp>
 #include <valik/search/load_index.hpp>
 #include <valik/shared.hpp>
-#include <valik/split/metadata.hpp>
 #include <utilities/cart_queue.hpp>
 #include <utilities/consolidate/merge_processes.hpp>
 #include <utilities/threshold/search_kmer_profile.hpp>
@@ -400,18 +399,19 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     // producer threads are created here
     if constexpr (stellar_only)
     {
-        iterate_all_queries(ref_meta.seg_count, arguments, queue);
+        iterate_all_queries<TSequence>(ref_meta.seg_count, arguments, queue);
     }
     else
     {
+        using ibf_t = decltype(index.ibf());
         raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
         if constexpr (is_split)
         {
-            iterate_split_queries(arguments, index.ibf(), thresholder, queue, query_meta.value());
+            iterate_split_queries<ibf_t, TSequence>(arguments, index.ibf(), thresholder, queue, query_meta.value());
         }
         else
         {
-            iterate_short_queries(arguments, index.ibf(), thresholder, queue);
+            iterate_short_queries<ibf_t, TSequence>(arguments, index.ibf(), thresholder, queue);
         }
     }
 
