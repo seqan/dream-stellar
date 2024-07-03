@@ -12,10 +12,9 @@
 
 #pragma once
 
+#include <dream_stellar/stellar_index.hpp>
+#include <seqan/basic/alphabet_simple_type.h>
 #include <utilities/alphabet_wrapper/seqan/container_adapter.hpp>
-
-#include <seqan/index.h>
-
 #include <utilities/alphabet_wrapper/matcher/seqan_pattern_base.hpp>
 
 namespace jst::contrib
@@ -167,6 +166,8 @@ namespace jst::contrib
 
             } while (true);
         }
+
+        friend struct dream_stellar::StellarIndex<seqan2::Dna>;
     };
 
     /////////////////////////////////////////////////////////////////////////////////

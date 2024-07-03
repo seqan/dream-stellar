@@ -4,6 +4,7 @@
 #include <utilities/alphabet_wrapper/seqan/alphabet.hpp>
 #include <valik/search/producer_threads_parallel.hpp>
 #include <valik/search/search_time_statistics.hpp>
+#include <valik/shared.hpp>
 
 #include <stellar/utils/stellar_app_runtime.hpp>
 #include <stellar/io/import_sequence.hpp>
@@ -42,12 +43,6 @@ void iterate_distributed_queries(search_arguments const & arguments,
     }
 }
 
-struct adaptor_traits : seqan3::sequence_file_input_default_traits_dna
-{
-    using sequence_alphabet = seqan2::alphabet_adaptor<seqan3::dna4>; // instead of dna5
-    using sequence_legal_alphabet = sequence_alphabet;
-};
-
 /**
  * @brief Function that creates a query record from each query sequence and sends it to Stellar search.
  *
@@ -60,20 +55,9 @@ void iterate_all_queries(size_t const ref_seg_count,
                          search_arguments const & arguments,
                          cart_queue<shared_query_record<TSequence>> & queue)
 {
-    seqan3::sequence_file_input<adaptor_traits> fin{std::istringstream{arguments.query_file}, seqan3::format_fasta{}};
-    using record_type = typename decltype(fin)::record_type;
-
-    using sequence_type = std::remove_cvref_t<decltype(std::declval<record_type>().sequence())>;
-    std::vector<sequence_type> rec_vec{};
-    for (auto & record : fin)
-    {
-        rec_vec.emplace_back(record.sequence());
-    }
-
-    jst::contrib::stellar_matcher<sequence_type> matcher(rec_vec, (double) arguments.error_rate, (unsigned) arguments.minLength);
-
     using TId = seqan2::CharString;
     std::vector<shared_query_record<TSequence>> query_records{};
+    
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
     seqan2::SeqFileIn inSeqs;
@@ -86,6 +70,26 @@ void iterate_all_queries(size_t const ref_seg_count,
     bool idsUnique = true;
 
     size_t seqCount{0};
+
+    {   // try stellar_matcher
+        seqan3::sequence_file_input<dna4_adaptor_traits> fin{std::istringstream{arguments.query_file}, seqan3::format_fasta{}};
+        using record_type = typename decltype(fin)::record_type;
+        using sequence_type = std::remove_cvref_t<decltype(std::declval<record_type>().sequence())>;
+
+        std::vector<record_type> rec_vec{};
+        for (auto & record : fin)
+        {
+            rec_vec.emplace_back(record);
+        }
+
+        std::vector<sequence_type> seq_vec(rec_vec.size());
+        for (auto seq : rec_vec | std::views::transform([](record_type record) { return record.sequence(); }))
+        {
+            seq_vec.emplace_back(seq);
+        }
+        jst::contrib::stellar_matcher<sequence_type> matcher(seq_vec, (double) arguments.error_rate, (unsigned) arguments.minLength);
+    }
+    
     for (; !atEnd(inSeqs); ++seqCount)
     {
         TSequence seq{};

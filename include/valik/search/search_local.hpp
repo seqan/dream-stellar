@@ -18,6 +18,7 @@
 #include <stellar/io/import_sequence.hpp>
 #include <stellar/utils/stellar_app_runtime.hpp>
 #include <stellar3.shared.hpp>
+#include <dream_stellar/stellar_index.hpp>
 
 namespace valik::app
 {
@@ -143,6 +144,9 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
     using TAlphabet = seqan2::Dna;
     using TSequence = seqan2::String<TAlphabet>;
+    //using TAlphabet = seqan2::alphabet_adaptor<seqan3::dna4>;
+    //using TSequence = std::vector<TAlphabet>;
+
     // the queue hands records over from the producer threads (valik prefiltering) to the consumer threads (stellar search) 
     auto queue = cart_queue<shared_query_record<TSequence>>{ref_meta.seg_count, arguments.cart_max_capacity, arguments.max_queued_carts};
 
@@ -240,7 +244,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 stellar::_writeMoreCalculatedParams(threadOptions, threadOptions.referenceLength, queries, thread_meta.text_out);
 
                 auto swift_index_time = stellarThreadTime.swift_index_construction_time.now();
-                stellar::StellarIndex<TAlphabet> stellarIndex{queries, threadOptions};
+                dream_stellar::StellarIndex<TAlphabet> stellarIndex{queries, threadOptions};
                 stellar::StellarSwiftPattern<TAlphabet> swiftPattern = stellarIndex.createSwiftPattern();
 
                 // Construct index of the queries

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <utilities/threshold/basics.hpp>
+#include <utilities/alphabet_wrapper/seqan/alphabet.hpp>
 
 #include <seqan3/io/sequence_file/input.hpp>
 #include <seqan3/search/dream_index/interleaved_bloom_filter.hpp>
@@ -54,6 +55,12 @@ struct hashes { uint64_t v; };
 struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
 {
     using sequence_alphabet = seqan3::dna4;
+};
+
+struct dna4_adaptor_traits : seqan3::sequence_file_input_default_traits_dna
+{
+    using sequence_alphabet = seqan2::alphabet_adaptor<seqan3::dna4>; // instead of dna5
+    using sequence_legal_alphabet = sequence_alphabet;
 };
 
 struct split_arguments
