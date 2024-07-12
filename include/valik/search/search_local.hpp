@@ -11,14 +11,15 @@
 #include <utilities/threshold/search_kmer_profile.hpp>
 #include <utilities/threshold/filtering_request.hpp>
 
+#include <dream_stellar/stellar_index.hpp>
+#include <dream_stellar/io/import_sequence.hpp>
+
 #include <stellar/database_id_map.hpp>
 #include <stellar/diagnostics/print.tpp>
 #include <stellar/stellar_launcher.hpp>
 #include <stellar/stellar_output.hpp>
-#include <stellar/io/import_sequence.hpp>
 #include <stellar/utils/stellar_app_runtime.hpp>
 #include <stellar3.shared.hpp>
-#include <dream_stellar/stellar_index.hpp>
 
 namespace valik::app
 {
@@ -183,7 +184,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     {
         std::cout << "Launching stellar search on a shared memory machine...\n";
         //!TODO: allow metagenome database
-        return stellar::_importAllSequences(arguments.bin_path[0][0].c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
+        return dream_stellar::_importAllSequences(arguments.bin_path[0][0].c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
     });
     if (!databasesSuccess)
         return false;
@@ -236,10 +237,18 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 seqan2::StringSet<TQuerySegment, seqan2::Dependent<>> queries;
                 seqan2::StringSet<seqan2::CharString> queryIDs;
                 
-                stellarThreadTime.input_queries_time.measure_time([&]()
+                //!TODO: replace container type
                 {
-                    get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out);
-                });
+                    seqan3::sequence_file_input<dna4_adaptor_traits> fin{std::istringstream{arguments.query_file}, seqan3::format_fasta{}};
+                    using record_type = typename decltype(fin)::record_type;
+                    using sequence_type = std::remove_cvref_t<decltype(std::declval<record_type>().sequence())>;
+
+                    std::vector<sequence_type> seq_vec{records.size()};
+                    auto cart_input_queries_time = stellarThreadTime.input_queries_time.now();
+                    get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out, seq_vec);
+                    stellarThreadTime.input_queries_time.manual_timing(cart_input_queries_time);
+                    jst::contrib::stellar_matcher<sequence_type> matcher(seq_vec, (double) arguments.error_rate, (unsigned) arguments.minLength);
+                }
 
                 stellar::_writeMoreCalculatedParams(threadOptions, threadOptions.referenceLength, queries, thread_meta.text_out);
 

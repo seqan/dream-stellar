@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include <utilities/alphabet_wrapper/matcher/stellar_matcher.hpp>
+#include <utilities/alphabet_wrapper/seqan/alphabet.hpp>
 #include <valik/search/query_record.hpp>
 
 #include <stellar/stellar_query_segment.hpp>
@@ -25,18 +27,30 @@ namespace valik
  *  \param hostQueries underlying sequences for query segments
  *  \param hostQueryIDs set of underlying sequence ids
  */
-template <typename rec_vec_t, typename TAlphabet, typename TId, typename TStream>
+template <typename rec_vec_t, typename TAlphabet, typename TId, typename TStream, typename seq_vec_t>
 inline bool get_cart_queries(rec_vec_t const & records,
                              seqan2::StringSet<seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>, seqan2::Dependent<>> & seqs,
                              seqan2::StringSet<TId> & ids,
                              TStream & strOut,
-                             TStream & strErr)
+                             TStream & strErr, 
+                             seq_vec_t & seq_vec)
 {
 
     std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
     bool idsUnique = true;
 
     size_t seqCount{0};
+
+    //!TODO: replace container type
+    /*
+    {
+        for (auto seq : records | std::views::transform([](auto record) { return record.sequence(); }))
+        {
+            seq_vec.emplace_back(seq);
+        }
+    }
+    */
+
     for (auto & record : records)
     {
         seqan2::String<char> query_id = record.sequence_id;

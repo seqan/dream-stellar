@@ -31,7 +31,7 @@ struct shared_query_record
 {
     std::string sequence_id;
     std::vector<seqan3::dna4> sequence;
-    //std::vector<seqan2::alphabet_adaptor<seqan3::dna4>> sequence;
+    //std::vector<seqan2::alphabet_adaptor<seqan3::dna4>> adapted_sequence;
     seqan2::Segment<TSequence const, seqan2::InfixSegment> querySegment;
     std::shared_ptr<TSequence> underlyingData;
 

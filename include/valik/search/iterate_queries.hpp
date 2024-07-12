@@ -1,7 +1,5 @@
 #pragma once
 
-#include <utilities/alphabet_wrapper/matcher/stellar_matcher.hpp>
-#include <utilities/alphabet_wrapper/seqan/alphabet.hpp>
 #include <valik/search/producer_threads_parallel.hpp>
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/shared.hpp>
@@ -71,23 +69,16 @@ void iterate_all_queries(size_t const ref_seg_count,
 
     size_t seqCount{0};
 
-    {   // try stellar_matcher
+    //!TODO: replace container type
+    {   
         seqan3::sequence_file_input<dna4_adaptor_traits> fin{std::istringstream{arguments.query_file}, seqan3::format_fasta{}};
         using record_type = typename decltype(fin)::record_type;
-        using sequence_type = std::remove_cvref_t<decltype(std::declval<record_type>().sequence())>;
 
         std::vector<record_type> rec_vec{};
         for (auto & record : fin)
         {
             rec_vec.emplace_back(record);
         }
-
-        std::vector<sequence_type> seq_vec(rec_vec.size());
-        for (auto seq : rec_vec | std::views::transform([](record_type record) { return record.sequence(); }))
-        {
-            seq_vec.emplace_back(seq);
-        }
-        jst::contrib::stellar_matcher<sequence_type> matcher(seq_vec, (double) arguments.error_rate, (unsigned) arguments.minLength);
     }
     
     for (; !atEnd(inSeqs); ++seqCount)
