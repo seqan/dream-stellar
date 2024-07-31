@@ -22,6 +22,45 @@ namespace valik::app
  * @brief Create parallel prefiltering jobs.
 */
 template <typename query_t, seqan3::data_layout ibf_data_layout>
+inline void prefilter_queries_parallel_without_stellar_search(seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
+                                                              search_arguments const & arguments,
+                                                              std::vector<query_t> const & records,
+                                                              raptor::threshold::threshold const & thresholder/*,
+                                                              cart_queue<query_t> & queue*/)
+{
+    if (records.empty())
+        return;
+
+    std::vector<std::jthread> tasks;
+    size_t const num_records = records.size();
+    size_t const records_per_thread = num_records / arguments.threads;
+
+    sync_out verbose_out(arguments.disabledQueriesFile);
+    for (size_t i = 0; i < arguments.threads; ++i)
+    {
+        size_t const start = records_per_thread * i;
+        size_t const end = i == (unsigned) (arguments.threads - 1) ? num_records : records_per_thread * (i + 1);
+
+        std::span<query_t const> records_slice{&records[start], &records[end]};
+
+        auto prefilter_cb = [/*&queue,*/&arguments,&verbose_out,&ibf](query_t const& record, std::unordered_set<size_t> const& bin_hits)
+        {
+            if (arguments.verbose && (bin_hits.size() > 0))
+                verbose_out.write_record(record, bin_hits.size());
+        };
+
+        // The following calls `local_prefilter(records, ibf, arguments, threshold)` on a thread.
+        tasks.emplace_back([=, &ibf, &arguments, &thresholder]()
+        {
+            local_prefilter(records_slice, ibf, arguments, thresholder, prefilter_cb);
+        });
+    }
+}
+
+/**
+ * @brief Create parallel prefiltering jobs.
+*/
+template <typename query_t, seqan3::data_layout ibf_data_layout>
 inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data_layout> const & ibf,
                                        search_arguments const & arguments,
                                        std::vector<query_t> const & records,

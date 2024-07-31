@@ -26,19 +26,20 @@ struct query_record
  * @brief Query sequence resources are shared between records.
  *
  */
-template <typename TSequence>
+template <typename seq_t>
 struct shared_query_record
 {
     std::string sequence_id;
     std::vector<seqan3::dna4> sequence;
-    //std::vector<seqan2::alphabet_adaptor<seqan3::dna4>> adapted_sequence;
-    seqan2::Segment<TSequence const, seqan2::InfixSegment> querySegment;
-    std::shared_ptr<TSequence> underlyingData;
+    //!TODO: merge seqan3 sequence and seqan2 querySegment into a single adapted sequence 
+    std::vector<seqan2::alphabet_adaptor<seqan3::dna4>> adapted_sequence;
+    seqan2::Segment<seqan2::String<seqan2::Dna> const, seqan2::InfixSegment> querySegment;
+    std::shared_ptr<seq_t> underlyingData;
 
-    shared_query_record(TSequence seq, std::string id) : sequence_id(std::move(id))
+    shared_query_record(seqan2::String<seqan2::Dna> seq, std::string id) : sequence_id(std::move(id))
     {
         // make_shared returns a newly allocated object
-        auto query_ptr = std::make_shared<TSequence>(std::move(seq));
+        auto query_ptr = std::make_shared<seqan2::String<seqan2::Dna>>(std::move(seq));
         std::vector<seqan3::dna4> seg_vec{};
         for (auto & c : *query_ptr)
         {
@@ -52,8 +53,9 @@ struct shared_query_record
         underlyingData = query_ptr;
     }
 
-    shared_query_record(std::string id, metadata::segment_stats const & seg, std::shared_ptr<TSequence> query_ptr) : sequence_id(std::move(id))
+    shared_query_record(std::string id, metadata::segment_stats const & seg, std::shared_ptr<seq_t> query_ptr) : sequence_id(std::move(id))
     {
+        /*
         seqan2::Segment<TSequence const, seqan2::InfixSegment> inf = seqan2::infixWithLength(*query_ptr, seg.start, seg.len);
         std::vector<seqan3::dna4> seg_vec{};
         for (auto & c : inf)
@@ -62,9 +64,10 @@ struct shared_query_record
             nuc.assign_char(c);
             seg_vec.push_back(nuc);
         }
-
-        sequence = std::move(seg_vec); 
-        querySegment = inf;
+        */
+        adapted_sequence = seq_t((*query_ptr).begin() + seg.start, (*query_ptr).begin() + seg.start + seg.len); 
+        //querySegment = inf;
+        
         underlyingData = query_ptr;
     }
 };

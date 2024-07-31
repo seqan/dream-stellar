@@ -420,7 +420,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
         raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
         if constexpr (is_split)
         {
-            iterate_split_queries<ibf_t, TSequence>(arguments, index.ibf(), thresholder, queue, query_meta.value());
+            iterate_split_queries<ibf_t, std::vector<seqan2::alphabet_adaptor<seqan3::dna4>>>(arguments, index.ibf(), thresholder, /*queue,*/ query_meta.value());
         }
         else
         {
