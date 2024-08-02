@@ -41,24 +41,24 @@ inline bool get_cart_queries(rec_vec_t const & records,
 
     size_t seqCount{0};
 
-    //!TODO: replace container type
-    /*
+    for (auto & record : records)
     {
-        for (auto seq : records | std::views::transform([](auto record) { return record.sequence(); }))
-        {
-            seq_vec.emplace_back(seq);
-        }
-    }
-    */
+        seq_vec.emplace_back(record.sequence);
+        seqCount++;
 
+        //!TODO: idsUnique?
+    }
+
+    /*
     for (auto & record : records)
     {
         seqan2::String<char> query_id = record.sequence_id;
-        //seqan2::appendValue(seqs, record.querySegment, seqan2::Generous());
+        seqan2::appendValue(seqs, record.querySegment, seqan2::Generous());
         seqan2::appendValue(ids, query_id, seqan2::Generous());
         seqCount++;
         idsUnique &= stellar::_checkUniqueId(uniqueIds, (seqan2::String<char>) record.sequence_id);
     }
+    */
 
     strOut << "Loaded " << seqCount << " query sequence" << ((seqCount > 1) ? "s " : " ") << "from cart." << std::endl;
     if (!idsUnique)

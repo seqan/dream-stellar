@@ -146,12 +146,11 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     using TAlphabet = seqan2::Dna;
     using TSequence = seqan2::String<TAlphabet>;
     
-    using seq_t = std::vector<seqan2::alphabet_adaptor<seqan3::dna4>>;
-    //using TAlphabet = seqan2::alphabet_adaptor<seqan3::dna4>;
-    //using TSequence = std::vector<TAlphabet>;
+    using alphabet_t = seqan2::alphabet_adaptor<seqan3::dna4>;
+    using sequence_t = std::vector<alphabet_t>;
 
     // the queue hands records over from the producer threads (valik prefiltering) to the consumer threads (stellar search) 
-    auto queue = cart_queue<shared_query_record<TSequence>>{ref_meta.seg_count, arguments.cart_max_capacity, arguments.max_queued_carts};
+    auto queue = cart_queue<shared_query_record<sequence_t>>{ref_meta.seg_count, arguments.cart_max_capacity, arguments.max_queued_carts};
 
     std::mutex mutex;
     execution_metadata exec_meta(arguments.threads);
@@ -241,15 +240,11 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 
                 //!TODO: replace container type
                 {
-                    seqan3::sequence_file_input<dna4_adaptor_traits> fin{std::istringstream{arguments.query_file}, seqan3::format_fasta{}};
-                    using record_type = typename decltype(fin)::record_type;
-                    using sequence_type = std::remove_cvref_t<decltype(std::declval<record_type>().sequence())>;
-
-                    std::vector<sequence_type> seq_vec{records.size()};
+                    std::vector<sequence_t> seq_vec{records.size()};
                     auto cart_input_queries_time = stellarThreadTime.input_queries_time.now();
                     get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out, seq_vec);
                     stellarThreadTime.input_queries_time.manual_timing(cart_input_queries_time);
-                    jst::contrib::stellar_matcher<sequence_type> matcher(seq_vec, (double) arguments.error_rate, (unsigned) arguments.minLength);
+                    jst::contrib::stellar_matcher<sequence_t> matcher(seq_vec, (double) arguments.error_rate, (unsigned) arguments.minLength);
                 }
 
                 stellar::_writeMoreCalculatedParams(threadOptions, threadOptions.referenceLength, queries, thread_meta.text_out);
@@ -414,7 +409,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     // producer threads are created here
     if constexpr (stellar_only)
     {
-        iterate_all_queries<seq_t>(ref_meta.seg_count, arguments/*, queue*/);
+        iterate_all_queries<sequence_t>(ref_meta.seg_count, arguments, queue);
     }
     else
     {
@@ -422,11 +417,11 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
         raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
         if constexpr (is_split)
         {
-            iterate_split_queries<ibf_t, seq_t>(arguments, index.ibf(), thresholder, /*queue,*/ query_meta.value());
+            iterate_split_queries<ibf_t, sequence_t>(arguments, index.ibf(), thresholder, queue, query_meta.value());
         }
         else
         {
-            iterate_short_queries<ibf_t, seq_t>(arguments, index.ibf(), thresholder/*, queue*/);
+            iterate_short_queries<ibf_t, sequence_t>(arguments, index.ibf(), thresholder, queue);
         }
     }
 

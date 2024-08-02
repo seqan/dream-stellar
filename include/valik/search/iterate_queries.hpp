@@ -50,8 +50,8 @@ void iterate_distributed_queries(search_arguments const & arguments,
  */
 template <typename seq_t>
 void iterate_all_queries(size_t const ref_seg_count,
-                         search_arguments const & arguments/*,
-                         cart_queue<shared_query_record<TSequence>> & queue*/)
+                         search_arguments const & arguments,
+                         cart_queue<shared_query_record<seq_t>> & queue)
 {
     using TId = seqan2::CharString;
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
@@ -73,7 +73,7 @@ void iterate_all_queries(size_t const ref_seg_count,
 
         if (query_records.size() > chunk_size)
         {
-            search_all_parallel<shared_query_record<seq_t>>(ref_seg_count, arguments, query_records/*, queue*/);
+            search_all_parallel<shared_query_record<seq_t>>(ref_seg_count, arguments, query_records, queue);
             query_records.clear();
         }
     }
@@ -81,7 +81,7 @@ void iterate_all_queries(size_t const ref_seg_count,
     if (!idsUnique)
         std::cerr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
 
-    search_all_parallel<shared_query_record<seq_t>>(ref_seg_count, arguments, query_records/*, queue*/);    
+    search_all_parallel<shared_query_record<seq_t>>(ref_seg_count, arguments, query_records, queue);    
 }
 
 /**
@@ -96,8 +96,8 @@ void iterate_all_queries(size_t const ref_seg_count,
 template <typename ibf_t, typename seq_t>
 void iterate_short_queries(search_arguments const & arguments,
                            ibf_t const & ibf,
-                           raptor::threshold::threshold const & thresholder/*,
-                           cart_queue<shared_query_record<TSequence>> & queue*/)
+                           raptor::threshold::threshold const & thresholder,
+                           cart_queue<shared_query_record<seq_t>> & queue)
 {
     using TId = seqan2::CharString;
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
@@ -119,7 +119,7 @@ void iterate_short_queries(search_arguments const & arguments,
 
         if (query_records.size() > chunk_size)
         {
-            prefilter_queries_parallel_without_stellar_search<shared_query_record<seq_t>>(ibf, arguments, query_records, thresholder/*, queue*/);
+            prefilter_queries_parallel<shared_query_record<seq_t>>(ibf, arguments, query_records, thresholder, queue);
             query_records.clear();
         }
     }
@@ -127,7 +127,7 @@ void iterate_short_queries(search_arguments const & arguments,
     if (!idsUnique)
         std::cerr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
 
-    prefilter_queries_parallel_without_stellar_search<shared_query_record<seq_t>>(ibf, arguments, query_records, thresholder/*, queue*/);
+    prefilter_queries_parallel<shared_query_record<seq_t>>(ibf, arguments, query_records, thresholder, queue);
 }
 
 /**
@@ -144,7 +144,7 @@ template <typename ibf_t, typename seq_t>
 void iterate_split_queries(search_arguments const & arguments,
                            ibf_t const & ibf,
                            raptor::threshold::threshold const & thresholder,
-                           //cart_queue<shared_query_record<seq_t>> & queue,
+                           cart_queue<shared_query_record<seq_t>> & queue,
                            metadata & meta)
 {
     using TId = seqan2::CharString;
@@ -171,7 +171,7 @@ void iterate_split_queries(search_arguments const & arguments,
 
             if (query_records.size() > chunk_size)
             {
-                prefilter_queries_parallel_without_stellar_search<shared_query_record<seq_t>>(ibf, arguments, query_records, thresholder/*, queue*/);
+                prefilter_queries_parallel<shared_query_record<seq_t>>(ibf, arguments, query_records, thresholder, queue);
                 query_records.clear();  // shared pointers are erased -> memory is deallocated
             }
         }
@@ -181,7 +181,7 @@ void iterate_split_queries(search_arguments const & arguments,
     if (!idsUnique)
         std::cerr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
 
-    prefilter_queries_parallel_without_stellar_search<shared_query_record<seq_t>>(ibf, arguments, query_records, thresholder/*, queue*/);
+    prefilter_queries_parallel<shared_query_record<seq_t>>(ibf, arguments, query_records, thresholder, queue);
 }
 
 }   // namespace valik::app
