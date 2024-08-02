@@ -145,6 +145,8 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
     using TAlphabet = seqan2::Dna;
     using TSequence = seqan2::String<TAlphabet>;
+    
+    using seq_t = std::vector<seqan2::alphabet_adaptor<seqan3::dna4>>;
     //using TAlphabet = seqan2::alphabet_adaptor<seqan3::dna4>;
     //using TSequence = std::vector<TAlphabet>;
 
@@ -412,7 +414,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     // producer threads are created here
     if constexpr (stellar_only)
     {
-        iterate_all_queries<TSequence>(ref_meta.seg_count, arguments, queue);
+        iterate_all_queries<seq_t>(ref_meta.seg_count, arguments/*, queue*/);
     }
     else
     {
@@ -420,11 +422,11 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
         raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
         if constexpr (is_split)
         {
-            iterate_split_queries<ibf_t, std::vector<seqan2::alphabet_adaptor<seqan3::dna4>>>(arguments, index.ibf(), thresholder, /*queue,*/ query_meta.value());
+            iterate_split_queries<ibf_t, seq_t>(arguments, index.ibf(), thresholder, /*queue,*/ query_meta.value());
         }
         else
         {
-            iterate_short_queries<ibf_t, TSequence>(arguments, index.ibf(), thresholder, queue);
+            iterate_short_queries<ibf_t, seq_t>(arguments, index.ibf(), thresholder/*, queue*/);
         }
     }
 

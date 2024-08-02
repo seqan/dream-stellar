@@ -54,7 +54,7 @@ inline bool get_cart_queries(rec_vec_t const & records,
     for (auto & record : records)
     {
         seqan2::String<char> query_id = record.sequence_id;
-        seqan2::appendValue(seqs, record.querySegment, seqan2::Generous());
+        //seqan2::appendValue(seqs, record.querySegment, seqan2::Generous());
         seqan2::appendValue(ids, query_id, seqan2::Generous());
         seqCount++;
         idsUnique &= stellar::_checkUniqueId(uniqueIds, (seqan2::String<char>) record.sequence_id);

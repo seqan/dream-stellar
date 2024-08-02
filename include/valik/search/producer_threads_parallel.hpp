@@ -107,8 +107,8 @@ inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data
 template <typename query_t>
 inline void search_all_parallel(size_t const ref_seg_count,
                                 search_arguments const & arguments,
-                                std::vector<query_t> const & records,
-                                cart_queue<query_t> & queue)
+                                std::vector<query_t> const & records/*,
+                                cart_queue<query_t> & queue*/)
 {
     if (records.empty())
         return;
@@ -124,12 +124,16 @@ inline void search_all_parallel(size_t const ref_seg_count,
 
         std::span<query_t const> records_slice{&records[start], &records[end]};
 
-        auto all_cb = [=,&queue,&arguments](query_t const& record)
+        auto all_cb = [=,/*&queue,*/&arguments](query_t const& record)
         {
+            seqan3::debug_stream << "insert all\n";
+
+            /*
             for (size_t bin{0}; bin < ref_seg_count; bin++)
             {
                 queue.insert(bin, record);
             }
+            */
         };
 
         tasks.emplace_back([=]()

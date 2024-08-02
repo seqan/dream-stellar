@@ -48,51 +48,32 @@ void iterate_distributed_queries(search_arguments const & arguments,
  * @param arguments Command line arguments.
  * @param queue Shopping cart queue for sending queries over to Stellar search.
  */
-template <typename TSequence>
+template <typename seq_t>
 void iterate_all_queries(size_t const ref_seg_count,
-                         search_arguments const & arguments,
-                         cart_queue<shared_query_record<TSequence>> & queue)
+                         search_arguments const & arguments/*,
+                         cart_queue<shared_query_record<TSequence>> & queue*/)
 {
     using TId = seqan2::CharString;
-    std::vector<shared_query_record<TSequence>> query_records{};
-    
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
-    seqan2::SeqFileIn inSeqs;
-    if (!open(inSeqs, arguments.query_file.c_str()))
-    {
-        throw std::runtime_error("Failed to open " + arguments.query_file.string() + " file.");
-    }
+    seqan3::sequence_file_input<dna4_adaptor_traits> fin{arguments.query_file};
+    std::vector<shared_query_record<seq_t>> query_records{};
 
     std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
     bool idsUnique = true;
 
     size_t seqCount{0};
-
-    //!TODO: replace container type
-    {   
-        seqan3::sequence_file_input<dna4_adaptor_traits> fin{std::istringstream{arguments.query_file}, seqan3::format_fasta{}};
-        using record_type = typename decltype(fin)::record_type;
-
-        std::vector<record_type> rec_vec{};
-        for (auto & record : fin)
-        {
-            rec_vec.emplace_back(record);
-        }
-    }
-    
-    for (; !atEnd(inSeqs); ++seqCount)
+    for (auto & record : fin)
     {
-        TSequence seq{};
-        TId id{};
-        readRecord(id, seq, inSeqs);
-        idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
+        //!TODO: IDs unique??
+        // TId id{};
+        // idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
 
-        query_records.emplace_back(std::move(seq), seqan2::toCString(std::move(id)));
+        query_records.emplace_back(record.id(), std::make_shared<seq_t>(std::move(record.sequence())));
 
         if (query_records.size() > chunk_size)
         {
-            search_all_parallel<shared_query_record<TSequence>>(ref_seg_count, arguments, query_records, queue);
+            search_all_parallel<shared_query_record<seq_t>>(ref_seg_count, arguments, query_records/*, queue*/);
             query_records.clear();
         }
     }
@@ -100,7 +81,7 @@ void iterate_all_queries(size_t const ref_seg_count,
     if (!idsUnique)
         std::cerr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
 
-    search_all_parallel<shared_query_record<TSequence>>(ref_seg_count, arguments, query_records, queue);    
+    search_all_parallel<shared_query_record<seq_t>>(ref_seg_count, arguments, query_records/*, queue*/);    
 }
 
 /**
@@ -112,38 +93,33 @@ void iterate_all_queries(size_t const ref_seg_count,
  * @param thresholder Threshold for number of shared k-mers.
  * @param queue Shopping cart queue for load balancing between Valik prefiltering and Stellar search.
  */
-template <typename ibf_t, typename TSequence>
+template <typename ibf_t, typename seq_t>
 void iterate_short_queries(search_arguments const & arguments,
                            ibf_t const & ibf,
-                           raptor::threshold::threshold const & thresholder,
-                           cart_queue<shared_query_record<TSequence>> & queue)
+                           raptor::threshold::threshold const & thresholder/*,
+                           cart_queue<shared_query_record<TSequence>> & queue*/)
 {
     using TId = seqan2::CharString;
-    std::vector<shared_query_record<TSequence>> query_records{};
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
-    seqan2::SeqFileIn inSeqs;
-    if (!open(inSeqs, arguments.query_file.c_str()))
-    {
-        throw std::runtime_error("Failed to open " + arguments.query_file.string() + " file.");
-    }
+    seqan3::sequence_file_input<dna4_adaptor_traits> fin{arguments.query_file};
+    std::vector<shared_query_record<seq_t>> query_records{};
 
     std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
     bool idsUnique = true;
 
     size_t seqCount{0};
-    for (; !atEnd(inSeqs); ++seqCount)
+    for (auto & record : fin)
     {
-        TSequence seq{};
-        TId id{};
-        readRecord(id, seq, inSeqs);
-        idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
+        //!TODO: IDs unique??
+        // TId id{};
+        // idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
 
-        query_records.emplace_back(std::move(seq), seqan2::toCString(std::move(id)));
+        query_records.emplace_back(record.id(), std::make_shared<seq_t>(std::move(record.sequence())));
 
         if (query_records.size() > chunk_size)
         {
-            prefilter_queries_parallel<shared_query_record<TSequence>>(ibf, arguments, query_records, thresholder, queue);
+            prefilter_queries_parallel_without_stellar_search<shared_query_record<seq_t>>(ibf, arguments, query_records, thresholder/*, queue*/);
             query_records.clear();
         }
     }
@@ -151,7 +127,7 @@ void iterate_short_queries(search_arguments const & arguments,
     if (!idsUnique)
         std::cerr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
 
-    prefilter_queries_parallel<shared_query_record<TSequence>>(ibf, arguments, query_records, thresholder, queue);
+    prefilter_queries_parallel_without_stellar_search<shared_query_record<seq_t>>(ibf, arguments, query_records, thresholder/*, queue*/);
 }
 
 /**
@@ -177,12 +153,10 @@ void iterate_split_queries(search_arguments const & arguments,
     seqan3::sequence_file_input<dna4_adaptor_traits> fin{arguments.query_file};
     std::vector<shared_query_record<seq_t>> query_records{};
 
-
     std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
     bool idsUnique = true;
 
     size_t seqCount{0};
-
     for (auto & record : fin)
     {
         //!TODO: IDs unique??
