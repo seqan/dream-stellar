@@ -174,11 +174,7 @@ void iterate_split_queries(search_arguments const & arguments,
     using TId = seqan2::CharString;
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
-    seqan3::sequence_file_input<dna4_adaptor_traits> fin{std::istringstream{arguments.query_file}, seqan3::format_fasta{}};
-    /*
-    using record_type = typename decltype(fin)::record_type;
-    std::vector<record_type> query_records{};
-    */
+    seqan3::sequence_file_input<dna4_adaptor_traits> fin{arguments.query_file};
     std::vector<shared_query_record<seq_t>> query_records{};
 
 
@@ -194,8 +190,6 @@ void iterate_split_queries(search_arguments const & arguments,
         // idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
 
         auto query_ptr = std::make_shared<seq_t>(std::move(record.sequence()));
-        seqCount++;
-
         for (auto const & seg : meta.segments_from_ind(seqCount))
         {
             // each split query record contains a copy of the same shared pointer
@@ -207,6 +201,7 @@ void iterate_split_queries(search_arguments const & arguments,
                 query_records.clear();  // shared pointers are erased -> memory is deallocated
             }
         }
+        seqCount++;
     }
 
     if (!idsUnique)
