@@ -36,7 +36,7 @@ inline bool get_cart_queries(rec_vec_t const & records,
                              seq_vec_t & seq_vec)
 {
 
-    std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
+    std::set<std::string> uniqueIds; // set of short IDs (cut at first whitespace)
     bool idsUnique = true;
 
     size_t seqCount{0};
@@ -45,8 +45,7 @@ inline bool get_cart_queries(rec_vec_t const & records,
     {
         seq_vec.emplace_back(record.sequence);
         seqCount++;
-
-        //!TODO: idsUnique?
+        idsUnique &= stellar::_checkUniqueId(uniqueIds, record.sequence_id);
     }
 
     /*

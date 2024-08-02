@@ -53,7 +53,7 @@ void iterate_all_queries(size_t const ref_seg_count,
                          search_arguments const & arguments,
                          cart_queue<shared_query_record<seq_t>> & queue)
 {
-    using TId = seqan2::CharString;
+    using TId = std::string;
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
     seqan3::sequence_file_input<dna4_adaptor_traits> fin{arguments.query_file};
@@ -65,10 +65,7 @@ void iterate_all_queries(size_t const ref_seg_count,
     size_t seqCount{0};
     for (auto & record : fin)
     {
-        //!TODO: IDs unique??
-        // TId id{};
-        // idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
-
+        idsUnique &= stellar::_checkUniqueId(uniqueIds, record.id());
         query_records.emplace_back(record.id(), std::make_shared<seq_t>(std::move(record.sequence())));
 
         if (query_records.size() > chunk_size)
@@ -99,7 +96,7 @@ void iterate_short_queries(search_arguments const & arguments,
                            raptor::threshold::threshold const & thresholder,
                            cart_queue<shared_query_record<seq_t>> & queue)
 {
-    using TId = seqan2::CharString;
+    using TId = std::string;
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
     seqan3::sequence_file_input<dna4_adaptor_traits> fin{arguments.query_file};
@@ -111,10 +108,7 @@ void iterate_short_queries(search_arguments const & arguments,
     size_t seqCount{0};
     for (auto & record : fin)
     {
-        //!TODO: IDs unique??
-        // TId id{};
-        // idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
-
+        idsUnique &= stellar::_checkUniqueId(uniqueIds, record.id());
         query_records.emplace_back(record.id(), std::make_shared<seq_t>(std::move(record.sequence())));
 
         if (query_records.size() > chunk_size)
@@ -147,7 +141,7 @@ void iterate_split_queries(search_arguments const & arguments,
                            cart_queue<shared_query_record<seq_t>> & queue,
                            metadata & meta)
 {
-    using TId = seqan2::CharString;
+    using TId = std::string;
     constexpr uint64_t chunk_size = (1ULL << 20) * 10;
 
     seqan3::sequence_file_input<dna4_adaptor_traits> fin{arguments.query_file};
@@ -159,10 +153,7 @@ void iterate_split_queries(search_arguments const & arguments,
     size_t seqCount{0};
     for (auto & record : fin)
     {
-        //!TODO: IDs unique??
-        // TId id{};
-        // idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
-
+        idsUnique &= stellar::_checkUniqueId(uniqueIds, record.id());
         auto query_ptr = std::make_shared<seq_t>(std::move(record.sequence()));
         for (auto const & seg : meta.segments_from_ind(seqCount))
         {
