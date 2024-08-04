@@ -41,6 +41,7 @@ void iterate_distributed_queries(search_arguments const & arguments,
     }
 }
 
+//!TODO: iterate queries remove duplicate code
 /**
  * @brief Function that creates a query record from each query sequence and sends it to Stellar search.
  *

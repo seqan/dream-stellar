@@ -158,9 +158,13 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     // negative (reverse complemented) database strand
     bool const reverse = true /*threadOptions.reverse && threadOptions.alphabet != "protein" && threadOptions.alphabet != "char" */;
     seqan2::StringSet<TSequence> databases;
+    //!TODO: replace databases sequence collection
+    std::vector<sequence_t> adapted_databases;
+    std::vector<sequence_t> adapted_reverse_databases;
     using TSize = decltype(length(databases[0]));
     seqan2::StringSet<TSequence> reverseDatabases;
     seqan2::StringSet<seqan2::CharString> databaseIDs;
+    std::vector<std::string> adapted_databaseIDs;
     std::ofstream disabledQueriesFile;
     TSize refLen;
 
@@ -187,6 +191,14 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
         //!TODO: allow metagenome database
         return dream_stellar::_importAllSequences(arguments.bin_path[0][0].c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
     });
+
+    stellar::stellar_runtime input_adapted_databases_time{};
+    bool const adapted_database_success = input_adapted_databases_time.measure_time([&]()
+    {
+        std::cout << "Launching stellar search on a shared memory machine...\n";
+        return dream_stellar::_import_database_sequences(arguments.bin_path[0][0], adapted_databases, adapted_databaseIDs, refLen, std::cout, std::cerr);
+    });
+
     if (!databasesSuccess)
         return false;
 
@@ -227,7 +239,9 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 stellar::StellarOptions threadOptions = make_thread_options(arguments, ref_meta, cart_queries_path, refLen, bin_id);
 
                 using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
+                using database_segment_t = std::span<std::vector<alphabet_t>>;
                 using TQuerySegment = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
+                //!TODO: update query segment type (== database_segment_t ? )
 
                 stellar::_writeFileNames(threadOptions, thread_meta.text_out);
                 stellar::_writeSpecifiedParams(threadOptions, thread_meta.text_out);
