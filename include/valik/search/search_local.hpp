@@ -209,6 +209,14 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
             reverseComplement(database);
             seqan2::appendValue(reverseDatabases, database, seqan2::Generous());
         }
+
+        for (auto & database_sequence : adapted_databases)
+        {
+            // stack allocation at each iteration
+            sequence_t reverse_sequence(database_sequence.size());
+            for (auto c : database_sequence | std::views::reverse | std::views::transform([](auto el){return el._symbol;}) | seqan3::views::complement)
+                reverse_sequence.emplace_back(seqan3::to_rank(c));
+        }
     }
 
     time_statistics.ref_io_time += input_databases_time.milliseconds() / 1000;
