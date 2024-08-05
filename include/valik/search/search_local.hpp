@@ -10,6 +10,7 @@
 #include <utilities/consolidate/merge_processes.hpp>
 #include <utilities/threshold/search_kmer_profile.hpp>
 #include <utilities/threshold/filtering_request.hpp>
+#include <utilities/alphabet_wrapper/matcher/stellar_matcher.hpp> 
 
 #include <dream_stellar/stellar_index.hpp>
 #include <dream_stellar/io/import_sequence.hpp>
@@ -248,7 +249,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 stellar::StellarOptions threadOptions = make_thread_options(arguments, ref_meta, cart_queries_path, refLen, bin_id);
 
                 using TDatabaseSegment = dream_stellar::StellarDatabaseSegment<TAlphabet>;
-                using database_segment_t = std::span<std::vector<alphabet_t>>;
+                using database_segment_t = std::vector<alphabet_t>;
                 using TQuerySegment = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
                 //!TODO: update query segment type (== database_segment_t ? )
 
@@ -262,14 +263,12 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 seqan2::StringSet<seqan2::CharString> queryIDs;
                 
                 //!TODO: replace container type
-                {
-                    std::vector<sequence_t> seq_vec{records.size()};
-                    auto cart_input_queries_time = stellarThreadTime.input_queries_time.now();
-                    get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out, seq_vec);
-                    stellarThreadTime.input_queries_time.manual_timing(cart_input_queries_time);
-                    jst::contrib::stellar_matcher<sequence_t> matcher(seq_vec, (double) arguments.error_rate, (unsigned) arguments.minLength);
-                }
-
+                std::vector<sequence_t> cart_query_vec{records.size()};
+                auto cart_input_queries_time = stellarThreadTime.input_queries_time.now();
+                get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out, cart_query_vec);
+                stellarThreadTime.input_queries_time.manual_timing(cart_input_queries_time);
+                jst::contrib::stellar_matcher<sequence_t> matcher(cart_query_vec, (double) arguments.error_rate, (unsigned) arguments.minLength);
+                
                 stellar::_writeMoreCalculatedParams(threadOptions, threadOptions.referenceLength, queries, thread_meta.text_out);
 
                 auto swift_index_time = stellarThreadTime.swift_index_construction_time.now();
@@ -289,6 +288,20 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 {
                     auto databaseSegment = dream_stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
                                             (databases[threadOptions.binSequences[0]], threadOptions);
+
+                    //!TODO: replace container type and _getDREAMDatabaseSegment function
+                    {
+                        auto & database = adapted_databases[threadOptions.binSequences[0]];
+                        sequence_t database_segment = std::vector(database.begin() + threadOptions.segmentBegin, 
+                                                                          database.end() + threadOptions.segmentEnd);
+                        auto finder = matcher.make_finder(database_segment);
+                        bool found_match = matcher.find(finder, matcher);
+                        
+                        if (found_match)
+                            seqan3::debug_stream << "FOUND MATCH\n";
+                        else    
+                            seqan3::debug_stream << "NO MATCH\n";
+                    }
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                     {
                         size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);

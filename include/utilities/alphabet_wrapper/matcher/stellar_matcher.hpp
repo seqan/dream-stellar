@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <dream_stellar/stellar_index.hpp>
 #include <seqan/basic/alphabet_simple_type.h>
 #include <utilities/alphabet_wrapper/seqan/container_adapter.hpp>
 #include <utilities/alphabet_wrapper/matcher/seqan_pattern_base.hpp>
@@ -73,8 +72,7 @@ namespace jst::contrib
         constexpr auto position() const noexcept {
             return seqan2::position(_pattern);
         }
-    private:
-
+        
         template <typename haystack_t>
         constexpr auto make_finder(haystack_t & haystack) const noexcept
         {
@@ -82,6 +80,7 @@ namespace jst::contrib
             return seqan2::Finder<haystack_t, finder_spec_type>{haystack};
         }
 
+    private:
         constexpr stellar_matcher & get_pattern() noexcept {
             return *this;
         }
@@ -113,7 +112,8 @@ namespace jst::contrib
 
             return true;
         }
-
+        
+    public:
         template <typename haystack_t, typename ...args_t>
         friend bool find(seqan2::Finder<haystack_t, finder_spec_type> & finder,
                          stellar_matcher & matcher,
@@ -166,8 +166,6 @@ namespace jst::contrib
 
             } while (true);
         }
-
-        friend struct dream_stellar::StellarIndex<seqan2::Dna>;
     };
 
     /////////////////////////////////////////////////////////////////////////////////
