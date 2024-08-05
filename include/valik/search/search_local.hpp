@@ -13,10 +13,10 @@
 
 #include <dream_stellar/stellar_index.hpp>
 #include <dream_stellar/io/import_sequence.hpp>
+#include <dream_stellar/database_id_map.hpp>
+#include <dream_stellar/stellar_launcher.hpp>
 
-#include <stellar/database_id_map.hpp>
 #include <stellar/diagnostics/print.tpp>
-#include <stellar/stellar_launcher.hpp>
 #include <stellar/stellar_output.hpp>
 #include <stellar/utils/stellar_app_runtime.hpp>
 #include <stellar3.shared.hpp>
@@ -212,16 +212,17 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
         for (auto & database_sequence : adapted_databases)
         {
-            // stack allocation at each iteration
-            sequence_t reverse_sequence(database_sequence.size());
+            sequence_t reverse_sequence;
+            reverse_sequence.reserve(database_sequence.size());
             for (auto c : database_sequence | std::views::reverse | std::views::transform([](auto el){return el._symbol;}) | seqan3::views::complement)
                 reverse_sequence.emplace_back(seqan3::to_rank(c));
+            adapted_reverse_databases.emplace_back(std::move(reverse_sequence));
         }
     }
 
     time_statistics.ref_io_time += input_databases_time.milliseconds() / 1000;
-    stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
-    stellar::DatabaseIDMap<TAlphabet> reverseDatabaseIDMap{reverseDatabases, databaseIDs};
+    dream_stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
+    dream_stellar::DatabaseIDMap<TAlphabet> reverseDatabaseIDMap{reverseDatabases, databaseIDs};
 
     bool error_in_search = false; // indicates if an error happened inside this lambda
     auto consumerThreads = std::vector<std::jthread>{};
@@ -246,7 +247,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 auto current_time = stellarThreadTime.now();
                 stellar::StellarOptions threadOptions = make_thread_options(arguments, ref_meta, cart_queries_path, refLen, bin_id);
 
-                using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
+                using TDatabaseSegment = dream_stellar::StellarDatabaseSegment<TAlphabet>;
                 using database_segment_t = std::span<std::vector<alphabet_t>>;
                 using TQuerySegment = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
                 //!TODO: update query segment type (== database_segment_t ? )
@@ -286,7 +287,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 stellar::StellarOutputStatistics outputStatistics{};
                 if (threadOptions.forward)
                 {
-                    auto databaseSegment = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
+                    auto databaseSegment = dream_stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
                                             (databases[threadOptions.binSequences[0]], threadOptions);
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                     {
@@ -300,7 +301,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         constexpr bool databaseStrand = true;
                         auto queryIDMap = stellar::QueryIDMap<TAlphabet>(queries);
 
-                        stellar::StellarComputeStatistics statistics = stellar::StellarLauncher<TAlphabet>::search_and_verify
+                        stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<TAlphabet>::search_and_verify
                         (
                             databaseSegment,
                             databaseID,
@@ -319,7 +320,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         {
                             // forwardMatches is an in-out parameter
                             // this is the match consolidation
-                            stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                            dream_stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
                                                                     forwardMatches, disabledQueryIDs);
                         }); // measure_time
 
@@ -363,7 +364,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                         stellar::QueryIDMap<TAlphabet> queryIDMap{queries};
 
-                        stellar::StellarComputeStatistics statistics = stellar::StellarLauncher<TAlphabet>::search_and_verify
+                        stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<TAlphabet>::search_and_verify
                         (
                             databaseSegment,
                             databaseID,
@@ -383,7 +384,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         {
                             // reverseMatches is an in-out parameter
                             // this is the match consolidation
-                            stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                            dream_stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
                                                                     reverseMatches, disabledQueryIDs);
                         }); // measure_time
 
