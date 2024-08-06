@@ -28,33 +28,33 @@
 namespace dream_stellar
 {
 
-template <typename TAlphabet, typename TId = seqan2::CharString>
+template <typename alphabet_t, typename id_t = std::string>
 struct DatabaseIDMap
 {
-    size_t recordID(StellarDatabaseSegment<TAlphabet> const & databaseSegment) const
+    size_t recordID(StellarDatabaseSegment<alphabet_t> const & databaseSegment) const
     {
         return recordID(databaseSegment.underlyingDatabase());
     }
 
-    size_t recordID(seqan2::String<TAlphabet> const & database) const
+    size_t recordID(std::vector<alphabet_t> const & database) const
     {
-        seqan2::String<TAlphabet> const * begin = &databases[0];
-        seqan2::String<TAlphabet> const * current = std::addressof(database);
+        std::vector<alphabet_t> const * begin = &databases[0];
+        std::vector<alphabet_t> const * current = std::addressof(database);
         return current - begin;
     }
 
-    TId const & databaseID(size_t const recordID) const
+    id_t const & databaseID(size_t const recordID) const
     {
         return databaseIDs[recordID];
     }
 
-    TId const & databaseID(seqan2::String<TAlphabet> const & database) const
+    id_t const & databaseID(std::vector<alphabet_t> const & database) const
     {
         return databaseIDs[recordID(database)];
     }
 
-    seqan2::StringSet<seqan2::String<TAlphabet> > const & databases;
-    seqan2::StringSet<TId> const & databaseIDs;
+    std::vector<std::vector<alphabet_t> > const & databases;
+    std::vector<id_t> const & databaseIDs;
 };
 
 } // namespace dream_stellar

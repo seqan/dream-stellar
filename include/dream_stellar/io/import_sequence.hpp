@@ -101,49 +101,4 @@ inline bool _import_database_sequences(input_t const & file_input,
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Imports sequences from a file,
-// stores them in the StringSet seqs and their identifiers in the StringSet ids
-template <typename TSequence, typename TId, typename TLen, typename TStream>
-inline bool
-_importAllSequences(char const * fileName,
-                    CharString const & name,
-                    StringSet<TSequence> & seqs,
-                    StringSet<TId> & ids,
-                    TLen & seqLen,
-                    TStream & strOut,
-                    TStream & strErr)
-{
-    SeqFileIn inSeqs;
-    if (!open(inSeqs, fileName))
-    {
-        strErr << "Failed to open " << name << " file." << std::endl;
-        return false;
-    }
-
-    std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
-    bool idsUnique = true;
-
-    TSequence seq;
-    TId id;
-    size_t seqCount{0};
-    for (; !atEnd(inSeqs); ++seqCount)
-    {
-        readRecord(id, seq, inSeqs);
-
-        if (name == "database")
-            seqLen += length(seq);
-
-        idsUnique &= _checkUniqueId(uniqueIds, id);
-
-        appendValue(seqs, seq, Generous());
-        appendValue(ids, id, Generous());
-    }
-
-    strOut << "Loaded " << seqCount << " " << name << " sequence" << ((seqCount > 1) ? "s." : ".") << std::endl;
-    if (!idsUnique)
-        strErr << "WARNING: Non-unique " << name << " ids. Output can be ambiguous.\n";
-    return true;
-}
-
 } // namespace dream_stellar

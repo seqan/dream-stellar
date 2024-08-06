@@ -31,6 +31,8 @@
 namespace dream_stellar
 {
 
+using namespace seqan2;
+
 template <typename TAlphabet>
 struct StellarDatabaseSegment : public StellarSequenceSegment<TAlphabet>
 {
@@ -66,7 +68,7 @@ struct StellarDatabaseSegment : public StellarSequenceSegment<TAlphabet>
 };
 
 template <typename TAlphabet, typename TStorage>
-TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarOptions const & options, bool const reverse = false)
+TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, stellar::StellarOptions const & options, bool const reverse = false)
 {
     TStorage databaseSegments{};
     if (options.searchSegment)
@@ -103,7 +105,7 @@ TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarO
 
 template <typename TAlphabet, typename TDatabaseSegment>
 TDatabaseSegment _getDREAMDatabaseSegment(String<TAlphabet> const & sequenceOfInterest,
-                                          StellarOptions const & options,
+                                          stellar::StellarOptions const & options,
                                           bool const reverse = false)
 {
     if (length(sequenceOfInterest) < options.segmentEnd)

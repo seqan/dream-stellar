@@ -26,13 +26,12 @@ namespace valik
  *  \param hostQueries underlying sequences for query segments
  *  \param hostQueryIDs set of underlying sequence ids
  */
-template <typename rec_vec_t, typename TAlphabet, typename TId, typename TStream, typename seq_vec_t>
+template <typename rec_vec_t, typename TStream, typename seq_vec_t>
 inline bool get_cart_queries(rec_vec_t const & records,
-                             seqan2::StringSet<seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>, seqan2::Dependent<>> & seqs,
-                             seqan2::StringSet<TId> & ids,
+                             seq_vec_t & seqs,
+                             std::vector<std::string> & ids, 
                              TStream & strOut,
-                             TStream & strErr, 
-                             seq_vec_t & seq_vec)
+                             TStream & strErr)
 {
 
     std::set<std::string> uniqueIds; // set of short IDs (cut at first whitespace)
@@ -42,21 +41,11 @@ inline bool get_cart_queries(rec_vec_t const & records,
 
     for (auto & record : records)
     {
-        seq_vec.emplace_back(record.sequence);
+        seqs.emplace_back(record.sequence);
+        ids.emplace_back(record.sequence_id);
         seqCount++;
         idsUnique &= stellar::_checkUniqueId(uniqueIds, record.sequence_id);
     }
-
-    /*
-    for (auto & record : records)
-    {
-        seqan2::String<char> query_id = record.sequence_id;
-        seqan2::appendValue(seqs, record.querySegment, seqan2::Generous());
-        seqan2::appendValue(ids, query_id, seqan2::Generous());
-        seqCount++;
-        idsUnique &= stellar::_checkUniqueId(uniqueIds, (seqan2::String<char>) record.sequence_id);
-    }
-    */
 
     strOut << "Loaded " << seqCount << " query sequence" << ((seqCount > 1) ? "s " : " ") << "from cart." << std::endl;
     if (!idsUnique)
