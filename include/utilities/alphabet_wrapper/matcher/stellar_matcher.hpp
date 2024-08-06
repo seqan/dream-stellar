@@ -112,8 +112,8 @@ namespace jst::contrib
 
             return true;
         }
-        
-    public:
+
+        // declare and define a non-member friend function
         template <typename haystack_t, typename ...args_t>
         friend bool find(seqan2::Finder<haystack_t, finder_spec_type> & finder,
                          stellar_matcher & matcher,

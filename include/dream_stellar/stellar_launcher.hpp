@@ -5,8 +5,6 @@
 #include <stellar/query_id_map.hpp>
 #include <stellar/stellar.hpp>
 
-#include <utilities/alphabet_wrapper/matcher/stellar_matcher.hpp>
-
 namespace dream_stellar
 {
 

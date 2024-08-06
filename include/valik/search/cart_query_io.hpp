@@ -2,7 +2,6 @@
 
 #include <filesystem>
 
-#include <utilities/alphabet_wrapper/matcher/stellar_matcher.hpp>
 #include <utilities/alphabet_wrapper/seqan/alphabet.hpp>
 #include <valik/search/query_record.hpp>
 

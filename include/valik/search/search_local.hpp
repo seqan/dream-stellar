@@ -294,13 +294,18 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         auto & database = adapted_databases[threadOptions.binSequences[0]];
                         sequence_t database_segment = std::vector(database.begin() + threadOptions.segmentBegin, 
                                                                           database.end() + threadOptions.segmentEnd);
-                        auto finder = matcher.make_finder(database_segment);
-                        bool found_match = matcher.find(finder, matcher);
                         
-                        if (found_match)
-                            seqan3::debug_stream << "FOUND MATCH\n";
-                        else    
-                            seqan3::debug_stream << "NO MATCH\n";
+                        auto finder_callback = [&matcher](auto & finder)
+                        {
+                            bool has_next = find(finder, matcher);
+                            if (has_next)
+                                seqan3::debug_stream << "FOUND MATCH\n";
+                            else    
+                                seqan3::debug_stream << "NO MATCH\n";     
+                            seqan2::infix(finder);                           
+                        };
+                        matcher(database_segment, finder_callback);
+
                     }
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                     {
