@@ -219,6 +219,8 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
             {
                 auto & [bin_id, records] = *next;
 
+                // debug
+                // seqan3::debug_stream << "Processing queries for bin \t" << bin_id << "\n";
                 std::unique_lock g(mutex);
                 std::filesystem::path cart_queries_path = var_pack.tmp_path / std::string("query_" + std::to_string(bin_id) +
                                                           "_" + std::to_string(exec_meta.bin_count[bin_id]++) + ".fasta");
@@ -253,11 +255,16 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out);
                 stellarThreadTime.input_queries_time.manual_timing(cart_input_queries_time);
 
+                /* Debug
+                for (auto & query : queries)
+                    seqan3::debug_stream << "Query sequence\n" << query << '\n';
+                */
+
                 dream_stellar::_writeMoreCalculatedParams(threadOptions, threadOptions.referenceLength, queries, thread_meta.text_out);
 
                 auto swift_index_time = stellarThreadTime.swift_index_construction_time.now();
                 thread_meta.text_out << "Constructing index..." << '\n';
-                jst::contrib::stellar_matcher<sequence_t> matcher(queries, (double) arguments.error_rate, (unsigned) arguments.minLength);
+                jst::contrib::stellar_matcher<sequence_t> matcher(queries, arguments.shape_size, (double) arguments.error_rate, (unsigned) arguments.minLength);
                 thread_meta.text_out << std::endl;
                 stellarThreadTime.swift_index_construction_time.manual_timing(swift_index_time);
 
@@ -274,19 +281,16 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                     {
                         auto & database = databases[threadOptions.binSequences[0]];
                         sequence_t database_segment = std::vector(database.begin() + threadOptions.segmentBegin, 
-                                                                          database.end() + threadOptions.segmentEnd);
-                        
-                        auto finder_callback = [&matcher](auto & finder)
+                                                                          database.begin() + threadOptions.segmentEnd);
+                        auto finder_callback = [&matcher, &threadOptions](auto & finder)
                         {
                             bool has_next = find(finder, matcher);
-                            if (has_next)
-                                seqan3::debug_stream << "FOUND MATCH\n";
-                            
-                            //else    
-                            //    seqan3::debug_stream << "NO MATCH\n";     
-                            seqan2::infix(finder);                           
+                            if (seqan2::length(finder.hits) > 0)
+                                seqan3::debug_stream << "FOUND MATCH\n";                     
                         };
-                        matcher(database_segment, finder_callback);
+                        
+                        // call operator() from seqan_pattern_base
+                        matcher(database_segment, threadOptions.minRepeatLength, threadOptions.maxRepeatPeriod, finder_callback);
 
                     }
                     /*
@@ -359,11 +363,8 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                             bool has_next = find(finder, matcher);
                             if (has_next)
                                 seqan3::debug_stream << "FOUND MATCH\n";
-                            //else    
-                            //    seqan3::debug_stream << "NO MATCH\n";     
-                            seqan2::infix(finder);                           
                         };
-                        matcher(reverse_database_segment, finder_callback);
+                        matcher(reverse_database_segment, threadOptions.minRepeatLength, threadOptions.maxRepeatPeriod, finder_callback);
 
                     }
 

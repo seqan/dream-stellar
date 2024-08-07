@@ -161,6 +161,9 @@ void local_prefilter(
     {
         auto const & seq = record.sequence;
 
+        // debug
+        //seqan3::debug_stream << "Prefiltering query " << seq << '\n';
+
         // sequence can't contain local match if it's shorter than pattern length
         if (seq.size() < arguments.pattern_size)
             continue;
@@ -195,6 +198,17 @@ void local_prefilter(
             window_span_begin[i] = start_pos;
             counting_table[i].raw_data() |= agent.bulk_contains(min).raw_data();
         }
+
+        /* debug
+        for (auto row : counting_table)
+        {
+            for (auto cell : row)
+            {
+                seqan3::debug_stream << cell << '\t';
+            }
+            seqan3::debug_stream << '\n';
+        }
+        */
 
         minimiser.clear();
 

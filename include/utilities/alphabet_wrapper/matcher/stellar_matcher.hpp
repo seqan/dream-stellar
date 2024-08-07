@@ -47,11 +47,13 @@ namespace jst::contrib
         template <std::ranges::viewable_range _needle_t>
             requires (!std::same_as<_needle_t, stellar_matcher> &&
                        std::constructible_from<compatible_needle_type, _needle_t>)
-        explicit stellar_matcher(_needle_t && needle, double error_rate = 0.0, unsigned min_length = 100) :
+        explicit stellar_matcher(_needle_t && needle, size_t const kmer, double error_rate = 0.0, unsigned min_length = 100) :
             _error_rate{error_rate}, _min_length{min_length}
         {
             appendValue(getFibre(_needle_index, seqan2::QGramText{}),
                         jst::contrib::make_seqan_container(std::views::all((_needle_t &&) needle)));
+            // like line 108 in stellar_index.hpp
+            resize(indexShape(_needle_index), kmer);
             _patternInit(_pattern, _error_rate, _min_length);
         }
 
@@ -59,13 +61,21 @@ namespace jst::contrib
             requires (!std::same_as<_multi_needle_t, stellar_matcher> &&
                        std::constructible_from<compatible_needle_type,
                                                std::views::all_t<std::ranges::range_reference_t<_multi_needle_t>>>)
-        explicit stellar_matcher(_multi_needle_t && multi_needle, double error_rate = 0.0, unsigned min_length = 100) :
+        explicit stellar_matcher(_multi_needle_t && multi_needle, size_t const kmer, double error_rate = 0.0, unsigned min_length = 100) :
             _error_rate{error_rate}, _min_length{min_length}
         {
             for (auto && needle : multi_needle)
+            {
                 appendValue(getFibre(_needle_index, seqan2::QGramText{}),
                             jst::contrib::make_seqan_container(std::views::all((decltype(needle) &&) needle)));
 
+                // debug                
+                // seqan3::debug_stream << "Appending fibre \n" << needle << '\n';
+            }
+
+            //!TODO: add gramAbundanceCut
+            // like line 108 in stellar_index.hpp
+            resize(indexShape(_needle_index), kmer);
             _patternInit(_pattern, _error_rate, _min_length);
         }
 
@@ -74,10 +84,10 @@ namespace jst::contrib
         }
         
         template <typename haystack_t>
-        constexpr auto make_finder(haystack_t & haystack) const noexcept
+        constexpr auto make_finder(haystack_t & haystack, size_t const minRepeatLength, size_t const maxRepeatPeriod) const noexcept
         {
             // TODO: get localOptions to configure repeat length and period.
-            return seqan2::Finder<haystack_t, finder_spec_type>{haystack};
+            return seqan2::Finder<haystack_t, finder_spec_type>{haystack, minRepeatLength, maxRepeatPeriod};
         }
 
     private:
@@ -127,7 +137,6 @@ namespace jst::contrib
             // all previous matches reported -> search new ones
             clear(finder.hits);
 
-            //!TODO: replace with call to seqan2::find() ?
             // are we at the end of the text?
             if (seqan2::atEnd(finder) && finder.curRepeat == finder.endRepeat)
             {

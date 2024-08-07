@@ -37,13 +37,14 @@ namespace jst::contrib
 
         // Note const is disabled since seqan use non-const pattern ;(
         template <std::ranges::viewable_range haystack_t, typename callback_t>
-        constexpr void operator()(haystack_t && haystack, callback_t && callback) /*const*/ noexcept {
+        constexpr void operator()(haystack_t && haystack, size_t const minRepeatLength, 
+                                  size_t const maxRepeatPeriod, callback_t && callback) /*const*/ noexcept {
             using compatible_haystack_t = jst::contrib::seqan_container_t<std::views::all_t<haystack_t>>;
 
             compatible_haystack_t seqan_haystack =
                 jst::contrib::make_seqan_container(std::views::all((haystack_t &&)haystack));
 
-            auto finder = to_derived(this)->make_finder(seqan_haystack);
+            auto finder = to_derived(this)->make_finder(seqan_haystack, minRepeatLength, maxRepeatPeriod);
 
             while (find_impl(finder, to_derived(this)->get_pattern())) {
                 callback(finder);
