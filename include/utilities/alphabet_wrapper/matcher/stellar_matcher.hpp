@@ -12,12 +12,28 @@
 
 #pragma once
 
+#include <valik/shared.hpp>
+
 #include <seqan/basic/alphabet_simple_type.h>
+#include <utilities/alphabet_wrapper/seqan/alphabet.hpp>
 #include <utilities/alphabet_wrapper/seqan/container_adapter.hpp>
 #include <utilities/alphabet_wrapper/matcher/seqan_pattern_base.hpp>
 
 namespace jst::contrib
 {
+    using namespace seqan2;
+
+    template <typename needle_t>
+    using compatible_needle_type = jst::contrib::seqan_container_t<std::views::all_t<needle_t &>>;
+
+    template <typename needle_t>
+    using multi_needle_type = seqan2::StringSet<compatible_needle_type<needle_t>>;
+
+    template <typename needle_t>
+    using qgram_shape_type = seqan2::Shape<std::ranges::range_value_t<compatible_needle_type<needle_t>>, seqan2::SimpleShape>;
+
+    template <typename needle_t>
+    using index_type = seqan2::Index<multi_needle_type<needle_t>, seqan2::IndexQGram<qgram_shape_type<needle_t>, seqan2::OpenAddressing>>;
 
     template <std::ranges::random_access_range needle_t>
     class stellar_matcher : public seqan_pattern_base<stellar_matcher<needle_t>>
@@ -28,16 +44,14 @@ namespace jst::contrib
 
         friend base_t;
 
-        using compatible_needle_type = jst::contrib::seqan_container_t<std::views::all_t<needle_t &>>;
-        using multi_needle_type = seqan2::StringSet<compatible_needle_type>;
-        using qgram_shape_type = seqan2::Shape<std::ranges::range_value_t<compatible_needle_type>, seqan2::SimpleShape>;
         using finder_spec_type = seqan2::Swift<seqan2::SwiftLocal>;
-        using index_type = seqan2::Index<multi_needle_type, seqan2::IndexQGram<qgram_shape_type, seqan2::OpenAddressing>>;
-        using pattern_type = seqan2::Pattern<index_type, finder_spec_type>;
+        using pattern_type = seqan2::Pattern<index_type<needle_t>, finder_spec_type>;
 
-        multi_needle_type _multi_needle{};
-        index_type _needle_index{_multi_needle};
+        multi_needle_type<needle_t> _multi_needle{};
+        index_type<needle_t> _needle_index{_multi_needle};
         pattern_type _pattern{_needle_index};
+        size_t _kmer_size{};
+        double _kmer_abundance_cut{};
         double _error_rate{};
         unsigned _min_length{};
 
@@ -46,23 +60,26 @@ namespace jst::contrib
         stellar_matcher() = delete;
         template <std::ranges::viewable_range _needle_t>
             requires (!std::same_as<_needle_t, stellar_matcher> &&
-                       std::constructible_from<compatible_needle_type, _needle_t>)
-        explicit stellar_matcher(_needle_t && needle, size_t const kmer, double error_rate = 0.0, unsigned min_length = 100) :
-            _error_rate{error_rate}, _min_length{min_length}
+                       std::constructible_from<compatible_needle_type<needle_t>, _needle_t>)
+        explicit stellar_matcher(_needle_t && needle, valik::search_arguments const & arguments) :
+            _kmer_size{arguments.shape_size}, _kmer_abundance_cut{arguments.qgramAbundanceCut}, 
+            _error_rate{arguments.error_rate}, _min_length{arguments.minLength}
         {
             appendValue(getFibre(_needle_index, seqan2::QGramText{}),
                         jst::contrib::make_seqan_container(std::views::all((_needle_t &&) needle)));
             // like line 108 in stellar_index.hpp
-            resize(indexShape(_needle_index), kmer);
+            resize(indexShape(_needle_index), _kmer_size);
+            cargo(_needle_index).abundanceCut = _kmer_abundance_cut;
             _patternInit(_pattern, _error_rate, _min_length);
         }
 
         template <std::ranges::viewable_range _multi_needle_t>
             requires (!std::same_as<_multi_needle_t, stellar_matcher> &&
-                       std::constructible_from<compatible_needle_type,
+                       std::constructible_from<compatible_needle_type<needle_t>,
                                                std::views::all_t<std::ranges::range_reference_t<_multi_needle_t>>>)
-        explicit stellar_matcher(_multi_needle_t && multi_needle, size_t const kmer, double error_rate = 0.0, unsigned min_length = 100) :
-            _error_rate{error_rate}, _min_length{min_length}
+        explicit stellar_matcher(_multi_needle_t && multi_needle, valik::search_arguments const & arguments) :
+            _kmer_size{arguments.shape_size}, _kmer_abundance_cut{arguments.qgramAbundanceCut}, 
+            _error_rate{arguments.error_rate}, _min_length{arguments.minLength}
         {
             for (auto && needle : multi_needle)
             {
@@ -73,9 +90,10 @@ namespace jst::contrib
                 // seqan3::debug_stream << "Appending fibre \n" << needle << '\n';
             }
 
-            //!TODO: add gramAbundanceCut
+
             // like line 108 in stellar_index.hpp
-            resize(indexShape(_needle_index), kmer);
+            resize(indexShape(_needle_index), _kmer_size);
+            cargo(_needle_index).abundanceCut = _kmer_abundance_cut;
             _patternInit(_pattern, _error_rate, _min_length);
         }
 
@@ -86,7 +104,6 @@ namespace jst::contrib
         template <typename haystack_t>
         constexpr auto make_finder(haystack_t & haystack, size_t const minRepeatLength, size_t const maxRepeatPeriod) const noexcept
         {
-            // TODO: get localOptions to configure repeat length and period.
             return seqan2::Finder<haystack_t, finder_spec_type>{haystack, minRepeatLength, maxRepeatPeriod};
         }
 
@@ -194,3 +211,18 @@ namespace jst::contrib
     stellar_matcher(multi_needle_t &&, double) -> stellar_matcher<std::views::all_t<std::ranges::range_reference_t<multi_needle_t>>>;
 
 }  // namespace jst::contrib
+
+namespace seqan2 {
+
+using needle_t = std::vector<seqan2::alphabet_adaptor<seqan3::dna4>>;
+
+template <>
+struct Cargo<::jst::contrib::index_type<needle_t>>
+{
+    typedef struct
+    {
+        double      abundanceCut;
+    } Type;
+};
+
+} // namespace seqan2

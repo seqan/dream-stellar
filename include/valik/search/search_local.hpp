@@ -264,7 +264,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                 auto swift_index_time = stellarThreadTime.swift_index_construction_time.now();
                 thread_meta.text_out << "Constructing index..." << '\n';
-                jst::contrib::stellar_matcher<sequence_t> matcher(queries, arguments.shape_size, (double) arguments.error_rate, (unsigned) arguments.minLength);
+                jst::contrib::stellar_matcher<sequence_t> matcher(queries, arguments);
                 thread_meta.text_out << std::endl;
                 stellarThreadTime.swift_index_construction_time.manual_timing(swift_index_time);
 
