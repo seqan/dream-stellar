@@ -15,6 +15,7 @@
 #include <dream_stellar/database_id_map.hpp>
 #include <dream_stellar/diagnostics/print.tpp>
 #include <dream_stellar/io/import_sequence.hpp>
+#include <dream_stellar/query_id_map.hpp>
 #include <dream_stellar/stellar_index.hpp>
 #include <dream_stellar/stellar_launcher.hpp>
 
@@ -278,34 +279,36 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                     //                        (databases[threadOptions.binSequences[0]], threadOptions);
 
                     //!TODO: replace container type and _getDREAMDatabaseSegment function
+                    auto & database = databases[threadOptions.binSequences[0]];
+                    sequence_t database_segment = std::vector(database.begin() + threadOptions.segmentBegin, 
+                                                                      database.begin() + threadOptions.segmentEnd);
                     {
-                        auto & database = databases[threadOptions.binSequences[0]];
-                        sequence_t database_segment = std::vector(database.begin() + threadOptions.segmentBegin, 
-                                                                          database.begin() + threadOptions.segmentEnd);
                         auto finder_callback = [&matcher, &threadOptions](auto & finder)
                         {
                             bool has_next = find(finder, matcher);
                             if (seqan2::length(finder.hits) > 0)
                                 seqan3::debug_stream << "FOUND MATCH\n";                     
                         };
-                        
+
                         // call operator() from seqan_pattern_base
                         matcher(database_segment, threadOptions.minRepeatLength, threadOptions.maxRepeatPeriod, finder_callback);
-
                     }
-                    /*
+
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                     {
-                        size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
+                        size_t const databaseRecordID = databaseIDMap.recordID(database_segment);
                         std::string const & databaseID = databaseIDMap.databaseID(databaseRecordID);
+
+                        seqan3::debug_stream << "databaseID\t" << databaseID << '\n';
+
                         // container for eps-matches
-                        seqan2::StringSet<stellar::QueryMatches<stellar::StellarMatch<seqan2::String<TAlphabet> const,
-                                                                                    seqan2::CharString> > > forwardMatches;
-                        seqan2::resize(forwardMatches, length(queries));
+                        std::vector<stellar::QueryMatches<stellar::StellarMatch<sequence_t const, std::string> > > forward_matches;
+                        forward_matches.reserve(queries.size());
 
                         constexpr bool databaseStrand = true;
-                        auto queryIDMap = stellar::QueryIDMap<TAlphabet>(queries);
+                        dream_stellar::QueryIDMap<alphabet_t> queryIDMap{queries};
 
+                        /*
                         stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<TAlphabet>::search_and_verify
                         (
                             databaseSegment,
@@ -343,45 +346,44 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         }); // measure_time
 
                         outputStatistics = stellar::_computeOutputStatistics(forwardMatches);
+                        */
                     }); // measure_time
 
-                    */
                 }
 
 
                 if (reverse)
                 {
+                    auto reverse_database_time = stellarThreadTime.input_queries_time.now();
+                    auto & reverse_database = reverse_databases[threadOptions.binSequences[0]];
+                    sequence_t database_segment = std::vector(reverse_database.begin() + threadOptions.segmentBegin, 
+                                                              reverse_database.end() + threadOptions.segmentEnd);
                     {
-                        auto reverse_database_time = stellarThreadTime.input_queries_time.now();
-                        auto & reverse_database = reverse_databases[threadOptions.binSequences[0]];
-                        sequence_t reverse_database_segment = std::vector(reverse_database.begin() + threadOptions.segmentBegin, 
-                                                                  reverse_database.end() + threadOptions.segmentEnd);
                         stellarThreadTime.reverse_complement_database_time.manual_timing(reverse_database_time);
-                        
+
                         auto finder_callback = [&matcher](auto & finder)
                         {
                             bool has_next = find(finder, matcher);
                             if (has_next)
                                 seqan3::debug_stream << "FOUND MATCH\n";
                         };
-                        matcher(reverse_database_segment, threadOptions.minRepeatLength, threadOptions.maxRepeatPeriod, finder_callback);
-
+                        matcher(database_segment, threadOptions.minRepeatLength, threadOptions.maxRepeatPeriod, finder_callback);
                     }
 
-                    /*
                     stellarThreadTime.reverse_strand_stellar_time.measure_time([&]()
                     {
-                        size_t const databaseRecordID = reverseDatabaseIDMap.recordID(databaseSegment);
-                        seqan2::CharString const & databaseID = reverseDatabaseIDMap.databaseID(databaseRecordID);
-                        // container for eps-matches
-                        seqan2::StringSet<stellar::QueryMatches<stellar::StellarMatch<seqan2::String<TAlphabet> const,
-                                                                                    seqan2::CharString> > > reverseMatches;
-                        seqan2::resize(reverseMatches, length(queries));
+                        size_t const databaseRecordID = reverseDatabaseIDMap.recordID(database_segment);
+                        std::string const & databaseID = reverseDatabaseIDMap.databaseID(databaseRecordID);
+
+                        seqan3::debug_stream << "reverse databaseID\t" << databaseID << '\n';
+
+                        std::vector<stellar::QueryMatches<stellar::StellarMatch<sequence_t const, std::string> > > reverse_matches;
+                        reverse_matches.reserve(queries.size());
 
                         constexpr bool databaseStrand = false;
+                        dream_stellar::QueryIDMap<alphabet_t> queryIDMap{queries};
 
-                        stellar::QueryIDMap<TAlphabet> queryIDMap{queries};
-
+                        /*
                         stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<TAlphabet>::search_and_verify
                         (
                             databaseSegment,
@@ -420,8 +422,8 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         }); // measure_time
 
                         outputStatistics.mergeIn(stellar::_computeOutputStatistics(reverseMatches));
+                        */
                     }); // measure_time
-                    */
                 }
 
                 /*!TODO: seqan3 disabled query output 
