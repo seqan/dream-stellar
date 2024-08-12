@@ -12,7 +12,6 @@
 #include <utilities/threshold/filtering_request.hpp>
 #include <utilities/alphabet_wrapper/matcher/stellar_matcher.hpp> 
 
-#include <dream_stellar/database_id_map.hpp>
 #include <dream_stellar/diagnostics/print.tpp>
 #include <dream_stellar/io/import_sequence.hpp>
 #include <dream_stellar/query_id_map.hpp>
@@ -42,6 +41,12 @@ static inline stellar::StellarOptions make_thread_options(search_arguments const
     threadOptions.binSequences.emplace_back(seg.seq_vec[0]);
     threadOptions.segmentBegin = seg.start;
     threadOptions.segmentEnd = seg.start + seg.len;
+    if (threadOptions.segmentEnd <= threadOptions.segmentBegin)
+        throw std::runtime_error{"Incorrect segment definition"};
+
+    if (threadOptions.segmentEnd < threadOptions.minLength + threadOptions.segmentBegin)
+        throw std::runtime_error{"Segment shorter than minimum match length"};
+
     threadOptions.minLength = arguments.pattern_size;
     threadOptions.epsilon = stellar::utils::fraction::from_double_with_limit(arguments.error_rate, arguments.pattern_size).limit_denominator();
     threadOptions.outputFile = cart_queries_path.string() + ".gff";
@@ -205,8 +210,6 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     }
 
     time_statistics.ref_io_time += input_databases_time.milliseconds() / 1000;
-    dream_stellar::DatabaseIDMap<alphabet_t> databaseIDMap{databases, databaseIDs};
-    dream_stellar::DatabaseIDMap<alphabet_t> reverseDatabaseIDMap{reverse_databases, databaseIDs};
 
     bool error_in_search = false; // indicates if an error happened inside this lambda
     auto consumerThreads = std::vector<std::jthread>{};
@@ -221,7 +224,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 auto & [bin_id, records] = *next;
 
                 // debug
-                // seqan3::debug_stream << "Processing queries for bin \t" << bin_id << "\n";
+                seqan3::debug_stream << "Processing queries for bin \t" << bin_id << "\n";
                 std::unique_lock g(mutex);
                 std::filesystem::path cart_queries_path = var_pack.tmp_path / std::string("query_" + std::to_string(bin_id) +
                                                           "_" + std::to_string(exec_meta.bin_count[bin_id]++) + ".fasta");
@@ -237,7 +240,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 stellar::StellarOptions threadOptions = make_thread_options(arguments, ref_meta, cart_queries_path, refLen, bin_id);
 
                 using TDatabaseSegment = dream_stellar::StellarDatabaseSegment<TAlphabet>;
-                using database_segment_t = std::vector<alphabet_t>;
+                using database_segment_t = std::span<alphabet_t>;
                 using TQuerySegment = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
                 //!TODO: update query segment type (== database_segment_t ? )
 
@@ -271,17 +274,20 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                 std::vector<size_t> disabledQueryIDs{};
 
+                size_t const databaseRecordID = threadOptions.binSequences[0];
+                std::string const & databaseID = databaseIDs[databaseRecordID];
+                seqan3::debug_stream << "databaseID\t" << databaseID << '\n';
+
                 stellar::StellarOutputStatistics outputStatistics{};
                 if (threadOptions.forward)
                 {
-                    //!TODO: what type for database segment?
-                    //auto databaseSegment = dream_stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
-                    //                        (databases[threadOptions.binSequences[0]], threadOptions);
+                    auto database = std::span(databases[databaseRecordID]);
+                    if (database.size() < threadOptions.segmentEnd)
+                        throw std::runtime_error{"Segment end out of range"};
 
-                    //!TODO: replace container type and _getDREAMDatabaseSegment function
-                    auto & database = databases[threadOptions.binSequences[0]];
-                    sequence_t database_segment = std::vector(database.begin() + threadOptions.segmentBegin, 
-                                                                      database.begin() + threadOptions.segmentEnd);
+                    database_segment_t database_segment = database.subspan(threadOptions.segmentBegin /* offset */, 
+                                                                              threadOptions.segmentEnd - threadOptions.segmentBegin /* count */);
+                    
                     {
                         auto finder_callback = [&matcher, &threadOptions](auto & finder)
                         {
@@ -296,11 +302,6 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                     {
-                        size_t const databaseRecordID = databaseIDMap.recordID(database_segment);
-                        std::string const & databaseID = databaseIDMap.databaseID(databaseRecordID);
-
-                        seqan3::debug_stream << "databaseID\t" << databaseID << '\n';
-
                         // container for eps-matches
                         std::vector<stellar::QueryMatches<stellar::StellarMatch<sequence_t const, std::string> > > forward_matches;
                         forward_matches.reserve(queries.size());
@@ -355,9 +356,12 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 if (reverse)
                 {
                     auto reverse_database_time = stellarThreadTime.input_queries_time.now();
-                    auto & reverse_database = reverse_databases[threadOptions.binSequences[0]];
-                    sequence_t database_segment = std::vector(reverse_database.begin() + threadOptions.segmentBegin, 
-                                                              reverse_database.end() + threadOptions.segmentEnd);
+                    auto reverse_database = std::span(reverse_databases[databaseRecordID]);
+                    if (reverse_database.size() < threadOptions.segmentEnd)
+                        throw std::runtime_error{"Segment end out of range"};
+                    
+                    database_segment_t database_segment = reverse_database.subspan(reverse_database.size() - threadOptions.segmentEnd /* offset */, 
+                                                                                   threadOptions.segmentEnd - threadOptions.segmentBegin /* count */);
                     {
                         stellarThreadTime.reverse_complement_database_time.manual_timing(reverse_database_time);
 
@@ -372,11 +376,6 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                     stellarThreadTime.reverse_strand_stellar_time.measure_time([&]()
                     {
-                        size_t const databaseRecordID = reverseDatabaseIDMap.recordID(database_segment);
-                        std::string const & databaseID = reverseDatabaseIDMap.databaseID(databaseRecordID);
-
-                        seqan3::debug_stream << "reverse databaseID\t" << databaseID << '\n';
-
                         std::vector<stellar::QueryMatches<stellar::StellarMatch<sequence_t const, std::string> > > reverse_matches;
                         reverse_matches.reserve(queries.size());
 

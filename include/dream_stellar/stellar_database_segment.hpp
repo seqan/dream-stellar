@@ -67,48 +67,15 @@ struct StellarDatabaseSegment : public StellarSequenceSegment<TAlphabet>
     }
 };
 
-template <typename TAlphabet, typename TStorage>
-TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, stellar::StellarOptions const & options, bool const reverse = false)
+//!TODO: could not convert ‘span<alphabet_adaptor<[...]>,[...]>’ to ‘span<alphabet_adaptor<[...]>,[...]>
+template <typename alphabet_t>
+std::span<alphabet_t> get_database_segment(std::vector<std::vector<alphabet_t>> const & databases,
+                                           stellar::StellarOptions const & options,
+                                           bool const reverse = false)
 {
-    TStorage databaseSegments{};
-    if (options.searchSegment)
-    {
-        if (length(databases[0]) < options.segmentEnd)
-            throw std::runtime_error{"Segment end out of range"};
+    auto database = std::span(databases[options.binSequences[0]]);
 
-        if (options.segmentEnd <= options.segmentBegin)
-            throw std::runtime_error{"Incorrect segment definition"};
-
-        if (options.segmentEnd < options.minLength + options.segmentBegin)
-            throw std::runtime_error{"Segment shorter than minimum match length"};
-
-        if (reverse)
-        {
-            reverseComplement(databases[0]);
-            databaseSegments.emplace_back(databases[0], length(databases[0]) - options.segmentEnd, length(databases[0]) - options.segmentBegin);
-        }
-        else
-            databaseSegments.emplace_back(databases[0], options.segmentBegin, options.segmentEnd);
-    }
-    else
-        for (auto & database : databases)
-        {
-            if (reverse)
-                reverseComplement(database);
-
-            if (length(database) >= options.minLength)
-                databaseSegments.emplace_back(database, 0u, length(database));
-        }
-
-    return databaseSegments;
-}
-
-template <typename TAlphabet, typename TDatabaseSegment>
-TDatabaseSegment _getDREAMDatabaseSegment(String<TAlphabet> const & sequenceOfInterest,
-                                          stellar::StellarOptions const & options,
-                                          bool const reverse = false)
-{
-    if (length(sequenceOfInterest) < options.segmentEnd)
+    if (database.size() < options.segmentEnd)
         throw std::runtime_error{"Segment end out of range"};
 
     if (options.segmentEnd <= options.segmentBegin)
@@ -118,10 +85,12 @@ TDatabaseSegment _getDREAMDatabaseSegment(String<TAlphabet> const & sequenceOfIn
         throw std::runtime_error{"Segment shorter than minimum match length"};
 
     if (reverse)
-        return TDatabaseSegment(sequenceOfInterest, length(sequenceOfInterest) - options.segmentEnd, length(sequenceOfInterest) - options.segmentBegin);
+    {
+        return database.subspan(database.size() - options.segmentEnd /* offset */, 
+                                options.segmentEnd - options.segmentBegin /* count */);
+    }
 
-    return TDatabaseSegment(sequenceOfInterest, options.segmentBegin, options.segmentEnd);
-
+    return database.subspan(options.segmentBegin /* offset */, options.segmentEnd - options.segmentBegin /* count */);
 }
 
 } // namespace dream_stellar
