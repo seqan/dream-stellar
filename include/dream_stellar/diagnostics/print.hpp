@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <stellar/stellar_types.hpp>
+#include <dream_stellar/stellar_types.hpp>
 #include <stellar/stellar_output.hpp>
 
 namespace dream_stellar

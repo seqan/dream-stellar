@@ -23,9 +23,9 @@
 
 #pragma once
 
-#include <stellar/stellar_index.hpp>
+#include <dream_stellar/stellar_index.hpp>
 #include <stellar/stellar_query_segment.hpp>
-#include <stellar/stellar_types.hpp>
+#include <dream_stellar/stellar_types.hpp>
 
 namespace dream_stellar
 {
