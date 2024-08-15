@@ -58,7 +58,7 @@ void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLe
         _postproccessLengthAdjustment(refLen, matches);
 }
 
-template <typename alphabet_t, typename id_t = std::string>
+template <typename alphabet_t, typename sequence_reference_t = std::span<const alphabet_t>, typename id_t = std::string>
 struct StellarLauncher
 {
     template <typename visitor_fn_t>
@@ -81,8 +81,8 @@ struct StellarLauncher
 
     static StellarComputeStatistics
     search_and_verify(
-        jst::contrib::stellar_matcher<std::vector<alphabet_t>> & matcher, 
-        std::span<alphabet_t> database_segment,
+        jst::contrib::stellar_matcher<sequence_reference_t> & matcher, 
+        sequence_reference_t database_segment,
         id_t const & databaseID,
         QueryIDMap<alphabet_t> const & queryIDMap,
         bool const databaseStrand,
@@ -91,8 +91,6 @@ struct StellarLauncher
         std::vector<QueryMatches<StellarMatch<std::vector<alphabet_t> const, id_t> > > & local_matches
     )
     {
-        using sequence_t = std::span<alphabet_t>;
-
         auto finder_callback = [&matcher, &localOptions](auto & finder)
         {
             bool has_next = find(finder, matcher);
@@ -105,7 +103,7 @@ struct StellarLauncher
 
         /*
         
-        auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<sequence_t const, id_t> > &
+        auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<sequence_reference_t const, id_t> > &
         {
             return value(localMatches, pattern.curSeqNo);
         };
@@ -140,7 +138,7 @@ struct StellarLauncher
         StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
         */
 
-        //matcher.make_finder(database_segment, localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
+        matcher.make_finder(database_segment, localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
         
         /*
         StellarComputeStatistics statistics = _verificationMethodVisit(

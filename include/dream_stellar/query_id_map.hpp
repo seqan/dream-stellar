@@ -30,17 +30,17 @@
 namespace dream_stellar
 {
 
-template <typename TAlphabet, typename TId = std::string>
+template <typename alphabet_t, typename sequence_reference_t = std::span< const alphabet_t>, typename TId = std::string>
 struct QueryIDMap
 {
-    size_t recordID(std::vector<TAlphabet> const & query) const
+    size_t recordID(sequence_reference_t const & query) const
     {
-        std::vector<TAlphabet> const * begin = &queries[0];
-        std::vector<TAlphabet> const * current = std::addressof(query);
+        sequence_reference_t const * begin = &queries[0];
+        sequence_reference_t const * current = std::addressof(query);
         return current - begin;
     }
 
-    std::vector<std::vector<TAlphabet> > const & queries;
+    std::vector<sequence_reference_t> const & queries;
 };
 
 } // namespace dream_stellar

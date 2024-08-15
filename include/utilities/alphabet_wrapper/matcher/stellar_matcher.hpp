@@ -214,7 +214,7 @@ namespace jst::contrib
 
 namespace seqan2 {
 
-using needle_t = std::vector<seqan2::alphabet_adaptor<seqan3::dna4>>;
+using needle_t = std::span<const seqan2::alphabet_adaptor<seqan3::dna4>>;
 
 template <>
 struct Cargo<::jst::contrib::index_type<needle_t>>
