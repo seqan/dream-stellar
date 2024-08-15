@@ -11,7 +11,6 @@
 #include <utilities/threshold/search_kmer_profile.hpp>
 #include <utilities/threshold/filtering_request.hpp>
 #include <utilities/alphabet_wrapper/matcher/stellar_matcher.hpp> 
-#include <utilities/alphabet_wrapper/std/span_extend.hpp>
 
 #include <dream_stellar/diagnostics/print.tpp>
 #include <dream_stellar/io/import_sequence.hpp>

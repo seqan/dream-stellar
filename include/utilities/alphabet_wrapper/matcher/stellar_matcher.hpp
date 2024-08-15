@@ -100,14 +100,14 @@ namespace jst::contrib
         constexpr auto position() const noexcept {
             return seqan2::position(_pattern);
         }
-        
+
+    private:        
         template <typename haystack_t>
         constexpr auto make_finder(haystack_t & haystack, size_t const minRepeatLength, size_t const maxRepeatPeriod) const noexcept
         {
             return seqan2::Finder<haystack_t, finder_spec_type>{haystack, minRepeatLength, maxRepeatPeriod};
         }
 
-    private:
         constexpr stellar_matcher & get_pattern() noexcept {
             return *this;
         }

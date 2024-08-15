@@ -138,7 +138,7 @@ struct StellarLauncher
         StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
         */
 
-        matcher.make_finder(database_segment, localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
+        //matcher.make_finder(database_segment, localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
         
         /*
         StellarComputeStatistics statistics = _verificationMethodVisit(
