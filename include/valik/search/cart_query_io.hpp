@@ -2,11 +2,9 @@
 
 #include <filesystem>
 
+#include <dream_stellar/io/import_sequence.hpp>
 #include <utilities/alphabet_wrapper/seqan/alphabet.hpp>
 #include <valik/search/query_record.hpp>
-
-#include <stellar/stellar_query_segment.hpp>
-#include <stellar/io/import_sequence.hpp>
 
 #include <seqan3/io/sequence_file/output.hpp>
 #include <seqan3/io/sequence_file/record.hpp>
@@ -44,7 +42,7 @@ inline bool get_cart_queries(rec_vec_t const & records,
         seqs.emplace_back(record.sequence);
         ids.emplace_back(record.sequence_id);
         seqCount++;
-        idsUnique &= stellar::_checkUniqueId(uniqueIds, record.sequence_id);
+        idsUnique &= dream_stellar::_checkUniqueId(uniqueIds, record.sequence_id);
     }
 
     strOut << "Loaded " << seqCount << " query sequence" << ((seqCount > 1) ? "s " : " ") << "from cart." << std::endl;

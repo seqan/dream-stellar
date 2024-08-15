@@ -15,21 +15,20 @@
 #include <dream_stellar/diagnostics/print.tpp>
 #include <dream_stellar/io/import_sequence.hpp>
 #include <dream_stellar/query_id_map.hpp>
+#include <dream_stellar/shared.hpp>
 #include <dream_stellar/stellar_index.hpp>
 #include <dream_stellar/stellar_launcher.hpp>
-
-#include <stellar/stellar_output.hpp>
-#include <stellar/utils/stellar_app_runtime.hpp>
-#include <stellar3.shared.hpp>
+#include <dream_stellar/stellar_output.hpp>
+#include <dream_stellar/utils/stellar_app_runtime.hpp>
 
 namespace valik::app
 {
 
 template <typename TSize, typename id_t>
-static inline stellar::StellarOptions make_thread_options(search_arguments const & arguments, metadata const & ref_meta, 
+static inline dream_stellar::StellarOptions make_thread_options(search_arguments const & arguments, metadata const & ref_meta, 
                                                           std::filesystem::path const & cart_queries_path, TSize const refLen, id_t const bin_id)
 {
-    stellar::StellarOptions threadOptions{};
+    dream_stellar::StellarOptions threadOptions{};
     threadOptions.alphabet = "dna";            // one of: dna, rna, protein, char
     threadOptions.verbose = true;
     threadOptions.queryFile = "in memory";
@@ -48,7 +47,7 @@ static inline stellar::StellarOptions make_thread_options(search_arguments const
         throw std::runtime_error{"Segment shorter than minimum match length"};
 
     threadOptions.minLength = arguments.pattern_size;
-    threadOptions.epsilon = stellar::utils::fraction::from_double_with_limit(arguments.error_rate, arguments.pattern_size).limit_denominator();
+    threadOptions.epsilon = dream_stellar::utils::fraction::from_double_with_limit(arguments.error_rate, arguments.pattern_size).limit_denominator();
     threadOptions.outputFile = cart_queries_path.string() + ".gff";
     
     {
@@ -185,7 +184,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
         throw std::runtime_error("Multiple reference files can not be searched in shared memory mode. "
                                  "Add --distribute argument to launch multiple distributed instances of DREAM-Stellar search.");
 
-    stellar::stellar_runtime input_databases_time{};
+    dream_stellar::stellar_runtime input_databases_time{};
     bool const databasesSuccess = input_databases_time.measure_time([&]()
     {
         std::cout << "Launching stellar search on a shared memory machine...\n";
@@ -233,9 +232,9 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 //!TODO: remove dummy file
                 std::ofstream output(cart_queries_path.string() + ".gff");
 
-                stellar::stellar_app_runtime stellarThreadTime{};
+                dream_stellar::stellar_app_runtime stellarThreadTime{};
                 auto current_time = stellarThreadTime.now();
-                stellar::StellarOptions threadOptions = make_thread_options(arguments, ref_meta, cart_queries_path, refLen, bin_id);
+                dream_stellar::StellarOptions threadOptions = make_thread_options(arguments, ref_meta, cart_queries_path, refLen, bin_id);
 
                 dream_stellar::_writeFileNames(threadOptions, thread_meta.text_out);
                 dream_stellar::_writeSpecifiedParams(threadOptions, thread_meta.text_out);
@@ -271,7 +270,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 std::string const & databaseID = databaseIDs[databaseRecordID];
                 seqan3::debug_stream << "databaseID\t" << databaseID << '\n';
 
-                stellar::StellarOutputStatistics outputStatistics{};
+                dream_stellar::StellarOutputStatistics outputStatistics{};
                 if (threadOptions.forward)
                 {
                     auto database = std::span(databases[databaseRecordID]);
@@ -286,13 +285,13 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                     {
                         // container for eps-matches
-                        std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<sequence_container_t const, std::string> > > forward_matches;
+                        std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<sequence_reference_t const, std::string> > > forward_matches;
                         forward_matches.reserve(queries.size());
 
                         constexpr bool databaseStrand = true;
                         dream_stellar::QueryIDMap<alphabet_t> queryIDMap{queries};
      
-                        stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<alphabet_t>::search_and_verify
+                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<alphabet_t>::search_and_verify
                         (
                             matcher,
                             database_segment,
@@ -352,14 +351,14 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                     stellarThreadTime.reverse_strand_stellar_time.measure_time([&]()
                     {
-                        std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<sequence_container_t const, std::string> > > reverse_matches;
+                        std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<sequence_reference_t const, std::string> > > reverse_matches;
                         reverse_matches.reserve(queries.size());
 
                         constexpr bool databaseStrand = false;
                         dream_stellar::QueryIDMap<alphabet_t> queryIDMap{queries};
 
                         
-                        stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<alphabet_t>::search_and_verify
+                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<alphabet_t>::search_and_verify
                         (
                             matcher,
                             database_segment,
@@ -420,7 +419,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 if (arguments.write_time)
                 {
                     stellarThreadTime.manual_timing(current_time);
-                    stellar::_print_stellar_app_time(stellarThreadTime, thread_meta.text_out);
+                    dream_stellar::_print_stellar_app_time(stellarThreadTime, thread_meta.text_out);
                 }
                     
             }

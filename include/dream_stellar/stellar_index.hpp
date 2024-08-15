@@ -1,25 +1,3 @@
-// ==========================================================================
-//                    STELLAR - SwifT Exact LocaL AligneR
-//                   http://www.seqan.de/projects/stellar/
-// ==========================================================================
-// Copyright (C) 2010-2012 by Birte Kehr
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3 of the License, or (at your options) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-// ==========================================================================
-// Author: Birte Kehr <birte.kehr@fu-berlin.de>
-// ==========================================================================
 #pragma once
 
 #include <seqan/index.h>
@@ -27,12 +5,11 @@
 #include <span>
 
 #include <utilities/alphabet_wrapper/matcher/stellar_matcher.hpp>
-#include <stellar/options/index_options.hpp>
+#include <dream_stellar/options/index_options.hpp>
 
 namespace dream_stellar
 {
 using namespace seqan2;
-using namespace stellar;
 
 template <typename TAlphabet, typename TString = String<TAlphabet>, typename TInfixSegment = seqan2::Segment<TString const, seqan2::InfixSegment>>
 using StellarQGramStringSet = StringSet<TInfixSegment, Owner<> >;

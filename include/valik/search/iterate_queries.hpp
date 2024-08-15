@@ -4,8 +4,7 @@
 #include <valik/search/search_time_statistics.hpp>
 #include <valik/shared.hpp>
 
-#include <stellar/utils/stellar_app_runtime.hpp>
-#include <stellar/io/import_sequence.hpp>
+#include <dream_stellar/io/import_sequence.hpp>
 
 #include <seqan/seq_io.h>
 
@@ -66,7 +65,7 @@ void iterate_all_queries(size_t const ref_seg_count,
     size_t seqCount{0};
     for (auto & record : fin)
     {
-        idsUnique &= stellar::_checkUniqueId(uniqueIds, record.id());
+        idsUnique &= dream_stellar::_checkUniqueId(uniqueIds, record.id());
         query_records.emplace_back(record.id(), std::make_shared<seq_t>(std::move(record.sequence())));
 
         if (query_records.size() > chunk_size)
@@ -109,7 +108,7 @@ void iterate_short_queries(search_arguments const & arguments,
     size_t seqCount{0};
     for (auto & record : fin)
     {
-        idsUnique &= stellar::_checkUniqueId(uniqueIds, record.id());
+        idsUnique &= dream_stellar::_checkUniqueId(uniqueIds, record.id());
         query_records.emplace_back(record.id(), std::make_shared<seq_t>(std::move(record.sequence())));
 
         if (query_records.size() > chunk_size)
@@ -154,7 +153,7 @@ void iterate_split_queries(search_arguments const & arguments,
     size_t seqCount{0};
     for (auto & record : fin)
     {
-        idsUnique &= stellar::_checkUniqueId(uniqueIds, record.id());
+        idsUnique &= dream_stellar::_checkUniqueId(uniqueIds, record.id());
         auto query_ptr = std::make_shared<seq_t>(std::move(record.sequence()));
         for (auto const & seg : meta.segments_from_ind(seqCount))
         {

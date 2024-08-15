@@ -1,32 +1,8 @@
-// ==========================================================================
-//                    STELLAR - SwifT Exact LocaL AligneR
-//                   http://www.seqan.de/projects/stellar/
-// ==========================================================================
-// Copyright (C) 2010-2012 by Birte Kehr
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either
-// version 3 of the License, or (at your options) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-// ==========================================================================
-// Author: Birte Kehr <birte.kehr@fu-berlin.de>
-// ==========================================================================
-
 #pragma once
 
+#include <dream_stellar/query_id_map.hpp>
 #include <dream_stellar/stellar_database_segment.hpp>
-
-#include <stellar/query_id_map.hpp>
-#include <stellar/stellar.hpp>
+#include <dream_stellar/stellar.hpp>
 
 namespace dream_stellar
 {
@@ -62,12 +38,11 @@ template <typename alphabet_t, typename sequence_reference_t = std::span<const a
 struct StellarLauncher
 {
     template <typename visitor_fn_t>
-    static constexpr stellar::StellarComputeStatistics _verificationMethodVisit(
-        stellar::StellarVerificationMethod verificationMethod,
+    static constexpr StellarComputeStatistics _verificationMethodVisit(
+        StellarVerificationMethod verificationMethod,
         visitor_fn_t && visitor_fn
     )
     {
-        using namespace stellar;
         if (verificationMethod == StellarVerificationMethod{AllLocal{}})
             return visitor_fn(AllLocal());
         else if (verificationMethod == StellarVerificationMethod{BestLocal{}})
@@ -87,8 +62,8 @@ struct StellarLauncher
         QueryIDMap<alphabet_t> const & queryIDMap,
         bool const databaseStrand,
         StellarOptions & localOptions, // localOptions.compactThresh is out-param
-        stellar::stellar_kernel_runtime & strand_runtime,
-        std::vector<QueryMatches<StellarMatch<std::vector<alphabet_t> const, id_t> > > & local_matches
+        stellar_kernel_runtime & strand_runtime,
+        std::vector<QueryMatches<StellarMatch<sequence_reference_t const, id_t> > > & local_matches
     )
     {
         auto finder_callback = [&matcher, &localOptions](auto & finder)
