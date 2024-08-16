@@ -8,6 +8,12 @@
 #include <dream_stellar/options/verifier_options.hpp>
 #include <dream_stellar/shared.hpp>
 
+#if __cpp_designated_initializers || __GNUC__ >= 8
+#   define STELLAR_DESIGNATED_INITIALIZER(designator, value) designator value
+#else
+#   define STELLAR_DESIGNATED_INITIALIZER(designator, value) value
+#endif // __cpp_designated_initializers || __GNUC__ >= 8
+
 namespace dream_stellar
 {
 
@@ -112,6 +118,54 @@ private:
     std::vector<StellarComputeStatistics> _statistics; // one per database
 };
 
+
+///////////////////////////////////////////////////////////////////////////////
+// Container for storing a local alignment match
+template<typename TSequence_, typename TId_>
+struct StellarMatch {
+    static_assert(std::is_const<TSequence_>::value, "Sequence must be const qualified! I.e. StellarMatch<... const, ...>");
+    typedef TSequence_                          TSequence;
+    typedef TId_                                TId;
+    typedef typename TSequence::size_type  TPos;
+
+    //!TODO: can std::span<alphabet_t> be aligned
+    typedef Align<TSequence, ArrayGaps>         TAlign;
+    typedef typename Row<TAlign>::Type         TRow;
+    static const TId INVALID_ID;
+
+    TId id;         // database ID
+    bool orientation;
+    TPos begin1;
+    TPos end1;
+    TRow row1;
+
+    TPos begin2;
+    TPos end2;
+    TRow row2;
+
+    StellarMatch() : id(), orientation(false), begin1(0), end1(0), begin2(0), end2(0)
+    {}
+
+    template <typename TAlign, typename TId>
+    StellarMatch(TAlign & _align, TId _id, bool _orientation)
+    {
+        id = _id;
+        orientation = _orientation;
+        row1 = row(_align, 0);
+        row2 = row(_align, 1);
+
+        begin1 = beginPosition(row1);
+        end1 = endPosition(row1);
+
+        begin2 = beginPosition(row2);
+        end2 = endPosition(row2);
+    }
+};
+
+template <typename TSequence, typename TId>
+const TId
+StellarMatch<TSequence, TId>::INVALID_ID = "###########";
+
 ///////////////////////////////////////////////////////////////////////////////
 // Container for storing local alignment matches of one query sequence
 template<typename TMatch_>
@@ -125,9 +179,9 @@ struct QueryMatches {
     QueryMatches() : disabled(false), lengthAdjustment(0)
     {}
  
-    inline bool removeOverlapsAndCompactMatches(size_t const disableThresh,
+    inline bool removeOverlapsAndCompactMatches(size_t const minLength,
+                                                size_t const disableThresh,
                                                 size_t const compactThresh,
-                                                size_t const minLength,
                                                 size_t const numMatches)
     {
         if (this->disabled)
@@ -149,58 +203,29 @@ struct QueryMatches {
         //compactMatches(this->matches, numMatches);   // keep only the <numMatches> longest matches
         return true;
     }
-};
 
-///////////////////////////////////////////////////////////////////////////////
-// Container for storing a local alignment match
-template<typename TSequence_, typename TId_>
-struct StellarMatch {
-    static_assert(std::is_const<TSequence_>::value, "Sequence must be const qualified! I.e. StellarMatch<... const, ...>");
-    typedef TSequence_                          TSequence;
-    typedef TId_                                TId;
-    typedef typename TSequence::size_type  TPos;
+    ///////////////////////////////////////////////////////////////////////////////
+    // Appends a match to matches container and removes overlapping matches if threshold is reached.
+    template<typename TSource, typename TId, typename TSize, typename TSize1>
+    inline bool insertMatch(StellarMatch<TSource const, TId> const & match,
+                             TSize const minLength,
+                             TSize1 const disableThresh,
+                             TSize1 & compactThresh,
+                             TSize1 const numMatches) {
 
-    /*
-    typedef Align<TSequence, ArrayGaps>         TAlign;
-    typedef typename Row<TAlign>::Type         TRow;
-    */
-    static const TId INVALID_ID;
+        matches.emplace_back(match);
 
-    TId id;         // database ID
-    bool orientation;
-    TPos begin1;
-    TPos end1;
-    //TRow row1;
+        // std::cerr << "Inserting match \n-------------\n" << match.row1 <<"\n" << match.row2 << "----------------\n";
 
-    TPos begin2;
-    TPos end2;
-    //TRow row2;
-
-    StellarMatch() : id(), orientation(false), begin1(0), end1(0), begin2(0), end2(0)
-    {}
-
-    /*
-    template <typename TAlign, typename TId>
-    StellarMatch(TAlign & _align, TId _id, bool _orientation)
-    {
-        id = _id;
-        orientation = _orientation;
-        row1 = row(_align, 0);
-        row2 = row(_align, 1);
-
-        begin1 = beginPosition(row1);
-        end1 = endPosition(row1);
-
-        begin2 = beginPosition(row2);
-        end2 = endPosition(row2);
+        if (removeOverlapsAndCompactMatches(minLength, disableThresh, compactThresh, numMatches))
+        {
+            // raise compact threshold if many matches are kept
+            if ((matches.size() << 1) > compactThresh)
+                compactThresh += (compactThresh >> 1);
+        }
+        return true;
     }
-    */
 };
-
-template <typename TSequence, typename TId>
-const TId
-StellarMatch<TSequence, TId>::INVALID_ID = "###########";
-
 
 ///////////////////////////////////////////////////////////////////////////////
 

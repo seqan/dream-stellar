@@ -5,23 +5,23 @@
 namespace dream_stellar
 {
 
-template <typename TAlphabet>
+template <typename alphabet_t>
 struct StellarSequenceSegment
 {
-    using TString = seqan2::String<TAlphabet>;
-    using TInfixSegment = seqan2::Segment<TString const, seqan2::InfixSegment>;
+    using sequence_reference_t = std::span<const alphabet_t>;
+    using TInfixSegment = seqan2::Segment<sequence_reference_t const, seqan2::InfixSegment>;
 
     StellarSequenceSegment() = default;
 
-    template <typename TOtherString, typename = std::enable_if_t< std::is_same_v<TString, TOtherString> > >
+    template <typename other_sequence_t, typename = std::enable_if_t< std::is_same_v<sequence_reference_t, other_sequence_t> > >
     StellarSequenceSegment(
-        TOtherString const & sequence,
+        other_sequence_t const & sequence,
         size_t const beginPosition,
         size_t const endPosition)
         : _sequenceSegment{sequence, beginPosition, endPosition}
     {}
 
-    seqan2::String<TAlphabet> const & underlyingSequence() const &
+    sequence_reference_t const & underlyingSequence() const &
     {
         return host(_sequenceSegment);
     }

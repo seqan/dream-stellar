@@ -101,6 +101,10 @@ namespace jst::contrib
             return seqan2::position(_pattern);
         }
 
+        constexpr auto curSeqNo() const noexcept {
+            return _pattern.curSeqNo;
+        }
+
     private:        
         template <typename haystack_t>
         constexpr auto make_finder(haystack_t & haystack, size_t const minRepeatLength, size_t const maxRepeatPeriod) const noexcept

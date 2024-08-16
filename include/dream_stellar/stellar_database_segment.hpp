@@ -10,30 +10,46 @@ namespace dream_stellar
 
 using namespace seqan2;
 
-template <typename TAlphabet>
-struct StellarDatabaseSegment : public StellarSequenceSegment<TAlphabet>
+template <typename alphabet_t>
+struct StellarDatabaseSegment : public StellarSequenceSegment<alphabet_t>
 {
-    using TBase = StellarSequenceSegment<TAlphabet>;
+    using TBase = StellarSequenceSegment<alphabet_t>;
 
     using typename TBase::TInfixSegment;
+    
+    //!TODO: why is it nested?
     using TNestedFinderSegment = seqan2::Segment<TInfixSegment, seqan2::InfixSegment>;
 
     using TBase::TBase; // import constructor
 
-    static StellarDatabaseSegment<TAlphabet> fromFinderMatch(TInfixSegment const & finderMatch)
+    static StellarDatabaseSegment<alphabet_t> fromFinderMatch(TInfixSegment const & finderMatch)
     {
-        seqan2::String<TAlphabet> const & underlyingDatabase = host(finderMatch);
+        std::span<alphabet_t> const & underlyingDatabase = host(finderMatch);
         return {underlyingDatabase, seqan2::beginPosition(finderMatch), seqan2::endPosition(finderMatch)};
     }
 
-    seqan2::String<TAlphabet> const & underlyingDatabase() const &
+    std::span<const alphabet_t> const underlyingDatabase() const
     {
         return this->underlyingSequence();
     }
 
+    std::span<const alphabet_t> as_span(bool const reverse = false) const
+    {
+        if (reverse)
+        {
+            return underlyingDatabase().subspan(underlyingDatabase().size() - this->endPosition() /* offset */, 
+                                                this->endPosition() - this->beginPosition() /* count */);
+        }
+        else
+        {
+            return underlyingDatabase().subspan(this->beginPosition() /* offset */, 
+                                                this->endPosition() - this->beginPosition() /* count */);
+        }
+    }
+
     TNestedFinderSegment asFinderSegment() const
     {
-        seqan2::String<TAlphabet> const & _database = underlyingDatabase();
+        std::span<alphabet_t> const & _database = underlyingDatabase();
         auto finderInfix = this->asInfixSegment();
 
         TInfixSegment const finderInfixSeq = infix(_database, 0, length(_database));
@@ -43,31 +59,5 @@ struct StellarDatabaseSegment : public StellarSequenceSegment<TAlphabet>
         return finderSegment;
     }
 };
-
-//!TODO: could not convert ‘span<alphabet_adaptor<[...]>,[...]>’ to ‘span<alphabet_adaptor<[...]>,[...]>
-template <typename alphabet_t>
-std::span<alphabet_t> get_database_segment(std::vector<std::vector<alphabet_t>> const & databases,
-                                           StellarOptions const & options,
-                                           bool const reverse = false)
-{
-    auto database = std::span(databases[options.binSequences[0]]);
-
-    if (database.size() < options.segmentEnd)
-        throw std::runtime_error{"Segment end out of range"};
-
-    if (options.segmentEnd <= options.segmentBegin)
-        throw std::runtime_error{"Incorrect segment definition"};
-
-    if (options.segmentEnd < options.minLength + options.segmentBegin)
-        throw std::runtime_error{"Segment shorter than minimum match length"};
-
-    if (reverse)
-    {
-        return database.subspan(database.size() - options.segmentEnd /* offset */, 
-                                options.segmentEnd - options.segmentBegin /* count */);
-    }
-
-    return database.subspan(options.segmentBegin /* offset */, options.segmentEnd - options.segmentBegin /* count */);
-}
 
 } // namespace dream_stellar

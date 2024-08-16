@@ -16,7 +16,6 @@
 #include <dream_stellar/io/import_sequence.hpp>
 #include <dream_stellar/query_id_map.hpp>
 #include <dream_stellar/shared.hpp>
-#include <dream_stellar/stellar_index.hpp>
 #include <dream_stellar/stellar_launcher.hpp>
 #include <dream_stellar/stellar_output.hpp>
 #include <dream_stellar/utils/stellar_app_runtime.hpp>
@@ -273,14 +272,21 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 dream_stellar::StellarOutputStatistics outputStatistics{};
                 if (threadOptions.forward)
                 {
-                    auto database = std::span(databases[databaseRecordID]);
+                    std::span<const alphabet_t> database = std::span(databases[databaseRecordID]);
                     if (database.size() < threadOptions.segmentEnd)
                         throw std::runtime_error{"Segment end out of range"};
 
-                    
-                    sequence_reference_t database_segment = database.subspan(threadOptions.segmentBegin /* offset */, 
-                                                                             threadOptions.segmentEnd - threadOptions.segmentBegin /* count */);
-                    //sequence_continer_t database_segment(database.begin() + threadOptions.segmentBegin, database.begin() + threadOptions.segmentEnd);
+                                        
+                    dream_stellar::StellarDatabaseSegment<const alphabet_t> database_segment(database, 
+                                                                                             threadOptions.segmentBegin, 
+                                                                                             threadOptions.segmentEnd);
+
+                    /* it works :)
+
+                    using TInfixSegment = seqan2::Segment<sequence_reference_t const, seqan2::InfixSegment>;
+                    TInfixSegment seqan2_segment(database, threadOptions.segmentBegin, threadOptions.segmentEnd);
+                    sequence_reference_t host_sequence = host(seqan2_segment);
+                    */
 
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                     {
@@ -338,14 +344,13 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 if (reverse)
                 {
                     auto reverse_database_time = stellarThreadTime.input_queries_time.now();
-                    auto reverse_database = std::span(reverse_databases[databaseRecordID]);
+                    std::span<const alphabet_t> reverse_database = std::span(reverse_databases[databaseRecordID]);
                     if (reverse_database.size() < threadOptions.segmentEnd)
                         throw std::runtime_error{"Segment end out of range"};
-                    
-                    sequence_reference_t database_segment = reverse_database.subspan(reverse_database.size() - threadOptions.segmentEnd /* offset */, 
-                                                                                     threadOptions.segmentEnd - threadOptions.segmentBegin /* count */);
-    
-                    //sequence_container_t database_segment(reverse_database.end()  - threadOptions.segmentEnd, reverse_database.end() - threadOptions.segmentBegin);
+
+                    dream_stellar::StellarDatabaseSegment<const alphabet_t> database_segment(reverse_database, 
+                                                                            reverse_database.size() - threadOptions.segmentEnd /*begin*/, 
+                                                                            reverse_database.size() - threadOptions.segmentBegin /*end*/);
 
                     stellarThreadTime.reverse_complement_database_time.manual_timing(reverse_database_time);
 

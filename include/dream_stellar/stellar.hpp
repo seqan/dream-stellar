@@ -15,6 +15,8 @@
 #include <dream_stellar/verification/best_local.hpp>
 #include <dream_stellar/verification/swift_hit_verifier.hpp>
 
+#include <utilities/alphabet_wrapper/matcher/stellar_matcher.hpp>
+
 #include <dream_stellar/diagnostics/print.hpp>
 
 namespace dream_stellar
@@ -187,81 +189,66 @@ compactMatches(String<StellarMatch<TSequence const, TId> > & matches, TSize cons
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Appends a match to matches container and removes overlapping matches if threshold is reached.
-template<typename TSource, typename TId, typename TSize, typename TSize1>
-inline bool
-_insertMatch(QueryMatches<StellarMatch<TSource const, TId> > & queryMatches,
-             StellarMatch<TSource const, TId> const & match,
-             TSize const minLength,
-             TSize1 const disableThresh,
-             TSize1 & compactThresh,
-             TSize1 const numMatches) {
-
-    appendValue(queryMatches.matches, match);
-
-    // std::cerr << "Inserting match \n-------------\n" << match.row1 <<"\n" << match.row2 << "----------------\n";
-
-    if (queryMatches.removeOverlapsAndCompactMatches(disableThresh, compactThresh, minLength, numMatches))
-    {
-        // raise compact threshold if many matches are kept
-        if ((length(queryMatches.matches) << 1) > compactThresh)
-            compactThresh += (compactThresh >> 1);
-    }
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // Calls swift filter and verifies swift hits. = Computes eps-matches.
 // A basic block for stellar
-template<typename TAlphabet, typename TTag, typename TIsPatternDisabledFn, typename TOnAlignmentResultFn>
+template<typename alphabet_t, typename TTag, typename TIsPatternDisabledFn, typename TOnAlignmentResultFn>
 StellarComputeStatistics
-_stellarKernel(StellarSwiftFinder<TAlphabet> & finder,  // iterate over database
-               StellarSwiftPattern<TAlphabet> & pattern,    // holds the query and preprocessing info
+_stellarKernel(jst::contrib::stellar_matcher<std::span<alphabet_t>> & matcher,
+               StellarDatabaseSegment<alphabet_t> & database_segment,
+               StellarOptions & localOptions,
                SwiftHitVerifier<TTag> & swiftVerifier,
                TIsPatternDisabledFn && isPatternDisabled,
                TOnAlignmentResultFn && onAlignmentResult,
-               stellar_kernel_runtime & stellar_kernel_runtime) {
+               stellar_kernel_runtime & stellar_kernel_runtime) 
+{
     StellarComputeStatistics statistics{};
 
-    while (true) {
-
-        bool const has_next = stellar_kernel_runtime.swift_filter_time.measure_time([&]()
+    auto finder_callback = [&](auto & finder)
+    {
+        bool has_next = stellar_kernel_runtime.swift_filter_time.measure_time([&]()
         {
-            return find(finder, pattern, swiftVerifier.eps_match_options.epsilon, swiftVerifier.eps_match_options.minLength);
+            return jst::contrib::find(finder, matcher/*!TODO: , swiftVerifier.eps_match_options.epsilon, swiftVerifier.eps_match_options.minLength*/);
         });
 
-        if (!has_next)
-            break;
+        if (has_next)
+            seqan3::debug_stream << "FOUND MATCH\n";
 
-        StellarDatabaseSegment<TAlphabet> databaseSegment
-            = StellarDatabaseSegment<TAlphabet>::fromFinderMatch(infix(finder));
+        StellarDatabaseSegment<alphabet_t> databaseSegment
+        = StellarDatabaseSegment<alphabet_t>::fromFinderMatch(infix(finder));
 
         ++statistics.numSwiftHits;
         statistics.totalLength += databaseSegment.size();
         statistics.maxLength = std::max<size_t>(statistics.maxLength, databaseSegment.size());
 
-        if (isPatternDisabled(pattern)) continue;
-
-        StellarQuerySegment<TAlphabet> querySegment
-            = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern);
-
-        ////Debug stuff:
-        //std::cout << beginPosition(infix(finder)) << ",";
-        //std::cout << endPosition(infix(finder)) << "  ";
-        //std::cout << beginPosition(pattern) << ",";
-        //std::cout << endPosition(pattern) << std::endl;
-
-        // verification
-        stellar_kernel_runtime.verification_time.measure_time([&]()
+        if (!isPatternDisabled(matcher))
         {
-            swiftVerifier.verify(
-                databaseSegment,
-                querySegment,
-                pattern.bucketParams[0].delta + pattern.bucketParams[0].overlap,
-                onAlignmentResult,
-                stellar_kernel_runtime.verification_time);
-        }); // measure_time
-    }
+            //!TODO: adjust for alphabet_t
+            /*  
+            StellarQuerySegment<alphabet_t> querySegment
+                = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern);
+
+            ////Debug stuff:
+            //std::cout << beginPosition(infix(finder)) << ",";
+            //std::cout << endPosition(infix(finder)) << "  ";
+            //std::cout << beginPosition(pattern) << ",";
+            //std::cout << endPosition(pattern) << std::endl;
+
+            // verification
+            stellar_kernel_runtime.verification_time.measure_time([&]()
+            {
+                swiftVerifier.verify(
+                    databaseSegment,
+                    querySegment,
+                    pattern.bucketParams[0].delta + pattern.bucketParams[0].overlap,
+                    onAlignmentResult,
+                    stellar_kernel_runtime.verification_time);
+            }); // measure_time
+        */
+        }
+    };
+
+    // call operator() from seqan_pattern_base
+    matcher(database_segment, localOptions.minRepeatLength, localOptions.maxRepeatPeriod, finder_callback);
 
     return statistics;
 }

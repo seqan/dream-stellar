@@ -57,7 +57,7 @@ struct StellarLauncher
     static StellarComputeStatistics
     search_and_verify(
         jst::contrib::stellar_matcher<sequence_reference_t> & matcher, 
-        sequence_reference_t database_segment,
+        StellarDatabaseSegment<alphabet_t> database_segment,
         id_t const & databaseID,
         QueryIDMap<alphabet_t> const & queryIDMap,
         bool const databaseStrand,
@@ -65,57 +65,37 @@ struct StellarLauncher
         stellar_kernel_runtime & strand_runtime,
         std::vector<QueryMatches<StellarMatch<sequence_reference_t const, id_t> > > & local_matches
     )
-    {
-        auto finder_callback = [&matcher, &localOptions](auto & finder)
+    {        
+        auto getQueryMatches = [&](jst::contrib::stellar_matcher<sequence_reference_t> const & stellar_matcher) 
+                               -> QueryMatches<StellarMatch<sequence_reference_t const, id_t> > &
         {
-            bool has_next = find(finder, matcher);
-            if (seqan2::length(finder.hits) > 0)
-                seqan3::debug_stream << "FOUND MATCH\n";                     
+            if (local_matches.size() < stellar_matcher.curSeqNo())
+                throw std::runtime_error{"Pattern defined incorrectly. Out of sequence range."};
+            return local_matches[stellar_matcher.curSeqNo()];
         };
 
-        // call operator() from seqan_pattern_base
-        matcher(database_segment, localOptions.minRepeatLength, localOptions.maxRepeatPeriod, finder_callback);
-
-        /*
-        
-        auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<sequence_reference_t const, id_t> > &
+        auto isPatternDisabled = [&](jst::contrib::stellar_matcher<sequence_reference_t> const & matcher) -> bool 
         {
-            return value(localMatches, pattern.curSeqNo);
-        };
-
-        auto isPatternDisabled = [&](StellarSwiftPattern<TAlphabet> & pattern) -> bool {
-            QueryMatches<StellarMatch<TSequence const, id_t> > & queryMatches = getQueryMatches(pattern);
+            QueryMatches<StellarMatch<sequence_reference_t const, id_t> > & queryMatches = getQueryMatches(matcher);
             return queryMatches.disabled;
         };
 
         auto onAlignmentResult = [&](auto & alignment) -> bool {
-            QueryMatches<StellarMatch<TSequence const, TId> > & queryMatches = getQueryMatches(localSwiftPattern);
+            QueryMatches<StellarMatch<sequence_reference_t const, id_t> > & queryMatches = getQueryMatches(matcher);
 
-            StellarMatch<TSequence const, TId> match(alignment, databaseID, databaseStrand);
+            StellarMatch<sequence_reference_t const, id_t> match(alignment, databaseID, databaseStrand);
             length(match);  // DEBUG: Contains assertion on clipping.
 
             // success
-            return _insertMatch(
-                queryMatches,
+            return queryMatches.insertMatch(
                 match,
                 localOptions.minLength,
                 localOptions.disableThresh,
-                // compactThresh is basically an output-parameter; will be updated in kernel and propagated back
-                // outside of this function, the reason why StellarOptions can't be passed as const to this function.
-                //!TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
-                // the matches
-                localOptions.compactThresh,
+                localOptions.compactThresh, /* out-parameter */
                 localOptions.numMatches
             );
         };
 
-        // finder
-        StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
-        */
-
-        //matcher.make_finder(database_segment, localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
-        
-        /*
         StellarComputeStatistics statistics = _verificationMethodVisit(
             localOptions.verificationMethod,
             [&]<typename TTag>(TTag tag) -> StellarComputeStatistics
@@ -126,12 +106,9 @@ struct StellarLauncher
                     STELLAR_DESIGNATED_INITIALIZER(.verifier_options = , localOptions),
                 };
 
-                return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult, strand_runtime);
+                return _stellarKernel(matcher, database_segment, localOptions, swiftVerifier, isPatternDisabled, onAlignmentResult, strand_runtime);
             });
 
-        */
-
-        StellarComputeStatistics statistics{};
         return statistics;
     }
 };
