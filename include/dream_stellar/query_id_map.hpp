@@ -7,7 +7,7 @@
 namespace dream_stellar
 {
 
-template <typename alphabet_t, typename sequence_reference_t = std::span< const alphabet_t>, typename TId = std::string>
+template <typename alphabet_t, typename sequence_reference_t, typename TId = std::string>
 struct QueryIDMap
 {
     size_t recordID(sequence_reference_t const & query) const

@@ -291,13 +291,13 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                     {
                         // container for eps-matches
-                        std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<sequence_reference_t const, std::string> > > forward_matches;
+                        std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<const sequence_reference_t, std::string> > > forward_matches;
                         forward_matches.reserve(queries.size());
 
                         constexpr bool databaseStrand = true;
-                        dream_stellar::QueryIDMap<alphabet_t> queryIDMap{queries};
+                        dream_stellar::QueryIDMap<const alphabet_t, sequence_reference_t> queryIDMap{queries};
      
-                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<alphabet_t>::search_and_verify
+                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<const alphabet_t>::search_and_verify
                         (
                             matcher,
                             database_segment,
@@ -356,14 +356,14 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                     stellarThreadTime.reverse_strand_stellar_time.measure_time([&]()
                     {
-                        std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<sequence_reference_t const, std::string> > > reverse_matches;
+                        std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<const sequence_reference_t, std::string> > > reverse_matches;
                         reverse_matches.reserve(queries.size());
 
                         constexpr bool databaseStrand = false;
-                        dream_stellar::QueryIDMap<alphabet_t> queryIDMap{queries};
+                        dream_stellar::QueryIDMap<const alphabet_t, sequence_reference_t> queryIDMap{queries};
 
                         
-                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<alphabet_t>::search_and_verify
+                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<const alphabet_t>::search_and_verify
                         (
                             matcher,
                             database_segment,

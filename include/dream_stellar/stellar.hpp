@@ -193,8 +193,8 @@ compactMatches(String<StellarMatch<TSequence const, TId> > & matches, TSize cons
 // A basic block for stellar
 template<typename alphabet_t, typename TTag, typename TIsPatternDisabledFn, typename TOnAlignmentResultFn>
 StellarComputeStatistics
-_stellarKernel(jst::contrib::stellar_matcher<std::span<alphabet_t>> & matcher,
-               StellarDatabaseSegment<alphabet_t> & database_segment,
+_stellarKernel(jst::contrib::stellar_matcher<std::span<const alphabet_t>> & matcher,
+               StellarDatabaseSegment<const alphabet_t> & database_segment,
                StellarOptions & localOptions,
                SwiftHitVerifier<TTag> & swiftVerifier,
                TIsPatternDisabledFn && isPatternDisabled,
@@ -248,7 +248,7 @@ _stellarKernel(jst::contrib::stellar_matcher<std::span<alphabet_t>> & matcher,
     };
 
     // call operator() from seqan_pattern_base
-    matcher(database_segment, localOptions.minRepeatLength, localOptions.maxRepeatPeriod, finder_callback);
+    //matcher(database_segment, localOptions.minRepeatLength, localOptions.maxRepeatPeriod, finder_callback);
 
     return statistics;
 }
