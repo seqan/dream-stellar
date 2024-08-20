@@ -205,20 +205,11 @@ _stellarKernel(jst::contrib::stellar_matcher<std::span<const alphabet_t>> & matc
 
     auto finder_callback = [&](auto & finder)
     {
-        bool has_next = stellar_kernel_runtime.swift_filter_time.measure_time([&]()
-        {
-            return jst::contrib::find(finder, matcher/*!TODO: , swiftVerifier.eps_match_options.epsilon, swiftVerifier.eps_match_options.minLength*/);
-        });
-
-        if (has_next)
-            seqan3::debug_stream << "FOUND MATCH\n";
-
-        StellarDatabaseSegment<alphabet_t> databaseSegment
-        = StellarDatabaseSegment<alphabet_t>::fromFinderMatch(infix(finder));
-
         ++statistics.numSwiftHits;
-        statistics.totalLength += databaseSegment.size();
-        statistics.maxLength = std::max<size_t>(statistics.maxLength, databaseSegment.size());
+        statistics.totalLength += database_segment.size();
+        statistics.maxLength = std::max<size_t>(statistics.maxLength, database_segment.size());
+
+        seqan3::debug_stream << "FOUND MATCH\n";
 
         if (!isPatternDisabled(matcher))
         {
@@ -248,7 +239,10 @@ _stellarKernel(jst::contrib::stellar_matcher<std::span<const alphabet_t>> & matc
     };
 
     // call operator() from seqan_pattern_base
-    //matcher(database_segment, localOptions.minRepeatLength, localOptions.maxRepeatPeriod, finder_callback);
+    stellar_kernel_runtime.swift_filter_time.measure_time([&]()
+    {
+        matcher(database_segment.as_span(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod, finder_callback);
+    });
 
     return statistics;
 }
