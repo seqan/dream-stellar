@@ -292,7 +292,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                     {
                         // container for eps-matches
                         std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<const sequence_reference_t, std::string> > > forward_matches;
-                        forward_matches.reserve(queries.size());
+                        forward_matches.resize(queries.size());
 
                         constexpr bool databaseStrand = true;
                         dream_stellar::QueryIDMap<const alphabet_t, sequence_reference_t> queryIDMap{queries};
@@ -306,7 +306,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                             databaseStrand,
                             threadOptions,
                             stellarThreadTime.forward_strand_stellar_time.prefiltered_stellar_time,
-                            forward_matches
+                            forward_matches // out-parameter
                         );
 
                         /*
@@ -357,7 +357,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                     stellarThreadTime.reverse_strand_stellar_time.measure_time([&]()
                     {
                         std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<const sequence_reference_t, std::string> > > reverse_matches;
-                        reverse_matches.reserve(queries.size());
+                        reverse_matches.resize(queries.size());
 
                         constexpr bool databaseStrand = false;
                         dream_stellar::QueryIDMap<const alphabet_t, sequence_reference_t> queryIDMap{queries};
@@ -372,7 +372,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                             databaseStrand,
                             threadOptions,
                             stellarThreadTime.reverse_strand_stellar_time.prefiltered_stellar_time,
-                            reverse_matches
+                            reverse_matches // out-parameter
                         );
 
                         /*
