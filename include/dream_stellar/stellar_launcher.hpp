@@ -59,7 +59,7 @@ struct StellarLauncher
         jst::contrib::stellar_matcher<sequence_reference_t> & matcher, 
         StellarDatabaseSegment<alphabet_t> database_segment,
         id_t const & databaseID,
-        QueryIDMap<alphabet_t, sequence_reference_t> const & queryIDMap,
+        QueryIDMap<alphabet_t> const & queryIDMap,
         bool const databaseStrand,
         StellarOptions & localOptions, // localOptions.compactThresh is out-param
         stellar_kernel_runtime & strand_runtime,
@@ -106,7 +106,7 @@ struct StellarLauncher
                     STELLAR_DESIGNATED_INITIALIZER(.verifier_options = , localOptions),
                 };
 
-                return _stellarKernel(matcher, database_segment, localOptions, swiftVerifier, isPatternDisabled, onAlignmentResult, strand_runtime);
+                return _stellarKernel(matcher, database_segment, queryIDMap, localOptions, swiftVerifier, isPatternDisabled, onAlignmentResult, strand_runtime);
             });
         return statistics;
     }

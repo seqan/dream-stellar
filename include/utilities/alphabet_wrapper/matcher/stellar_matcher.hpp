@@ -90,7 +90,6 @@ namespace jst::contrib
                 // seqan3::debug_stream << "Appending fibre \n" << needle << '\n';
             }
 
-
             // like line 108 in stellar_index.hpp
             resize(indexShape(_needle_index), _kmer_size);
             cargo(_needle_index).abundanceCut = _kmer_abundance_cut;

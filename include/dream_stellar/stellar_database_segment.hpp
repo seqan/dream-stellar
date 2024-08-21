@@ -10,6 +10,7 @@ namespace dream_stellar
 
 using namespace seqan2;
 
+//!TODO: remove obsolete functions
 template <typename alphabet_t>
 struct StellarDatabaseSegment : public StellarSequenceSegment<alphabet_t>
 {
@@ -33,18 +34,10 @@ struct StellarDatabaseSegment : public StellarSequenceSegment<alphabet_t>
         return this->underlyingSequence();
     }
 
-    std::span<const alphabet_t> as_span(bool const reverse = false) const
+    std::span<const alphabet_t> as_span() const
     {
-        if (reverse)
-        {
-            return underlyingDatabase().subspan(underlyingDatabase().size() - this->endPosition() /* offset */, 
-                                                this->endPosition() - this->beginPosition() /* count */);
-        }
-        else
-        {
-            return underlyingDatabase().subspan(this->beginPosition() /* offset */, 
-                                                this->endPosition() - this->beginPosition() /* count */);
-        }
+        return underlyingDatabase().subspan(this->beginPosition() /* offset */, 
+                                            this->endPosition() - this->beginPosition() /* count */);
     }
 
     TNestedFinderSegment asFinderSegment() const

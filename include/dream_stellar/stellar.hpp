@@ -6,7 +6,7 @@
 #include <dream_stellar/stellar_types.hpp>
 #include <dream_stellar/stellar_extension.hpp>
 #include <dream_stellar/stellar_database_segment.hpp>
-#include <dream_stellar/stellar_query_segment.tpp>
+#include <dream_stellar/stellar_query_segment.hpp>
 #include <dream_stellar/stellar_index.hpp>
 #include <dream_stellar/utils/stellar_kernel_runtime.hpp>
 #include <dream_stellar/verification/all_local.hpp>
@@ -195,6 +195,7 @@ template<typename alphabet_t, typename TTag, typename TIsPatternDisabledFn, type
 StellarComputeStatistics
 _stellarKernel(jst::contrib::stellar_matcher<std::span<const alphabet_t>> & matcher,
                StellarDatabaseSegment<const alphabet_t> & database_segment,
+               QueryIDMap<alphabet_t> const & queryIDMap,
                StellarOptions & localOptions,
                SwiftHitVerifier<TTag> & swiftVerifier,
                TIsPatternDisabledFn && isPatternDisabled,
@@ -213,11 +214,11 @@ _stellarKernel(jst::contrib::stellar_matcher<std::span<const alphabet_t>> & matc
 
         if (!isPatternDisabled(matcher))
         {
+            auto queryID = matcher.curSeqNo();
+            StellarQuerySegment<alphabet_t> querySegment = queryIDMap.segment_from_id(queryID);
+
             //!TODO: adjust for alphabet_t
             /*  
-            StellarQuerySegment<alphabet_t> querySegment
-                = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern);
-
             ////Debug stuff:
             //std::cout << beginPosition(infix(finder)) << ",";
             //std::cout << endPosition(infix(finder)) << "  ";

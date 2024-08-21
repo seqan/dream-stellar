@@ -1,23 +1,36 @@
 #pragma once
 
-#include <dream_stellar/stellar_index.hpp>
 #include <dream_stellar/stellar_query_segment.hpp>
-#include <dream_stellar/stellar_types.hpp>
+
+#include <valik/search/query_record.hpp>
 
 namespace dream_stellar
 {
 
-template <typename alphabet_t, typename sequence_reference_t, typename TId = std::string>
-struct QueryIDMap
+template <typename alphabet_t, typename sequence_container_t = std::vector<alphabet_t>, 
+          typename sequence_reference_t = std::span<const alphabet_t>>
+class QueryIDMap
 {
-    size_t recordID(sequence_reference_t const & query) const
-    {
-        sequence_reference_t const * begin = &queries[0];
-        sequence_reference_t const * current = std::addressof(query);
-        return current - begin;
-    }
+    std::vector<valik::shared_query_record<sequence_reference_t>> queries;
 
-    std::vector<sequence_reference_t> const & queries;
+    public:
+
+        QueryIDMap(std::vector<valik::shared_query_record<sequence_container_t>> const & records)
+        {
+            for (auto & record : records)
+                queries.emplace_back(record.id, record.get_start(), record.get_len(), record.underlyingData);
+        }
+
+        dream_stellar::StellarQuerySegment<sequence_reference_t> segment_from_id(unsigned const & query_id) const
+        {
+            if (query_id >= queries.size())
+                throw std::runtime_error("Query index " + std::to_string(query_id) + " is out of range [0, " 
+                                                        + std::to_string(queries.size() - 1) + "]");
+            valik::shared_query_record<sequence_reference_t> & shared_rec = queries[query_id];
+
+            return shared_rec.get_seqan_segment();
+        }
+
 };
 
 } // namespace dream_stellar

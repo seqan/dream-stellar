@@ -248,6 +248,8 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 
                 auto cart_input_queries_time = stellarThreadTime.input_queries_time.now();
                 get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out);
+                dream_stellar::QueryIDMap<alphabet_t> queryIDMap{records};
+
                 stellarThreadTime.input_queries_time.manual_timing(cart_input_queries_time);
 
                 /* Debug
@@ -295,7 +297,6 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         forward_matches.resize(queries.size());
 
                         constexpr bool databaseStrand = true;
-                        dream_stellar::QueryIDMap<const alphabet_t, sequence_reference_t> queryIDMap{queries};
      
                         dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<const alphabet_t>::search_and_verify
                         (
@@ -360,8 +361,6 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         reverse_matches.resize(queries.size());
 
                         constexpr bool databaseStrand = false;
-                        dream_stellar::QueryIDMap<const alphabet_t, sequence_reference_t> queryIDMap{queries};
-
                         
                         dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<const alphabet_t>::search_and_verify
                         (

@@ -5,27 +5,24 @@
 namespace dream_stellar
 {
 
-template <typename TAlphabet>
-struct StellarQuerySegment : public StellarSequenceSegment<TAlphabet>
+template <typename alphabet_t>
+struct StellarQuerySegment : public StellarSequenceSegment<alphabet_t>
 {
-    using TBase = StellarSequenceSegment<TAlphabet>;
+    using TBase = StellarSequenceSegment<alphabet_t>;
 
     using typename TBase::TInfixSegment;
     using TNestedPatternSegment = seqan2::Segment<TInfixSegment, seqan2::InfixSegment>;
 
     using TBase::TBase; // import constructor
 
-    template <typename TSwiftPattern>
-    static StellarQuerySegment<TAlphabet> fromPatternMatch(TSwiftPattern const & swiftPattern);
-
-    seqan2::String<TAlphabet> const & underlyingQuery() const &
+    std::span<alphabet_t> const & underlyingQuery() const &
     {
         return this->underlyingSequence();
     }
 
     TNestedPatternSegment asPatternSegment() const
     {
-        seqan2::String<TAlphabet> const & _query = underlyingQuery();
+        std::span<alphabet_t> const & _query = underlyingQuery();
         auto patternInfix = this->asInfixSegment();
 
         TInfixSegment const patternInfixSeq = infix(_query, 0, length(_query));
