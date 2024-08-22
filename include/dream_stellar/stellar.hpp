@@ -213,28 +213,27 @@ _stellarKernel(jst::contrib::stellar_matcher<std::span<const alphabet_t>> & matc
         if (!isPatternDisabled(matcher))
         {
             auto queryID = matcher.curSeqNo();
-            StellarQuerySegment<const alphabet_t> querySegment = query_dict.segment_from_id(queryID);
+            StellarQuerySegment<const alphabet_t> query_segment = query_dict.segment_from_id(queryID);
             seqan3::debug_stream << "FOUND MATCH for query\t" << std::to_string(queryID) << '\n';
 
-            //!TODO: adjust for alphabet_t
             /*  
             ////Debug stuff:
             //std::cout << beginPosition(infix(finder)) << ",";
             //std::cout << endPosition(infix(finder)) << "  ";
             //std::cout << beginPosition(pattern) << ",";
             //std::cout << endPosition(pattern) << std::endl;
+            */
 
             // verification
             stellar_kernel_runtime.verification_time.measure_time([&]()
             {
                 swiftVerifier.verify(
-                    databaseSegment,
-                    querySegment,
-                    pattern.bucketParams[0].delta + pattern.bucketParams[0].overlap,
+                    database_segment,
+                    query_segment,
+                    matcher.delta(),
                     onAlignmentResult,
                     stellar_kernel_runtime.verification_time);
             }); // measure_time
-        */
         }
     };
 

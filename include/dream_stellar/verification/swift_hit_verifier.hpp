@@ -23,6 +23,7 @@ struct SwiftHitVerifier
     {
         static_assert(std::is_unsigned<TDelta>::value, "TDelta must be unsigned integral.");
 
+        /*
         verifySwiftHit(
             databaseSegment.asFinderSegment(),
             querySegment.asPatternSegment(),
@@ -33,6 +34,7 @@ struct SwiftHitVerifier
             onAlignmentResult,
             verification_runtime,
             TVerifierTag{});
+        */
     }
 };
 

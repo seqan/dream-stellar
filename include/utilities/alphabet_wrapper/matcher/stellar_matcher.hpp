@@ -104,6 +104,10 @@ namespace jst::contrib
             return _pattern.curSeqNo;
         }
 
+        constexpr auto delta() const noexcept {
+            return (_pattern.bucketParams[0].delta + _pattern.bucketParams[0].overlap);
+        }
+
     private:        
         template <typename haystack_t>
         constexpr auto make_finder(haystack_t & haystack, size_t const minRepeatLength, size_t const maxRepeatPeriod) const noexcept
