@@ -153,7 +153,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     using sequence_reference_t = std::span<const alphabet_t>;
 
     // the queue hands records over from the producer threads (valik prefiltering) to the consumer threads (stellar search) 
-    auto queue = cart_queue<shared_query_record<sequence_container_t>>{ref_meta.seg_count, arguments.cart_max_capacity, arguments.max_queued_carts};
+    auto queue = cart_queue<shared_query_record<alphabet_t>>{ref_meta.seg_count, arguments.cart_max_capacity, arguments.max_queued_carts};
 
     std::mutex mutex;
     execution_metadata exec_meta(arguments.threads);
@@ -243,13 +243,12 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 // import query sequences
                 std::vector<sequence_reference_t> queries;
                 queries.reserve(records.size());
-                std::vector<std::string> queryIDs;
-                queryIDs.reserve(records.size());
+                std::vector<std::string> query_ids;
+                query_ids.reserve(records.size());
                 
                 auto cart_input_queries_time = stellarThreadTime.input_queries_time.now();
-                get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out);
-                dream_stellar::QueryIDMap<alphabet_t> queryIDMap{records};
-
+                get_cart_queries(records, queries, query_ids, thread_meta.text_out);
+                dream_stellar::query_id_map<alphabet_t> query_dict{records};
                 stellarThreadTime.input_queries_time.manual_timing(cart_input_queries_time);
 
                 /* Debug
@@ -298,12 +297,12 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                         constexpr bool databaseStrand = true;
      
-                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<const alphabet_t>::search_and_verify
+                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<alphabet_t>::search_and_verify
                         (
                             matcher,
                             database_segment,
                             databaseID,
-                            queryIDMap,
+                            query_dict,
                             databaseStrand,
                             threadOptions,
                             stellarThreadTime.forward_strand_stellar_time.prefiltered_stellar_time,
@@ -362,12 +361,12 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                         constexpr bool databaseStrand = false;
                         
-                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<const alphabet_t>::search_and_verify
+                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<alphabet_t>::search_and_verify
                         (
                             matcher,
                             database_segment,
                             databaseID,
-                            queryIDMap,
+                            query_dict,
                             databaseStrand,
                             threadOptions,
                             stellarThreadTime.reverse_strand_stellar_time.prefiltered_stellar_time,
@@ -434,7 +433,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     // producer threads are created here
     if constexpr (stellar_only)
     {
-        iterate_all_queries<sequence_container_t>(ref_meta.seg_count, arguments, queue);
+        iterate_all_queries<alphabet_t>(ref_meta.seg_count, arguments, queue);
     }
     else
     {
@@ -442,11 +441,11 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
         raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
         if constexpr (is_split)
         {
-            iterate_split_queries<ibf_t, sequence_container_t>(arguments, index.ibf(), thresholder, queue, query_meta.value());
+            iterate_split_queries<ibf_t, alphabet_t>(arguments, index.ibf(), thresholder, queue, query_meta.value());
         }
         else
         {
-            iterate_short_queries<ibf_t, sequence_container_t>(arguments, index.ibf(), thresholder, queue);
+            iterate_short_queries<ibf_t, alphabet_t>(arguments, index.ibf(), thresholder, queue);
         }
     }
 

@@ -195,7 +195,7 @@ template<typename alphabet_t, typename TTag, typename TIsPatternDisabledFn, type
 StellarComputeStatistics
 _stellarKernel(jst::contrib::stellar_matcher<std::span<const alphabet_t>> & matcher,
                StellarDatabaseSegment<const alphabet_t> & database_segment,
-               QueryIDMap<alphabet_t> const & queryIDMap,
+               query_id_map<alphabet_t> const & query_dict,
                StellarOptions & localOptions,
                SwiftHitVerifier<TTag> & swiftVerifier,
                TIsPatternDisabledFn && isPatternDisabled,
@@ -210,12 +210,11 @@ _stellarKernel(jst::contrib::stellar_matcher<std::span<const alphabet_t>> & matc
         statistics.totalLength += database_segment.size();
         statistics.maxLength = std::max<size_t>(statistics.maxLength, database_segment.size());
 
-        seqan3::debug_stream << "FOUND MATCH\n";
-
         if (!isPatternDisabled(matcher))
         {
             auto queryID = matcher.curSeqNo();
-            StellarQuerySegment<alphabet_t> querySegment = queryIDMap.segment_from_id(queryID);
+            StellarQuerySegment<const alphabet_t> querySegment = query_dict.segment_from_id(queryID);
+            seqan3::debug_stream << "FOUND MATCH for query\t" << std::to_string(queryID) << '\n';
 
             //!TODO: adjust for alphabet_t
             /*  

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <span>
 
 #include <dream_stellar/io/import_sequence.hpp>
 #include <utilities/alphabet_wrapper/seqan/alphabet.hpp>
@@ -14,42 +15,31 @@ namespace valik
 {
 
 /**
- *  \brief Function that creates a seqan2::Segment from a query_record (split or short query)
+ *  \brief Extract the segment sequences from shared query records. 
  *
  *  \param records vector containing valik split query segments
  *  \param seqs set of query segments (in-out)
  *  \param ids set of query segment ids (in-out)
  *  \param strOut stream for standard output
- *  \param strErr stream for error output
- *  \param hostQueries underlying sequences for query segments
- *  \param hostQueryIDs set of underlying sequence ids
  */
-template <typename rec_vec_t, typename TStream, typename seq_vec_t>
-inline bool get_cart_queries(rec_vec_t const & records,
-                             seq_vec_t & seqs,
+template <typename alphabet_t, typename str_t>
+inline bool get_cart_queries(std::vector<shared_query_record<alphabet_t>> const & records,
+                             std::vector<std::span<alphabet_t const>> & seqs,
                              std::vector<std::string> & ids, 
-                             TStream & strOut,
-                             TStream & strErr)
+                             str_t & str_out)
 {
-
     std::set<std::string> uniqueIds; // set of short IDs (cut at first whitespace)
-    bool idsUnique = true;
 
-    size_t seqCount{0};
-
+    size_t seq_count{0};
     for (auto & record : records)
     {
-        seqs.emplace_back(record.sequence);
-        ids.emplace_back(record.sequence_id);
-        seqCount++;
-        idsUnique &= dream_stellar::_checkUniqueId(uniqueIds, record.sequence_id);
+        seqs.emplace_back(record.sequence());
+        ids.emplace_back(record.id());
+        seq_count++;
     }
 
-    strOut << "Loaded " << seqCount << " query sequence" << ((seqCount > 1) ? "s " : " ") << "from cart." << std::endl;
-    if (!idsUnique)
-        strErr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
+    str_out << "Loaded " << seq_count << " query sequence" << ((seq_count > 1) ? "s " : " ") << "from cart." << std::endl;
     return true;
-
 }
 
 /**
@@ -69,7 +59,7 @@ void write_cart_queries(rec_vec_t & records, std::filesystem::path const & cart_
 
     for (auto & record : records)
     {
-        sequence_record_type sequence_record{std::move(record.sequence_id), std::move(record.sequence)};
+        sequence_record_type sequence_record{std::move(record.id()), std::move(record.sequence())};
         fout.push_back(sequence_record);
     }
 }

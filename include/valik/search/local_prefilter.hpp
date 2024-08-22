@@ -159,7 +159,7 @@ void local_prefilter(
 
     for (query_t const & record : records)
     {
-        auto const & seq = record.sequence;
+        auto const & seq = record.sequence();
 
         // debug
         //seqan3::debug_stream << "Prefiltering query " << seq << '\n';

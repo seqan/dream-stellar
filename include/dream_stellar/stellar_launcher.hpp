@@ -57,9 +57,9 @@ struct StellarLauncher
     static StellarComputeStatistics
     search_and_verify(
         jst::contrib::stellar_matcher<sequence_reference_t> & matcher, 
-        StellarDatabaseSegment<alphabet_t> database_segment,
+        StellarDatabaseSegment<const alphabet_t> database_segment,
         id_t const & databaseID,
-        QueryIDMap<alphabet_t> const & queryIDMap,
+        query_id_map<alphabet_t> const & query_dict,
         bool const databaseStrand,
         StellarOptions & localOptions, // localOptions.compactThresh is out-param
         stellar_kernel_runtime & strand_runtime,
@@ -106,7 +106,7 @@ struct StellarLauncher
                     STELLAR_DESIGNATED_INITIALIZER(.verifier_options = , localOptions),
                 };
 
-                return _stellarKernel(matcher, database_segment, queryIDMap, localOptions, swiftVerifier, isPatternDisabled, onAlignmentResult, strand_runtime);
+                return _stellarKernel(matcher, database_segment, query_dict, localOptions, swiftVerifier, isPatternDisabled, onAlignmentResult, strand_runtime);
             });
         return statistics;
     }
