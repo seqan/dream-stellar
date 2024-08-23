@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include <seqan/seeds.h>
 
 #include <dream_stellar/extension/extension_end_position.hpp>
@@ -11,22 +13,20 @@ using namespace seqan2;
 ///////////////////////////////////////////////////////////////////////////////
 // Identifies the longest epsilon match in align from possEndsLeft and possEndsRight and sets the view positions of
 // align to start and end position of the longest epsilon match
-template<typename TLength, typename TSize, typename TEps>
-Pair<typename Iterator<String<ExtensionEndPosition<TLength> > const>::Type>
-longestEpsMatch(String<ExtensionEndPosition<TLength> > const & possEndsLeft,
-                String<ExtensionEndPosition<TLength> > const & possEndsRight,
-                TLength const alignLen,
-                TLength const alignErr,
-                TSize const matchMinLength,
-                TEps const epsilon) {
-    typedef ExtensionEndPosition<TLength>               TEnd;
-    typedef typename Iterator<String<TEnd> const>::Type TIterator;
+template<typename TLength, typename TSize, typename TEps, 
+typename TEnd = ExtensionEndPosition<TLength>, typename TIterator = std::vector<TEnd>::iterator>
+std::pair<TIterator, TIterator> longestEpsMatch(std::vector<ExtensionEndPosition<TLength> > const & possEndsLeft,
+                                                std::vector<ExtensionEndPosition<TLength> > const & possEndsRight,
+                                                TLength const alignLen,
+                                                TLength const alignErr,
+                                                TSize const matchMinLength,
+                                                TEps const epsilon) {
 
     // Identify longest eps match by iterating over combinations of left and right positions
-    TIterator rightIt = end(possEndsRight) - 1;
-    TIterator leftIt = end(possEndsLeft) - 1;
-    TIterator right = begin(possEndsRight);
-    TIterator left = begin(possEndsLeft);
+    TIterator rightIt = possEndsRight.end() - 1;
+    TIterator leftIt = possEndsLeft.end() - 1;
+    TIterator right = possEndsRight.begin();
+    TIterator left = possEndsLeft.begin();
 
     /*for (int i = 0; i < length(possEndsRight); ++i) {
         std::cout << possEndsRight[i].length << "  " << possEndsRight[i].coord.i1 << "," << possEndsRight[i].coord.i2 << std::endl;
@@ -35,18 +35,18 @@ longestEpsMatch(String<ExtensionEndPosition<TLength> > const & possEndsLeft,
         std::cout << possEndsLeft[i].length << "  " << possEndsLeft[i].coord.i1 << "," << possEndsLeft[i].coord.i2 << std::endl;
     }*/
 
-    TSize leftErr = length(possEndsLeft) - 1;
+    TSize leftErr = possEndsLeft.size() - 1;
 
     TSize minLength = matchMinLength;
     bool found = false;
     // DELTA is used below against floating point rounding errors.
     double const DELTA = 0.000001;
 
-    while (leftIt >= begin(possEndsLeft)) {
+    while (leftIt >= possEndsLeft.begin()) {
         TSize totalLen = (*leftIt).length + alignLen + (*rightIt).length;
         if (totalLen < minLength) break;
-        TSize totalErr = leftErr + alignErr + length(possEndsRight) - 1;
-        while (rightIt >= begin(possEndsRight)) {
+        TSize totalErr = leftErr + alignErr + possEndsRight.size() - 1;
+        while (rightIt >= possEndsRight.begin()) {
             totalLen = (*leftIt).length + alignLen + (*rightIt).length;
             if (totalLen < minLength) break;
             if ((TEps)totalErr/(TEps)totalLen < epsilon + DELTA) {
@@ -60,15 +60,15 @@ longestEpsMatch(String<ExtensionEndPosition<TLength> > const & possEndsLeft,
             --rightIt;
             --totalErr;
         }
-        rightIt = end(possEndsRight) - 1;
+        rightIt = possEndsRight.end() - 1;
         --leftIt;
         --leftErr;
     }
 
     if (found)
-        return Pair<TIterator>(left, right);
+        return std::pair<TIterator, TIterator>(left, right);
     else
-        return Pair<TIterator>(0,0);
+        return std::pair<TIterator, TIterator>(possEndsLeft.end(),possEndsRight.end());
 }
 
 } // namespace dream_stellar

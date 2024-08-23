@@ -6,6 +6,8 @@
 #include <dream_stellar/options/verifier_options.hpp>
 #include <dream_stellar/utils/stellar_kernel_runtime.hpp>
 
+#include <type_traits> 
+
 namespace dream_stellar {
 
 template <typename TVerifierTag>
@@ -23,7 +25,7 @@ struct SwiftHitVerifier
     {
         static_assert(std::is_unsigned<TDelta>::value, "TDelta must be unsigned integral.");
 
-        /*
+        
         verifySwiftHit(
             databaseSegment.asFinderSegment(),
             querySegment.asPatternSegment(),
@@ -34,7 +36,6 @@ struct SwiftHitVerifier
             onAlignmentResult,
             verification_runtime,
             TVerifierTag{});
-        */
     }
 };
 

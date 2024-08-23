@@ -6,6 +6,7 @@
 #include <dream_stellar/utils/stellar_kernel_runtime.hpp>
 
 #include <seqan/seeds.h>
+#include <span>
 
 namespace dream_stellar
 {
@@ -146,8 +147,8 @@ longestEpsMatch(Align<TSource> & align,
 template<typename TMatrix, typename TPossEnd, typename TAlphabet, typename TDiagonal, typename TScore>
 void
 _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
-                        String<TPossEnd> & possibleEndsLeft,
-                        StringSet<Segment<String<TAlphabet> const, InfixSegment>> const & sequencesLeft,
+                        std::vector<TPossEnd> & possibleEndsLeft,
+                        StringSet<Segment<std::span<TAlphabet> const, InfixSegment>> const & sequencesLeft,
                         TDiagonal const diagLower,
                         TDiagonal const diagUpper,
                         TScore const & scoreMatrix) {
@@ -176,8 +177,8 @@ _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
 template<typename TMatrix, typename TPossEnd, typename TAlphabet, typename TDiagonal, typename TScore>
 void
 _fillMatrixBestEndsRight(TMatrix & matrixRight,
-                         String<TPossEnd> & possibleEndsRight,
-                         StringSet<Segment<String<TAlphabet> const, InfixSegment>> const & sequencesRight,
+                         std::vector<TPossEnd> & possibleEndsRight,
+                         StringSet<Segment<std::span<TAlphabet> const, InfixSegment>> const & sequencesRight,
                          TDiagonal const diagLower,
                          TDiagonal const diagUpper,
                          TScore const & scoreMatrix) {
@@ -335,7 +336,7 @@ template<typename TMatrix, typename TCoord, typename TAlphabet, typename TBeginP
 void
 _tracebackLeft(TMatrix const & matrixLeft,
                TCoord const & coordinate,
-               StringSet<Segment<String<TAlphabet> const, InfixSegment>> const & sequencesLeft,
+               StringSet<Segment<std::span<TAlphabet> const, InfixSegment>> const & sequencesLeft,
                TBeginPosition const infixAlignHBeginPosition,
                TBeginPosition const infixAlignVBeginPosition,
                TDiagonal const diagLower,
@@ -376,7 +377,7 @@ template<typename TMatrix, typename TCoord, typename TAlphabet, typename TBeginP
 void
 _tracebackRight(TMatrix const & matrixRight,
                TCoord const & coordinate,
-               StringSet<Segment<String<TAlphabet> const, InfixSegment>> const & sequencesRight,
+               StringSet<Segment<std::span<TAlphabet> const, InfixSegment>> const & sequencesRight,
                TBeginPosition const infixAlignHBeginPosition,
                TBeginPosition const infixAlignVBeginPosition,
                TDiagonal const diagLower,
@@ -426,14 +427,14 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
                TAlign & align,
                stellar_best_extension_time & best_extension_runtime)
 {
-    typedef String<TraceBack>                               TAlignmentMatrix;
+    typedef std::vector<TraceBack>                          TAlignmentMatrix;
     typedef ExtensionEndPosition<TPos>                      TEndInfo;
-    typedef typename Iterator<String<TEndInfo> const>::Type TEndIterator;
+    typedef typename std::vector<TEndInfo>::iterator        TEndIterator;
     typedef typename Diagonal<TSeed>::Type                  TDiagonal;
 
     // variables for banded alignment and possible ends of match
     TAlignmentMatrix matrixRight, matrixLeft;
-    String<TEndInfo> possibleEndsLeft, possibleEndsRight;
+    std::vector<TEndInfo> possibleEndsLeft, possibleEndsRight;
 
     // new extension to the left of the old seed
     assert(beginPositionH(seed) <= beginPositionH(seedOld)); // infixLeftH
@@ -471,8 +472,6 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
         reserve(sequenceCopyLeftV, beginPositionV(seedOld) - beginPositionV(seed));
 
         // ...copy segment...
-        //!TODO: where is this host() from
-        // does it return the complete database for a segment?
         append(sequenceCopyLeftH, infix(host(infH), beginPositionH(seed), beginPositionH(seedOld)));
         append(sequenceCopyLeftV, infix(host(infV), beginPositionV(seed), beginPositionV(seedOld)));
 
@@ -485,9 +484,11 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
         appendValue(sequencesLeft, infix(sequenceCopyLeftV, 0, length(sequenceCopyLeftV)));
 
         _fillMatrixBestEndsLeft(matrixLeft, possibleEndsLeft, sequencesLeft, diagLowerLeft, diagUpperLeft, scoreMatrix);
-        SEQAN_ASSERT_NOT(empty(possibleEndsLeft));
+        SEQAN_ASSERT_NOT(possibleEndsLeft.empty());
         }); // measure_time
-    } else appendValue(possibleEndsLeft, TEndInfo());
+    } 
+    else 
+        possibleEndsLeft.emplace_back(TEndInfo());
     if (direction == EXTEND_BOTH || direction == EXTEND_RIGHT) { // ... extension to the right
         best_extension_runtime.banded_needleman_wunsch_right_time.measure_time([&]()
         {
@@ -495,37 +496,40 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
         appendValue(sequencesRight, infix(host(infV), endPositionV(seedOld), endPositionV(seed)));
 
         _fillMatrixBestEndsRight(matrixRight, possibleEndsRight, sequencesRight, diagLowerRight, diagUpperRight, scoreMatrix);
-        SEQAN_ASSERT_NOT(empty(possibleEndsRight));
+        SEQAN_ASSERT_NOT(possibleEndsRight.empty());
         }); // measure_time
-    } else appendValue(possibleEndsRight, TEndInfo());
+    } else
+    {
+        possibleEndsRight.emplace_back(TEndInfo());
+    } 
     }); // measure_time
 
     // longest eps match on poss ends string
-    Pair<TEndIterator> endPair = best_extension_runtime.longest_eps_match_time.measure_time([&]()
+    std::pair<TEndIterator, TEndIterator> endPair = best_extension_runtime.longest_eps_match_time.measure_time([&]()
     {
         return longestEpsMatch(possibleEndsLeft, possibleEndsRight, alignLen, alignErr, minLength, eps);
     });
 
-    if (endPair == Pair<TEndIterator>(0, 0)) { // no eps-match found
+    if (endPair == std::pair<TEndIterator, TEndIterator>(possibleEndsLeft.end(), possibleEndsRight.end())) { // no eps-match found
         return false;
     }
 
     // determine end positions of maximal eps-match in ...
     TPos endLeftH = 0, endLeftV = 0;
     TPos endRightH = 0, endRightV = 0;
-    if((*endPair.i1).length != 0) { // ... extension to the left
-        endLeftV = (*endPair.i1).coord.i1;
+    if((*endPair.first).length != 0) { // ... extension to the left
+        endLeftV = (*endPair.first).coord.i1;
         // correction for banded coordinates to unbanded:
         if (diagLowerLeft >= 0)
             endLeftV += (TPos)(diagLowerLeft);
-        endLeftH = endLeftV + (TPos)((*endPair.i1).coord.i2 - diagUpperLeft);
+        endLeftH = endLeftV + (TPos)((*endPair.first).coord.i2 - diagUpperLeft);
     }
-    if((*endPair.i2).length != 0) { // ... extension to the right
-        endRightV = (*endPair.i2).coord.i1;
+    if((*endPair.second).length != 0) { // ... extension to the right
+        endRightV = (*endPair.second).coord.i1;
         // correction for banded coordinates to unbanded:
         if (diagLowerRight >= 0)
             endRightV += (TPos)(diagLowerRight);
-        endRightH = endRightV + (TPos)((*endPair.i2).coord.i2 - diagUpperRight);
+        endRightH = endRightV + (TPos)((*endPair.second).coord.i2 - diagUpperRight);
     }
 
     // set begin and end positions of align
@@ -543,12 +547,12 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
     best_extension_runtime.construct_seed_alignment_time.measure_time([&]()
     {
     // traceback through matrix from begin/end pos on ...
-    if((*endPair.i1).length != 0) { // ... extension to the left
+    if((*endPair.first).length != 0) { // ... extension to the left
         assert(direction == EXTEND_BOTH || direction == EXTEND_LEFT);
         auto const infixAlignHBeginPosition = beginPositionH(seed) + length(sequencesLeft[0]) - endLeftH;
         auto const infixAlignVBeginPosition = beginPositionV(seed) + length(sequencesLeft[1]) - endLeftV;
         _tracebackLeft(matrixLeft,
-                       (*endPair.i1).coord,
+                       (*endPair.first).coord,
                        sequencesLeft,
                        infixAlignHBeginPosition,
                        infixAlignVBeginPosition,
@@ -558,12 +562,12 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
                        endLeftV,
                        align);
     }
-    if((*endPair.i2).length != 0) { // ... extension to the right
+    if((*endPair.second).length != 0) { // ... extension to the right
         assert(direction == EXTEND_BOTH || direction == EXTEND_RIGHT);
         auto const infixAlignHBeginPosition = endPositionH(seedOld);
         auto const infixAlignVBeginPosition = endPositionV(seedOld);
         _tracebackRight(matrixRight,
-                        (*endPair.i2).coord,
+                        (*endPair.second).coord,
                         sequencesRight,
                         infixAlignHBeginPosition,
                         infixAlignVBeginPosition,

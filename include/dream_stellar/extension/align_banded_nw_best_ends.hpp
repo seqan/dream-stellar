@@ -12,7 +12,7 @@ using namespace seqan2;
 template <typename TTrace, typename TEnd, typename TStringSet, typename TScore, typename TDiagonal>
 inline void
 _align_banded_nw_best_ends(TTrace& trace,
-                           String<TEnd> & bestEnds,
+                           std::vector<TEnd> & bestEnds,
                            TStringSet const & str,
                            TScore const & sc,
                            TDiagonal const diagL,
@@ -153,19 +153,19 @@ _align_banded_nw_best_ends(TTrace& trace,
             // = |mismatches| + |gaps| = errors
             errors = (*current_score_rowise_it - (*alignment_length_it * matchScore)) / (gapScore - matchScore);
             SEQAN_ASSERT_GEQ(errors, 0);
-            SEQAN_ASSERT_LEQ(errors, length(bestEnds));
-            if (errors == length(bestEnds)) {
-                appendValue(bestEnds, TEnd(*alignment_length_it, row, col));
-            } else if (*alignment_length_it > static_cast<TScoreValue>(value(bestEnds, errors).length))
-                value(bestEnds, errors) = TEnd(*alignment_length_it, row, col);
+            SEQAN_ASSERT_LEQ(errors, bestEnds.size());
+            if (errors == bestEnds.size()) {
+                bestEnds.emplace_back(TEnd(*alignment_length_it, row, col));
+            } else if (*alignment_length_it > static_cast<TScoreValue>(bestEnds[errors].length))
+                bestEnds[errors] = TEnd(*alignment_length_it, row, col);
             //std::cerr << row << ',' << col << ':' << *current_score_rowise_it << std::endl;
         }
     }
-    TSize newLength = length(bestEnds) - 1;
+    TSize newLength = bestEnds.size() - 1;
     while (newLength > 0 && bestEnds[newLength].length <= bestEnds[newLength-1].length) {
         --newLength;
     }
-    resize(bestEnds, newLength + 1);
+    bestEnds.reserve(newLength + 1);
 }
 
 } // namespace dream_stellar
