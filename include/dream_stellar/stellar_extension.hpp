@@ -148,7 +148,8 @@ template<typename TMatrix, typename TPossEnd, typename TAlphabet, typename TDiag
 void
 _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
                         std::vector<TPossEnd> & possibleEndsLeft,
-                        StringSet<Segment<std::span<TAlphabet> const, InfixSegment>> const & sequencesLeft,
+                        //!TODO: should sequencesLeft be owning?
+                        std::vector<Segment<std::vector<TAlphabet> const, InfixSegment>> const & sequencesLeft,
                         TDiagonal const diagLower,
                         TDiagonal const diagUpper,
                         TScore const & scoreMatrix) {
@@ -178,7 +179,7 @@ template<typename TMatrix, typename TPossEnd, typename TAlphabet, typename TDiag
 void
 _fillMatrixBestEndsRight(TMatrix & matrixRight,
                          std::vector<TPossEnd> & possibleEndsRight,
-                         StringSet<Segment<std::span<TAlphabet> const, InfixSegment>> const & sequencesRight,
+                         std::vector<Segment<std::vector<TAlphabet> const, InfixSegment>> const & sequencesRight,
                          TDiagonal const diagLower,
                          TDiagonal const diagUpper,
                          TScore const & scoreMatrix) {
@@ -414,8 +415,8 @@ _tracebackRight(TMatrix const & matrixRight,
 template<typename TSequence, typename TSeed, typename TPos, typename TDir, typename TScore,
          typename TSize, typename TEps, typename TAlign>
 bool
-_bestExtension(Segment<TSequence const, InfixSegment> const & infH,
-               Segment<TSequence const, InfixSegment> const & infV,
+_bestExtension(Segment<TSequence const, InfixSegment> const & infH, // database
+               Segment<TSequence const, InfixSegment> const & infV, // query
                TSeed const & seed,
                TSeed const & seedOld,
                TPos const alignLen,
@@ -427,6 +428,10 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
                TAlign & align,
                stellar_best_extension_time & best_extension_runtime)
 {
+    //!NOTE: TSequence = std::span<TAlphabet>
+    using TAlphabet = std::remove_cv<typename TSequence::value_type>::type;
+    using TOwningContainer = std::vector<TAlphabet>;
+
     typedef std::vector<TraceBack>                          TAlignmentMatrix;
     typedef ExtensionEndPosition<TPos>                      TEndInfo;
     typedef typename std::vector<TEndInfo>::iterator        TEndIterator;
@@ -448,10 +453,8 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
     assert(endPositionH(seedOld) <= endPositionH(seed)); // infixRightH
     assert(endPositionV(seedOld) <= endPositionV(seed)); // infixRightV
 
-    TSequence sequenceCopyLeftH;
-    TSequence sequenceCopyLeftV;
-    StringSet<Segment<TSequence const, InfixSegment>> sequencesLeft;
-    StringSet<Segment<TSequence const, InfixSegment>> sequencesRight;
+    std::vector<Segment<TOwningContainer const, InfixSegment>> sequencesLeft;
+    std::vector<Segment<TOwningContainer const, InfixSegment>> sequencesRight;
 
     // Compute diagonals for updated seeds module with infixH/first alignment row being in the horizontal direction.
     TDiagonal const diagLowerLeft = lowerDiagonal(seedOld) - upperDiagonal(seed);
@@ -465,23 +468,32 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
     {
     // fill banded matrix and gaps string for ...
     if (direction == EXTEND_BOTH || direction == EXTEND_LEFT) { // ... extension to the left
+        // prepare copy segment...
+        //!TODO: can these be references instead of copies?
+        TOwningContainer segmentCopyLeftH;
+        TOwningContainer segmentCopyLeftV;
+        segmentCopyLeftH.reserve(beginPositionH(seedOld) - beginPositionH(seed));
+        segmentCopyLeftV.reserve(beginPositionV(seedOld) - beginPositionV(seed));
+
         best_extension_runtime.banded_needleman_wunsch_left_time.measure_time([&]()
         {
-        // prepare copy segment...
-        reserve(sequenceCopyLeftH, beginPositionH(seedOld) - beginPositionH(seed));
-        reserve(sequenceCopyLeftV, beginPositionV(seedOld) - beginPositionV(seed));
+        // ...copy reverse complement segment
+        //!TODO: are seqan2 and seqan3 ranks compatible?
+        for (auto n : host(infH).subspan(beginPositionH(seed), beginPositionH(seedOld)) | std::views::reverse | seqan3::views::complement)
+        {
+            TAlphabet ad_n;
+            segmentCopyLeftH.push_back(seqan3::custom::assign_rank_to(seqan3::to_rank(n), ad_n));
+        }
 
-        // ...copy segment...
-        append(sequenceCopyLeftH, infix(host(infH), beginPositionH(seed), beginPositionH(seedOld)));
-        append(sequenceCopyLeftV, infix(host(infV), beginPositionV(seed), beginPositionV(seedOld)));
-
-        // ...and reverse local copy
-        reverse(sequenceCopyLeftH);
-        reverse(sequenceCopyLeftV);
+        for (TAlphabet n : host(infV).subspan(beginPositionV(seed), beginPositionV(seedOld)) | std::views::reverse | seqan3::views::complement)
+        {
+            TAlphabet ad_n;
+            segmentCopyLeftV.push_back(seqan3::custom::assign_rank_to(seqan3::to_rank(n), ad_n));
+        }
 
         // put infix segments
-        appendValue(sequencesLeft, infix(sequenceCopyLeftH, 0, length(sequenceCopyLeftH)));
-        appendValue(sequencesLeft, infix(sequenceCopyLeftV, 0, length(sequenceCopyLeftV)));
+        sequencesLeft.emplace_back(infix(segmentCopyLeftH, 0, segmentCopyLeftH.size()));
+        sequencesLeft.emplace_back(infix(segmentCopyLeftV, 0, segmentCopyLeftV.size()));
 
         _fillMatrixBestEndsLeft(matrixLeft, possibleEndsLeft, sequencesLeft, diagLowerLeft, diagUpperLeft, scoreMatrix);
         SEQAN_ASSERT_NOT(possibleEndsLeft.empty());
@@ -492,9 +504,13 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
     if (direction == EXTEND_BOTH || direction == EXTEND_RIGHT) { // ... extension to the right
         best_extension_runtime.banded_needleman_wunsch_right_time.measure_time([&]()
         {
-        appendValue(sequencesRight, infix(host(infH), endPositionH(seedOld), endPositionH(seed)));
-        appendValue(sequencesRight, infix(host(infV), endPositionV(seedOld), endPositionV(seed)));
+        // prepare copy segment...
+        //!TODO: can these be references instead of copies?
+        auto segmentCopyRightH = TOwningContainer(host(infH).begin() + endPositionH(seedOld), host(infH).begin() + endPositionH(seed));
+        auto segmentCopyRightV = TOwningContainer(host(infV).begin() + endPositionV(seedOld), host(infV).begin() + endPositionV(seed));
 
+        sequencesRight.emplace_back(infix(segmentCopyRightH, 0, segmentCopyRightH.size()));
+        sequencesRight.emplace_back(infix(segmentCopyRightV, 0, segmentCopyRightV.size()));
         _fillMatrixBestEndsRight(matrixRight, possibleEndsRight, sequencesRight, diagLowerRight, diagUpperRight, scoreMatrix);
         SEQAN_ASSERT_NOT(possibleEndsRight.empty());
         }); // measure_time
@@ -623,7 +639,7 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
     typedef typename Position<TSequence>::Type TPos;
     typedef Seed<Simple> TSeed;
 
-    //!TODO: what are infH and infV segments?
+    //!NOTE: TSequence = std::span<TAlphabet>
 
     // std::cerr << "LOCAL ALIGN\n" << row(localAlign, 0) << "\n" << row(localAlign, 1) << "\n";
     // std::cerr << "ALIGN\n" << row(align, 0) << "\n" << row(align, 1) << "\n";
@@ -660,7 +676,6 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
         Segment<TSequence const, InfixSegment> infixSequenceV = host(infV); // inner nested Segment
         extension_runtime.extend_seed_time.measure_time([&]()
         {
-            //!TODO: The seed extension should take place in the complete sequence not the segment
             extendSeed(seed, infixSequenceH, infixSequenceV, direction, scoreMatrix, scoreDropOff, GappedXDrop());
         });
         if (static_cast<int64_t>(seedSize(seed)) < minLength - (int)floor(minLength*eps))

@@ -9,20 +9,21 @@ using namespace seqan2;
 ///////////////////////////////////////////////////////////////////////////////
 // Computes the banded alignment matrix and additionally a string with the best
 //   alignment end point for each alignment length.
-template <typename TTrace, typename TEnd, typename TStringSet, typename TScore, typename TDiagonal>
+template <typename TTrace, typename TEnd, typename TSegmentVector, typename TScore, typename TDiagonal>
 inline void
 _align_banded_nw_best_ends(TTrace& trace,
                            std::vector<TEnd> & bestEnds,
-                           TStringSet const & str,
+                           TSegmentVector const & str,
                            TScore const & sc,
                            TDiagonal const diagL,
                            TDiagonal const diagU)
 {
     typedef typename Value<TTrace>::Type TTraceValue;
     typedef typename Value<TScore>::Type TScoreValue;
-    typedef typename Value<TStringSet>::Type TString;
+    typedef typename Value<TSegmentVector>::Type TSegment;  // was Segment<String<TAlphabet>> now Segment<std::vector<TAlphabet>>
     typedef typename Size<TTrace>::Type TSize;
-    using TAlphabet = typename Value<TString>::Type;
+    using TAlphabet = typename Value<TSegment>::Type;
+    //!TODO: TAlphabet should NOT be of container type 
 
     SEQAN_ASSERT_GEQ(diagU, diagL);
 
@@ -30,8 +31,8 @@ _align_banded_nw_best_ends(TTrace& trace,
     TTraceValue const Diagonal = 0;
     TTraceValue const Horizontal = 1;
     TTraceValue const Vertical = 2;
-    TString const& str1 = str[0];
-    TString const& str2 = str[1];
+    TSegment const& str1 = str[0];
+    TSegment const& str2 = str[1];
     TSize const len1 = length(str1) + 1;
     TSize const len2 = length(str2) + 1;
     TSize const diagonalWidth = (TSize) (diagU - diagL + 1);
