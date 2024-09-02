@@ -14,7 +14,7 @@ using namespace seqan2;
 // Identifies the longest epsilon match in align from possEndsLeft and possEndsRight and sets the view positions of
 // align to start and end position of the longest epsilon match
 template<typename TLength, typename TSize, typename TEps, 
-typename TEnd = ExtensionEndPosition<TLength>, typename TIterator = std::vector<TEnd>::iterator>
+typename TEnd = ExtensionEndPosition<TLength>, typename TIterator = std::vector<TEnd>::const_iterator>
 std::pair<TIterator, TIterator> longestEpsMatch(std::vector<ExtensionEndPosition<TLength> > const & possEndsLeft,
                                                 std::vector<ExtensionEndPosition<TLength> > const & possEndsRight,
                                                 TLength const alignLen,

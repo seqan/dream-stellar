@@ -6,7 +6,7 @@
 #include <dream_stellar/utils/stellar_kernel_runtime.hpp>
 
 #include <seqan/seeds.h>
-#include <span>
+#include <utilities/alphabet_wrapper/std/span.hpp>
 
 namespace dream_stellar
 {
@@ -204,17 +204,17 @@ _fillMatrixBestEndsRight(TMatrix & matrixRight,
 
 ///////////////////////////////////////////////////////////////////////////////
 // Traceback from an arbitrary point (coordinate) in the banded alignment trace matrix (trace).
-template <typename TAlign, typename TStringSet, typename TTrace, typename TCoord, typename TDiagonal>
+template <typename TAlign, typename TSegVec, typename TTrace, typename TCoord, typename TDiagonal>
 inline void
 _alignBandedNeedlemanWunschTrace(TAlign & align,
-                                 TStringSet const & str,
+                                 TSegVec const & str,
                                  TTrace const & trace,
                                  TCoord const & coordinate,
                                  TDiagonal const diagL,
                                  TDiagonal const diagU)
 {
-    //typedef typename Value<TStringSet>::Type TString;
-    typedef typename Id<TStringSet>::Type TId;
+    //typedef typename Value<TSegVec>::Type TString;
+    typedef typename Id<TSegVec>::Type TId;
     typedef typename Size<TTrace>::Type TSize;
     typedef typename Value<TTrace>::Type TTraceValue;
 
@@ -222,8 +222,8 @@ _alignBandedNeedlemanWunschTrace(TAlign & align,
     TTraceValue Diagonal = 0; TTraceValue Horizontal = 1; TTraceValue Vertical = 2;
 
     // Initialization
-    TId id1 = positionToId(const_cast<TStringSet&>(str), 0);
-    TId id2 = positionToId(const_cast<TStringSet&>(str), 1);
+    TId id1{0};    // for a owning StringSet<> Id is the same as the index
+    TId id2{1};
     TSize lo_row = (diagU <= 0) ? -1 * diagU : 0;
     TSize diagonalWidth = (TSize) (diagU - diagL + 1);
 
@@ -337,7 +337,7 @@ template<typename TMatrix, typename TCoord, typename TAlphabet, typename TBeginP
 void
 _tracebackLeft(TMatrix const & matrixLeft,
                TCoord const & coordinate,
-               StringSet<Segment<std::span<TAlphabet> const, InfixSegment>> const & sequencesLeft,
+               std::vector<Segment<std::vector<TAlphabet> const, InfixSegment>> const & sequencesLeft,
                TBeginPosition const infixAlignHBeginPosition,
                TBeginPosition const infixAlignVBeginPosition,
                TDiagonal const diagLower,
@@ -357,7 +357,7 @@ _tracebackLeft(TMatrix const & matrixLeft,
     reverse(traceBack.sizes);
     reverse(traceBack.tvs);
 
-    Align<Segment<String<TAlphabet> const, InfixSegment>> infixAlign;
+    Align<Segment<std::vector<TAlphabet> const, InfixSegment>> infixAlign;
     resize(rows(infixAlign), 2);
     assignSource(row(infixAlign, 0), infix(sequencesLeft[0], length(sequencesLeft[0]) - endLeftH, length(sequencesLeft[0])));
     assignSource(row(infixAlign, 1), infix(sequencesLeft[1], length(sequencesLeft[1]) - endLeftV, length(sequencesLeft[1])));
@@ -378,7 +378,7 @@ template<typename TMatrix, typename TCoord, typename TAlphabet, typename TBeginP
 void
 _tracebackRight(TMatrix const & matrixRight,
                TCoord const & coordinate,
-               StringSet<Segment<std::span<TAlphabet> const, InfixSegment>> const & sequencesRight,
+               std::vector<Segment<std::vector<TAlphabet> const, InfixSegment>> const & sequencesRight,
                TBeginPosition const infixAlignHBeginPosition,
                TBeginPosition const infixAlignVBeginPosition,
                TDiagonal const diagLower,
@@ -395,7 +395,7 @@ _tracebackRight(TMatrix const & matrixRight,
   //  std::cerr << (int)traceBack.tvs[i] << "\t" << traceBack.sizes[i] << "\n";
   //std::cerr << "---------\n";
 
-    Align<Segment<String<TAlphabet> const, InfixSegment>> infixAlign;
+    Align<Segment<std::vector<TAlphabet> const, InfixSegment>> infixAlign;
     resize(rows(infixAlign), 2);
     assignSource(row(infixAlign, 0), infix(sequencesRight[0], 0, endRightH));
     assignSource(row(infixAlign, 1), infix(sequencesRight[1], 0, endRightV));
@@ -432,10 +432,10 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH, // database
     using TAlphabet = std::remove_cv<typename TSequence::value_type>::type;
     using TOwningContainer = std::vector<TAlphabet>;
 
-    typedef std::vector<TraceBack>                          TAlignmentMatrix;
-    typedef ExtensionEndPosition<TPos>                      TEndInfo;
-    typedef typename std::vector<TEndInfo>::iterator        TEndIterator;
-    typedef typename Diagonal<TSeed>::Type                  TDiagonal;
+    typedef std::vector<TraceBack>                                TAlignmentMatrix;
+    typedef ExtensionEndPosition<TPos>                            TEndInfo;
+    typedef typename std::vector<TEndInfo>::const_iterator        TEndIterator;
+    typedef typename Diagonal<TSeed>::Type                        TDiagonal;
 
     // variables for banded alignment and possible ends of match
     TAlignmentMatrix matrixRight, matrixLeft;
@@ -481,14 +481,12 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH, // database
         //!TODO: are seqan2 and seqan3 ranks compatible?
         for (auto n : host(infH).subspan(beginPositionH(seed), beginPositionH(seedOld)) | std::views::reverse | seqan3::views::complement)
         {
-            TAlphabet ad_n;
-            segmentCopyLeftH.push_back(seqan3::custom::assign_rank_to(seqan3::to_rank(n), ad_n));
+            segmentCopyLeftH.emplace_back(n.to_rank());
         }
 
-        for (TAlphabet n : host(infV).subspan(beginPositionV(seed), beginPositionV(seedOld)) | std::views::reverse | seqan3::views::complement)
+        for (auto n : host(infV).subspan(beginPositionV(seed), beginPositionV(seedOld)) | std::views::reverse | seqan3::views::complement)
         {
-            TAlphabet ad_n;
-            segmentCopyLeftV.push_back(seqan3::custom::assign_rank_to(seqan3::to_rank(n), ad_n));
+            segmentCopyLeftV.emplace_back(n.to_rank());
         }
 
         // put infix segments

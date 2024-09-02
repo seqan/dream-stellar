@@ -42,7 +42,7 @@ struct StellarDatabaseSegment : public StellarSequenceSegment<alphabet_t>
 
     TNestedFinderSegment asFinderSegment() const
     {
-        std::span<alphabet_t> const & _database = underlyingDatabase();
+        std::span<const alphabet_t> const & _database = underlyingDatabase();
         auto finderInfix = this->asInfixSegment();
 
         TInfixSegment const finderInfixSeq = infix(_database, 0, length(_database));
