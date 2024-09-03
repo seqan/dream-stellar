@@ -10,8 +10,6 @@
 #include <dream_stellar/stellar_index.hpp>
 #include <dream_stellar/utils/stellar_kernel_runtime.hpp>
 #include <dream_stellar/verification/all_local.hpp>
-#include <dream_stellar/verification/banded_global_extend.hpp>
-#include <dream_stellar/verification/banded_global.hpp>
 #include <dream_stellar/verification/best_local.hpp>
 #include <dream_stellar/verification/swift_hit_verifier.hpp>
 
