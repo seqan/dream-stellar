@@ -428,7 +428,6 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH, // database
                TAlign & align,
                stellar_best_extension_time & best_extension_runtime)
 {
-    //!NOTE: TSequence = std::span<TAlphabet>
     using TAlphabet = std::remove_cv<typename TSequence::value_type>::type;
     using TOwningContainer = std::vector<TAlphabet>;
 

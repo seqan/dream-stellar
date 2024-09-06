@@ -47,10 +47,6 @@ struct StellarLauncher
             return visitor_fn(AllLocal());
         else if (verificationMethod == StellarVerificationMethod{BestLocal{}})
             return visitor_fn(BestLocal());
-        else if (verificationMethod == StellarVerificationMethod{BandedGlobal{}})
-            return visitor_fn(BandedGlobal());
-        else if (verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
-            return visitor_fn(BandedGlobalExtend());
         return StellarComputeStatistics{};
     }
 
@@ -82,7 +78,6 @@ struct StellarLauncher
 
         auto onAlignmentResult = [&](auto & alignment) -> bool {
             QueryMatches<StellarMatch<sequence_reference_t const, id_t> > & queryMatches = getQueryMatches(matcher);
-
             StellarMatch<sequence_reference_t const, id_t> match(alignment, databaseID, databaseStrand);
             length(match);  // DEBUG: Contains assertion on clipping.
 

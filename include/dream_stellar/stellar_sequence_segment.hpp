@@ -13,17 +13,23 @@ struct StellarSequenceSegment
 
     StellarSequenceSegment() = default;
 
-    template <typename other_sequence_t, typename = std::enable_if_t< std::is_same_v<sequence_reference_t, other_sequence_t> > >
     StellarSequenceSegment(
-        other_sequence_t const & sequence,
+        sequence_reference_t const & sequence,
         size_t const beginPosition,
         size_t const endPosition)
         : _sequenceSegment{sequence, beginPosition, endPosition}
     {}
 
-    sequence_reference_t const & underlyingSequence() const &
+    // do not allow temporaries
+    StellarSequenceSegment(
+        sequence_reference_t && sequence,
+        size_t const beginPosition,
+        size_t const endPosition) = delete;
+
+    sequence_reference_t const & underlyingSequence() const
     {
-        return host(_sequenceSegment);
+        assert(_sequenceSegment.data_host);
+        return *(_sequenceSegment.data_host);
     }
 
     size_t beginPosition() const
@@ -47,9 +53,15 @@ struct StellarSequenceSegment
         return endPosition() - beginPosition();
     }
 
-    TInfixSegment asInfixSegment() const
+    TInfixSegment const & asInfixSegment() const
     {
         return _sequenceSegment;
+    }
+
+    std::span<const alphabet_t> as_span() const
+    {
+        return this->underlyingSequence().subspan(this->beginPosition() /* offset */, 
+                                                  this->endPosition() - this->beginPosition() /* count */);
     }
 
     friend bool operator<(StellarSequenceSegment const & s1, StellarSequenceSegment const & s2) { return s1.compare_three_way(s2) < 0; }

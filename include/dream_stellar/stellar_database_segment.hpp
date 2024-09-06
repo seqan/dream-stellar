@@ -29,15 +29,9 @@ struct StellarDatabaseSegment : public StellarSequenceSegment<alphabet_t>
         return {underlyingDatabase, seqan2::beginPosition(finderMatch), seqan2::endPosition(finderMatch)};
     }
 
-    std::span<const alphabet_t> const underlyingDatabase() const
+    std::span<const alphabet_t> const & underlyingDatabase() const
     {
         return this->underlyingSequence();
-    }
-
-    std::span<const alphabet_t> as_span() const
-    {
-        return underlyingDatabase().subspan(this->beginPosition() /* offset */, 
-                                            this->endPosition() - this->beginPosition() /* count */);
     }
 
     TNestedFinderSegment asFinderSegment() const
