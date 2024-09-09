@@ -19,6 +19,12 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
+# For debugging only
+#set (CMAKE_CXX_FLAGS "-ftemplate-backtrace-limit=0")
+#set (CMAKE_CXX_FLAGS "-fsanitize=address -g -O0")
+set (CMAKE_CXX_FLAGS "-g -O0 -Wno-unused-parameter -Wno-unused-value -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-local-typedefs")
+
+
 # Messages
 string (ASCII 27 Esc)
 set (FontBold "${Esc}[1m")

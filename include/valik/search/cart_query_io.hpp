@@ -1,11 +1,11 @@
 #pragma once
 
 #include <filesystem>
+#include <span>
 
+#include <dream_stellar/io/import_sequence.hpp>
+#include <utilities/alphabet_wrapper/seqan/alphabet.hpp>
 #include <valik/search/query_record.hpp>
-
-#include <stellar/stellar_query_segment.hpp>
-#include <stellar/io/import_sequence.hpp>
 
 #include <seqan3/io/sequence_file/output.hpp>
 #include <seqan3/io/sequence_file/record.hpp>
@@ -15,42 +15,31 @@ namespace valik
 {
 
 /**
- *  \brief Function that creates a seqan2::Segment from a query_record (split or short query)
+ *  \brief Extract the segment sequences from shared query records. 
  *
  *  \param records vector containing valik split query segments
  *  \param seqs set of query segments (in-out)
  *  \param ids set of query segment ids (in-out)
  *  \param strOut stream for standard output
- *  \param strErr stream for error output
- *  \param hostQueries underlying sequences for query segments
- *  \param hostQueryIDs set of underlying sequence ids
  */
-template <typename rec_vec_t, typename TAlphabet, typename TId, typename TStream>
-inline bool get_cart_queries(rec_vec_t const & records,
-                             seqan2::StringSet<seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>, seqan2::Dependent<>> & seqs,
-                             seqan2::StringSet<TId> & ids,
-                             TStream & strOut,
-                             TStream & strErr)
+template <typename alphabet_t, typename str_t>
+inline bool get_cart_queries(std::vector<shared_query_record<alphabet_t>> const & records,
+                             std::vector<std::span<alphabet_t const>> & seqs,
+                             std::vector<std::string> & ids, 
+                             str_t & str_out)
 {
+    std::set<std::string> uniqueIds; // set of short IDs (cut at first whitespace)
 
-    std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
-    bool idsUnique = true;
-
-    size_t seqCount{0};
+    size_t seq_count{0};
     for (auto & record : records)
     {
-        seqan2::String<char> query_id = record.sequence_id;
-        seqan2::appendValue(seqs, record.querySegment, seqan2::Generous());
-        seqan2::appendValue(ids, query_id, seqan2::Generous());
-        seqCount++;
-        idsUnique &= stellar::_checkUniqueId(uniqueIds, (seqan2::String<char>) record.sequence_id);
+        seqs.emplace_back(record.sequence());
+        ids.emplace_back(record.id());
+        seq_count++;
     }
 
-    strOut << "Loaded " << seqCount << " query sequence" << ((seqCount > 1) ? "s " : " ") << "from cart." << std::endl;
-    if (!idsUnique)
-        strErr << "WARNING: Non-unique query ids. Output can be ambiguous.\n";
+    str_out << "Loaded " << seq_count << " query sequence" << ((seq_count > 1) ? "s " : " ") << "from cart." << std::endl;
     return true;
-
 }
 
 /**
@@ -70,7 +59,7 @@ void write_cart_queries(rec_vec_t & records, std::filesystem::path const & cart_
 
     for (auto & record : records)
     {
-        sequence_record_type sequence_record{std::move(record.sequence_id), std::move(record.sequence)};
+        sequence_record_type sequence_record{std::move(record.id()), std::move(record.sequence())};
         fout.push_back(sequence_record);
     }
 }

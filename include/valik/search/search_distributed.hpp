@@ -52,7 +52,7 @@ bool search_distributed(search_arguments & arguments, search_time_statistics & t
     }
 
     env_var_pack var_pack{};
-    auto queue = cart_queue<query_record>{bin_count, arguments.cart_max_capacity, arguments.max_queued_carts};
+    auto queue = cart_queue<query_record<seqan3::dna4>>{bin_count, arguments.cart_max_capacity, arguments.max_queued_carts};
 
     std::mutex mutex;
     execution_metadata exec_meta(arguments.threads);

@@ -6,22 +6,62 @@
 #include <valik/search/iterate_queries.hpp>
 #include <valik/search/load_index.hpp>
 #include <valik/shared.hpp>
-#include <valik/split/metadata.hpp>
 #include <utilities/cart_queue.hpp>
 #include <utilities/consolidate/merge_processes.hpp>
 #include <utilities/threshold/search_kmer_profile.hpp>
 #include <utilities/threshold/filtering_request.hpp>
+#include <utilities/alphabet_wrapper/matcher/stellar_matcher.hpp> 
+#include <utilities/alphabet_wrapper/std/span.hpp>
 
-#include <stellar/database_id_map.hpp>
-#include <stellar/diagnostics/print.tpp>
-#include <stellar/stellar_launcher.hpp>
-#include <stellar/stellar_output.hpp>
-#include <stellar/io/import_sequence.hpp>
-#include <stellar/utils/stellar_app_runtime.hpp>
-#include <stellar3.shared.hpp>
+#include <dream_stellar/diagnostics/print.tpp>
+#include <dream_stellar/io/import_sequence.hpp>
+#include <dream_stellar/query_id_map.hpp>
+#include <dream_stellar/shared.hpp>
+#include <dream_stellar/stellar_launcher.hpp>
+#include <dream_stellar/stellar_output.hpp>
+#include <dream_stellar/utils/stellar_app_runtime.hpp>
 
 namespace valik::app
 {
+
+template <typename TSize, typename id_t>
+static inline dream_stellar::StellarOptions make_thread_options(search_arguments const & arguments, metadata const & ref_meta, 
+                                                          std::filesystem::path const & cart_queries_path, TSize const refLen, id_t const bin_id)
+{
+    dream_stellar::StellarOptions threadOptions{};
+    threadOptions.alphabet = "dna";            // one of: dna, rna, protein, char
+    threadOptions.verbose = true;
+    threadOptions.queryFile = "in memory";
+    threadOptions.prefilteredSearch = true;
+    threadOptions.referenceLength = refLen;
+    threadOptions.searchSegment = true;
+    auto seg = ref_meta.segment_from_bin(bin_id);
+    //!TODO: deal with metagenome database
+    threadOptions.binSequences.emplace_back(seg.seq_vec[0]);
+    threadOptions.segmentBegin = seg.start;
+    threadOptions.segmentEnd = seg.start + seg.len;
+    if (threadOptions.segmentEnd <= threadOptions.segmentBegin)
+        throw std::runtime_error{"Incorrect segment definition"};
+
+    if (threadOptions.segmentEnd < threadOptions.minLength + threadOptions.segmentBegin)
+        throw std::runtime_error{"Segment shorter than minimum match length"};
+
+    threadOptions.minLength = arguments.pattern_size;
+    threadOptions.epsilon = dream_stellar::utils::fraction::from_double_with_limit(arguments.error_rate, arguments.pattern_size).limit_denominator();
+    threadOptions.outputFile = cart_queries_path.string() + ".gff";
+    
+    {
+        threadOptions.maxRepeatPeriod = arguments.maxRepeatPeriod;
+        threadOptions.minRepeatLength = arguments.minRepeatLength;
+        threadOptions.strVerificationMethod = arguments.strVerificationMethod;
+        threadOptions.xDrop = arguments.xDrop;
+        threadOptions.qgramAbundanceCut = arguments.qgramAbundanceCut;
+        threadOptions.numMatches = std::max(2u, (unsigned) std::round(arguments.numMatches / (double) ref_meta.seg_count * 1.2));
+        threadOptions.compactThresh = std::max(threadOptions.numMatches + 1, (size_t) std::round(arguments.compactThresh / (double) ref_meta.seg_count)) * 1.2;
+    }
+
+    return threadOptions;
+}
 
 /**
  * @brief Function that calls Valik prefiltering and launches parallel threads of Stellar search.
@@ -108,21 +148,23 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
             }
         }
     }
+    
+    using alphabet_t = seqan2::alphabet_adaptor<seqan3::dna4>;
+    using sequence_container_t = std::vector<alphabet_t>;
+    using sequence_reference_t = std::span<const alphabet_t>;
 
-    using TAlphabet = seqan2::Dna;
-    using TSequence = seqan2::String<TAlphabet>;
     // the queue hands records over from the producer threads (valik prefiltering) to the consumer threads (stellar search) 
-    auto queue = cart_queue<shared_query_record<TSequence>>{ref_meta.seg_count, arguments.cart_max_capacity, arguments.max_queued_carts};
+    auto queue = cart_queue<shared_query_record<alphabet_t>>{ref_meta.seg_count, arguments.cart_max_capacity, arguments.max_queued_carts};
 
     std::mutex mutex;
     execution_metadata exec_meta(arguments.threads);
 
     // negative (reverse complemented) database strand
     bool const reverse = true /*threadOptions.reverse && threadOptions.alphabet != "protein" && threadOptions.alphabet != "char" */;
-    seqan2::StringSet<TSequence> databases;
+    std::vector<sequence_container_t> databases;
+    std::vector<sequence_container_t> reverse_databases;
     using TSize = decltype(length(databases[0]));
-    seqan2::StringSet<TSequence> reverseDatabases;
-    seqan2::StringSet<seqan2::CharString> databaseIDs;
+    std::vector<std::string> databaseIDs;
     std::ofstream disabledQueriesFile;
     TSize refLen;
 
@@ -142,28 +184,29 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
         throw std::runtime_error("Multiple reference files can not be searched in shared memory mode. "
                                  "Add --distribute argument to launch multiple distributed instances of DREAM-Stellar search.");
 
-    stellar::stellar_runtime input_databases_time{};
+    dream_stellar::stellar_runtime input_databases_time{};
     bool const databasesSuccess = input_databases_time.measure_time([&]()
     {
         std::cout << "Launching stellar search on a shared memory machine...\n";
-        //!TODO: allow metagenome database
-        return stellar::_importAllSequences(arguments.bin_path[0][0].c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
+        return dream_stellar::_import_database_sequences(arguments.bin_path[0][0], databases, databaseIDs, refLen, std::cout, std::cerr);
     });
+
     if (!databasesSuccess)
         return false;
 
     if (reverse)
     {
-        for (auto database : databases)
+        for (auto & sequence : databases)
         {
-            reverseComplement(database);
-            seqan2::appendValue(reverseDatabases, database, seqan2::Generous());
+            sequence_container_t reverse_sequence;
+            reverse_sequence.reserve(sequence.size());
+            for (auto c : sequence | std::views::reverse | std::views::transform([](auto el){return el._symbol;}) | seqan3::views::complement)
+                reverse_sequence.emplace_back(seqan3::to_rank(c));
+            reverse_databases.emplace_back(std::move(reverse_sequence));
         }
     }
 
     time_statistics.ref_io_time += input_databases_time.milliseconds() / 1000;
-    stellar::DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
-    stellar::DatabaseIDMap<TAlphabet> reverseDatabaseIDMap{reverseDatabases, databaseIDs};
 
     bool error_in_search = false; // indicates if an error happened inside this lambda
     auto consumerThreads = std::vector<std::jthread>{};
@@ -177,6 +220,8 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
             {
                 auto & [bin_id, records] = *next;
 
+                // debug
+                seqan3::debug_stream << "Processing queries for bin \t" << bin_id << "\n";
                 std::unique_lock g(mutex);
                 std::filesystem::path cart_queries_path = var_pack.tmp_path / std::string("query_" + std::to_string(bin_id) +
                                                           "_" + std::to_string(exec_meta.bin_count[bin_id]++) + ".fasta");
@@ -184,104 +229,86 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                 thread_meta.output_files.push_back(cart_queries_path.string() + ".gff");
 
-                stellar::StellarOptions threadOptions{};
-                stellar::stellar_app_runtime stellarThreadTime{};
+                dream_stellar::stellar_app_runtime stellarThreadTime{};
                 auto current_time = stellarThreadTime.now();
+                dream_stellar::StellarOptions threadOptions = make_thread_options(arguments, ref_meta, cart_queries_path, refLen, bin_id);
 
-                threadOptions.alphabet = "dna";            // Possible values: dna, rna, protein, char
-                threadOptions.verbose = true;
-                threadOptions.queryFile = "in memory";
-                threadOptions.prefilteredSearch = true;
-                threadOptions.referenceLength = refLen;
-                threadOptions.searchSegment = true;
-                auto seg = ref_meta.segment_from_bin(bin_id);
-                //!TODO: deal with metagenome database
-                threadOptions.binSequences.emplace_back(seg.seq_vec[0]);
-                threadOptions.segmentBegin = seg.start;
-                threadOptions.segmentEnd = seg.start + seg.len;
-                threadOptions.minLength = arguments.pattern_size;
-                threadOptions.epsilon = stellar::utils::fraction::from_double_with_limit(arguments.error_rate, arguments.pattern_size).limit_denominator();
-                threadOptions.outputFile = cart_queries_path.string() + ".gff";
-                
-                {
-                    threadOptions.maxRepeatPeriod = arguments.maxRepeatPeriod;
-                    threadOptions.minRepeatLength = arguments.minRepeatLength;
-                    threadOptions.strVerificationMethod = arguments.strVerificationMethod;
-                    threadOptions.xDrop = arguments.xDrop;
-                    threadOptions.qgramAbundanceCut = arguments.qgramAbundanceCut;
-                    threadOptions.numMatches = std::max(2u, (unsigned) std::round(arguments.numMatches / (double) ref_meta.seg_count * 1.2));
-                    threadOptions.compactThresh = std::max(threadOptions.numMatches + 1, (size_t) std::round(arguments.compactThresh / (double) ref_meta.seg_count)) * 1.2;
-                }
-
-                using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
-                using TQuerySegment = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
-
-                stellar::_writeFileNames(threadOptions, thread_meta.text_out);
-                stellar::_writeSpecifiedParams(threadOptions, thread_meta.text_out);
-                stellar::_writeCalculatedParams(threadOptions, thread_meta.text_out);   // calculate qGram
+                dream_stellar::_writeFileNames(threadOptions, thread_meta.text_out);
+                dream_stellar::_writeSpecifiedParams(threadOptions, thread_meta.text_out);
+                dream_stellar::_writeCalculatedParams(threadOptions, thread_meta.text_out);   // calculate qGram
                 thread_meta.text_out << std::endl;
 
                 // import query sequences
-                seqan2::StringSet<TQuerySegment, seqan2::Dependent<>> queries;
-                seqan2::StringSet<seqan2::CharString> queryIDs;
+                std::vector<sequence_reference_t> queries;
+                queries.reserve(records.size());
+                std::vector<std::string> query_ids;
+                query_ids.reserve(records.size());
                 
-                stellarThreadTime.input_queries_time.measure_time([&]()
-                {
-                    get_cart_queries(records, queries, queryIDs, thread_meta.text_out, thread_meta.text_out);
-                });
+                auto cart_input_queries_time = stellarThreadTime.input_queries_time.now();
+                get_cart_queries(records, queries, query_ids, thread_meta.text_out);
+                dream_stellar::query_id_map<alphabet_t> query_dict{records};
+                stellarThreadTime.input_queries_time.manual_timing(cart_input_queries_time);
 
-                stellar::_writeMoreCalculatedParams(threadOptions, threadOptions.referenceLength, queries, thread_meta.text_out);
+                dream_stellar::_writeMoreCalculatedParams(threadOptions, threadOptions.referenceLength, queries, thread_meta.text_out);
 
                 auto swift_index_time = stellarThreadTime.swift_index_construction_time.now();
-                stellar::StellarIndex<TAlphabet> stellarIndex{queries, threadOptions};
-                stellar::StellarSwiftPattern<TAlphabet> swiftPattern = stellarIndex.createSwiftPattern();
-
-                // Construct index of the queries
                 thread_meta.text_out << "Constructing index..." << '\n';
-                stellarIndex.construct();
+                jst::contrib::stellar_matcher<sequence_reference_t> matcher(queries, arguments);
                 thread_meta.text_out << std::endl;
                 stellarThreadTime.swift_index_construction_time.manual_timing(swift_index_time);
 
                 std::vector<size_t> disabledQueryIDs{};
 
-                stellar::StellarOutputStatistics outputStatistics{};
+                size_t const databaseRecordID = threadOptions.binSequences[0];
+                std::string const & databaseID = databaseIDs[databaseRecordID];
+                seqan3::debug_stream << "databaseID\t" << databaseID << '\n';
+
+                dream_stellar::StellarOutputStatistics outputStatistics{};
                 if (threadOptions.forward)
                 {
-                    auto databaseSegment = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
-                                            (databases[threadOptions.binSequences[0]], threadOptions);
+                    std::span<const alphabet_t> database = std::span(databases[databaseRecordID]);
+                    if (database.size() < threadOptions.segmentEnd)
+                        throw std::runtime_error{"Segment end out of range"};
+
+                                        
+                    dream_stellar::StellarDatabaseSegment<const alphabet_t> database_segment(database, 
+                                                                                             threadOptions.segmentBegin, 
+                                                                                             threadOptions.segmentEnd);
+
+                    std::cout << "Forward database\n";
+                    for (auto n : database_segment.as_span())
+                        std::cout << seqan3::to_char(n._symbol);
+                    std::cout << '\n';
+
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                     {
-                        size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
-                        seqan2::CharString const & databaseID = databaseIDMap.databaseID(databaseRecordID);
                         // container for eps-matches
-                        seqan2::StringSet<stellar::QueryMatches<stellar::StellarMatch<seqan2::String<TAlphabet> const,
-                                                                                    seqan2::CharString> > > forwardMatches;
-                        seqan2::resize(forwardMatches, length(queries));
+                        std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<const sequence_reference_t, std::string> > > forward_matches;
+                        forward_matches.resize(queries.size());
 
                         constexpr bool databaseStrand = true;
-                        auto queryIDMap = stellar::QueryIDMap<TAlphabet>(queries);
-
-                        stellar::StellarComputeStatistics statistics = stellar::StellarLauncher<TAlphabet>::search_and_verify
+     
+                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<alphabet_t>::search_and_verify
                         (
-                            databaseSegment,
+                            matcher,
+                            database_segment,
                             databaseID,
-                            queryIDMap,
+                            query_dict,
                             databaseStrand,
                             threadOptions,
-                            swiftPattern,
                             stellarThreadTime.forward_strand_stellar_time.prefiltered_stellar_time,
-                            forwardMatches
+                            forward_matches // out-parameter
                         );
 
                         thread_meta.text_out << std::endl; // swift filter output is on same line
-                        stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID, statistics, thread_meta.text_out);
+                        dream_stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID, statistics, thread_meta.text_out);
 
                         stellarThreadTime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
                         {
                             // forwardMatches is an in-out parameter
                             // this is the match consolidation
-                            stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
-                                                                    forwardMatches, disabledQueryIDs);
+                            dream_stellar::_postprocessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                                                                    forward_matches, disabledQueryIDs);
                         }); // measure_time
 
                         // open output files
@@ -294,58 +321,63 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         stellarThreadTime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
                         {
                             // output forwardMatches on positive database strand
-                            stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, "gff", outputFile);
+                            dream_stellar::_writeAllQueryMatchesToFile(forward_matches, query_ids, databaseStrand, "gff", outputFile);
                         }); // measure_time
 
-                        outputStatistics = stellar::_computeOutputStatistics(forwardMatches);
+                        outputStatistics = dream_stellar::_computeOutputStatistics(forward_matches);
                     }); // measure_time
+
                 }
 
 
                 if (reverse)
                 {
-                    TDatabaseSegment databaseSegment{};
-                    stellarThreadTime.reverse_complement_database_time.measure_time([&]()
-                    {
-                        databaseSegment = _getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
-                                            (reverseDatabases[threadOptions.binSequences[0]], threadOptions, reverse);
-                    }); // measure_time
+                    auto reverse_database_time = stellarThreadTime.input_queries_time.now();
+                    std::span<const alphabet_t> reverse_database = std::span(reverse_databases[databaseRecordID]);
+                    if (reverse_database.size() < threadOptions.segmentEnd)
+                        throw std::runtime_error{"Segment end out of range"};
+
+                    dream_stellar::StellarDatabaseSegment<const alphabet_t> database_segment(reverse_database, 
+                                                                            reverse_database.size() - threadOptions.segmentEnd /*begin*/, 
+                                                                            reverse_database.size() - threadOptions.segmentBegin /*end*/);
+
+                    std::cout << "Reverse database\n";
+                    for (auto n : database_segment.as_span())
+                        std::cout << seqan3::to_char(n._symbol);
+                    std::cout << '\n';
+
+
+                    stellarThreadTime.reverse_complement_database_time.manual_timing(reverse_database_time);
 
                     stellarThreadTime.reverse_strand_stellar_time.measure_time([&]()
                     {
-                        size_t const databaseRecordID = reverseDatabaseIDMap.recordID(databaseSegment);
-                        seqan2::CharString const & databaseID = reverseDatabaseIDMap.databaseID(databaseRecordID);
-                        // container for eps-matches
-                        seqan2::StringSet<stellar::QueryMatches<stellar::StellarMatch<seqan2::String<TAlphabet> const,
-                                                                                    seqan2::CharString> > > reverseMatches;
-                        seqan2::resize(reverseMatches, length(queries));
+                        std::vector<dream_stellar::QueryMatches<dream_stellar::StellarMatch<const sequence_reference_t, std::string> > > reverse_matches;
+                        reverse_matches.resize(queries.size());
 
                         constexpr bool databaseStrand = false;
-
-                        stellar::QueryIDMap<TAlphabet> queryIDMap{queries};
-
-                        stellar::StellarComputeStatistics statistics = stellar::StellarLauncher<TAlphabet>::search_and_verify
+                        
+                        dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<alphabet_t>::search_and_verify
                         (
-                            databaseSegment,
+                            matcher,
+                            database_segment,
                             databaseID,
-                            queryIDMap,
+                            query_dict,
                             databaseStrand,
                             threadOptions,
-                            swiftPattern,
                             stellarThreadTime.reverse_strand_stellar_time.prefiltered_stellar_time,
-                            reverseMatches
+                            reverse_matches // out-parameter
                         );
 
                         thread_meta.text_out << std::endl; // swift filter output is on same line
-                        stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID,
-                                                                            statistics, thread_meta.text_out);
+                        dream_stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID,
+                                                                                  statistics, thread_meta.text_out);
 
                         stellarThreadTime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
                         {
                             // reverseMatches is an in-out parameter
                             // this is the match consolidation
-                            stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
-                                                                    reverseMatches, disabledQueryIDs);
+                            dream_stellar::_postprocessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                                                                    reverse_matches, disabledQueryIDs);
                         }); // measure_time
 
                         // open output files
@@ -358,13 +390,14 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         stellarThreadTime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
                         {
                             // output reverseMatches on negative database strand
-                            stellar::_writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, "gff", outputFile);
+                            dream_stellar::_writeAllQueryMatchesToFile(reverse_matches, query_ids, databaseStrand, "gff", outputFile);
                         }); // measure_time
 
-                        outputStatistics.mergeIn(stellar::_computeOutputStatistics(reverseMatches));
+                        outputStatistics.mergeIn(dream_stellar::_computeOutputStatistics(reverse_matches));
                     }); // measure_time
                 }
 
+                /*!TODO: seqan3 disabled query output 
                 // Writes disabled query sequences to disabledFile.
                 if (disabledQueriesFile.is_open())
                 {
@@ -374,14 +407,15 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         stellar::_writeDisabledQueriesToFastaFile(disabledQueryIDs, queryIDs, queries, disabledQueriesFile);
                     }); // measure_time
                 }
+                */
 
-                stellar::_writeOutputStatistics(outputStatistics, threadOptions.verbose, disabledQueriesFile.is_open(), thread_meta.text_out);
+                dream_stellar::_writeOutputStatistics(outputStatistics, threadOptions.verbose, disabledQueriesFile.is_open(), thread_meta.text_out);
 
                 thread_meta.time_statistics.emplace_back(stellarThreadTime.milliseconds() / 1000);
                 if (arguments.write_time)
                 {
                     stellarThreadTime.manual_timing(current_time);
-                    stellar::_print_stellar_app_time(stellarThreadTime, thread_meta.text_out);
+                    dream_stellar::_print_stellar_app_time(stellarThreadTime, thread_meta.text_out);
                 }
                     
             }
@@ -392,18 +426,19 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     // producer threads are created here
     if constexpr (stellar_only)
     {
-        iterate_all_queries(ref_meta.seg_count, arguments, queue);
+        iterate_all_queries<alphabet_t>(ref_meta.seg_count, arguments, queue);
     }
     else
     {
+        using ibf_t = decltype(index.ibf());
         raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
         if constexpr (is_split)
         {
-            iterate_split_queries(arguments, index.ibf(), thresholder, queue, query_meta.value());
+            iterate_split_queries<ibf_t, alphabet_t>(arguments, index.ibf(), thresholder, queue, query_meta.value());
         }
         else
         {
-            iterate_short_queries(arguments, index.ibf(), thresholder, queue);
+            iterate_short_queries<ibf_t, alphabet_t>(arguments, index.ibf(), thresholder, queue);
         }
     }
 

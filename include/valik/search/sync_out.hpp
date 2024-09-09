@@ -27,9 +27,9 @@ public:
     void write_record(t && query_record, size_t const & bin_count)
     {
         std::string fasta_string = ">";
-        fasta_string += query_record.sequence_id;
+        fasta_string += query_record.id();
         fasta_string += '\n';
-        for (auto & n : query_record.sequence)
+        for (auto & n : query_record.sequence())
             fasta_string += seqan3::to_char(n);
         fasta_string += '\n';
 
