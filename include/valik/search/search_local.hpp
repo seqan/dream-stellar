@@ -252,11 +252,6 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 dream_stellar::query_id_map<alphabet_t> query_dict{records};
                 stellarThreadTime.input_queries_time.manual_timing(cart_input_queries_time);
 
-                /* Debug
-                for (auto & query : queries)
-                    seqan3::debug_stream << "Query sequence\n" << query << '\n';
-                */
-
                 dream_stellar::_writeMoreCalculatedParams(threadOptions, threadOptions.referenceLength, queries, thread_meta.text_out);
 
                 auto swift_index_time = stellarThreadTime.swift_index_construction_time.now();
@@ -283,12 +278,10 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                                                                                              threadOptions.segmentBegin, 
                                                                                              threadOptions.segmentEnd);
 
-                    /* it works :)
-
-                    using TInfixSegment = seqan2::Segment<sequence_reference_t const, seqan2::InfixSegment>;
-                    TInfixSegment seqan2_segment(database, threadOptions.segmentBegin, threadOptions.segmentEnd);
-                    sequence_reference_t host_sequence = host(seqan2_segment);
-                    */
+                    std::cout << "Forward database\n";
+                    for (auto n : database_segment.as_span())
+                        std::cout << seqan3::to_char(n._symbol);
+                    std::cout << '\n';
 
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                     {
@@ -352,6 +345,12 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                     dream_stellar::StellarDatabaseSegment<const alphabet_t> database_segment(reverse_database, 
                                                                             reverse_database.size() - threadOptions.segmentEnd /*begin*/, 
                                                                             reverse_database.size() - threadOptions.segmentBegin /*end*/);
+
+                    std::cout << "Reverse database\n";
+                    for (auto n : database_segment.as_span())
+                        std::cout << seqan3::to_char(n._symbol);
+                    std::cout << '\n';
+
 
                     stellarThreadTime.reverse_complement_database_time.manual_timing(reverse_database_time);
 

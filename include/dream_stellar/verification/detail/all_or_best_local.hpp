@@ -6,6 +6,8 @@
 #include <dream_stellar/stellar_types.hpp>
 #include <dream_stellar/utils/stellar_kernel_runtime.hpp>
 
+#include <utilities/alphabet_wrapper/seqan/segment.hpp>
+
 namespace dream_stellar
 {
 
@@ -24,16 +26,29 @@ _appendNegativeSegment(TAlign const & align,
     while (pos < len) {
         if (isGap(row(align, 0), pos) || isGap(row(align, 1), pos)) {
             score += scoreGap(scoreMatrix);
-        } else if (value(row(align, 0), pos) != value(row(align, 1), pos)) {
+        } 
+        else{
+        std::cerr << "pos\t" << pos << '\n';
+        std::cerr << "seqan2::length(row(align, 0))\t" << seqan2::length(row(align, 0)) << '\n';
+        std::cerr << "seqan2::length(row(align, 1))\t" << seqan2::length(row(align, 1)) << '\n';
+        
+        assert(seqan2::length(row(align, 0)) > pos);
+        assert(seqan2::length(row(align, 1)) > pos);
+        if (value(scoreMatrix, source(row(align, 0)), pos) != value(scoreMatrix, source(row(align, 1)), pos)) {
             score += scoreMismatch(scoreMatrix);
         } else {
             break;
         }
+        }
+
         ++pos;
     }
     if (pos == len) appendValue(queue, TMerger(beginPos, pos, MinValue<TScoreValue>::VALUE + 1));
     else appendValue(queue, TMerger(beginPos, pos, score));
 }
+
+template <typename T>
+class empty;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Appends a segment of only matching positions from align to queue.
@@ -47,13 +62,51 @@ _appendPositiveSegment(TAlign const & align,
     typedef Triple<TPos, TPos, TScoreValue> TMerger;
     TPos beginPos = pos;
 
+    //!TODO: remove debugging
+    //std::cout << seqan3::to_char(value(row(align, 0), pos));
+    //std::cout << seqan3::to_char(value(row(align, 1), pos));
+
+    // type of row(align, 0)
+    // const seqan2::Gaps<seqan2::Segment<seqan2::Segment<const std::span<const seqan2::alphabet_adaptor<seqan3::dna4> >, seqan2::InfixSegment>, seqan2::InfixSegment>, seqan2::Tag<seqan2::ArrayGaps_> >&
+    
+    // type of value(row(align, 0), 0)
+    // seqan2::Proxy<seqan2::IteratorProxy<seqan2::Iter<const seqan2::Gaps<TNestedSegment>, seqan2::Tag<seqan2::ArrayGaps_> >, seqan2::GapsIterator<seqan2::Tag<seqan2::ArrayGaps_> > > > > 
+
+    // type of row(align, 0)._source
+    // seqan2::Holder<seqan2::Segment<seqan2::Segment<const std::span<const seqan2::alphabet_adaptor<seqan3::dna4> >, seqan2::InfixSegment>, seqan2::InfixSegment>, seqan2::Tag<seqan2::Tristate_> > 
+    
+    // type of row(align, 0)._source.data_value
+    // seqan2::Segment<seqan2::Segment<const std::span<const seqan2::alphabet_adaptor<seqan3::dna4> >, seqan2::InfixSegment>, seqan2::InfixSegment>*
+    
+    // type of value(row(align, 0)._source.data_value, pos)
+    // seqan2::Segment<seqan2::Segment<const std::span<const seqan2::alphabet_adaptor<seqan3::dna4> >, seqan2::InfixSegment>, seqan2::InfixSegment>&
+    
+    // type of source(row(align, 0))
+    // seqan2::Segment<seqan2::Segment<const std::span<const seqan2::alphabet_adaptor<seqan3::dna4> >, seqan2::InfixSegment>, seqan2::InfixSegment>&
+    
+    // type of value(source(row(align, 0)), pos)
+    // const std::span<const seqan2::alphabet_adaptor<seqan3::dna4> >&
+
+    //empty<decltype(value(scoreMatrix, source(row(align, 0)), pos))> E{};
+    //if (value(source(row(align, 0)), pos) == value(source(row(align, 1)), pos))
+    //    std::cout << "issame\n";
+
     TScoreValue score = 0;
     while ((pos < len) &&
            (!isGap(row(align, 0), pos) &&
             !isGap(row(align, 1), pos) &&
-            (value(row(align, 0), pos) == value(row(align, 1), pos)))) {
+            (value(scoreMatrix, source(row(align, 0)), pos) == value(scoreMatrix, source(row(align, 1)), pos)))) {
         score += scoreMatch(scoreMatrix);
         ++pos;
+        if (pos < len)
+        {
+        std::cerr << "pos2\t" << pos << '\n';
+        std::cerr << "seqan2::length(row(align, 0))\t" << seqan2::length(row(align, 0)) << '\n';
+        std::cerr << "seqan2::length(row(align, 1))\t" << seqan2::length(row(align, 1)) << '\n';
+            
+        assert(seqan2::length(row(align, 0)) > pos);
+        assert(seqan2::length(row(align, 1)) > pos);
+        }
     }
     appendValue(queue, TMerger(beginPos, pos, score));
 }
@@ -127,6 +180,7 @@ _splitAtXDrops(TAlign const & align,
                     toViewPosition(row(align, 1), beginPosition(row(align, 1))));
     appendValue(queue, TMerger(pos, pos, MinValue<TScoreValue1>::VALUE + 1));
 
+    //!TODO: limit aliLength do not go out of range over the underlying sequence
     TPos aliLength = _max(toViewPosition(row(align, 0), endPosition(row(align, 0))),
                           toViewPosition(row(align, 1), endPosition(row(align, 1))));
     TPos len;
@@ -247,9 +301,6 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
         if (!has_next)
             break;
 
-    // while (localAlignment(localAlign, finder, scoreMatrix, minScore, lowerDiag, upperDiag, BandedWatermanEggert())) {
-
-        // std::cerr << "localAlign == \n" << localAlign << "\n";
 
         // split local alignments containing an X-drop
         String<Align<TSegment> > seedAlignments;
@@ -257,8 +308,9 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
         {
             _splitAtXDrops(localAlign, scoreMatrix, scoreDropOff, minScore, seedAlignments);
         });
-
+        /*
         typename Iterator<String<Align<TSegment> > >::Type aliIt = begin(seedAlignments);
+
         while (aliIt != end(seedAlignments)) {
             // std::cerr << "aliIt == \n" << row(*aliIt, 0) << "\n" << row(*aliIt, 1) << "\n";
             // create alignment object for the complete sequences
@@ -292,6 +344,7 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
 
             ++aliIt;
         }
+        */
         if (bestLocalMethod) break;
     }
 }

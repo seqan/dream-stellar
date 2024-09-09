@@ -25,6 +25,7 @@ struct SwiftHitVerifier
     {
         static_assert(std::is_unsigned<TDelta>::value, "TDelta must be unsigned integral.");
         
+        /* try to convert std::span back to String
         using TSegment = Segment<Segment<const std::span<TAlphabet const>, InfixSegment>, InfixSegment>; 
         TSegment finderSegment = databaseSegment.asFinderSegment();
         TSegment patternSegment = querySegment.asPatternSegment();
@@ -41,10 +42,22 @@ struct SwiftHitVerifier
             appendValue(host_infV, n);
         Segment<const TString, InfixSegment> infV_seg{host_infV, 0, length(host_infV)};
         Segment<Segment<const TString, InfixSegment>, InfixSegment> infV(infV_seg, seqan2::beginPosition(patternSegment), seqan2::endPosition(patternSegment));
+        */
 
+        /*
+        std::cout << "Swift hit verifier\n";
+        for (auto n : databaseSegment.as_span())
+            std::cout << seqan3::to_char(n._symbol);
+        std::cout << '\n';
+
+        for (auto n : querySegment.as_span())
+            std::cout << seqan3::to_char(n._symbol);
+        std::cout << '\n';
+        */
+       
         verifySwiftHit(
-            infH,
-            infV,
+            databaseSegment.asFinderSegment(),
+            querySegment.asPatternSegment(),
             (double)eps_match_options.epsilon,
             eps_match_options.minLength,
             verifier_options.xDrop,
