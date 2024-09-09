@@ -113,7 +113,7 @@ _getCigarLine(TRow const & row0, TRow const & row1, TString & cigar, TString & m
             if (value(row0, pos) != value(row1, pos)) {
                 if (first) first = false;
                 else mutations << ",";
-                mutations << readPos << value(source(row1), readBasePos);
+                mutations << readPos << seqan3::to_char(source(row1)[readBasePos]);
             }
             ++readBasePos;
             ++pos;
@@ -130,7 +130,7 @@ _getCigarLine(TRow const & row0, TRow const & row1, TString & cigar, TString & m
             ++readPos;
             if (first) first = false;
             else mutations << ",";
-            mutations << readPos << value(source(row1), readBasePos);
+            mutations << readPos << seqan3::to_char(source(row1)[readBasePos]);
             ++readBasePos;
             ++inserted;
         }
@@ -210,21 +210,19 @@ _computeEValue(TSize const score, TSize const len0, TSize const len1) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Writes rows of a StellarMatch in gff format to a file.
-template<typename TId, typename TSize, typename TRow, typename TFile>
+template<typename TId, typename TRow, typename TFile>
 void
-_writeMatchGff(TId const & databaseID,
+_writeMatchGff(std::string const & databaseID,
               TId const & patternID,
               bool const databaseStrand,
-              TSize const lengthAdjustment,
               TRow const & row0,
               TRow const & row1,
               TFile & file) {
 //IOREV _recordreading_ unclear how this is related to GFF support from store_io
     typedef typename Value<typename Source<TRow>::Type>::Type TAlphabet;
 
-    for (typename Position<TId>::Type i = 0; i < length(databaseID) && value(databaseID, i) > 32; ++i) {
-        file << value(databaseID, i);
-    }
+    auto id_first_token = databaseID.substr(0, databaseID.find(' '));
+    file << id_first_token;
 
     file << "\tStellar";
     file << "\teps-matches";
@@ -251,9 +249,6 @@ _writeMatchGff(TId const & databaseID,
     file << ";seq2Range=" << beginPosition(row1) + beginPosition(source(row1)) + 1;
     file << "," << endPosition(row1) + beginPosition(source(row1));
 
-    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
-        file << ";eValue=" << _computeEValue(row0, row1, lengthAdjustment);
-
     std::stringstream cigar, mutations;
     _getCigarLine(row0, row1, cigar, mutations);
     file << ";cigar=" << cigar.str();
@@ -263,12 +258,11 @@ _writeMatchGff(TId const & databaseID,
 
 ///////////////////////////////////////////////////////////////////////////////
 // Writes rows of a StellarMatch in human readable format to file.
-template<typename TId, typename TSize, typename TRow, typename TFile>
+template<typename TId, typename TRow, typename TFile>
 void
-_writeMatch(TId const & databaseID,
+_writeMatch(std::string const & databaseID,
             TId const & patternID,
             bool const databaseStrand,
-            TSize const lengthAdjustment,
             TRow const & row0,
             TRow const & row1,
             TFile & file) {
@@ -300,12 +294,6 @@ _writeMatch(TId const & databaseID,
     file << ".." << endPosition(row1) + beginPosition(source(row1));
     file << std::endl;
 
-    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
-    {
-        // write e-value
-        file << "E-value: " << _computeEValue(row0, row1, lengthAdjustment) << std::endl;
-    }
-
     file << std::endl;
 
     // write match
@@ -324,8 +312,7 @@ void _writeMatchesToGffFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > 
         if (match.orientation != orientation)
             continue;
 
-        _writeMatchGff(match.id, id, match.orientation, queryMatches.lengthAdjustment,
-                       match.row1, match.row2, outputFile);
+        _writeMatchGff(match.id, id, match.orientation, match.row1, match.row2, outputFile);
     }
 }
 
@@ -337,8 +324,7 @@ void _writeMatchesToTxtFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > 
         if (match.orientation != orientation)
             continue;
 
-        _writeMatch(match.id, id, match.orientation, queryMatches.lengthAdjustment,
-                    match.row1, match.row2, outputFile);
+        _writeMatch(match.id, id, match.orientation, match.row1, match.row2, outputFile);
     }
 }
 
@@ -359,24 +345,24 @@ void _writeQueryMatchesToFile(QueryMatches<StellarMatch<TInfix const, TQueryId> 
 // Calls _writeMatchGff for each match in StringSet of String of matches.
 //   = Writes matches in gff format to a file.
 template <typename TInfix, typename TQueryId, typename TQueryIDs>
-void _writeAllQueryMatchesToFile(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches,
+void _writeAllQueryMatchesToFile(std::vector<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches,
                                  TQueryIDs const & queryIDs, bool const orientation,
                                  CharString const & outputFormat, std::ofstream & outputFile)
 {
-    for (size_t i = 0; i < length(matches); i++) {
-        QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
+    for (size_t i = 0; i < matches.size(); i++) {
+        QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = matches[i];
 
         _writeQueryMatchesToFile(queryMatches, queryIDs[i], orientation, outputFormat, outputFile);
     }
 }
 
 template <typename TInfix, typename TQueryId>
-StellarOutputStatistics _computeOutputStatistics(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches)
+StellarOutputStatistics _computeOutputStatistics(std::vector<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches)
 {
     StellarOutputStatistics statistics{};
 
     for (QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches : matches) {
-        statistics.numMatches += length(queryMatches.matches);
+        statistics.numMatches += queryMatches.matches.size();
 
         if (queryMatches.disabled)
             ++statistics.numDisabled;
@@ -405,22 +391,6 @@ void _writeDisabledQueriesToFastaFile(std::vector<size_t> const & disabledQueryI
 
     for (size_t queryID : disabledQueryIDs)
         _appendDisabledQueryToFastaFile(ids[queryID], queries[queryID], disabledQueriesFile);
-}
-
-template <typename TInfix, typename TQueryId>
-void _postproccessLengthAdjustment(uint64_t const & refLen, StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > & matches)
-{
-    using TAlphabet = typename Value<TInfix>::Type;
-
-    constexpr bool is_dna5_or_rna5 = IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE;
-    if constexpr (is_dna5_or_rna5) {
-        for (QueryMatches<StellarMatch<TInfix const, TQueryId>> & queryMatches : matches) {
-            for (StellarMatch<TInfix const, TQueryId> & firstMatch : queryMatches.matches) {
-                queryMatches.lengthAdjustment = _computeLengthAdjustment<uint64_t>(refLen, length(source(firstMatch.row2)));
-                break;
-            }
-        }
-    }
 }
 
 } // namespace dream_stellar

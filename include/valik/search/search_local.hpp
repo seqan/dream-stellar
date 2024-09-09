@@ -229,9 +229,6 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
 
                 thread_meta.output_files.push_back(cart_queries_path.string() + ".gff");
 
-                //!TODO: remove dummy file
-                std::ofstream output(cart_queries_path.string() + ".gff");
-
                 dream_stellar::stellar_app_runtime stellarThreadTime{};
                 auto current_time = stellarThreadTime.now();
                 dream_stellar::StellarOptions threadOptions = make_thread_options(arguments, ref_meta, cart_queries_path, refLen, bin_id);
@@ -303,16 +300,15 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                             forward_matches // out-parameter
                         );
 
-                        /*
                         thread_meta.text_out << std::endl; // swift filter output is on same line
-                        stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID, statistics, thread_meta.text_out);
+                        dream_stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID, statistics, thread_meta.text_out);
 
                         stellarThreadTime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
                         {
                             // forwardMatches is an in-out parameter
                             // this is the match consolidation
-                            dream_stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
-                                                                    forwardMatches, disabledQueryIDs);
+                            dream_stellar::_postprocessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                                                                    forward_matches, disabledQueryIDs);
                         }); // measure_time
 
                         // open output files
@@ -325,11 +321,10 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         stellarThreadTime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
                         {
                             // output forwardMatches on positive database strand
-                            stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, "gff", outputFile);
+                            dream_stellar::_writeAllQueryMatchesToFile(forward_matches, query_ids, databaseStrand, "gff", outputFile);
                         }); // measure_time
 
-                        outputStatistics = stellar::_computeOutputStatistics(forwardMatches);
-                        */
+                        outputStatistics = dream_stellar::_computeOutputStatistics(forward_matches);
                     }); // measure_time
 
                 }
@@ -373,17 +368,16 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                             reverse_matches // out-parameter
                         );
 
-                        /*
                         thread_meta.text_out << std::endl; // swift filter output is on same line
-                        stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID,
-                                                                            statistics, thread_meta.text_out);
+                        dream_stellar::_printDatabaseIdAndStellarKernelStatistics(threadOptions.verbose, databaseStrand, databaseID,
+                                                                                  statistics, thread_meta.text_out);
 
                         stellarThreadTime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
                         {
                             // reverseMatches is an in-out parameter
                             // this is the match consolidation
-                            dream_stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
-                                                                    reverseMatches, disabledQueryIDs);
+                            dream_stellar::_postprocessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                                                                    reverse_matches, disabledQueryIDs);
                         }); // measure_time
 
                         // open output files
@@ -396,11 +390,10 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         stellarThreadTime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
                         {
                             // output reverseMatches on negative database strand
-                            stellar::_writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, "gff", outputFile);
+                            dream_stellar::_writeAllQueryMatchesToFile(reverse_matches, query_ids, databaseStrand, "gff", outputFile);
                         }); // measure_time
 
-                        outputStatistics.mergeIn(stellar::_computeOutputStatistics(reverseMatches));
-                        */
+                        outputStatistics.mergeIn(dream_stellar::_computeOutputStatistics(reverse_matches));
                     }); // measure_time
                 }
 

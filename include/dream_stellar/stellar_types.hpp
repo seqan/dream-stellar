@@ -121,15 +121,22 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 // Container for storing a local alignment match
-template<typename TSequence_, typename TId_>
+template<typename TSequence_ = std::span<seqan2::alphabet_adaptor<seqan3::dna4 const> const>, typename TId_ = std::string>
 struct StellarMatch {
     static_assert(std::is_const<TSequence_>::value, "Sequence must be const qualified! I.e. StellarMatch<... const, ...>");
     typedef TSequence_                          TSequence;
     typedef TId_                                TId;
-    typedef typename TSequence::size_type  TPos;
-
+    
     //!TODO: can std::span<alphabet_t> be aligned
-    typedef Align<TSequence, ArrayGaps>         TAlign;
+    /*
+    if (std::same_as<TSequence_, std::span<seqan2::alphabet_adaptor<seqan3::dna4 const> const>>::value)
+        typedef typename TSequence::size_type  TPos;
+    else
+        typedef typename Position<TSequence>::Type  TPos;
+    */
+    typedef size_t TPos;
+
+    typedef Align<seqan2::String<seqan2::alphabet_adaptor<seqan3::dna4>>, ArrayGaps>         TAlign;
     typedef typename Row<TAlign>::Type         TRow;
     static const TId INVALID_ID;
 
@@ -174,9 +181,8 @@ struct QueryMatches {
 
     std::vector<TMatch_> matches;
     bool disabled;
-    TSize lengthAdjustment;
 
-    QueryMatches() : disabled(false), lengthAdjustment(0)
+    QueryMatches() : disabled(false)
     {}
  
     inline bool removeOverlapsAndCompactMatches(size_t const minLength,
@@ -214,6 +220,39 @@ struct QueryMatches {
                              TSize1 const numMatches) {
 
         matches.emplace_back(match);
+
+        // std::cerr << "Inserting match \n-------------\n" << match.row1 <<"\n" << match.row2 << "----------------\n";
+
+        if (removeOverlapsAndCompactMatches(minLength, disableThresh, compactThresh, numMatches))
+        {
+            // raise compact threshold if many matches are kept
+            if ((matches.size() << 1) > compactThresh)
+                compactThresh += (compactThresh >> 1);
+        }
+        return true;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // Appends a match to matches container and removes overlapping matches if threshold is reached.
+    template<typename TId, typename TSize, typename TSize1>
+    inline bool insertMatch(StellarMatch<seqan2::String<seqan2::alphabet_adaptor<seqan3::dna4>> const, TId> const & match,
+                            TSize const minLength,
+                            TSize1 const disableThresh,
+                            TSize1 & compactThresh,
+                            TSize1 const numMatches) {
+
+        StellarMatch<std::span<seqan2::alphabet_adaptor<seqan3::dna4> const> const, std::string> backconverted_match{};
+        backconverted_match.id = match.id;
+        backconverted_match.orientation = match.orientation;
+        backconverted_match.begin1 = match.begin1;
+        backconverted_match.end1 = match.end1;
+        backconverted_match.row1 = match.row1;
+        
+        backconverted_match.begin2 = match.begin2;
+        backconverted_match.end2 = match.end2;
+        backconverted_match.row2 = match.row2;
+
+        matches.emplace_back(backconverted_match);
 
         // std::cerr << "Inserting match \n-------------\n" << match.row1 <<"\n" << match.row2 << "----------------\n";
 

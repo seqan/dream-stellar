@@ -24,6 +24,14 @@ _appendNegativeSegment(TAlign const & align,
 
     TScoreValue score = 0;
     while (pos < len) {
+        if (isGap(row(align, 0), pos) || isGap(row(align, 1), pos)) {
+            score += scoreGap(scoreMatrix);
+        } else if (value(scoreMatrix, source(row(align, 0)), pos) != value(scoreMatrix, source(row(align, 1)), pos)) {
+            score += scoreMismatch(scoreMatrix);
+        } else {
+            break;
+        }
+        /*
         if ((seqan2::length(row(align, 0)) <= pos) || (seqan2::length(row(align, 1)) <= pos)){
             break;
         } else if (isGap(row(align, 0), pos) || isGap(row(align, 1), pos)) {
@@ -33,6 +41,7 @@ _appendNegativeSegment(TAlign const & align,
         } else {
             break;
         }
+        */
         ++pos;
     }
     if (pos == len) appendValue(queue, TMerger(beginPos, pos, MinValue<TScoreValue>::VALUE + 1));
@@ -55,8 +64,17 @@ _appendPositiveSegment(TAlign const & align,
     TPos beginPos = pos;
 
     TScoreValue score = 0;
+    /*
+        while ((pos < len) &&
+           ((seqan2::length(row(align, 0)) > pos) && (seqan2::length(row(align, 1)) > pos)) &&
+           (!isGap(row(align, 0), pos) &&
+            !isGap(row(align, 1), pos) &&
+            (value(scoreMatrix, source(row(align, 0)), pos) == value(scoreMatrix, source(row(align, 1)), pos)))) {
+        score += scoreMatch(scoreMatrix);
+        ++pos;
+    }
+    */
     while ((pos < len) &&
-           ((seqan2::length(row(align, 0)) <= pos) && (seqan2::length(row(align, 1)) <= pos)) &&
            (!isGap(row(align, 0), pos) &&
             !isGap(row(align, 1), pos) &&
             (value(scoreMatrix, source(row(align, 0)), pos) == value(scoreMatrix, source(row(align, 1)), pos)))) {
@@ -200,7 +218,8 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
                std::integral_constant<bool, bestLocalMethod>) {
     using TInfix = Segment<TSequence const, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;
-    typedef typename StellarMatch<TSequence const, seqan2::CharString>::TAlign TAlign;
+    using TSequenceCopy = String<seqan2::alphabet_adaptor<seqan3::dna4>>;
+    typedef typename StellarMatch<TSequenceCopy const, seqan2::CharString>::TAlign TAlign;
 
     TSize maxLength = 1000000000;
     if ((TSize)length(infH) > maxLength) {
@@ -271,8 +290,23 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
             // create alignment object for the complete sequences
             TAlign align;
             resize(rows(align), 2);
-            setSource(row(align, 0), host(host(infH)));
-            setSource(row(align, 1), host(host(infV)));
+
+            //!DEBUG: make copies of underlying sequence
+            String<seqan2::alphabet_adaptor<seqan3::dna4>> infHStr;
+            resize(infHStr, host(host(infH)).size());
+            for (size_t i{0}; i < host(host(infH)).size(); i++)
+            {
+                insert(infHStr, i, host(host(infH))[i]);
+            }
+            String<seqan2::alphabet_adaptor<seqan3::dna4>> infVStr;
+            resize(infHStr, host(host(infV)).size());
+            for (size_t i{0}; i < host(host(infV)).size(); i++)
+            {
+                insert(infVStr, i, host(host(infV))[i]);
+            }            
+
+            setSource(row(align, 0), infHStr);
+            setSource(row(align, 1), infVStr);
 
             // determine extension direction
             ExtensionDirection direction;

@@ -8,16 +8,19 @@ namespace dream_stellar
 {
 
 template <typename TAlphabet, typename TId>
-void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLen,
+void _postprocessQueryMatches(bool const databaseStrand, uint64_t const & refLen,
                                StellarOptions const & options,
-                               StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
+                               std::vector<QueryMatches<StellarMatch<std::span<TAlphabet const> const, TId> > > & matches,
                                std::vector<size_t> & disabledQueryIDs)
 {
-    using TSequence = String<TAlphabet>;
+    using TSequence = std::span<TAlphabet const>;
 
-    for (size_t queryID = 0; queryID < length(matches); ++queryID)
+    for (size_t queryID = 0; queryID < matches.size(); ++queryID)
     {
-        QueryMatches<StellarMatch<TSequence const, TId>> & queryMatches = value(matches, queryID);
+        if (matches.size() <= queryID)
+            throw std::runtime_error("Query ID=" + std::to_string(queryID) + " out of range [0;" + std::to_string(matches.size() - 1) + "]");
+
+        QueryMatches<StellarMatch<TSequence const, TId>> & queryMatches = matches[queryID];
 
         queryMatches.removeOverlapsAndCompactMatches(options.disableThresh,
                                                      /*compactThresh*/ 0,
@@ -27,11 +30,6 @@ void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLe
         if (queryMatches.disabled)
             disabledQueryIDs.push_back(queryID);
     }
-
-    // adjust length for each matches of a single query (only for dna5 and rna5)
-    // TODO: WHY? This seems like an arbitrary restriction
-    if (databaseStrand || IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
-        _postproccessLengthAdjustment(refLen, matches);
 }
 
 template <typename alphabet_t, typename sequence_reference_t = std::span<const alphabet_t>, typename id_t = std::string>
@@ -78,7 +76,7 @@ struct StellarLauncher
 
         auto onAlignmentResult = [&](auto & alignment) -> bool {
             QueryMatches<StellarMatch<sequence_reference_t const, id_t> > & queryMatches = getQueryMatches(matcher);
-            StellarMatch<sequence_reference_t const, id_t> match(alignment, databaseID, databaseStrand);
+            StellarMatch<seqan2::String<seqan2::alphabet_adaptor<seqan3::dna4>> const, id_t> match(alignment, databaseID, databaseStrand);
             length(match);  // DEBUG: Contains assertion on clipping.
 
             // success
