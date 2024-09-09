@@ -10,14 +10,7 @@ TAlphabet value(seqan2::Segment<seqan2::Segment<std::span<TAlphabet const> const
                 TPos pos)
 {
     assert(pos >= 0);
-    auto const & host_span = *me.data_host.data_host; 
-    if (pos + seqan2::beginPosition(me) >= host_span.size())
-    {
-        std::cerr << "pos\t" << pos << '\n';
-        std::cerr << "seqan2::beginPosition(me)" << seqan2::beginPosition(me) << '\n';
-        std::cerr << "host_span.size()\t" << host_span.size() << '\n';
-    }
-
+    auto const & host_span = *me.data_host.data_host;
     assert(me.data_host.data_host);
     assert(pos + seqan2::beginPosition(me) < host_span.size());
     return host_span[seqan2::beginPosition(me) + pos];
@@ -30,15 +23,7 @@ TAlphabet value(TScore const & /* Score matrix to avoid ambiguity in overloading
 {
     assert(pos >= 0);
     auto const & host_span = *me.data_host.data_host;
-    if (pos + seqan2::beginPosition(me) >= host_span.size())
-    {
-        std::cerr << "pos\t" << pos << '\n';
-        std::cerr << "seqan2::beginPosition(me)" << seqan2::beginPosition(me) << '\n';
-        std::cerr << "host_span.size()\t" << host_span.size() << '\n';
-    }
-    
     assert(me.data_host.data_host);
-    //!TODO: it seems that the span goes out of scope at some point
     assert(pos + seqan2::beginPosition(me) < host_span.size());
     return host_span[seqan2::beginPosition(me) + pos];
 }
