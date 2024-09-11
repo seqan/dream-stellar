@@ -266,13 +266,10 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         seqan2::resize(forwardMatches, length(queries));
 
                         constexpr bool databaseStrand = true;
-                        auto queryIDMap = dream_stellar::QueryIDMap<TAlphabet>(queries);
-
                         dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<TAlphabet>::search_and_verify
                         (
                             databaseSegment,
                             databaseID,
-                            queryIDMap,
                             databaseStrand,
                             threadOptions,
                             swiftPattern,
@@ -328,14 +325,10 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         seqan2::resize(reverseMatches, length(queries));
 
                         constexpr bool databaseStrand = false;
-
-                        dream_stellar::QueryIDMap<TAlphabet> queryIDMap{queries};
-
                         dream_stellar::StellarComputeStatistics statistics = dream_stellar::StellarLauncher<TAlphabet>::search_and_verify
                         (
                             databaseSegment,
                             databaseID,
-                            queryIDMap,
                             databaseStrand,
                             threadOptions,
                             swiftPattern,

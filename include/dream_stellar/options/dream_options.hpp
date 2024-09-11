@@ -2,6 +2,7 @@
 
 #include <set>
 #include <cstdint>
+#include <cstddef>
 #include <vector>
 
 namespace dream_stellar
