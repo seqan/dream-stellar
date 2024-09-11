@@ -217,7 +217,7 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
     TEpsilon e = floor(eps*minLength);
     TSize minLength1 = _max(0, (TSize)ceil((e+1) / eps));
     TEpsilon e1 = floor(eps*minLength1);
-    TSize minScore = _min((TSize)ceil((minLength-e) / (e+1)), (TSize)ceil((minLength1-e1) / (e1+1)));
+    TScore minScore = _min((TSize)ceil((minLength-e) / (e+1)), (TSize)ceil((minLength1-e1) / (e1+1)));
 
     // diagonals for banded local alignment
     int64_t upperDiag = 0;

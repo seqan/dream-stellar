@@ -53,7 +53,6 @@ struct StellarLauncher
     search_and_verify(
         StellarDatabaseSegment<TAlphabet> const databaseSegment,
         TId const & databaseID,
-        QueryIDMap<TAlphabet> const & queryIDMap,
         bool const databaseStrand,
         StellarOptions & localOptions, // localOptions.compactThresh is out-param
         StellarSwiftPattern<TAlphabet> & localSwiftPattern,
@@ -99,7 +98,7 @@ struct StellarLauncher
 
         StellarComputeStatistics statistics = _verificationMethodVisit(
             localOptions.verificationMethod,
-            [&]<typename TTag>(TTag tag) -> StellarComputeStatistics
+            [&]<typename TTag>(TTag) -> StellarComputeStatistics
             {
                 SwiftHitVerifier<TTag> swiftVerifier
                 {
