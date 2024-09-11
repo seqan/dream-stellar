@@ -172,9 +172,9 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
     parser.add_option(arguments.strVerificationMethod,
                     sharg::config{.short_id = '\0',
                     .long_id = "verification",
-                    .description = "STELLAR: Verification strategy: exact or bestLocal or bandedGlobal.",
+                    .description = "STELLAR: Verification strategy: exact or bestLocal.",
                     .advanced = true,
-                    .validator = sharg::value_list_validator{"exact", "bestLocal", "bandedGlobal", "bandedGlobalExtend"}});
+                    .validator = sharg::value_list_validator{"exact", "bestLocal"}});
     parser.add_option(arguments.numMatches,
                     sharg::config{.short_id = '\0',
                     .long_id = "numMatches",
