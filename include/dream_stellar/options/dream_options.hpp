@@ -1,6 +1,8 @@
 #pragma once
 
 #include <set>
+#include <cstdint>
+#include <vector>
 
 namespace dream_stellar
 {

@@ -2,6 +2,7 @@
 #pragma once
 
 #include <limits>
+#include <cstddef>
 
 namespace dream_stellar
 {
