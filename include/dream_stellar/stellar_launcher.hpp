@@ -46,10 +46,6 @@ struct StellarLauncher
             return visitor_fn(AllLocal());
         else if (verificationMethod == StellarVerificationMethod{BestLocal{}})
             return visitor_fn(BestLocal());
-        else if (verificationMethod == StellarVerificationMethod{BandedGlobal{}})
-            return visitor_fn(BandedGlobal());
-        else if (verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
-            return visitor_fn(BandedGlobalExtend());
         return StellarComputeStatistics{};
     }
 

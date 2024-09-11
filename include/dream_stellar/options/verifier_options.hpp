@@ -13,19 +13,11 @@ using AllLocal = seqan2::Tag<VerifyAllLocal_> const;
 struct VerifyBestLocal_;
 using BestLocal = seqan2::Tag<VerifyBestLocal_> const;
 
-struct VerifyBandedGlobal_;
-using BandedGlobal = seqan2::Tag<VerifyBandedGlobal_> const;
-
-struct VerifyBandedGlobalExtend_;
-using BandedGlobalExtend = seqan2::Tag<VerifyBandedGlobalExtend_> const;
-
-// basically a std::variant<AllLocal, BestLocal, BandedGlobal, BandedGlobalExtend>
+// basically a std::variant<AllLocal, BestLocal>
 struct StellarVerificationMethod
 {
     StellarVerificationMethod(AllLocal) : _index{0} {}
     StellarVerificationMethod(BestLocal) : _index{1} {}
-    StellarVerificationMethod(BandedGlobal) : _index{2} {}
-    StellarVerificationMethod(BandedGlobalExtend) : _index{3} {}
 
     constexpr std::size_t index() const noexcept
     {
@@ -42,7 +34,7 @@ struct StellarVerificationMethod
     friend inline std::string to_string(StellarVerificationMethod method)
     {
         using cstring_t = char const * const;
-        cstring_t method_names[] = {"exact", "bestLocal", "bandedGlobal", "bandedGlobalExtend"};
+        cstring_t method_names[] = {"exact", "bestLocal"};
         return method_names[method.index()];
     }
 
@@ -54,7 +46,7 @@ struct VerifierOptions
 {
     double xDrop{5}; // maximal x-drop
 
-    // verification strategy: exact, bestLocal, bandedGlobal
+    // verification strategy: exact, bestLocal
     std::string strVerificationMethod{"exact"};
     StellarVerificationMethod verificationMethod{AllLocal{}};
 };
