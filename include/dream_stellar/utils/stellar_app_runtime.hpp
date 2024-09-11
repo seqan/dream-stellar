@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <ostream>
+
 #include <dream_stellar/utils/stellar_kernel_runtime.hpp>
 #include <dream_stellar/utils/stellar_runtime.hpp>
 
