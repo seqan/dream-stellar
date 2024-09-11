@@ -180,7 +180,7 @@ void iterate_split_queries(search_arguments const & arguments,
         for (auto const & seg : meta.segments_from_ind(seqCount))
         {
             // each split query record contains a copy of the same shared pointer
-            query_records.emplace_back(seqan2::toCString(std::move(id)), seg, query_ptr);
+            query_records.emplace_back(seqan2::toCString(id), seg, query_ptr);
 
             if (query_records.size() > chunk_size)
             {
