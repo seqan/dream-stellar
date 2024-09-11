@@ -3,8 +3,8 @@
 #include <valik/search/producer_threads_parallel.hpp>
 #include <valik/search/search_time_statistics.hpp>
 
-#include <stellar/utils/stellar_app_runtime.hpp>
-#include <stellar/io/import_sequence.hpp>
+#include <dream_stellar/utils/stellar_app_runtime.hpp>
+#include <dream_stellar/io/import_sequence.hpp>
 
 #include <seqan/seq_io.h>
 
@@ -69,7 +69,7 @@ void iterate_all_queries(size_t const ref_seg_count,
         TSequence seq{};
         TId id{};
         readRecord(id, seq, inSeqs);
-        idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
+        idsUnique &= dream_stellar::_checkUniqueId(uniqueIds, id);
 
         query_records.emplace_back(std::move(seq), seqan2::toCString(std::move(id)));
 
@@ -120,7 +120,7 @@ void iterate_short_queries(search_arguments const & arguments,
         TSequence seq{};
         TId id{};
         readRecord(id, seq, inSeqs);
-        idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
+        idsUnique &= dream_stellar::_checkUniqueId(uniqueIds, id);
 
         query_records.emplace_back(std::move(seq), seqan2::toCString(std::move(id)));
 
@@ -173,7 +173,7 @@ void iterate_split_queries(search_arguments const & arguments,
         TSequence seq{};
         TId id{};
         readRecord(id, seq, inSeqs);
-        idsUnique &= stellar::_checkUniqueId(uniqueIds, id);
+        idsUnique &= dream_stellar::_checkUniqueId(uniqueIds, id);
 
         auto query_ptr = std::make_shared<TSequence>(std::move(seq));
 

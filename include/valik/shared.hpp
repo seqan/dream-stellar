@@ -12,7 +12,7 @@
 #include <raptor/threshold/threshold.hpp>
 #include <raptor/threshold/threshold_parameters.hpp>
 
-#include <stellar3.shared.hpp>
+#include <dream_stellar/shared.hpp>
 
 namespace valik
 {
@@ -151,7 +151,7 @@ struct search_profile_arguments
 
 inline search_profile_arguments::~search_profile_arguments() = default;
 
-struct search_arguments final : public minimiser_threshold_arguments, search_profile_arguments, public stellar::StellarOptions
+struct search_arguments final : public minimiser_threshold_arguments, search_profile_arguments, public dream_stellar::StellarOptions
 {
     ~search_arguments() override = default;
     search_arguments() = default;
