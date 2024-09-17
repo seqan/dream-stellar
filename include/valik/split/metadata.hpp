@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 #include <ranges>
+#include <sstream>
 
 #include <cereal/archives/binary.hpp> 
 #include <cereal/types/vector.hpp>
@@ -30,12 +31,9 @@ void trim_fasta_id(id_t & id)
     auto first_valid = id.find_first_not_of(whitespace);
     if (first_valid == std::string::npos)
         throw std::runtime_error{"Sequence name can not be empty."};
-    id.erase(0, first_valid);
 
-    auto last_valid = id.find_last_not_of(whitespace);
-    if (last_valid == std::string::npos)
-        throw std::runtime_error{"Sequence name can not be empty."};
-    id.erase(last_valid + 1);
+    std::istringstream iss(id);
+    iss >> id;
 }
 
 /**
