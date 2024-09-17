@@ -47,6 +47,8 @@
 -->
 [4]: https://codecov.io/gh/eaasna/valik
 
+The FASTA identifiers are trimmed after the first whitespace.
+
 ## Quick run: split and search single reference sequence
 `valik split test/data/split/single_reference.fasta --ref-meta reference_metadata.txt --seg-meta segment_metadata.txt --bins 4`
 
