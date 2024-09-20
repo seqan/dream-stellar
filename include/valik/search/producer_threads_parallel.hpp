@@ -45,8 +45,13 @@ inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data
 
         auto prefilter_cb = [&queue,&arguments,&verbose_out,&ibf](query_t const& record, std::unordered_set<size_t> const& bin_hits)
         {
-            if (arguments.verbose && (bin_hits.size() > std::max((size_t) 4, (size_t) std::round(ibf.bin_count() / 2.0))))
-                verbose_out.write_record(record, bin_hits.size());
+            if (bin_hits.size() > std::max((size_t) 4, (size_t) std::round(ibf.bin_count() / 2.0)))
+            {
+                if (arguments.very_verbose)
+                    verbose_out.write_record(record, bin_hits.size());
+                else if (arguments.verbose)
+                    verbose_out.write_warning(record, bin_hits.size());
+            }
 
             for (size_t const bin : bin_hits)
             {
