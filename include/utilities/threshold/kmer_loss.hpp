@@ -3,6 +3,9 @@
 #include <utilities/threshold/param_set.hpp>
 #include <utilities/threshold/search_pattern.hpp>
 
+#include <cereal/archives/binary.hpp> 
+#include <cereal/types/vector.hpp>
+
 namespace valik
 {
 
@@ -18,16 +21,21 @@ struct kmer_loss
     using table_t = std::vector<row_t>;
     using mat_t = std::vector<table_t>;
     
-    const uint8_t k;
-    const mat_t fn_conf_counts;  // false negative configuration counts
+    uint8_t k;
+    mat_t fn_conf_counts;  // false negative configuration counts
+
+    kmer_loss() noexcept = default;
+    kmer_loss(kmer_loss const &) noexcept = default;
+    kmer_loss & operator=(kmer_loss const &) noexcept = default;
+    kmer_loss & operator=(kmer_loss &&) noexcept = default;
+    ~kmer_loss() noexcept = default;
 
     /**
      * @brief For a maximum error count find the number of error configurations 
      *        that do not retain at least the threshold number of k-mers after mutation.
     */
-    mat_t count_err_conf_below_thresh()
+    mat_t count_err_conf_below_thresh(param_space const & space)
     {
-        auto space = param_space();
         mat_t matrix;
         for (uint8_t t = 1; t <= space.max_thresh; t++)
         {
@@ -61,11 +69,9 @@ struct kmer_loss
         return matrix;
     }
 
-    kmer_loss(uint8_t const kmer_size) : 
+    kmer_loss(uint8_t const kmer_size, param_space const & space) : 
                     k(kmer_size), 
-                    fn_conf_counts(count_err_conf_below_thresh()) { }
-
-    kmer_loss(uint8_t const kmer_size, mat_t const & matrix) : k(kmer_size), fn_conf_counts(matrix) { }
+                    fn_conf_counts(count_err_conf_below_thresh(space)) { }
 
     /**
      * @brief False negative rate for a parameter set.
@@ -80,25 +86,10 @@ struct kmer_loss
         return fn_conf_counts[params.t - 1][pattern.e][pattern.l] / (double) pattern.total_conf_count();
     }
 
-    /**
-     * @brief Stream out flattened 3D matrix of false negative configuration counts.
-    */
-    template <typename str_t>
-    void serialize(str_t & outstr)
+    template<class Archive>
+    void serialize(Archive & archive)
     {
-        outstr << "k=" << std::to_string(k) << '\n'; 
-        size_t t = 1;
-        for (auto threshold_table : fn_conf_counts)
-        {   
-            outstr << "t=" << t << '\n';
-            for (auto error_row : threshold_table)
-            {
-                for (auto cell : error_row)
-                    outstr << cell << '\t';
-                outstr << '\n';
-            }
-            t++;
-        }
+      archive(k, fn_conf_counts);
     }
 };
 

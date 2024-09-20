@@ -31,7 +31,7 @@ inline auto parse_bin_paths(build_arguments const & arguments)
             file += ".";
             file += std::to_string(bin);
             file += ".minimiser";
-            minimiser_files.emplace_back((std::vector<std::string>){file});
+            minimiser_files.emplace_back(1, file.string());
         }
     }
 

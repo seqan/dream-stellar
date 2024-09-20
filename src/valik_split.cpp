@@ -38,9 +38,7 @@ void valik_split(split_arguments & arguments)
         // Parameter deduction
         // ==========================================
         auto space = param_space();
-        std::vector<kmer_loss> attr_vec;
-        if (!read_fn_confs(attr_vec))
-            precalc_fn_confs(attr_vec);
+        fn_confs fn_attr = fn_confs(space);
 
         search_pattern pattern(arguments.errors, arguments.pattern_size);
         if (arguments.verbose)
@@ -50,9 +48,9 @@ void valik_split(split_arguments & arguments)
             std::cout << "max error rate " << arguments.error_rate << '\n';
         }
         
-        auto best_params = get_best_params(pattern, meta, attr_vec, arguments.verbose);
+        auto best_params = get_best_params(pattern, meta, fn_attr, arguments.verbose);
         arguments.kmer_size = best_params.k;
-        kmer_loss attr = attr_vec[arguments.kmer_size - std::get<0>(space.kmer_range)];
+        const kmer_loss & attr = fn_attr.get_kmer_loss(arguments.kmer_size);
 
         search_kmer_profile search_profile = find_thresholds_for_kmer_size(meta, attr, arguments.errors);
         if (arguments.verbose)

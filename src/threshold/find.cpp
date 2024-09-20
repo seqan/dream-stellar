@@ -3,39 +3,31 @@
 namespace valik
 {
 
-//!TODO: determine suitable parameters
-constexpr double FPR_UPPER{0.1};
-constexpr double FNR_UPPER{0.05};
-constexpr uint8_t THRESH_LOWER{4};
-constexpr size_t DIST_GRANULARITY_LOWER{100};
-constexpr size_t PATTERNS_PER_SEGMENT{5000};
-
 /**
  * @brief For a pattern (with min length and max number of errors) find the best k-mer size and threshold for a given reference database.  
 */
 param_set get_best_params(search_pattern const & pattern,
                           metadata const & ref_meta,
-                          std::vector<kmer_loss> const & attribute_vec, 
+                          fn_confs const & fn_attr,
                           bool const verbose) 
 {
-    param_space space;
-    param_set best_params(attribute_vec[0].k, 1, space);
-    auto best_score = score(attribute_vec[0], pattern, best_params, ref_meta, PATTERNS_PER_SEGMENT);
+    param_space space = fn_attr.space;
+    param_set best_params(space.min_k(), 1, space);
+    auto best_score = score(fn_attr.get_kmer_loss(space.min_k()), pattern, best_params, ref_meta, PATTERNS_PER_SEGMENT);
 
     std::vector<std::vector<double>> scores;
     std::vector<std::vector<double>> fn_rates;
     std::vector<std::vector<double>> fp_rates;
-    scores.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
-    fn_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
-    fp_rates.reserve(std::get<1>(space.kmer_range) - std::get<0>(space.kmer_range) + 1);
+    scores.reserve(space.max_k() - space.min_k() + 1);
+    fn_rates.reserve(space.max_k() - space.min_k() + 1);
+    fp_rates.reserve(space.max_k() - space.min_k() + 1);
 
-    for (size_t i{0}; i < attribute_vec.size(); i++)
+    for (uint8_t k{space.min_k()}; k <= space.max_k(); k++)
     {
-        auto attr = attribute_vec[i];
+        const kmer_loss & attr = fn_attr.get_kmer_loss(k); 
         std::vector<double> kmer_scores;
         std::vector<double> kmer_fn;
         std::vector<double> kmer_fp;
-        uint8_t k = attr.k;
         if (k > pattern.l)
             break;
         else
@@ -69,7 +61,7 @@ param_set get_best_params(search_pattern const & pattern,
 
         for (size_t i{0}; i < fn_rates.size(); i++)
         {
-            std::cout << "k=" << std::get<0>(space.kmer_range) + i << '\t';
+            std::cout << "k=" << space.min_k() + i << '\t';
             for (auto & cell : fn_rates[i])
                 std::cout << cell << '\t';
             std::cout << '\n';
@@ -83,7 +75,7 @@ param_set get_best_params(search_pattern const & pattern,
 
         for (size_t i{0}; i < fp_rates.size(); i++)
         {
-            std::cout << "k=" << std::get<0>(space.kmer_range) + i << '\t';
+            std::cout << "k=" << space.min_k() + i << '\t';
             for (auto & cell : fp_rates[i])
                 std::cout << cell << '\t';
             std::cout << '\n';
@@ -99,43 +91,44 @@ param_set get_best_params(search_pattern const & pattern,
  *        Consider different error rates up to max_err.
 */
 search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
-                                                  kmer_loss const attr, 
+                                                  kmer_loss attr, 
                                                   uint8_t const max_errors)
 {
-    param_space space;
+    param_space space{};
     search_kmer_profile kmer_thresh{attr.k, ref_meta.pattern_size};
     for (uint8_t errors{0}; errors <= max_errors && errors <= space.max_errors; errors++)
     {
         search_pattern pattern(errors, ref_meta.pattern_size);
         search_kind search_type{search_kind::LEMMA};
         auto best_params = param_set(attr.k, kmer_lemma_threshold(pattern.l, attr.k, errors), space);
+        auto try_params = best_params;
 
-        if ((best_params.t < THRESH_LOWER) ||  
-        segment_fpr(ref_meta.pattern_spurious_match_prob(best_params), PATTERNS_PER_SEGMENT) > FPR_UPPER)
+        if ((best_params.t < THRESH_LOWER) ||
+            segment_fpr(ref_meta.pattern_spurious_match_prob(best_params), PATTERNS_PER_SEGMENT) > FPR_UPPER)
         {
-            search_type = search_kind::HEURISTIC;
-            double best_score = pattern.l;
-
-            uint8_t t{1};
-            while ((t < space.max_thresh) && (attr.fnr_for_param_set(pattern, best_params) < FNR_UPPER))
+            search_type = search_kind::STELLAR;
+            try_params.t++;
+            while ((try_params.t <= space.max_thresh) && 
+                    (attr.fnr_for_param_set(pattern, try_params) < FNR_UPPER))
             {
-                best_params = param_set(attr.k, t, space);
-                t++;
+                if (segment_fpr(ref_meta.pattern_spurious_match_prob(try_params), PATTERNS_PER_SEGMENT) <= FPR_UPPER)
+                {
+                    best_params = std::move(try_params);
+                    search_type = search_kind::HEURISTIC;
+                }
+                try_params.t++;
             }
         }
         
-        //!TODO: find segment length cutoff
-        uint64_t max_len = ref_meta.max_segment_len(best_params);
-        if ((pattern.l * DIST_GRANULARITY_LOWER) > max_len)
+        if (search_type == search_kind::STELLAR)
         {
-            search_type = search_kind::STELLAR;
             kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type});
         }
         else
         {
             double fnr = attr.fnr_for_param_set(pattern, best_params);
             double fp_per_pattern = ref_meta.pattern_spurious_match_prob(best_params);
-            kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type, fnr, fp_per_pattern, max_len});
+            kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type, fnr, fp_per_pattern});
         }
     }
 

@@ -2,7 +2,7 @@
 
 #include <valik/split/metadata.hpp>
 #include <utilities/threshold/find.hpp>
-#include <utilities/threshold/io.hpp>
+#include <utilities/threshold/fn_confs.hpp>
 
 // Generate the full path of a test input file that is provided in the data directory.
 std::filesystem::path data(std::string const & filename)
@@ -12,14 +12,13 @@ std::filesystem::path data(std::string const & filename)
 
 TEST(best_params, small)
 {
-    std::vector<valik::kmer_loss> attr_vec;
-    if (!valik::read_fn_confs(attr_vec))
-        valik::precalc_fn_confs(attr_vec);
+    valik::param_space space{};
+    valik::fn_confs fn_attr(space);
     
     valik::search_pattern pattern(4 /*e*/, 50 /*l*/);
     valik::metadata ref_meta(data("150overlap4bins.bin"));
 
-    auto best_params = valik::get_best_params(pattern, ref_meta, attr_vec, true /*verbose*/);
+    auto best_params = valik::get_best_params(pattern, ref_meta, fn_confs, true /*verbose*/);
     EXPECT_EQ(best_params.k, 10);
     EXPECT_EQ(best_params.t, 4); 
 }
@@ -27,15 +26,13 @@ TEST(best_params, small)
 
 TEST(find_thresholds, small)
 {
-    std::vector<valik::kmer_loss> attr_vec;
-    if (!valik::read_fn_confs(attr_vec))
-        valik::precalc_fn_confs(attr_vec);
+    valik::param_space space{};
+    valik::fn_confs fn_attr(space);
 
     valik::metadata ref_meta(data("150overlap4bins.bin"));
     
-    auto space = valik::param_space();
     uint8_t kmer_size{11};
-    auto kmer_attr = attr_vec[kmer_size - std::get<0>(space.kmer_range)];
+    auto kmer_attr = fn_confs.get_kmer_loss(kmer_size);
     
     uint8_t max_errors{15};
 

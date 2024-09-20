@@ -10,6 +10,9 @@
 #include <filesystem>
 #include <map>
 
+#include <cereal/archives/binary.hpp> 
+#include <cereal/types/tuple.hpp>
+
 namespace valik
 {
 
@@ -54,9 +57,33 @@ inline size_t kmer_lemma_threshold(size_t const l, uint8_t const k, uint8_t cons
 struct param_space
 {
     constexpr static uint8_t max_errors{15};    
-    constexpr static uint8_t max_thresh{10};
+    uint8_t max_thresh{20};
     constexpr static size_t max_len{150};
     constexpr static std::pair<uint8_t, uint8_t> kmer_range{9, 21};
+
+    param_space() noexcept = default;
+    param_space(param_space const &) noexcept = default;
+    param_space & operator=(param_space const &) noexcept = default;
+    param_space & operator=(param_space &&) noexcept = default;
+    ~param_space() noexcept = default;
+
+    param_space(uint8_t thresh) : max_thresh(thresh) {}
+
+    uint8_t min_k() const
+    {
+        return std::get<0>(kmer_range);
+    }
+
+    uint8_t max_k() const
+    {
+        return std::get<1>(kmer_range);
+    }
+
+    template<class Archive>
+    void serialize(Archive & archive)
+    {
+        archive(max_thresh);
+    }
 };
 
 /**

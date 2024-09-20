@@ -1,6 +1,5 @@
 #pragma once
 
-#include <utilities/threshold/io.hpp>
 #include <utilities/threshold/find.hpp>
 #include <valik/argument_parsing/shared.hpp>
 
