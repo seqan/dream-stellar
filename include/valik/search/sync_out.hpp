@@ -24,6 +24,14 @@ public:
     sync_out(std::filesystem::path const & path) : file{path} {}
 
     template <typename t>
+    void write_warning(t && query_record, size_t const & bin_count)
+    {
+        std::lock_guard<std::mutex> lock(write_mutex);
+        seqan3::debug_stream << "[Warning] Insufficient prefiltering. " << bin_count << " bins match query of length " << query_record.sequence.size() << '\n'; 
+    }
+    // outfile gets unlocked as soon as the current thread exits the write function
+
+    template <typename t>
     void write_record(t && query_record, size_t const & bin_count)
     {
         std::string fasta_string = ">";
@@ -34,7 +42,7 @@ public:
         fasta_string += '\n';
 
         std::lock_guard<std::mutex> lock(write_mutex);
-        seqan3::debug_stream << "[Warning] Insufficient prefiltering. " << bin_count << " bins match query:\n" << fasta_string << "\n"; 
+        seqan3::debug_stream << "[Warning] Insufficient prefiltering. " << bin_count << " bins match query:\n" << fasta_string << '\n';
     }
     // outfile gets unlocked as soon as the current thread exits the write function
 

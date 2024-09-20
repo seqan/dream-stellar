@@ -79,6 +79,11 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       .long_id = "without-parameter-tuning",
                       .description = "Preprocess database without setting default parameters.",
                       .advanced = true});
+    parser.add_flag(arguments.very_verbose,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "very-verbose",
+                    .description = "Print very verbose output.",
+                    .advanced = true});
     parser.add_option(arguments.seg_count_in,
                       sharg::config{.short_id = 'n',
                       .long_id = "seg-count",
