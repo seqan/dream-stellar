@@ -47,12 +47,15 @@ inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data
         {
             if (bin_hits.size() > std::max((size_t) 4, (size_t) std::round(ibf.bin_count() / 2.0)))
             {
-                if (arguments.very_verbose)
-                    verbose_out.write_record(record, bin_hits.size());
+                if (!arguments.keep_repeats)
+                {
+                    verbose_out.write_disabled_record(record, bin_hits.size(), arguments.verbose);
+                    return;
+                }
                 else if (arguments.verbose)
                     verbose_out.write_warning(record, bin_hits.size());
             }
-
+            
             for (size_t const bin : bin_hits)
             {
                 queue.insert(bin, record);
