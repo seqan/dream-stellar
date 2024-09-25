@@ -17,8 +17,8 @@ for exec in "${execs[@]}"; do
 
         # trying to do some guessing here:
         paths=(../../build/bin)
-        paths+=(../../lib/raptor_data_simulation/build/bin)
-        paths+=(../../lib/raptor_data_simulation/build/src/mason2/src/mason2-build/bin)
+        paths+=(../../../raptor_data_simulation/build/bin)
+        paths+=(../../../raptor_data_simulation/build/src/mason2/src/mason2-build/bin)
         paths+=(../../../stellar3/build/bin)
 
         p=""

@@ -8,9 +8,6 @@
 [submodule "lib/raptor"]
 	path = lib/raptor
 	url = https://github.com/seqan/raptor.git
-[submodule "lib/raptor_data_simulation"]
-	path = lib/raptor_data_simulation
-	url = git@github.com:eaasna/raptor_data_simulation.git
 [submodule "lib/seqan"]
 	path = lib/seqan
 	url = git@github.com:seqan/seqan.git
