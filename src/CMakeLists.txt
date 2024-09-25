@@ -9,10 +9,8 @@ target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE seqan3::seqan3)
 target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE sharg::sharg)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)
 # SYSTEM keyword turns off compiler warnings for subprojects
-target_include_directories ("${PROJECT_NAME}_interface" SYSTEM INTERFACE ../lib/raptor/include)
 target_include_directories ("${PROJECT_NAME}_interface" SYSTEM INTERFACE ../lib/stellar3/include)
 target_include_directories ("${PROJECT_NAME}_interface" SYSTEM INTERFACE ../lib/seqan/include)
-target_include_directories ("${PROJECT_NAME}_interface" SYSTEM INTERFACE ../lib/robin-hood-hashing/src/include)
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra" "-Wno-interference-size")
 
 # IBF size 
@@ -36,13 +34,13 @@ target_link_libraries ("${PROJECT_NAME}_build_lib" PUBLIC "${PROJECT_NAME}_inter
 
 # Valik search
 add_library ("raptor_threshold" STATIC
-             ../lib/raptor/src/threshold/threshold.cpp
-             ../lib/raptor/src/threshold/one_indirect_error_model.cpp
-             ../lib/raptor/src/threshold/multiple_error_model.cpp
-             ../lib/raptor/src/threshold/pascal_row.cpp
-             ../lib/raptor/src/threshold/one_error_model.cpp
-             ../lib/raptor/src/threshold/precompute_correction.cpp
-             ../lib/raptor/src/threshold/precompute_threshold.cpp
+             raptor/threshold/threshold.cpp
+             raptor/threshold/one_indirect_error_model.cpp
+             raptor/threshold/multiple_error_model.cpp
+             raptor/threshold/pascal_row.cpp
+             raptor/threshold/one_error_model.cpp
+             raptor/threshold/precompute_correction.cpp
+             raptor/threshold/precompute_threshold.cpp
 )
 target_link_libraries ("raptor_threshold" PUBLIC "${PROJECT_NAME}_interface")
 
