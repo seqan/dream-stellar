@@ -27,10 +27,7 @@ void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLe
             disabledQueryIDs.push_back(queryID);
     }
 
-    // adjust length for each matches of a single query (only for dna5 and rna5)
-    // TODO: WHY? This seems like an arbitrary restriction
-    if (databaseStrand || IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
-        _postproccessLengthAdjustment(refLen, matches);
+    _postproccessLengthAdjustment(refLen, matches);
 }
 
 template <typename TAlphabet, typename TId = CharString>

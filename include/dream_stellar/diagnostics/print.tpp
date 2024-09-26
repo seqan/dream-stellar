@@ -111,32 +111,29 @@ void _writeMoreCalculatedParams(StellarOptions const & options,
         outStr << std::endl;
     }
 
-    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
+    // Computation of maximal E-value for this search
+
+    TSize maxLengthQueries = 0;
+
+    typename Iterator<TStringSet const>::Type queriesIt = begin(queries);
+    typename Iterator<TStringSet const>::Type queriesEnd = end(queries);
+    while (queriesIt != queriesEnd)
     {
-        // Computation of maximal E-value for this search
-
-        TSize maxLengthQueries = 0;
-
-        typename Iterator<TStringSet const>::Type queriesIt = begin(queries);
-        typename Iterator<TStringSet const>::Type queriesEnd = end(queries);
-        while (queriesIt != queriesEnd)
+        if (length(*queriesIt) > maxLengthQueries)
         {
-            if (length(*queriesIt) > maxLengthQueries)
-            {
-                maxLengthQueries = length(*queriesIt);
-            }
-            ++queriesIt;
+            maxLengthQueries = length(*queriesIt);
         }
-
-        TSize errors = static_cast<TSize>(options.minLength * options.epsilon);
-        TSize minScore = options.minLength - 3 * errors; // #matches - 2*#errors // #matches = minLenght - errors,
-
-        outStr << "All matches resulting from your search have an E-value of: " << std::endl;
-        outStr << "        " << _computeEValue(minScore, maxLengthQueries, refLen) << " or smaller";
-        outStr << "  (match score = 1, error penalty = -2)" << std::endl;
-
-        outStr << std::endl;
+        ++queriesIt;
     }
+
+    TSize errors = static_cast<TSize>(options.minLength * options.epsilon);
+    TSize minScore = options.minLength - (blast_stat::match + blast_stat::mismatch) * errors; // #matches - 2*#errors // #matches = minLenght - errors,
+
+    outStr << "All matches resulting from your search have an E-value of: " << std::endl;
+    outStr << "        " << _computeEValue(minScore, maxLengthQueries, refLen) << " or smaller";
+    outStr << "  (match score = " << blast_stat::match << ", error penalty = -" << blast_stat::mismatch << ")" << std::endl;
+
+    outStr << std::endl;
 }
 
 template <typename TStream>

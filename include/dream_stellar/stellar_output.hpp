@@ -28,6 +28,7 @@
 #include <seqan/align.h>
 
 #include <dream_stellar/stellar_types.hpp> // QueryMatches
+#include <dream_stellar/blast_stat.hpp>
 
 namespace dream_stellar
 {
@@ -41,10 +42,8 @@ template<typename TSize>
 TSize
 _computeLengthAdjustment(TSize const dbLength, TSize const queryLength) {
 
-    const double K = 0.34;
-    const double logK = log(K);
-    const double alphaByLambda = 1.8/1.19;
-    const double beta = -3;
+    const double logK = log(blast_stat::K);
+    const double alphaByLambda = blast_stat::alpha/blast_stat::lambda;
     const TSize maxIterations = 20;
 
     double n = (double)dbLength;
@@ -60,7 +59,7 @@ _computeLengthAdjustment(TSize const dbLength, TSize const queryLength) {
 
     { // scope of mb, and c, the coefficients in the quadratic formula (the variable mb is -b, a=1 ommited)
         double mb = m + n;
-        double c  = n * m - _max(m, n) / K;
+        double c  = n * m - _max(m, n) / blast_stat::K;
 
         if(c < 0) {
             return 0;
@@ -71,7 +70,7 @@ _computeLengthAdjustment(TSize const dbLength, TSize const queryLength) {
 
     for(TSize i = 1; i <= maxIterations; i++) {
         totalLen = (m - val) * (n - val);
-        double val_new  = alphaByLambda * (logK + log(totalLen)) + beta;  // proposed next value of val
+        double val_new  = alphaByLambda * (logK + log(totalLen)) + blast_stat::beta;  // proposed next value of val
         if(val_new >= val) { // val is no bigger than the true fixed point
             val_min = val;
             if(val_new - val_min <= 1.0) {
@@ -100,7 +99,7 @@ _computeLengthAdjustment(TSize const dbLength, TSize const queryLength) {
         val = ceil(val_min);
         if( val <= val_max ) {
           totalLen = (m - val) * (n - val);
-          if(alphaByLambda * (logK + log(totalLen)) + beta >= val) {
+          if(alphaByLambda * (logK + log(totalLen)) + blast_stat::beta >= val) {
             // ceil(val_min) == floor(val_fixed)
             return (TSize) val;
           }
@@ -204,16 +203,14 @@ double
 _computeEValue(TRow const & row0, TRow const & row1, TSize const lengthAdjustment) {
     TSize m = length(source(row0)) - lengthAdjustment;
     TSize n = length(source(row1)) - lengthAdjustment;
-    double minusLambda = -1.19; // -lambda
-    double K = 0.34;
 
     TSize matches, aliLen;
     _analyzeAlignment(row0, row1, aliLen, matches);
     // score = 1 * matches - 2 * errors (mismatches or gaps)
     //       = matches - 2 * (aliLen - matches)
-    TSize score = matches - 2 * (aliLen - matches);
+    TSize score = blast_stat::match * matches - blast_stat::mismatch * (aliLen - matches);
 
-    return K * (double)m * (double)n * exp(minusLambda * (double)score);
+    return blast_stat::K * (double)m * (double)n * exp(-blast_stat::lambda * (double)score);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -222,14 +219,11 @@ _computeEValue(TRow const & row0, TRow const & row1, TSize const lengthAdjustmen
 template<typename TSize>
 double
 _computeEValue(TSize const score, TSize const len0, TSize const len1) {
-    double minusLambda = -1.19; // -lambda
-    double K = 0.34;
-
     TSize lengthAdjustment = _computeLengthAdjustment(len0, len1);
     TSize m = len0 - lengthAdjustment;
     TSize n = len1 - lengthAdjustment;
 
-    return K * (double)m * (double)n * exp(minusLambda * (double)score);
+    return blast_stat::K * (double)m * (double)n * exp(-blast_stat::lambda * (double)score);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -274,9 +268,7 @@ _writeMatchGff(TId const & databaseID,
 
     file << ";seq2Range=" << beginPosition(row1) + beginPosition(source(row1)) + 1;
     file << "," << endPosition(row1) + beginPosition(source(row1));
-
-    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
-        file << ";eValue=" << _computeEValue(row0, row1, lengthAdjustment);
+    file << ";eValue=" << _computeEValue(row0, row1, lengthAdjustment);
 
     std::stringstream cigar, mutations;
     _getCigarLine(row0, row1, cigar, mutations);
@@ -323,13 +315,7 @@ _writeMatch(TId const & databaseID,
     file << beginPosition(row1) + beginPosition(source(row1));
     file << ".." << endPosition(row1) + beginPosition(source(row1));
     file << std::endl;
-
-    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
-    {
-        // write e-value
-        file << "E-value: " << _computeEValue(row0, row1, lengthAdjustment) << std::endl;
-    }
-
+    file << "E-value: " << _computeEValue(row0, row1, lengthAdjustment) << std::endl;
     file << std::endl;
 
     // write match
@@ -434,15 +420,10 @@ void _writeDisabledQueriesToFastaFile(std::vector<size_t> const & disabledQueryI
 template <typename TInfix, typename TQueryId>
 void _postproccessLengthAdjustment(uint64_t const & refLen, StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > & matches)
 {
-    using TAlphabet = typename Value<TInfix>::Type;
-
-    constexpr bool is_dna5_or_rna5 = IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE;
-    if constexpr (is_dna5_or_rna5) {
-        for (QueryMatches<StellarMatch<TInfix const, TQueryId>> & queryMatches : matches) {
-            for (StellarMatch<TInfix const, TQueryId> & firstMatch : queryMatches.matches) {
-                queryMatches.lengthAdjustment = _computeLengthAdjustment<uint64_t>(refLen, length(source(firstMatch.row2)));
-                break;
-            }
+    for (QueryMatches<StellarMatch<TInfix const, TQueryId>> & queryMatches : matches) {
+        for (StellarMatch<TInfix const, TQueryId> & firstMatch : queryMatches.matches) {
+            queryMatches.lengthAdjustment = _computeLengthAdjustment<uint64_t>(refLen, length(source(firstMatch.row2)));
+            break;
         }
     }
 }
