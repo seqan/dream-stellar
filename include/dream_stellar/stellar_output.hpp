@@ -238,8 +238,6 @@ _writeMatchGff(TId const & databaseID,
               TRow const & row1,
               TFile & file) {
 //IOREV _recordreading_ unclear how this is related to GFF support from store_io
-    typedef typename Value<typename Source<TRow>::Type>::Type TAlphabet;
-
     for (typename Position<TId>::Type i = 0; i < length(databaseID) && value(databaseID, i) > 32; ++i) {
         file << value(databaseID, i);
     }
@@ -289,8 +287,6 @@ _writeMatch(TId const & databaseID,
             TRow const & row1,
             TFile & file) {
 //IOREV _recordreading_ _stub_
-    typedef typename Value<typename Source<TRow>::Type>::Type TAlphabet;
-
     // write database ID
     file << "Database sequence: " << databaseID;
     if (!databaseStrand) file << " (complement)" << std::endl;

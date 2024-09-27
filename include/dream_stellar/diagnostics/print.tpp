@@ -94,8 +94,6 @@ void _writeMoreCalculatedParams(StellarOptions const & options,
                                 TStream & outStr)
 {
 //IOREV _notio_
-    typedef typename Value<typename Value<TStringSet>::Type>::Type TAlphabet;
-
     if (options.qgramAbundanceCut != 1)
     {
         outStr << "Calculated parameters:" << std::endl;
@@ -131,7 +129,8 @@ void _writeMoreCalculatedParams(StellarOptions const & options,
 
     outStr << "All matches resulting from your search have an E-value of: " << std::endl;
     outStr << "        " << _computeEValue(minScore, maxLengthQueries, refLen) << " or smaller";
-    outStr << "  (match score = " << blast_stat::match << ", error penalty = -" << blast_stat::mismatch << ")" << std::endl;
+    outStr << "  (match score = " << std::to_string(blast_stat::match) << ", error penalty = -";
+    outStr << std::to_string(blast_stat::mismatch) << ")" << std::endl;
 
     outStr << std::endl;
 }

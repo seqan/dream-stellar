@@ -27,7 +27,8 @@ void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLe
             disabledQueryIDs.push_back(queryID);
     }
 
-    _postproccessLengthAdjustment(refLen, matches);
+    if (databaseStrand)
+        _postproccessLengthAdjustment(refLen, matches);
 }
 
 template <typename TAlphabet, typename TId = CharString>
