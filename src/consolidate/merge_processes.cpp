@@ -35,6 +35,20 @@ bool merge_processes(search_arguments const & arguments,
 
     matches_out << merge.cout();
 
+    for (auto & path : exec_meta.output_files)
+    {
+        const bool error_in_delete = !std::filesystem::remove(path);
+        if (error_in_delete)
+            std::cerr << "Could not clean up intermediate file: \t" << std::string(path) << '\n';
+    }
+    std::filesystem::path stellar_out_dir = std::filesystem::path(exec_meta.output_files[0]).parent_path();
+    if (std::filesystem::is_empty(stellar_out_dir))
+    {
+        const bool error_in_delete = !std::filesystem::remove(stellar_out_dir);
+        if (error_in_delete)
+            std::cerr << "Could not delete folder: " << std::string(stellar_out_dir) << '\n';
+    }
+
     return check_external_process_success(merge_process_args, merge);
 }
 

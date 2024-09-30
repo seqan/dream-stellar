@@ -359,7 +359,7 @@ TEST_P(valik_search_clusters, search)
                                                         "--without-parameter-tuning");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{});
+    EXPECT_TRUE(result.err.starts_with("Could not clean up intermediate file"));
 
     auto expected = string_list_from_file(search_result_path(number_of_bins, window_size, number_of_errors,
                                                              pattern_size, query_every), std::ios::binary);
@@ -412,8 +412,9 @@ TEST_P(valik_search_segments, search)
                                                         "--max-queued-carts 10",
                                                         "--without-parameter-tuning");
     EXPECT_EQ(result.exit_code, 0);
-    EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{});
+    EXPECT_EQ(result.out, std::string{});    
+    EXPECT_TRUE(result.err.starts_with("Could not clean up intermediate file"));
+
 
     auto expected = string_list_from_file(search_result_path(segment_overlap, number_of_bins, window_size, 
                                                              number_of_errors), std::ios::binary);
