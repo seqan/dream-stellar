@@ -44,13 +44,14 @@ public:
     // outfile gets unlocked as soon as the current thread exits the write function
 
     template <typename t>
-    void write_disabled_record(t && query_record, size_t const & bin_count, bool const verbose)
+    void write_disabled_record(t const & query_record, size_t const & bin_count, bool const verbose)
     { 
         std::lock_guard<std::mutex> lock(write_mutex);
         if (verbose)
             warning_message(bin_count, query_record.sequence.size());        
         sequence_record_type output_record{query_record.sequence, query_record.sequence_id};
-        fout.push_back(output_record);
+        //!TODO: this causes memory error
+        // fout.push_back(output_record); 
     }
     // outfile gets unlocked as soon as the current thread exits the write function
 
