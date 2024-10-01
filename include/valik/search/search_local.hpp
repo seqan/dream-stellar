@@ -298,7 +298,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         stellarThreadTime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
                         {
                             // output forwardMatches on positive database strand
-                            dream_stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, "gff", outputFile);
+                            dream_stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, refLen, "gff", outputFile);
                         }); // measure_time
 
                         outputStatistics = dream_stellar::_computeOutputStatistics(forwardMatches);
@@ -358,7 +358,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         stellarThreadTime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
                         {
                             // output reverseMatches on negative database strand
-                            dream_stellar::_writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, "gff", outputFile);
+                            dream_stellar::_writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, refLen, "gff", outputFile);
                         }); // measure_time
 
                         outputStatistics.mergeIn(dream_stellar::_computeOutputStatistics(reverseMatches));

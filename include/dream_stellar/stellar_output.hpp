@@ -200,8 +200,8 @@ _computeIdentity(TRow const & row0, TRow const & row1) {
 // Calculates the E-value from two alignment rows and a specified length adjustment
 template<typename TRow, typename TSize>
 double
-_computeEValue(TRow const & row0, TRow const & row1, TSize const lengthAdjustment) {
-    TSize m = length(source(row0)) - lengthAdjustment;
+_computeEValueFromLengthAdjustment(TRow const & row0, uint64_t const & refLen, TRow const & row1, TSize const lengthAdjustment) {
+    TSize m = refLen - lengthAdjustment;  
     TSize n = length(source(row1)) - lengthAdjustment;
 
     TSize matches, aliLen;
@@ -218,9 +218,9 @@ _computeEValue(TRow const & row0, TRow const & row1, TSize const lengthAdjustmen
 //  of matches, and the specified length of query and database sequence
 template<typename TSize>
 double
-_computeEValue(TSize const score, TSize const len0, TSize const len1) {
-    TSize lengthAdjustment = _computeLengthAdjustment(len0, len1);
-    TSize m = len0 - lengthAdjustment;
+_computeEValueFromScore(uint64_t const refLen, TSize const len1, TSize const score) {
+    TSize lengthAdjustment = _computeLengthAdjustment(refLen, len1);
+    TSize m = refLen - lengthAdjustment;
     TSize n = len1 - lengthAdjustment;
 
     return blast_stat::K * (double)m * (double)n * exp(-blast_stat::lambda * (double)score);
@@ -234,6 +234,7 @@ _writeMatchGff(TId const & databaseID,
               TId const & patternID,
               bool const databaseStrand,
               TSize const lengthAdjustment,
+              uint64_t const refLen,
               TRow const & row0,
               TRow const & row1,
               TFile & file) {
@@ -266,7 +267,7 @@ _writeMatchGff(TId const & databaseID,
 
     file << ";seq2Range=" << beginPosition(row1) + beginPosition(source(row1)) + 1;
     file << "," << endPosition(row1) + beginPosition(source(row1));
-    file << ";eValue=" << _computeEValue(row0, row1, lengthAdjustment);
+    file << ";eValue=" << _computeEValueFromLengthAdjustment(row0, refLen, row1, lengthAdjustment);
 
     std::stringstream cigar, mutations;
     _getCigarLine(row0, row1, cigar, mutations);
@@ -283,6 +284,7 @@ _writeMatch(TId const & databaseID,
             TId const & patternID,
             bool const databaseStrand,
             TSize const lengthAdjustment,
+            uint64_t const refLen,
             TRow const & row0,
             TRow const & row1,
             TFile & file) {
@@ -311,7 +313,7 @@ _writeMatch(TId const & databaseID,
     file << beginPosition(row1) + beginPosition(source(row1));
     file << ".." << endPosition(row1) + beginPosition(source(row1));
     file << std::endl;
-    file << "E-value: " << _computeEValue(row0, row1, lengthAdjustment) << std::endl;
+    file << "E-value: " << _computeEValueFromLengthAdjustment(row0, refLen, row1, lengthAdjustment) << std::endl;
     file << std::endl;
 
     // write match
@@ -324,27 +326,27 @@ _writeMatch(TId const & databaseID,
 
 template <typename TInfix, typename TQueryId>
 void _writeMatchesToGffFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > const & queryMatches,
-                            CharString const & id, bool const orientation, std::ofstream & outputFile)
+                            CharString const & id, bool const orientation, uint64_t const refLen, std::ofstream & outputFile)
 {
     for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
         if (match.orientation != orientation)
             continue;
 
         _writeMatchGff(match.id, id, match.orientation, queryMatches.lengthAdjustment,
-                       match.row1, match.row2, outputFile);
+                       refLen, match.row1, match.row2, outputFile);
     }
 }
 
 template <typename TInfix, typename TQueryId>
 void _writeMatchesToTxtFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > const &queryMatches,
-                            CharString const & id, bool const orientation, std::ofstream & outputFile)
+                            CharString const & id, bool const orientation, uint64_t const refLen, std::ofstream & outputFile)
 {
     for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
         if (match.orientation != orientation)
             continue;
 
         _writeMatch(match.id, id, match.orientation, queryMatches.lengthAdjustment,
-                    match.row1, match.row2, outputFile);
+                    refLen, match.row1, match.row2, outputFile);
     }
 }
 
@@ -353,12 +355,13 @@ void _writeMatchesToTxtFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > 
 //   = Writes matches in gff format to a file.
 template <typename TInfix, typename TQueryId>
 void _writeQueryMatchesToFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > const & queryMatches,
-                              CharString const & id, bool const orientation, CharString const & outputFormat, std::ofstream & outputFile)
+                              CharString const & id, bool const orientation, uint64_t const refLen, 
+                              CharString const & outputFormat, std::ofstream & outputFile)
 {
     if (outputFormat == "gff")
-        _writeMatchesToGffFile(queryMatches, id, orientation, outputFile);
+        _writeMatchesToGffFile(queryMatches, id, orientation, refLen, outputFile);
     else
-        _writeMatchesToTxtFile(queryMatches, id, orientation, outputFile);
+        _writeMatchesToTxtFile(queryMatches, id, orientation, refLen, outputFile);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -366,13 +369,13 @@ void _writeQueryMatchesToFile(QueryMatches<StellarMatch<TInfix const, TQueryId> 
 //   = Writes matches in gff format to a file.
 template <typename TInfix, typename TQueryId, typename TQueryIDs>
 void _writeAllQueryMatchesToFile(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches,
-                                 TQueryIDs const & queryIDs, bool const orientation,
+                                 TQueryIDs const & queryIDs, bool const orientation, uint64_t const refLen,
                                  CharString const & outputFormat, std::ofstream & outputFile)
 {
     for (size_t i = 0; i < length(matches); i++) {
         QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
 
-        _writeQueryMatchesToFile(queryMatches, queryIDs[i], orientation, outputFormat, outputFile);
+        _writeQueryMatchesToFile(queryMatches, queryIDs[i], orientation, refLen, outputFormat, outputFile);
     }
 }
 
