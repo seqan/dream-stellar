@@ -43,20 +43,27 @@ inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data
 
         std::span<query_t const> records_slice{&records[start], &records[end]};
 
-        auto prefilter_cb = [&queue,&arguments,&verbose_out,&ibf](query_t const& record, std::unordered_set<size_t> const& bin_hits)
+        auto prefilter_cb = [&queue,&arguments,&verbose_out,&ibf](query_t const & record, 
+                                                                  std::unordered_map<size_t, size_t> const & bin_hits, 
+                                                                  uint64_t const & total_pattern_hits)
         {
             if (bin_hits.size() > std::max((size_t) 4, (size_t) std::round(ibf.bin_count() / 2.0)))
             {
-                if (!arguments.keep_repeats)
-                {
-                    verbose_out.write_disabled_record(record, bin_hits.size(), arguments.verbose);
-                    return;
-                }
-                else if (arguments.verbose)
+                if (arguments.verbose)
                     verbose_out.write_warning(record, bin_hits.size());
+                if (arguments.keep_repeats)    // keep bin hits that are supported by the most patterns per query segment
+                {
+                    size_t mean_bin_support = std::max((size_t) 2, (size_t) std::round((double) total_pattern_hits / (double) bin_hits.size()));
+                    for (auto const [bin, count] : bin_hits)
+                    {
+                        if (count > mean_bin_support)
+                            queue.insert(bin, record);
+                    }
+                }
+                return;
             }
             
-            for (size_t const bin : bin_hits)
+            for (auto const [bin, count] : bin_hits)
             {
                 queue.insert(bin, record);
             }
