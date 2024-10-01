@@ -48,8 +48,8 @@ static inline dream_stellar::StellarOptions make_thread_options(search_arguments
         threadOptions.strVerificationMethod = arguments.strVerificationMethod;
         threadOptions.xDrop = arguments.xDrop;
         threadOptions.qgramAbundanceCut = arguments.qgramAbundanceCut;
-        threadOptions.numMatches = std::max(2u, (unsigned) std::round(arguments.numMatches / (double) ref_meta.seg_count * 1.2));
-        threadOptions.compactThresh = std::max(threadOptions.numMatches + 1, (size_t) std::round(arguments.compactThresh / (double) ref_meta.seg_count)) * 1.2;
+        threadOptions.numMatches = arguments.numMatches;
+        threadOptions.compactThresh = arguments.compactThresh;
     }
 
     return threadOptions;
