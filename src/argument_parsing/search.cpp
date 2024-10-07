@@ -79,10 +79,15 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       .long_id = "without-parameter-tuning",
                       .description = "Preprocess database without setting default parameters.",
                       .advanced = true});
-    parser.add_flag(arguments.keep_repeats,
+    parser.add_flag(arguments.keep_best_repeats,
                     sharg::config{.short_id = '\0',
-                    .long_id = "keep-repeats",
-                    .description = "Do not filter out query matches from repeat regions.",
+                    .long_id = "keep-best-repeats",
+                    .description = "Find only highest similarity matches for repeat regions.",
+                    .advanced = true});
+    parser.add_flag(arguments.keep_all_repeats,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "keep-all-repeats",
+                    .description = "Do not filter out query matches from repeat regions. This may significantly increase the runtime.",
                     .advanced = true});
     parser.add_option(arguments.seg_count_in,
                       sharg::config{.short_id = 'n',

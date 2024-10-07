@@ -51,13 +51,20 @@ inline void prefilter_queries_parallel(seqan3::interleaved_bloom_filter<ibf_data
             {
                 if (arguments.verbose)
                     verbose_out.write_warning(record, bin_hits.size());
-                if (arguments.keep_repeats)    // keep bin hits that are supported by the most patterns per query segment
+                if (arguments.keep_best_repeats)    // keep bin hits that are supported by the most patterns per query segment
                 {
                     size_t mean_bin_support = std::max((size_t) 2, (size_t) std::round((double) total_pattern_hits / (double) bin_hits.size()));
                     for (auto const [bin, count] : bin_hits)
                     {
                         if (count > mean_bin_support)
                             queue.insert(bin, record);
+                    }
+                }
+                else if (arguments.keep_all_repeats)
+                {
+                    for (auto const [bin, count] : bin_hits)
+                    {
+                        queue.insert(bin, record);
                     }
                 }
                 return;
