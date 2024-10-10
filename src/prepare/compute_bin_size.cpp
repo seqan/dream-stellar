@@ -41,8 +41,9 @@ void compute_minimiser(valik::build_arguments const & arguments)
             for (auto && [file_names, bin_number] : zipped_view)
             {
                 std::filesystem::path const file_name{file_names[0]};
+                size_t const seq_size = std::filesystem::file_size(file_name);
                 std::filesystem::path output_path = get_output_path(arguments.out_dir, file_name);
-
+                
                 std::filesystem::path const minimiser_file =
                     std::filesystem::path{output_path}.replace_extension("minimiser");
                 std::filesystem::path const progress_file =
@@ -84,9 +85,9 @@ void compute_minimiser(valik::build_arguments const & arguments)
 
                 {
                     std::ofstream headerfile{header_file};
-                    headerfile << arguments.shape.to_string() << '\t' << arguments.window_size << '\t' << count << '\n';
+                    headerfile << arguments.shape.to_string() << '\t' << arguments.window_size << '\t' << count << '\t' << seq_size << '\n';
                 }
-
+    
                 std::filesystem::remove(progress_file);
             }
         };
@@ -101,7 +102,7 @@ void compute_minimiser(valik::build_arguments const & arguments)
     {
         valik::metadata meta(arguments.ref_meta_path);
         std::filesystem::path const file_name{arguments.bin_path[0][0]};
-        
+
         auto segment_worker = [&](const auto && zipped_view, auto &&)
         {
             for (auto && [shared_record, bin_number] : zipped_view)
@@ -159,7 +160,7 @@ void compute_minimiser(valik::build_arguments const & arguments)
 
                 {
                     std::ofstream headerfile{header_file};
-                    headerfile << arguments.shape.to_string() << '\t' << arguments.window_size << '\t' << count << '\n';
+                    headerfile << arguments.shape.to_string() << '\t' << arguments.window_size << '\t' << count << '\t' << seg.len << '\n';
                 }
 
                 std::filesystem::remove(progress_file);
@@ -246,10 +247,11 @@ size_t kmer_count_from_minimiser_files(std::vector<std::vector<std::string>> con
     std::string shape_string{};
     uint64_t window_size{};
     size_t max_count{};
+    uint64_t bin_size{};
 
     biggest_file.replace_extension("header");
     std::ifstream file_stream{biggest_file};
-    file_stream >> shape_string >> window_size >> max_count;
+    file_stream >> shape_string >> window_size >> max_count >> bin_size;
 
     return max_count;
 }
