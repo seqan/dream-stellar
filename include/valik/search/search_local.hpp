@@ -398,6 +398,9 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
     {
         using ibf_t = decltype(index.ibf());
         raptor::threshold::threshold const thresholder{arguments.make_threshold_parameters()};
+        seqan3::debug_stream << "min_min" << thresholder.get_min_minimizer_count() << '\n';
+        seqan3::debug_stream << "max_min" << thresholder.get_max_minimizer_count() << '\n';
+        seqan3::debug_stream << "minimizer_count_repeat_cutoff\t" << thresholder.minimizer_count_repeat_cutoff() << '\n';
         if constexpr (is_split)
         {
             iterate_split_queries<ibf_t, TSequence>(arguments, index.ibf(), thresholder, queue, query_meta.value());

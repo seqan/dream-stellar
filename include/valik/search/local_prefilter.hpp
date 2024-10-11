@@ -93,14 +93,16 @@ std::optional<pattern_bounds> make_pattern_bounds(size_t const & begin,
 
     if (arguments.keep_all_repeats ||
         (arguments.keep_best_repeats && 
-        (minimiser_count >= (thresholder.mean_number_of_minimizers()))))  
+        (minimiser_count >= (thresholder.minimizer_count_repeat_cutoff()))))  
         // ignore low entropy repeat patterns 
     {   
         pattern.threshold = thresholder.get(minimiser_count);
         return pattern;
     }
     else
+    {
         return std::nullopt;
+    }
 }
 
 /**

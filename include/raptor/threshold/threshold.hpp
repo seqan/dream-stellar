@@ -32,7 +32,7 @@ public:
 
     size_t get(size_t const minimiser_count) const noexcept;
 
-    size_t mean_number_of_minimizers() const noexcept;
+    size_t minimizer_count_repeat_cutoff() const noexcept;
 
 private:
     enum class threshold_kinds
@@ -49,6 +49,18 @@ private:
     size_t minimal_number_of_minimizers{};
     size_t maximal_number_of_minimizers{};
     double threshold_percentage{};
+
+public:
+    size_t get_min_minimizer_count() const noexcept
+    {
+        return minimal_number_of_minimizers;
+    }
+    
+    size_t get_max_minimizer_count() const noexcept
+    {
+        return maximal_number_of_minimizers;
+    }
+
 };
 
 } // namespace raptor::threshold
