@@ -60,5 +60,10 @@ size_t threshold::get(size_t const minimiser_count) const noexcept
     }
     }
 }
+ 
+size_t threshold::mean_number_of_minimizers() const noexcept
+{
+    return (size_t) std::round((maximal_number_of_minimizers - minimal_number_of_minimizers) / 2.0);
+}
 
 } // namespace raptor::threshold

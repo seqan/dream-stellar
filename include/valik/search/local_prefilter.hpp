@@ -67,10 +67,10 @@ struct pattern_bounds
  * @return pattern_bounds The interval of minimisers corresponding to the pattern.
  */
 template <typename span_vec_t>
-pattern_bounds make_pattern_bounds(size_t const & begin,
-                                   search_arguments const & arguments,
-                                   span_vec_t const & window_span_begin,
-                                   raptor::threshold::threshold const & thresholder)
+std::optional<pattern_bounds> make_pattern_bounds(size_t const & begin,
+                                                  search_arguments const & arguments,
+                                                  span_vec_t const & window_span_begin,
+                                                  raptor::threshold::threshold const & thresholder)
 {
     assert(window_span_begin.size() >= 1);
     assert(window_span_begin[0] == 0);
@@ -91,8 +91,16 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
 
     size_t const minimiser_count = pattern.end_position - pattern.begin_position;
 
-    pattern.threshold = thresholder.get(minimiser_count);
-    return pattern;
+    if (arguments.keep_all_repeats ||
+        (arguments.keep_best_repeats && 
+        (minimiser_count >= (thresholder.mean_number_of_minimizers()))))  
+        // ignore low entropy repeat patterns 
+    {   
+        pattern.threshold = thresholder.get(minimiser_count);
+        return pattern;
+    }
+    else
+        return std::nullopt;
 }
 
 /**
@@ -205,8 +213,9 @@ void local_prefilter(
         std::unordered_map<size_t, size_t> sequence_hits{};
         pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, [&](size_t const begin)
         {
-            pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
-            find_pattern_bins(pattern, bin_count, counting_table, sequence_hits, pattern_hits);
+            auto const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
+            if (pattern)
+                find_pattern_bins(*pattern, bin_count, counting_table, sequence_hits, pattern_hits);
         });
 
         result_cb(record, sequence_hits, pattern_hits);

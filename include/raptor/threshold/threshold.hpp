@@ -32,6 +32,8 @@ public:
 
     size_t get(size_t const minimiser_count) const noexcept;
 
+    size_t mean_number_of_minimizers() const noexcept;
+
 private:
     enum class threshold_kinds
     {
