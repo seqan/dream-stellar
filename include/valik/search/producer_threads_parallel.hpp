@@ -62,7 +62,7 @@ inline void prefilter_queries_parallel(index_t const & index,
                             queue.insert(bin, record);
                             inserted_bins++;
                         }
-                        if (inserted_bins >= std::max((size_t) 4, (size_t) std::round(ibf.bin_count() / 10.0)))
+                        if (inserted_bins >= std::max((size_t) 4, (size_t) std::round(ibf.bin_count() * arguments.best_bin_entropy_cutoff)))
                             return;
                     }
                 }
