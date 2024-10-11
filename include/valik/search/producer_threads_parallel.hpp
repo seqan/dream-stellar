@@ -55,14 +55,14 @@ inline void prefilter_queries_parallel(index_t const & index,
                 {
                     auto const & entropy_ranking = index.entropy_ranking();
                     size_t inserted_bins{0};
-                    for (auto bin : entropy_ranking)
+                    for (size_t bin : entropy_ranking)
                     {
                         if (bin_hits.count(bin) > 0)
                         {
                             queue.insert(bin, record);
                             inserted_bins++;
                         }
-                        if (inserted_bins < std::max((size_t) 4, (size_t) std::round(ibf.bin_count() / 10.0)))
+                        if (inserted_bins >= std::max((size_t) 4, (size_t) std::round(ibf.bin_count() / 10.0)))
                             return;
                     }
                 }
