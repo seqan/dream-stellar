@@ -19,7 +19,10 @@ threshold::threshold(threshold_parameters const & arguments)
 {
     uint8_t const kmer_size{arguments.shape.size()};
     size_t const kmers_per_window = arguments.window_size - kmer_size + 1;
-
+    size_t const kmers_per_pattern = arguments.query_length - kmer_size + 1;
+    minimal_number_of_minimizers = kmers_per_pattern / kmers_per_window;
+    maximal_number_of_minimizers = arguments.query_length - arguments.window_size + 1;
+    
     if (!std::isnan(arguments.percentage))
     {
         threshold_kind = threshold_kinds::percentage;
@@ -35,9 +38,6 @@ threshold::threshold(threshold_parameters const & arguments)
     else
     {
         threshold_kind = threshold_kinds::probabilistic;
-        size_t const kmers_per_pattern = arguments.query_length - kmer_size + 1;
-        minimal_number_of_minimizers = kmers_per_pattern / kmers_per_window;
-        maximal_number_of_minimizers = arguments.query_length - arguments.window_size + 1;
         precomp_correction = precompute_correction(arguments);
         precomp_thresholds = precompute_threshold(arguments);
     }
