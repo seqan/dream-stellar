@@ -138,7 +138,7 @@ void compute_minimiser(valik::build_arguments const & arguments)
                     std::ofstream outfile{minimiser_file, std::ios::binary};
                     for (auto && [hash, occurrences] : minimiser_table)
                     {
-                        if (occurrences => arguments.kmer_count_min_cutoff && occurrences <= arguments.kmer_count_max_cutoff)
+                        if (occurrences >= arguments.kmer_count_min_cutoff && occurrences <= arguments.kmer_count_max_cutoff)
                         {
                             outfile.write(reinterpret_cast<const char *>(&hash), sizeof(hash));
                             ++count;
