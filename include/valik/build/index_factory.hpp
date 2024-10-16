@@ -100,7 +100,6 @@ private:
             {
                 for (auto & seg : meta.segments_from_ind(i))
                 {
-                    //!TODO: avoid reallocating memory for deques in the minimiser view construction
                     for (auto && value : seq | seqan3::views::slice(seg.start, seg.start + seg.len) | min_view)
                         ibf.emplace(value, seqan3::bin_index{seg.id});
                 }
