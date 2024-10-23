@@ -43,7 +43,7 @@ void compute_minimiser(valik::build_arguments const & arguments)
                 std::filesystem::path const file_name{file_names[0]};
                 size_t const seq_size = std::filesystem::file_size(file_name);
                 std::filesystem::path output_path = get_output_path(arguments.out_dir, file_name);
-                
+
                 std::filesystem::path const minimiser_file =
                     std::filesystem::path{output_path}.replace_extension("minimiser");
                 std::filesystem::path const progress_file =
@@ -87,7 +87,7 @@ void compute_minimiser(valik::build_arguments const & arguments)
                     std::ofstream headerfile{header_file};
                     headerfile << arguments.shape.to_string() << '\t' << arguments.window_size << '\t' << count << '\t' << seq_size << '\n';
                 }
-    
+
                 std::filesystem::remove(progress_file);
             }
         };
@@ -102,7 +102,7 @@ void compute_minimiser(valik::build_arguments const & arguments)
     {
         valik::metadata meta(arguments.ref_meta_path);
         std::filesystem::path const file_name{arguments.bin_path[0][0]};
-
+        
         auto segment_worker = [&](const auto && zipped_view, auto &&)
         {
             for (auto && [shared_record, bin_number] : zipped_view)
