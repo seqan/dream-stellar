@@ -128,8 +128,8 @@ TEST(consolidate_matches, bins8overlap50)
     valik::consolidate_matches(arguments);
 
     valik::metadata reference(arguments.ref_meta_path);
-    auto expected = valik::read_stellar_output(data_path("stellar_truth.gff"), reference, std::ios::binary);
-    auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
+    auto expected = valik::read_alignment_output<stellar_match>(data_path("stellar_truth.gff"), reference, std::ios::binary);
+    auto actual = valik::read_alignment_output<stellar_match>("consolidated.gff", reference, std::ios::binary);
 
     compare_gff_out(expected, actual);
 }
@@ -147,8 +147,8 @@ TEST(consolidate_matches, bins16overlap50)
     valik::consolidate_matches(arguments);
 
     valik::metadata reference(arguments.ref_meta_path);
-    auto expected = valik::read_stellar_output(data_path("stellar_truth.gff"), reference, std::ios::binary);
-    auto actual = valik::read_stellar_output("consolidated.gff", reference, std::ios::binary);
+    auto expected = valik::read_alignment_output<stellar_match>(data_path("stellar_truth.gff"), reference, std::ios::binary);
+    auto actual = valik::read_alignment_output<stellar_match>("consolidated.gff", reference, std::ios::binary);
 
     compare_gff_out(expected, actual);
 }
@@ -157,7 +157,7 @@ std::vector<valik::stellar_match> get_initial_matches(size_t const number_of_bin
                                                       size_t const segment_overlap, 
                                                       valik::metadata const & reference)
 {
-    auto matches = valik::read_stellar_output(consolidation_input_path(number_of_bins, segment_overlap), reference, std::ios::binary);
+    auto matches = valik::read_alignment_output<stellar_match>(consolidation_input_path(number_of_bins, segment_overlap), reference, std::ios::binary);
     std::sort(matches.begin(), matches.end(), std::greater<valik::stellar_match>());
     matches.erase( std::unique( matches.begin(), matches.end() ), matches.end() );
     return matches;
@@ -185,8 +185,8 @@ TEST(consolidate_matches_with_options, bins8overlap50filter)
             arguments.numMatches = n;
             valik::consolidate_matches(arguments);
 
-            auto expected = valik::read_stellar_output(consolidated_matches_path(arguments.numMatches, arguments.disableThresh), reference, std::ios::binary);
-            auto actual = valik::read_stellar_output(arguments.out_file, reference, std::ios::binary);
+            auto expected = valik::read_alignment_output<stellar_match>(consolidated_matches_path(arguments.numMatches, arguments.disableThresh), reference, std::ios::binary);
+            auto actual = valik::read_alignment_output<stellar_match>(arguments.out_file, reference, std::ios::binary);
 
             check_consolidation(query_ids, initial, actual, arguments);
 
@@ -219,8 +219,8 @@ TEST(consolidate_matches_with_options, bins16overlap50filter)
             arguments.numMatches = n;
             valik::consolidate_matches(arguments);
 
-            //auto expected = valik::read_stellar_output(consolidated_matches_path(arguments.numMatches, arguments.disableThresh), reference, std::ios::binary);
-            auto actual = valik::read_stellar_output(arguments.out_file, reference, std::ios::binary);
+            //auto expected = valik::read_alignment_output<stellar_match>(consolidated_matches_path(arguments.numMatches, arguments.disableThresh), reference, std::ios::binary);
+            auto actual = valik::read_alignment_output<stellar_match>(arguments.out_file, reference, std::ios::binary);
 
             check_consolidation(query_ids, initial, actual, arguments);
 
