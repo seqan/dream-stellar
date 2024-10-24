@@ -18,7 +18,7 @@ std::string truncate_fasta_id(std::string const & id)
 void consolidate_matches(search_arguments const & arguments)
 {
     auto ref_meta = metadata(arguments.ref_meta_path);
-    auto matches = read_stellar_output(arguments.all_matches, ref_meta);
+    auto matches = read_alignment_output<stellar_match>(arguments.all_matches, ref_meta);
     //auto before_duplicate_removal = matches.size();
     std::sort(matches.begin(), matches.end(), std::greater<stellar_match>());
     matches.erase( std::unique( matches.begin(), matches.end() ), matches.end() );
@@ -101,7 +101,7 @@ void consolidate_matches(search_arguments const & arguments)
             seqan3::debug_stream << "Disabled " << disabled_queries.size() << " queries.\n";
     }
 
-    write_stellar_output(arguments.out_file, consolidated_matches);
+    write_alignment_output<stellar_match>(arguments.out_file, consolidated_matches);
 }
 
 }  // namespace valik

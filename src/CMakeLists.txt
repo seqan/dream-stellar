@@ -51,9 +51,6 @@ target_link_libraries ("${PROJECT_NAME}_search_lib" PUBLIC "raptor_threshold")
 add_library ("${PROJECT_NAME}_consolidation_lib" STATIC consolidate/consolidate_matches.cpp)
 target_link_libraries ("${PROJECT_NAME}_consolidation_lib" PUBLIC "raptor_threshold")
 
-add_library ("${PROJECT_NAME}_consolidation_io_lib" STATIC consolidate/io.cpp)
-target_link_libraries ("${PROJECT_NAME}_consolidation_io_lib" PUBLIC "raptor_threshold")
-
 add_library ("${PROJECT_NAME}_merge_processes_lib" STATIC consolidate/merge_processes.cpp)
 target_link_libraries ("${PROJECT_NAME}_merge_processes_lib" PUBLIC "raptor_threshold")
 
@@ -85,7 +82,6 @@ target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_split_wr
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_build_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_search_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_consolidation_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_consolidation_io_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_merge_processes_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_threshold_lib")
 target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_index_size_lib")
