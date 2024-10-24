@@ -50,8 +50,8 @@ TEST_P(dream_short_search, short_shared_mem)
     EXPECT_EQ(result.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 4 database sequences.\n"});
     EXPECT_EQ(result.err, std::string{});
 
-    auto distributed = valik::read_stellar_output(search_result_path(number_of_errors), reference, std::ios::binary);
-    auto local = valik::read_stellar_output("search.gff", reference);
+    auto distributed = valik::read_alignment_output<valik::stellar_match>(search_result_path(number_of_errors), reference, std::ios::binary);
+    auto local = valik::read_alignment_output<valik::stellar_match>("search.gff", reference);
 
     compare_gff_out(distributed, local);
 }
@@ -152,8 +152,8 @@ TEST_P(dream_split_search, split_shared_mem)
     EXPECT_EQ(search.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 4 database sequences.\n"});
     EXPECT_EQ(search.err, std::string{});
 
-    auto distributed = valik::read_stellar_output(search_result_path(number_of_errors), reference, std::ios::binary);
-    auto local = valik::read_stellar_output("search.gff", reference);
+    auto distributed = valik::read_alignment_output<valik::stellar_match>(search_result_path(number_of_errors), reference, std::ios::binary);
+    auto local = valik::read_alignment_output<valik::stellar_match>("search.gff", reference);
     
     compare_gff_out(distributed, local);
 }

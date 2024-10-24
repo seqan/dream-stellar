@@ -8,6 +8,7 @@
 #include <valik/split/metadata.hpp>
 
 #include <utilities/consolidate/io.hpp>
+#include <utilities/consolidate/stellar_match.hpp>
 
 namespace valik
 {

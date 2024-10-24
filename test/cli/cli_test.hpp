@@ -9,6 +9,7 @@
 #include <valik/index.hpp>
 #include <valik/split/metadata.hpp>
 #include <utilities/consolidate/io.hpp>
+#include <utilities/consolidate/stellar_match.hpp>
 
 #include <ranges>
 #include <string_view>
