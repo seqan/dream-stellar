@@ -18,7 +18,7 @@ namespace valik
 struct param_set
 {
     uint8_t k;
-    uint8_t t;
+    uint16_t t;
 
     param_set() noexcept = default;
     param_set(param_set const &) noexcept = default;

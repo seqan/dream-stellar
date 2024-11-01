@@ -6,6 +6,8 @@
 #include <cereal/archives/binary.hpp> 
 #include <cereal/types/vector.hpp>
 
+#include <seqan3/core/debug_stream.hpp>
+
 namespace valik
 {
 
@@ -81,8 +83,14 @@ struct kmer_loss
         if (kmer_lemma_threshold(pattern.l, params.k, pattern.e) >= params.t)
             return 0.0;
         if (params.t > fn_conf_counts.size())
-            throw std::runtime_error("Calculated configuration count table for t=[1, " + std::to_string(fn_conf_counts.size()) + "]. " 
-                                     "Can't find FNR for t=" + std::to_string(params.t));
+            throw std::runtime_error("Calculated configuration count table for threshold=[1, " + std::to_string(fn_conf_counts.size()) + "]. " 
+                                     "Can't find FNR for threshold=" + std::to_string(params.t));
+        if (pattern.e >= fn_conf_counts[0].size())
+            throw std::runtime_error("Calculated configuration count table for errors=[0, " + std::to_string(fn_conf_counts[0].size()) + "]. " 
+                                     "Can't find FNR for errors=" + std::to_string(pattern.e));
+        if (pattern.l >= fn_conf_counts[0][0].size())
+            throw std::runtime_error("Calculated configuration count table for min_len=[1, " + std::to_string(fn_conf_counts[0][0].size()) + "]. " 
+                                     "Can't find FNR for min_len=" + std::to_string(pattern.l));
         return fn_conf_counts[params.t - 1][pattern.e][pattern.l] / (double) pattern.total_conf_count();
     }
 
