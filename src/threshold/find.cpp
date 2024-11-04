@@ -13,8 +13,16 @@ param_set get_best_params(search_pattern const & pattern,
 {
     param_space space = fn_attr.space;
 
-    if (kmer_lemma_threshold(pattern.l, space.max_k(), pattern.e) > space.max_thresh)
-        return param_set(space.max_k(), kmer_lemma_threshold(pattern.l, space.max_k(), pattern.e));
+    if (pattern.l > space.max_len)
+    {
+        for (uint8_t k = space.max_k(); k >= space.min_k(); k--)
+        {
+            if (kmer_lemma_threshold(pattern.l, k, pattern.e) > THRESH_LOWER)
+                return param_set(k, kmer_lemma_threshold(pattern.l, k, pattern.e));
+        }
+
+        throw std::runtime_error{"Unable to deduce threshold for min_len=" + std::to_string(pattern.l) + " and errors=" + std::to_string(pattern.e)};
+    }
 
     param_set best_params(space.min_k(), 1, space);
     auto best_score = score(fn_attr.get_kmer_loss(space.min_k()), pattern, best_params, ref_meta, PATTERNS_PER_SEGMENT);

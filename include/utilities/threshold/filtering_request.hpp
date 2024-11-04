@@ -23,16 +23,7 @@ struct filtering_request
     const metadata & query_meta;
 
     filtering_request(search_pattern const & pat, metadata const & ref, metadata const & query) : 
-                      pattern(pat), ref_meta(ref), query_meta(query)
-    {
-        auto space = param_space();
-        if (pat.e > space.max_errors)
-            throw std::runtime_error{"error_count=" + std::to_string(pat.e) + " out of range [0, " + 
-                                     std::to_string(space.max_errors) + "]"};
-        if (pat.l > space.max_len)
-            throw std::runtime_error{"min_len=" + std::to_string(pat.l) + " out of range [0, " + 
-                                     std::to_string(space.max_len) + "]"};
-    }
+                      pattern(pat), ref_meta(ref), query_meta(query) { }
 
     /**
      * @brief An approximation of the probability of a query segment having a spurious match in a reference bin. 
