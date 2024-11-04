@@ -26,7 +26,7 @@ struct param_set
     param_set & operator=(param_set &&) noexcept = default;
     ~param_set() noexcept = default;
 
-    param_set(uint8_t const kmer_size, uint8_t const thresh, param_space const & space) : k(kmer_size), t(thresh)
+    param_set(uint8_t const kmer_size, uint16_t const thresh, param_space const & space) : k(kmer_size), t(thresh)
     {
         if ((kmer_size < std::get<0>(space.kmer_range)) | (kmer_size > std::get<1>(space.kmer_range)))
         {
@@ -34,7 +34,14 @@ struct param_set
                                                    std::to_string(std::get<0>(space.kmer_range)) + ", " + 
                                                    std::to_string(std::get<1>(space.kmer_range)) + "]"}; 
         }
+
+        if (thresh > space.max_thresh)
+        {
+            throw std::runtime_error{"t=" + std::to_string(thresh) + " out of range [0, " + std::to_string(space.max_thresh) + "]"};
+        }
     }
+
+    param_set(uint8_t const kmer_size, uint16_t const thresh) : k(kmer_size), t(thresh) {}
 
     template <class Archive>
     void serialize(Archive & archive)

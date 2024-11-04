@@ -14,7 +14,7 @@ param_set get_best_params(search_pattern const & pattern,
     param_space space = fn_attr.space;
 
     if (kmer_lemma_threshold(pattern.l, space.max_k(), pattern.e) > space.max_thresh)
-        return param_set(space.max_k(), kmer_lemma_threshold(pattern.l, space.max_k(), pattern.e), space);
+        return param_set(space.max_k(), kmer_lemma_threshold(pattern.l, space.max_k(), pattern.e));
 
     param_set best_params(space.min_k(), 1, space);
     auto best_score = score(fn_attr.get_kmer_loss(space.min_k()), pattern, best_params, ref_meta, PATTERNS_PER_SEGMENT);
@@ -98,23 +98,24 @@ search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
                                                   kmer_loss attr, 
                                                   uint8_t const max_errors)
 {
-    param_space space{};
+    constexpr param_space space{};
     search_kmer_profile kmer_thresh{attr.k, ref_meta.pattern_size};
-    for (uint8_t errors{0}; errors <= max_errors && errors <= space.max_errors; errors++)
+    for (uint8_t errors{0}; errors <= max_errors; errors++)
     {
         search_pattern pattern(errors, ref_meta.pattern_size);
         search_kind search_type{search_kind::LEMMA};
-        auto best_params = param_set(attr.k, kmer_lemma_threshold(pattern.l, attr.k, errors), space);
-        auto try_params = best_params;
 
         if (kmer_lemma_threshold(pattern.l, attr.k, errors) > space.max_thresh)
         {
-            double fnr{0};
+            auto best_params = param_set(attr.k, kmer_lemma_threshold(pattern.l, attr.k, errors));
+            double fnr{0}; // == attr.fnr_for_param_set(pattern, best_params)
             double fp_per_pattern = ref_meta.pattern_spurious_match_prob(best_params);
             kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type, fnr, fp_per_pattern});
         }
         else
         {
+            auto best_params = param_set(attr.k, kmer_lemma_threshold(pattern.l, attr.k, errors), space);
+            auto try_params = best_params;
             if ((best_params.t < THRESH_LOWER) ||  
                 segment_fpr(ref_meta.pattern_spurious_match_prob(best_params), PATTERNS_PER_SEGMENT) > FPR_UPPER)
             {

@@ -14,7 +14,7 @@ TEST(error_handling, kmer_size)
         }
         catch( const std::runtime_error& e )
         {
-            EXPECT_STREQ( ("k=" + std::to_string(kmer_size) + " out of range [9, 21]").c_str(), e.what() );
+            EXPECT_STREQ( ("k=" + std::to_string(kmer_size) + " out of range [9, 35]").c_str(), e.what() );
             throw;
         }
     }, std::runtime_error );
@@ -24,7 +24,7 @@ TEST(error_handling, kmer_size)
         valik::param_set(kmer_size, thresh, space);
     });
 
-    kmer_size = 22;
+    kmer_size = 36;
     EXPECT_THROW({
         try
         {
@@ -32,7 +32,7 @@ TEST(error_handling, kmer_size)
         }
         catch( const std::runtime_error& e )
         {
-            EXPECT_STREQ( ("k=" + std::to_string(kmer_size) + " out of range [9, 21]").c_str(), e.what() );
+            EXPECT_STREQ( ("k=" + std::to_string(kmer_size) + " out of range [9, 35]").c_str(), e.what() );
             throw;
         }
     }, std::runtime_error );
