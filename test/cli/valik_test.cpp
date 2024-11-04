@@ -178,7 +178,7 @@ struct split_options : public valik_base {};
 TEST_F(split_options, too_few_segments)
 {
     size_t n = 30;
-    size_t o = 0;
+    size_t o = 10;
     cli_test_result const result = execute_app("valik", "split", data("query.fasta"), 
                                                         "--seg-count", std::to_string(n), 
                                                         "--pattern", std::to_string(o),
@@ -197,7 +197,7 @@ TEST_F(split_options, too_few_segments)
 TEST_F(split_options, overlap_too_large)
 {
     size_t n = 30;
-    size_t o = 2000;
+    size_t o = 1000;
     cli_test_result const result = execute_app("valik", "split", data("query.fasta"), 
                                                         "--seg-count", std::to_string(n), 
                                                         "--pattern", std::to_string(o),
