@@ -91,7 +91,7 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                                      "Increase this value to search more of the reference. "
                                      "Use with --keep-best-repeats.",
                       .advanced = true,
-                      .validator = sharg::arithmetic_range_validator{0.001, 0.99}});
+                      .validator = sharg::arithmetic_range_validator{0.0, 1.0}});
     parser.add_flag(arguments.keep_all_repeats,
                     sharg::config{.short_id = '\0',
                     .long_id = "keep-all-repeats",
