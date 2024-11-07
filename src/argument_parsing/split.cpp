@@ -8,6 +8,7 @@ namespace valik::app
 
 void init_split_parser(sharg::parser & parser, split_arguments & arguments)
 {
+    param_space space{};
     init_shared_meta(parser);
     parser.add_positional_option(arguments.db_file,
                       sharg::config{.description = "File containing database sequences. If splitting --metagenome provide a text file with a list of cluster paths.",
@@ -21,7 +22,7 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       sharg::config{.short_id = '\0',
                       .long_id = "pattern",
                       .description = "Choose how much consecutive segments overlap. This is the minimum length of a local alignment.",
-                      .validator = positive_integer_validator{true}});
+                      .validator = sharg::arithmetic_range_validator{10u, 1000u}});
     parser.add_option(arguments.error_rate,
                       sharg::config{.short_id = 'e',
                       .long_id = "error-rate",
@@ -36,7 +37,7 @@ void init_split_parser(sharg::parser & parser, split_arguments & arguments)
                       sharg::config{.short_id = 'k',
                       .long_id = "kmer",
                       .description = "Choose the kmer size.",
-                      .validator = positive_integer_validator{true}});
+                      .validator = sharg::arithmetic_range_validator{space.min_k(), space.max_k()}});
     parser.add_option(arguments.seg_count_in,
                       sharg::config{.short_id = 'n',
                       .long_id = "seg-count",
