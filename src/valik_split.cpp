@@ -48,8 +48,11 @@ void valik_split(split_arguments & arguments)
             std::cout << "max error rate " << arguments.error_rate << '\n';
         }
         
-        auto best_params = get_best_params(pattern, meta, fn_attr, arguments.verbose);
-        arguments.kmer_size = best_params.k;
+        if (arguments.kmer_size == std::numeric_limits<uint8_t>::max())
+        {
+            auto best_params = get_best_params(pattern, meta, fn_attr, arguments.verbose);
+            arguments.kmer_size = best_params.k;
+        }
         const kmer_loss & attr = fn_attr.get_kmer_loss(arguments.kmer_size);
 
         search_kmer_profile search_profile = find_thresholds_for_kmer_size(meta, attr, arguments.errors);

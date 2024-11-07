@@ -68,7 +68,7 @@ struct split_arguments
     float error_rate{0.05};
     uint8_t errors{0};
     float fpr{0.05};
-    uint8_t kmer_size{20};
+    uint8_t kmer_size{std::numeric_limits<uint8_t>::max()};
     bool metagenome{false};
     std::filesystem::path ref_meta_path{};
     bool write_out{false};
