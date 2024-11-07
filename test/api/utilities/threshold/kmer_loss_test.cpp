@@ -171,11 +171,11 @@ TEST(kmer_loss, exhaustive_comparison)
     }
 }
 
-void try_fnr(uint8_t e, size_t l, uint8_t k, uint8_t t, double expected_fnr)
+void try_fnr(uint8_t e, size_t l, uint8_t k, uint16_t t, double expected_fnr)
 {
     valik::param_space space{};
     valik::search_pattern pattern(e, l);
-    valik::param_set param(k, t, space);
+    valik::param_set param(k, t);
 
     valik::fn_confs fn_attr(space);
 
@@ -187,6 +187,10 @@ TEST(false_negative, try_kmer_lemma_thershold)
     try_fnr(0u, (size_t) 50, 16u, 35u, 0.0);
     try_fnr(1u, (size_t) 50, 16u, 19u, 0.0);
     try_fnr(2u, (size_t) 50, 16u, 3u, 0.0);
+
+    try_fnr(0u, (size_t) 1000, 35u, 966u, 0.0);
+    try_fnr(1u, (size_t) 1000, 35u, 931u, 0.0);
+    try_fnr(2u, (size_t) 1000, 35u, 896u, 0.0);
 }
 
 TEST(false_negative, try_threshold_above_kmer_lemma)
@@ -200,8 +204,8 @@ TEST(false_negative, try_threshold_above_kmer_lemma)
         }
         catch( const std::runtime_error& e )
         {
-            EXPECT_STREQ( ("Calculated configuration count table for t=[1, " + std::to_string(space.max_thresh) + "]. " 
-                           "Can't find FNR for t=" + std::to_string(t)).c_str(), e.what() );
+            EXPECT_STREQ( ("Calculated configuration count table for threshold=[1, " + std::to_string(space.max_thresh) + "]. " 
+                           "Can't find FNR for threshold=" + std::to_string(t)).c_str(), e.what() );
             throw;
         }
     }, std::runtime_error );
