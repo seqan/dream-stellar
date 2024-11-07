@@ -118,12 +118,6 @@ void run_split(sharg::parser & parser)
         arguments.meta_out.replace_extension("bin");
     }
 
-    if (parser.is_option_set("kmer") && !arguments.only_split)
-    {
-        std::cerr << "WARNING: kmer size will be adjusted for database size. "
-                  << "Set --without-parameter-tuning to force manual input.\n";
-    }
-
     if (parser.is_option_set("seg-count") && !arguments.only_split)
     {
         std::cerr << "WARNING: seg count will be adjusted to the next multiple of 64. "
