@@ -25,11 +25,11 @@ void consolidate_matches(search_arguments const & arguments)
 
     //seqan3::debug_stream << before_duplicate_removal << '\t' << matches.size() << '\n';
     // <query_ind, <refs>>
-    std::unordered_set<std::string> overabundant_queries{}; 
-    std::unordered_set<std::string> disabled_queries{};
+    std::set<std::string> overabundant_queries{}; 
+    std::set<std::string> disabled_queries{};
 
     // <query_ind, match_count>>
-    std::unordered_map<std::string, size_t> total_match_counter{};
+    std::map<std::string, size_t> total_match_counter{};
     
     decltype(matches) consolidated_matches{};
     
