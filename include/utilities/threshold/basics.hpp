@@ -57,9 +57,9 @@ inline size_t kmer_lemma_threshold(size_t const l, uint8_t const k, uint8_t cons
 struct param_space
 {
     constexpr static uint8_t max_errors{15};    
-    uint16_t max_thresh{20};
+    uint8_t max_thresh{20};
     constexpr static size_t max_len{150};
-    constexpr static std::pair<uint8_t, uint8_t> kmer_range{9, 35};
+    constexpr static std::pair<uint8_t, uint8_t> kmer_range{9, 21};
 
     param_space() noexcept = default;
     param_space(param_space const &) noexcept = default;
@@ -67,7 +67,7 @@ struct param_space
     param_space & operator=(param_space &&) noexcept = default;
     ~param_space() noexcept = default;
 
-    param_space(uint16_t thresh) : max_thresh(thresh) {}
+    param_space(uint8_t thresh) : max_thresh(thresh) {}
 
     uint8_t min_k() const
     {
