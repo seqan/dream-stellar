@@ -184,13 +184,13 @@ void try_fnr(uint8_t e, size_t l, uint8_t k, uint16_t t, double expected_fnr)
 
 TEST(false_negative, try_kmer_lemma_thershold)
 {
-    try_fnr(0u, (size_t) 50, 16u, 35u, 0.0);
+    try_fnr(0u, (size_t) 50, 16u, 23u, 0.0);
     try_fnr(1u, (size_t) 50, 16u, 19u, 0.0);
     try_fnr(2u, (size_t) 50, 16u, 3u, 0.0);
 
-    try_fnr(0u, (size_t) 1000, 35u, 966u, 0.0);
-    try_fnr(1u, (size_t) 1000, 35u, 931u, 0.0);
-    try_fnr(2u, (size_t) 1000, 35u, 896u, 0.0);
+    try_fnr(0u, (size_t) 1000, 23u, 978u, 0.0);
+    try_fnr(1u, (size_t) 1000, 23u, 955u, 0.0);
+    try_fnr(2u, (size_t) 1000, 23u, 932u, 0.0);
 }
 
 TEST(false_negative, try_threshold_above_kmer_lemma)
