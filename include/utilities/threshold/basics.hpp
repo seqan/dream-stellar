@@ -59,7 +59,7 @@ struct param_space
     constexpr static uint8_t max_errors{15};    
     uint16_t max_thresh{20};
     constexpr static size_t max_len{150};
-    constexpr static std::pair<uint8_t, uint8_t> kmer_range{9, 35};
+    constexpr static std::pair<uint8_t, uint8_t> kmer_range{9, 23};
 
     param_space() noexcept = default;
     param_space(param_space const &) noexcept = default;
