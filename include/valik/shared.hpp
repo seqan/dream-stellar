@@ -183,6 +183,7 @@ struct search_arguments final : public minimiser_threshold_arguments, search_pro
     bool verbose{false};
     bool keep_best_repeats{false};
     bool keep_all_repeats{false};
+    bool stellar_only{false};
 
     size_t cart_max_capacity{1000};
     size_t max_queued_carts{std::numeric_limits<size_t>::max()};
