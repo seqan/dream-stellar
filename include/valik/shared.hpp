@@ -182,6 +182,7 @@ struct search_arguments final : public minimiser_threshold_arguments, search_pro
     bool fast{false};
     bool verbose{false};
     bool keep_best_repeats{false};
+    double best_bin_entropy_cutoff{0.25};
     bool keep_all_repeats{false};
     bool stellar_only{false};
 
