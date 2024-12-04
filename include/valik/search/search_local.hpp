@@ -86,7 +86,13 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
         auto prefilter_bin_count = ref_meta.seg_count;
         split_arguments stellar_dist_arguments;
         // distribute stellar search
-        stellar_dist_arguments.seg_count = std::max(ref_meta.seq_count, (size_t) arguments.threads);
+        
+        // for some number of reference sequences split sequences into as many segments as is the next multiple of thread count
+        if (ref_meta.seq_count % arguments.threads > 0)
+            stellar_dist_arguments.seg_count = ref_meta.seq_count + (arguments.threads - ref_meta.seq_count % arguments.threads);
+        else
+            stellar_dist_arguments.seg_count = ref_meta.seq_count;
+
         stellar_dist_arguments.pattern_size = ref_meta.pattern_size;
         ref_meta.update_segments_for_distributed_stellar(stellar_dist_arguments);
         // update cart queue parameters for distributed stellar
