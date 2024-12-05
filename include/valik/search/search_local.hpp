@@ -217,6 +217,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
             for (auto next = queue.dequeue(); next; next = queue.dequeue())
             {
                 auto & [bin_id, records] = *next;
+                seqan3::debug_stream << "Processing bin " << std::to_string(bin_id) << " containing " << std::to_string(records.size()) << " records\n";
 
                 std::unique_lock g(mutex);
                 std::filesystem::path cart_queries_path = var_pack.tmp_path / std::string("query_" + std::to_string(bin_id) +

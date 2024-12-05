@@ -77,6 +77,9 @@ struct StellarStatistics
         if (kMerComputed)
             kMerLength = std::min(std::max(1u, smin), 32u);
 
+        seqan3::debug_stream << "kMerLength\t" << std::to_string(kMerLength) << '\n';
+        seqan3::debug_stream << "options.minLength\t" << std::to_string(options.minLength) << '\n';
+
         if (kMerLength > (unsigned)options.minLength)
             throw std::domain_error{"qGram must be smaller than minLength."};
 

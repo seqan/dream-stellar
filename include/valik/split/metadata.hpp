@@ -326,6 +326,7 @@ struct metadata
             {
                 auto seq = *it;
                 size_t start = 0;
+                seqan3::debug_stream << seq.id << '\t' << seq.len << '\n';
                 if (seq.len <= default_seg_len * 1.5)
                 {
                     // database sequence is single segment
@@ -406,6 +407,7 @@ struct metadata
         void update_segments_for_distributed_stellar(arg_t arguments)
         {
             default_seg_len = total_len / arguments.seg_count + 1;
+            seqan3::debug_stream << "default_seg_len\t" << default_seg_len << '\n';
             segments.clear();
             if (default_seg_len <= arguments.pattern_size)
             {
@@ -423,7 +425,7 @@ struct metadata
             for (size_t i = 0; i < segments.size(); i++)
             {
                     segments[i].id = i;
-                    seqan3::debug_stream << segments[i].id << '\t' << segments[i].start << '\t' <<< segments[i].len << '\n';
+                    seqan3::debug_stream << segments[i].id << '\t' << segments[i].start << '\t' << segments[i].len << '\n';
             }
                 
         }
