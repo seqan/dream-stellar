@@ -354,7 +354,7 @@ void run_search(sharg::parser & parser)
         arguments.pattern_size = search_profile.l;
         arguments.errors = std::ceil(arguments.error_rate * arguments.pattern_size);    // update based on pattern size in metadata
         
-        if (!arguments.manual_parameters)
+        if (!arguments.stellar_only)
         {
             search_error_profile error_profile = search_profile.get_error_profile(arguments.errors);
             // seg_count is inferred in metadata constructor
@@ -402,11 +402,12 @@ void run_search(sharg::parser & parser)
 
         if (!parser.is_option_set("p_max") && arguments.fast)
             arguments.p_max = 0.05;
+        else
+        {
+            arguments.search_type = search_kind::STELLAR;
+        }
     }
-    else
-    {
-        arguments.search_type = search_kind::STELLAR;
-    }
+
 
     // ==========================================
     // Dispatch
