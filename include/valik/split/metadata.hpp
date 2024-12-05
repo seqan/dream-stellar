@@ -415,12 +415,17 @@ struct metadata
 
             auto seq_begin = sequences.begin();
             make_equal_length_segments(arguments.pattern_size, seq_begin);
+            seqan3::debug_stream << "Making " << std::to_string(segments.size()) << " segments\n";
             seg_count = segments.size();
 
             std::stable_sort(sequences.begin(), sequences.end(), fasta_order());
             std::stable_sort(segments.begin(), segments.end(), fasta_order());
             for (size_t i = 0; i < segments.size(); i++)
-                segments[i].id = i;
+            {
+                    segments[i].id = i;
+                    seqan3::debug_stream << segments[i].id << '\t' << segments[i].start << '\t' <<< segments[i].len << '\n';
+            }
+                
         }
 
         /**
