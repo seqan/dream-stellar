@@ -9,10 +9,9 @@
 namespace valik
 {
 
-//!TODO: determine suitable parameters
 constexpr double FPR_UPPER{0.1};
-constexpr double FNR_UPPER{0.05};
-constexpr uint8_t THRESH_LOWER{4};
+constexpr double FNR_UPPER{0.15};
+constexpr uint8_t THRESH_LOWER{2};
 constexpr size_t PATTERNS_PER_SEGMENT{5000};
 
 /**
