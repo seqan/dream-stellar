@@ -121,18 +121,6 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                                    "\\fBthreshold_*.bin\\fP: Depends on pattern, window, kmer/shape, errors, and tau.\n"
                                    "\\fBcorrection_*.bin\\fP: Depends on pattern, window, kmer/shape, p_max, and fpr.", 
                     .advanced = true});
-    parser.add_option(arguments.tau,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "tau",
-                      .description = "Used in the dynamic thresholding. The higher tau, the lower the threshold.",
-                      .advanced = true,
-                      .validator = sharg::arithmetic_range_validator{0, 1}});
-    parser.add_option(arguments.p_max,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "p_max",
-                      .description = "Used in the dynamic thresholding. The higher p_max, the lower the threshold.",
-                      .advanced = true,
-                      .validator = sharg::arithmetic_range_validator{0, 1}});
     parser.add_option(arguments.query_every,
                       sharg::config{.short_id = '\0',
                       .long_id = "query-every",
@@ -393,10 +381,10 @@ void run_search(sharg::parser & parser)
         // ==========================================
         // Set strict thresholding parameters for fast mode.
         // ==========================================
-        if (!parser.is_option_set("tau") && arguments.fast)
+        if (arguments.fast)
             arguments.tau = 0.99999;
 
-        if (!parser.is_option_set("p_max") && arguments.fast)
+        if (arguments.fast)
             arguments.p_max = 0.05;
     }
 
