@@ -296,16 +296,8 @@ void run_search(sharg::parser & parser)
     // ==========================================
     if (parser.is_option_set("threshold") && !arguments.stellar_only)
     {
-        if (!arguments.manual_parameters)
-        {
-            std::cerr << "WARNING: threshold will be adjusted to parameters in reference metadata. " << 
-                         "Add --without-parameter-tuning to force manual input\n.";
-        }
-        else
-        {
-            arguments.threshold_was_set = true;
-            arguments.threshold_percentage = arguments.threshold / (double) (arguments.pattern_size - arguments.shape.size() + 1);
-        }
+        arguments.threshold_was_set = true;
+        arguments.threshold_percentage = arguments.threshold / (double) (arguments.pattern_size - arguments.shape.size() + 1);
     }
 
     // ==========================================
@@ -353,7 +345,8 @@ void run_search(sharg::parser & parser)
         else
         {
             arguments.max_segment_len = max_segment_len(error_profile.fp_per_pattern, arguments.pattern_size, arguments.query_every);
-            arguments.threshold = error_profile.params.t;
+            if (!parser.is_option_set("threshold"))
+                arguments.threshold = error_profile.params.t;
             arguments.threshold_was_set = true;  // use raptor::threshold_kinds::percentage
             if (arguments.threshold > arguments.pattern_size - arguments.shape.size() + 1)
                 throw sharg::validation_error("Threshold can not be larger than the number of k-mers per pattern.");
