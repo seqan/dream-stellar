@@ -9,9 +9,6 @@ fi
 
 mkdir -p $VALIK_TMP
 
-tau=0.75
-p_max=0.75
-
 for w in 19 23
 do
     for e in 0 1
@@ -25,7 +22,7 @@ do
                 output="8bins"$w"window"$e"error"$p"pattern"$n"query_every.gff"
                 er=$( echo $e/$p | bc -l )
                 valik search --distribute --index ../build/8bins${w}window.ibf --query query.fq --output "$output" --error-rate "$er" --pattern "$p" \
-                             --query-every "$n" --tau "$tau" --p_max "$p_max" --threads 1 --without-parameter-tuning --cart-max-capacity 3 --max-queued-carts 10
+                             --query-every "$n" --threads 1 --without-parameter-tuning --cart-max-capacity 3 --max-queued-carts 10
                 rm "$output"
             done
         done

@@ -351,8 +351,6 @@ TEST_P(valik_search_clusters, search)
                                                         "--index ", ibf_path(number_of_bins, window_size),
                                                         "--query ", data("query.fq"),
                                                         "--threads 1",
-                                                        "--tau 0.75",
-                                                        "--p_max 0.75", 
                                                         "--cart-max-capacity 3",
                                                         "--max-queued-carts 10",
                                                         "--without-parameter-tuning");
@@ -403,10 +401,8 @@ TEST_P(valik_search_segments, search)
                                                         "--error-rate ", std::to_string(error_rate),
                                                         "--index ", ibf_path(segment_overlap, number_of_bins, window_size),
                                                         "--query ", data("single_query.fasta"),
-                                                        "--tau 0.75",
                                                         "--threads 1",
                                                         "--ref-meta", segment_metadata_path(segment_overlap, number_of_bins),
-                                                        "--p_max 0.25", 
                                                         "--cart-max-capacity 3",
                                                         "--max-queued-carts 10",
                                                         "--without-parameter-tuning");
