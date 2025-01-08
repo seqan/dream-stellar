@@ -69,6 +69,10 @@ struct split_arguments
     uint8_t errors{0};
     float fpr{0.05};
     uint8_t kmer_size{std::numeric_limits<uint8_t>::max()};
+    std::string shape_str{};
+    seqan3::shape shape{};
+    uint8_t shape_weight{};
+    
     bool metagenome{false};
     std::filesystem::path ref_meta_path{};
     bool write_out{false};
