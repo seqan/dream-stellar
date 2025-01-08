@@ -20,7 +20,7 @@ namespace valik::app
  */
 template <bool stellar_only>
 bool search_distributed(search_arguments & arguments, search_time_statistics & time_statistics)
-{
+{   
     using index_structure_t = index_structure::ibf;
     auto index = valik_index<index_structure_t>{};
 
