@@ -119,7 +119,7 @@ bool search_distributed(search_arguments & arguments, search_time_statistics & t
 
                 float numEpsilon = arguments.error_rate;
                 process_args.insert(process_args.end(), {"-e", std::to_string(numEpsilon),
-                                                        "-l", std::to_string(arguments.pattern_size),
+                                                        "-l", std::to_string(arguments.minLength),
                                                         "-o", cart_output_path});
                 
                 process_args.insert(process_args.end(), {"--repeatPeriod", std::to_string(arguments.maxRepeatPeriod)});
