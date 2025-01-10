@@ -8,6 +8,7 @@
 
 #include <cereal/archives/binary.hpp> 
 #include <cereal/types/unordered_map.hpp>
+#include <cereal/types/string.hpp>
 
 #include <seqan3/core/debug_stream.hpp>
 

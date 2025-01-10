@@ -291,10 +291,10 @@ TEST_F(argparse_search, incorrect_error_rate)
                                                          "--query ", data("query.fq"),
                                                          "--index ", data("8bins19window.ibf"),
                                                          "--output search.gff",
-                                                         "--error-rate 0.11");
+                                                         "--error-rate 0.21");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option -e/--error-rate: Value 0.110000 is not in range [0.000000,0.100000].\n"});
+    EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option -e/--error-rate: Value 0.210000 is not in range [0.000000,0.200000].\n"});
 }
 
 TEST_F(argparse_search, not_manual_no_meta)
