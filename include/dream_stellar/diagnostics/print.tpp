@@ -128,6 +128,10 @@ void _writeMoreCalculatedParams(StellarOptions const & options,
     TSize minScore = options.minLength - (blast_stat::match + blast_stat::mismatch) * errors; // #matches - 2*#errors // #matches = minLenght - errors,
 
     outStr << "All matches resulting from your search have an E-value of: " << std::endl;
+    std::cerr << "refLen\t" << refLen << '\n';
+    std::cerr << "maxLengthQueries\t" << maxLengthQueries << '\n';
+    std::cerr << "minScore\t" << minScore << '\n';
+    
     outStr << "        " << _computeEValueFromScore(refLen, maxLengthQueries, minScore) << " or smaller";
     outStr << "  (match score = " << std::to_string(blast_stat::match) << ", error penalty = -";
     outStr << std::to_string(blast_stat::mismatch) << ")" << std::endl;

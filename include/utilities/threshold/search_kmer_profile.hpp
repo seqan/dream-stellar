@@ -168,7 +168,7 @@ struct search_kmer_profile
 
     void print() const 
     {
-        std::cout.precision(3);
+        std::cout.precision(6);
         std::cout << "\nRecommended shared " << std::to_string(k) << "-mer ";
         if (k >= shape.count())
             std::cout << "(" << shape.to_string() << ") "; 

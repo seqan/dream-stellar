@@ -9,7 +9,7 @@
 namespace valik
 {
 
-constexpr double FPR_UPPER{0.15};
+constexpr double FPR_UPPER{0.001};
 constexpr double FNR_UPPER{0.15};
 constexpr uint8_t THRESH_LOWER{2};
 constexpr size_t PATTERNS_PER_SEGMENT{5000};
@@ -19,7 +19,7 @@ constexpr size_t PATTERNS_PER_SEGMENT{5000};
 */
 inline double segment_fpr(double const pattern_p, size_t const patterns_per_segment)
 {
-    double none_match_p = pow(1 - pattern_p, patterns_per_segment);
+    double none_match_p = pow(1 - pattern_p, std::round(patterns_per_segment));
     return std::min(1 - none_match_p, 1.0);
 }
 
