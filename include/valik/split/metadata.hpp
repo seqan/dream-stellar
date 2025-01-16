@@ -448,7 +448,7 @@ struct metadata
         metadata(search_arguments & arguments)
         {
             scan_database_file(arguments.query_file);
-            if (!arguments.manual_parameters)
+            if (arguments.seg_count_in == std::numeric_limits<uint32_t>::max())
             {
                 //!TODO: what is a suitable value for this magic const
                 //!TODO: switch between prefiltered and stellar_only search?
