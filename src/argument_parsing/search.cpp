@@ -217,20 +217,7 @@ void run_search(sharg::parser & parser)
     // ==========================================
     if (parser.is_option_set("seg-count"))
     {
-        if (!arguments.manual_parameters)
-        {
-            std::cerr << "WARNING: segment count will be adjusted to match database metadata. "
-                      << "Set --without-parameter-tuning to force manual input.\n"; 
-        }
-    }
-    else
-    {
-        //!TODO: can this be removed?
-        if (arguments.split_query && arguments.manual_parameters)
-        {
-            throw std::runtime_error{"Provide the chosen number of query segments with --seg-count "
-                                     "or remove --without-parameter-tuning to deduce an optimal value from reference metadata."};
-        }
+        arguments.split_query = true;
     }
 
     // ==========================================
