@@ -18,7 +18,7 @@ struct env_var_pack
 {
     std::filesystem::path tmp_path;
     std::string stellar_exec{"stellar"};
-    std::string merge_exec{"cat"};
+    std::string merge_exec{"| xargs -n 1024 cat"};
 
     env_var_pack()
     {

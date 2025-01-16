@@ -11,16 +11,16 @@ bool merge_processes(search_arguments const & arguments,
     // merge metadata from all threads
     exec_meta.merge(arguments, time_statistics);
     std::vector<std::string> merge_process_args;
+    merge_process_args.push_back("echo");
     if (exec_meta.output_files.size() > 0)
     {
-        merge_process_args.push_back(var_pack.merge_exec);
         for (auto & path : exec_meta.output_files)
             merge_process_args.push_back(path);
+        merge_process_args.push_back(var_pack.merge_exec);
     }
     else
     {
         //!WORKAROUND: merge hangs if no valik matches found
-        merge_process_args.push_back("echo");
         merge_process_args.push_back("-n");
     }
 
