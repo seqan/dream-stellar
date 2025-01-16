@@ -217,8 +217,6 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                                                           "_" + std::to_string(exec_meta.bin_count[bin_id]++) + ".fasta");
                 g.unlock();
 
-                thread_meta.output_files.push_back(cart_queries_path.string() + ".gff");
-
                 dream_stellar::stellar_app_runtime stellarThreadTime{};
                 auto current_time = stellarThreadTime.now();
                 dream_stellar::StellarOptions threadOptions = make_thread_options(arguments, ref_meta, cart_queries_path, refLen, bin_id);
@@ -255,6 +253,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 std::vector<size_t> disabledQueryIDs{};
 
                 dream_stellar::StellarOutputStatistics outputStatistics{};
+                bool threadFoundMatches{false};
                 if (threadOptions.forward)
                 {
                     auto databaseSegment = dream_stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
@@ -287,22 +286,25 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         {
                             // forwardMatches is an in-out parameter
                             // this is the match consolidation
-                            dream_stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                            threadFoundMatches |= dream_stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
                                                                     forwardMatches, disabledQueryIDs);
                         }); // measure_time
 
-                        // open output files
-                        std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
-                        if (!outputFile.is_open())
+                        if (threadFoundMatches)
                         {
-                            std::cerr << "Could not open output file\t" << threadOptions.outputFile.c_str() << std::endl;
-                            error_in_search = true;
+                            // open output files
+                            std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::out);
+                            if (!outputFile.is_open())
+                            {
+                                std::cerr << "Could not open output file\t" << threadOptions.outputFile.c_str() << std::endl;
+                                error_in_search = true;
+                            }
+                            stellarThreadTime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+                            {
+                                // output forwardMatches on positive database strand
+                                dream_stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, refLen, "gff", outputFile);
+                            }); // measure_time
                         }
-                        stellarThreadTime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
-                        {
-                            // output forwardMatches on positive database strand
-                            dream_stellar::_writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, refLen, "gff", outputFile);
-                        }); // measure_time
 
                         outputStatistics = dream_stellar::_computeOutputStatistics(forwardMatches);
                     }); // measure_time
@@ -347,26 +349,31 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                         {
                             // reverseMatches is an in-out parameter
                             // this is the match consolidation
-                            dream_stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
+                            threadFoundMatches |= dream_stellar::_postproccessQueryMatches(databaseStrand, threadOptions.referenceLength, threadOptions,
                                                                     reverseMatches, disabledQueryIDs);
                         }); // measure_time
 
-                        // open output files
-                        std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::app);
-                        if (!outputFile.is_open())
+                        if (threadFoundMatches)
                         {
-                            std::cerr << "Could not open output file\t" << threadOptions.outputFile.c_str() << std::endl;
-                            error_in_search = true;
+                            // open output files
+                            std::ofstream outputFile(threadOptions.outputFile.c_str(), ::std::ios_base::app);
+                            if (!outputFile.is_open())
+                            {
+                                std::cerr << "Could not open output file\t" << threadOptions.outputFile.c_str() << std::endl;
+                                error_in_search = true;
+                            }
+                            stellarThreadTime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+                            {
+                                // output reverseMatches on negative database strand
+                                dream_stellar::_writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, refLen, "gff", outputFile);
+                            }); // measure_time
                         }
-                        stellarThreadTime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
-                        {
-                            // output reverseMatches on negative database strand
-                            dream_stellar::_writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, refLen, "gff", outputFile);
-                        }); // measure_time
-
                         outputStatistics.mergeIn(dream_stellar::_computeOutputStatistics(reverseMatches));
                     }); // measure_time
                 }
+
+                if (threadFoundMatches)
+                    thread_meta.output_files.push_back(cart_queries_path.string() + ".gff");
 
                 // Writes disabled query sequences to disabledFile.
                 if (disabledQueriesFile.is_open())

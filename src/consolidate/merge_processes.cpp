@@ -19,7 +19,6 @@ bool merge_processes(search_arguments const & arguments,
     // merge metadata from all threads
     exec_meta.merge(arguments, time_statistics);
     std::vector<std::string> merge_process_args;
-    merge_process_args.push_back("echo");
     if (exec_meta.output_files.size() > 0)
     {
         merge_process_args.push_back(var_pack.merge_exec);
@@ -47,7 +46,6 @@ bool merge_processes(search_arguments const & arguments,
 
     external_process merge(merge_process_args);
     matches_out << merge.cout();
-
     for (auto & path : exec_meta.output_files)
     {
         const bool error_in_delete = !std::filesystem::remove(path);
