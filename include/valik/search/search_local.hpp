@@ -118,35 +118,37 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                                                          (double) query_meta.value().seg_count)) << "bp\n";
         }
 
-        if (!arguments.manual_parameters)
+        search_pattern pattern(arguments.errors, arguments.pattern_size);
+        param_space space;
+        param_set params(arguments.shape_size, arguments.threshold);
+        double fpr = -1.0;
+        if (ref_meta.pattern_size == arguments.pattern_size)
         {
-            search_pattern pattern(arguments.errors, arguments.pattern_size);
-            param_space space;
-            param_set params(arguments.shape_size, arguments.threshold);
             filtering_request request(pattern, ref_meta, query_meta.value());
             if ((request.fpr(params) > 0.2) && (arguments.search_type != search_kind::STELLAR))
-                std::cerr << "WARNING: Prefiltering will be inefficient for a high error rate.\n";
+                std::cerr << "[Warning] Prefiltering will be inefficient for a high error rate.\n";
+            fpr = request.fpr(params);
+        }
 
-            if (arguments.verbose)
+        if (arguments.verbose)
+        {
+            std::cout.precision(3);
+
+            std::cout << "\n-----------Search parameters-----------\n";
+            std::cout << "kmer size " << std::to_string(arguments.shape_size) << '\n';
+            std::cout << "window size " << std::to_string(arguments.window_size) << '\n';
+            switch (arguments.search_type)
             {
-                std::cout.precision(3);
-
-                std::cout << "\n-----------Search parameters-----------\n";
-                std::cout << "kmer size " << std::to_string(arguments.shape_size) << '\n';
-                std::cout << "window size " << std::to_string(arguments.window_size) << '\n';
-                switch (arguments.search_type)
-                {
-                    case search_kind::LEMMA: std::cout << "k-mer lemma "; break;
-                    case search_kind::MINIMISER: std::cout << "minimiser "; break;
-                    case search_kind::HEURISTIC: std::cout << "heuristic "; break;
-                    default: break;
-                }
-                std::cout << "threshold ";
-                std::cout << std::to_string(arguments.threshold) << '\n';
-
-                std::cout << "FNR " << arguments.fnr << '\n';
-                std::cout << "FPR " << request.fpr(params) << '\n';
+                case search_kind::LEMMA: std::cout << "k-mer lemma "; break;
+                case search_kind::MINIMISER: std::cout << "minimiser "; break;
+                case search_kind::HEURISTIC: std::cout << "heuristic "; break;
+                default: break;
             }
+            std::cout << "threshold ";
+            std::cout << std::to_string(arguments.threshold) << '\n';
+
+            std::cout << "FNR " << arguments.fnr << '\n';
+            std::cout << "FPR " << fpr << '\n';
         }
     }
 

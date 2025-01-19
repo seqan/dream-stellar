@@ -117,7 +117,7 @@ struct minimiser_threshold_arguments
     double p_max{0.15};
     double fpr{0.05};
     uint8_t errors{0};
-    size_t pattern_size{};
+    size_t pattern_size{100};
     double threshold_percentage{std::numeric_limits<double>::quiet_NaN()};
     bool threshold_was_set{false};
     bool cache_thresholds{false};
@@ -138,9 +138,8 @@ struct search_profile_arguments
     virtual ~search_profile_arguments() = 0;   // make an abstract base struct
 
     //!TODO: deduce this automatically
-    bool split_query{false}; 
-    bool manual_parameters{false};
-    search_kind search_type{search_kind::LEMMA}; 
+    bool split_query{false};
+    search_kind search_type{search_kind::LEMMA};
     double fnr;
 
     protected:

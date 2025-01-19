@@ -78,11 +78,6 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       .long_id = "stellar-only",
                       .description = "Do not prefilter before Stellar search.",
                       .advanced = true});
-    parser.add_flag(arguments.manual_parameters,
-                      sharg::config{.short_id = '\0',
-                      .long_id = "without-parameter-tuning",
-                      .description = "Preprocess database without setting default parameters.",
-                      .advanced = true});
     parser.add_flag(arguments.keep_best_repeats,
                     sharg::config{.short_id = '\0',
                     .long_id = "keep-best-repeats",
@@ -206,12 +201,6 @@ void run_search(sharg::parser & parser)
 
     try_parsing(parser);
 
-    if (arguments.manual_parameters && !parser.is_option_set("ref-meta") && arguments.split_query)
-    {
-        if (!parser.is_option_set("pattern") || !parser.is_option_set("seg-count"))
-            throw std::runtime_error("Provide --ref-meta to deduce parameter values or provide --seg-count and --pattern manually.");
-    }
-
     // ==========================================
     // Process --seg-count.
     // ==========================================
@@ -259,28 +248,6 @@ void run_search(sharg::parser & parser)
             arguments.distribute = true;
     }
 
-    // ==========================================
-    // Process --pattern.
-    // ==========================================
-    if (parser.is_option_set("pattern"))
-    {
-        if (!arguments.manual_parameters)
-        {
-            std::cerr << "WARNING: pattern size (minimum match length) will be adjusted to match database metadata. "
-                      << "Set --without-parameter-tuning to force manual input.\n"; 
-        }
-        else
-        {
-            if (arguments.pattern_size < arguments.window_size)
-                throw sharg::validation_error{"The minimiser window cannot be bigger than the pattern."};
-        }
-    }
-    else
-    {
-        if (arguments.manual_parameters)
-            throw sharg::validation_error{"Input --pattern size or deduce parameter by providing --ref-meta."};
-    }
-
     arguments.errors = std::ceil(arguments.error_rate * arguments.pattern_size);
     
     // ==========================================
@@ -293,88 +260,105 @@ void run_search(sharg::parser & parser)
     }
 
     // ==========================================
-    // Process reference metadata path.
+    // Extract data from reference metadata.
     // ==========================================
     if (parser.is_option_set("ref-meta"))
     {
         // Create temporary file path for merging parallel Stellar runs.
         arguments.all_matches = arguments.out_file;
         arguments.all_matches += ".preliminary";
-    }
-    else
-    {
-        if (arguments.split_query && !arguments.manual_parameters)
+
+        std::optional<search_error_profile> error_profile;
+        if (parser.is_option_set("pattern"))
         {
-            throw std::runtime_error("Provide --ref-meta to deduce parameter values or provide --seg-count and --pattern manually.");
+            // make the search_error_profile on the fly
+            arguments.errors = std::ceil(arguments.error_rate * arguments.pattern_size);
+            auto def_thresh = kmer_lemma_threshold(arguments.pattern_size, arguments.shape_weight, arguments.errors);
+            param_set p(arguments.shape_weight, def_thresh);
+            auto k = search_kind::LEMMA;
+
+            if (parser.is_option_set("threshold"))
+            {
+                p.t = arguments.threshold;
+                if (arguments.threshold > def_thresh)
+                    k = search_kind::HEURISTIC;
+                if (arguments.threshold < def_thresh)
+                {
+                    std::cerr << "[Warning] the chosen threshold is low." 
+                              << "Remove --threshold to deduce a suitable value or ignore this warning if this was deliberate.\n";
+                }
+            }
+            error_profile = search_error_profile(p, {arguments.errors, arguments.pattern_size}, k, -1.0, -1.0);
         }
-    }
+        else
+        {
+            // deduce parameters from metadata
+            std::filesystem::path search_profile_file{arguments.ref_meta_path};
+            search_profile_file.replace_extension("arg");
+            sharg::input_file_validator argument_input_validator{{"arg"}};
+            argument_input_validator(search_profile_file);
+            search_kmer_profile search_profile{search_profile_file};
 
-    if (!arguments.manual_parameters)
-    {
-        // ==========================================
-        // Extract data from reference metadata.
-        // ==========================================
-        if (!parser.is_option_set("ref-meta"))
-            throw sharg::validation_error("Provide --ref-meta to deduce suitable search parameters or set --without-parameter-tuning and --pattern size.");
-
-        std::filesystem::path search_profile_file{arguments.ref_meta_path};
-        search_profile_file.replace_extension("arg");
-        sharg::input_file_validator argument_input_validator{{"arg"}};
-        argument_input_validator(search_profile_file);
-        search_kmer_profile search_profile{search_profile_file};
-
-        arguments.pattern_size = search_profile.l;
-        arguments.errors = std::ceil(arguments.error_rate * arguments.pattern_size);    // update based on pattern size in metadata
-        search_error_profile error_profile = search_profile.get_error_profile(arguments.errors);
-        // seg_count is inferred in metadata constructor
-        arguments.search_type = error_profile.search_type;
+            arguments.pattern_size = search_profile.l;
+            arguments.errors = std::ceil(arguments.error_rate * arguments.pattern_size);    // update based on pattern size in metadata
+            error_profile = search_profile.get_error_profile(arguments.errors);
+            if (parser.is_option_set("threshold") & (error_profile->search_type == search_kind::STELLAR))
+                error_profile->search_type = search_kind::HEURISTIC;
+        }
+        
+        arguments.search_type = error_profile->search_type;
         if (arguments.search_type == search_kind::STELLAR)
         {
-            std::cout << "Can not prefilter matches of length " << std::to_string(error_profile.pattern.l) << 
-                                     " with " << std::to_string(error_profile.pattern.e) << " errors. Searching without prefiltering.\n";
+            std::cout << "Can not prefilter matches of length " << std::to_string(arguments.pattern_size) << 
+                                     " with " << std::to_string(arguments.errors) << " errors. Searching without prefiltering.\n";
             arguments.fnr = 0.0;
         }
         else
         {
-            arguments.max_segment_len = max_segment_len(error_profile.fp_per_pattern, arguments.pattern_size, arguments.query_every);
-            if (!parser.is_option_set("threshold"))
-                arguments.threshold = error_profile.params.t;
+            if (!parser.is_option_set("pattern"))
+            {
+                arguments.max_segment_len = max_segment_len(error_profile->fp_per_pattern, arguments.pattern_size, arguments.query_every);
+                arguments.fnr = error_profile->fnr;
+            }
+
+            arguments.threshold = error_profile->params.t;
             arguments.threshold_was_set = true;  // use raptor::threshold_kinds::percentage
             if (arguments.threshold > arguments.pattern_size - arguments.shape.size() + 1)
                 throw sharg::validation_error("Threshold can not be larger than the number of k-mers per pattern.");
             arguments.threshold_percentage = arguments.threshold / (double) (arguments.pattern_size - arguments.shape.size() + 1);
-            arguments.fnr = error_profile.fnr;
-
-            if (arguments.window_size > arguments.shape_size)
-                arguments.search_type = search_kind::MINIMISER;
         }
+    }
 
-        // ==========================================
-        // More checks.
-        // ==========================================
-        if (parser.is_option_set("query-every"))
-        {
-            if (arguments.query_every > arguments.pattern_size)
-                throw sharg::validation_error("Reduce --query-every so that all positions in the query would be considered at least once."); 
-        }
-        else
-        {
-            if (arguments.fast)
-                arguments.query_every = 3;
-        }
+    if (arguments.pattern_size < arguments.window_size)
+        throw sharg::validation_error{"The minimiser window cannot be bigger than the pattern."};
 
-        // ==========================================
-        // Set strict thresholding parameters for fast mode.
-        // ==========================================
+    // ==========================================
+    // Seed spacing in the prefiltering.
+    // ==========================================
+    if (parser.is_option_set("query-every"))
+    {
+        if (arguments.query_every > arguments.pattern_size)
+            throw sharg::validation_error("Reduce --query-every so that all positions in the query would be considered at least once."); 
+    }
+    else
+    {
         if (arguments.fast)
-            arguments.tau = 0.99999;
+            arguments.query_every = 3;
+    }
 
-        if (arguments.fast)
-            arguments.p_max = 0.05;
+    // ==========================================
+    // Set strict thresholding parameters for fast mode.
+    // ==========================================
+    if (arguments.fast)
+    {
+        arguments.tau = 0.99999;
+        arguments.p_max = 0.05;
     }
 
     if (arguments.stellar_only)
         arguments.search_type = search_kind::STELLAR;
+    else if (arguments.window_size > arguments.shape_size)
+        arguments.search_type = search_kind::MINIMISER;
 
     if (!parser.is_option_set("minLength"))
         arguments.minLength = arguments.pattern_size;

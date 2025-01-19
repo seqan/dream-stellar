@@ -463,7 +463,7 @@ struct metadata
             }
 
             scan_database_sequences(arguments);
-            if (arguments.manual_parameters && (segments.size() != arguments.seg_count))
+            if ((arguments.seg_count_in < std::numeric_limits<uint32_t>::max()) & segments.size() != arguments.seg_count_in)
                 seqan3::debug_stream << "[Warning] Database was split into " << segments.size() << " instead of " << arguments.seg_count << " segments.\n";
 
             seq_count = sequences.size();
