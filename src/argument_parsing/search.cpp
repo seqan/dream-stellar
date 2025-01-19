@@ -328,6 +328,18 @@ void run_search(sharg::parser & parser)
         search_error_profile error_profile = search_profile.get_error_profile(arguments.errors);
         // seg_count is inferred in metadata constructor
         arguments.search_type = error_profile.search_type;
+        if (parser.is_option_set("threshold"))
+        {
+            auto lemma_thresh = kmer_lemma_threshold(arguments.pattern_size, arguments.shape_weight, arguments.errors);
+            if (arguments.threshold > lemma_thresh)
+                arguments.search_type = search_kind::HEURISTIC;
+            else 
+            {
+                arguments.search_type = search_kind::LEMMA;
+                if (arguments.threshold < lemma_thresh)
+                    std::cerr << "[Warning] chosen threshold is less than the k-mer lemma threshold. Ignore this warning if this was deliberate.";
+            }
+        }
         if (arguments.search_type == search_kind::STELLAR)
         {
             std::cout << "Can not prefilter matches of length " << std::to_string(error_profile.pattern.l) << 
