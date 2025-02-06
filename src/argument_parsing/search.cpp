@@ -340,6 +340,9 @@ void run_search(sharg::parser & parser)
                     std::cerr << "[Warning] chosen threshold is less than the k-mer lemma threshold. Ignore this warning if this was deliberate.";
             }
         }
+        if (arguments.stellar_only)
+            arguments.search_type = search_kind::STELLAR;
+
         if (arguments.search_type == search_kind::STELLAR)
         {
             std::cout << "Can not prefilter matches of length " << std::to_string(error_profile.pattern.l) << 
@@ -384,9 +387,6 @@ void run_search(sharg::parser & parser)
         if (arguments.fast)
             arguments.p_max = 0.05;
     }
-
-    if (arguments.stellar_only)
-        arguments.search_type = search_kind::STELLAR;
 
     if (!parser.is_option_set("minLength"))
         arguments.minLength = arguments.pattern_size;
