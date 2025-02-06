@@ -43,7 +43,7 @@ constexpr double sample_begin_positions(size_t const read_len, uint64_t const pa
         }
     }
 
-    return 1 + total_correction / (double) (corrected_pattern_count * 2);
+    return 1 + total_correction / (double) std::max(corrected_pattern_count, (size_t) 1);
 }
 
 
@@ -162,7 +162,6 @@ double find_dynamic_threshold_correction(pattern_bounds const & pattern,
             auto &&count = total_counts[current_bin];
             if (count >= (pattern.threshold + correction_count))
             {
-                // the result is a union of results from all patterns of a read
                 pattern_hits.insert(current_bin);
             }
         }
@@ -174,6 +173,7 @@ double find_dynamic_threshold_correction(pattern_bounds const & pattern,
         else
         {
             pattern_hits.clear();
+            // increase threshold in 10% increments or by at least 1 to find lowest threshold that is not ubiquitous
             correction_count += std::max((size_t) 1, (size_t) std::round(pattern.threshold * 0.1 * correction_count));
         }
     }
@@ -207,12 +207,6 @@ void find_pattern_bins(pattern_bounds const & pattern,
     for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
     {
         auto &&count = total_counts[current_bin];
-        if (current_bin == 0)
-        {
-            seqan3::debug_stream << "Threshold was " << pattern.threshold << '\n';
-            seqan3::debug_stream << "New threshold " << std::to_string(pattern.threshold * correction_coef) << '\n';
-        }
-            
         if (count >= (pattern.threshold * correction_coef))
         {
             // the result is a union of results from all patterns of a read
@@ -304,9 +298,6 @@ void local_prefilter(
                 return find_dynamic_threshold_correction(pattern, bin_count, counting_table);
             });
         }
-
-        if (threshold_correction > 1.0000001)
-            seqan3::debug_stream << "Correct threshold by " << threshold_correction << '\n';
 
         pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, [&](size_t const begin)
         {
