@@ -207,6 +207,7 @@ void find_pattern_bins(pattern_bounds const & pattern,
     for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
     {
         auto &&count = total_counts[current_bin];
+        /*
         if (current_bin == 0)
         {
             if (std::round(pattern.threshold * correction_coef) > pattern.threshold)
@@ -215,7 +216,7 @@ void find_pattern_bins(pattern_bounds const & pattern,
                 seqan3::debug_stream << "New threshold " << std::to_string((size_t) std::round(pattern.threshold * correction_coef)) << '\n';
             }
         }
-            
+        */  
         if (count >= (pattern.threshold * correction_coef))
         {
             // the result is a union of results from all patterns of a read
