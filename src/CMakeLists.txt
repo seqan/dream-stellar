@@ -89,3 +89,21 @@ target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_index_si
 # Valik executable
 add_executable ("${PROJECT_NAME}" valik_main.cpp)
 target_link_libraries ("${PROJECT_NAME}" PUBLIC "${PROJECT_NAME}_lib")
+
+# Log git commit
+execute_process(COMMAND git rev-parse HEAD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE COMMIT_ID
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
+    WORKING_DIRECTORY
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    DEPENDS
+        ${COMMIT_ID}
+    COMMAND
+        ${CMAKE_COMMAND} -E echo ${COMMIT_ID} > version.md
+    COMMENT
+        "Generating file version.md"
+    VERBATIM)
