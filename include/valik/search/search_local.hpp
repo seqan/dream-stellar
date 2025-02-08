@@ -28,7 +28,7 @@ static inline dream_stellar::StellarOptions make_thread_options(search_arguments
 {
     dream_stellar::StellarOptions threadOptions{};
     threadOptions.alphabet = "dna";            // one of: dna, rna, protein, char
-    threadOptions.verbose = true;
+    threadOptions.verbose = arguments.verbose;
     threadOptions.queryFile = "in memory";
     threadOptions.prefilteredSearch = true;
     threadOptions.referenceLength = refLen;
