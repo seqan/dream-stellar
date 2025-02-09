@@ -309,9 +309,10 @@ void local_prefilter(
             });
         }
 
+        /*
         if (threshold_correction > 1.0000001)
             seqan3::debug_stream << "Correct threshold by " << threshold_correction << '\n';
-
+        */
         pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, [&](size_t const begin)
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
