@@ -350,12 +350,11 @@ TEST_P(valik_search_clusters, search)
                                                         "--error-rate ", std::to_string(error_rate),
                                                         "--index ", ibf_path(number_of_bins, window_size),
                                                         "--query ", data("query.fq"),
-                                                        "--threads 1",
+                                                        "--threads 1", "--verbose",
                                                         "--cart-max-capacity 3",
                                                         "--max-queued-carts 10",
                                                         "--without-parameter-tuning");
     EXPECT_EQ(result.exit_code, 0);
-    EXPECT_EQ(result.out, std::string{});
     EXPECT_TRUE(result.err.starts_with("Could not clean up intermediate file"));
 
     auto expected = string_list_from_file(search_result_path(number_of_bins, window_size, number_of_errors,
