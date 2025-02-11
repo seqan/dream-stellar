@@ -108,48 +108,100 @@ search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
 {
     constexpr param_space space{};
     search_kmer_profile kmer_thresh{attr.shape, ref_meta.pattern_size};
-    for (uint8_t errors{0}; errors <= max_errors; errors++)
+    bool is_ungapped_shape = (attr.shape.size() == attr.shape.count());
+    if (is_ungapped_shape)
     {
-        search_pattern pattern(errors, ref_meta.pattern_size);
-        search_kind search_type{search_kind::LEMMA};
-
-        if (kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors) > space.max_thresh)
+        for (uint8_t errors{0}; errors <= max_errors; errors++)
         {
-            auto best_params = param_set(attr.shape, kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors));
-            double fnr{0}; // == attr.fnr_for_param_set(pattern, best_params)
-            double fp_per_pattern = ref_meta.pattern_spurious_match_prob(best_params);
-            kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type, fnr, fp_per_pattern});
-        }
-        else
-        {
-            auto best_params = param_set(attr.shape, kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors), space);
-            auto try_params = best_params;
-            if ((best_params.t < THRESH_LOWER) ||  
-                segment_fpr(ref_meta.pattern_spurious_match_prob(best_params), PATTERNS_PER_SEGMENT) > FPR_UPPER)
-            {
-                search_type = search_kind::STELLAR;
-                try_params.t++;
-                while ((try_params.t <= space.max_thresh) && 
-                        (attr.fnr_for_param_set(pattern, try_params) < FNR_UPPER))
-                {
-                    if (segment_fpr(ref_meta.pattern_spurious_match_prob(try_params), PATTERNS_PER_SEGMENT) <= FPR_UPPER)
-                    {
-                        best_params = std::move(try_params);
-                        search_type = search_kind::HEURISTIC;
-                    }
-                    try_params.t++;
-                }
-            }
+            search_pattern pattern(errors, ref_meta.pattern_size);
+            search_kind search_type{search_kind::LEMMA};
 
-            if (search_type == search_kind::STELLAR)
+            if (kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors) > space.max_thresh)
             {
-                kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type});
+                auto best_params = param_set(attr.shape, kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors));
+                double fnr{0}; // == attr.fnr_for_param_set(pattern, best_params)
+                double fp_per_pattern = ref_meta.pattern_spurious_match_prob(best_params);
+                kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type, fnr, fp_per_pattern});
             }
             else
             {
-                double fnr = attr.fnr_for_param_set(pattern, best_params);
+                auto best_params = param_set(attr.shape, kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors), space);
+                auto try_params = best_params;
+                if ((best_params.t < THRESH_LOWER) ||  
+                    segment_fpr(ref_meta.pattern_spurious_match_prob(best_params), PATTERNS_PER_SEGMENT) > FPR_UPPER)
+                {
+                    search_type = search_kind::STELLAR;
+                    try_params.t++;
+                    while ((try_params.t <= space.max_thresh) && 
+                            (attr.fnr_for_param_set(pattern, try_params) < FNR_UPPER))
+                    {
+                        if (segment_fpr(ref_meta.pattern_spurious_match_prob(try_params), PATTERNS_PER_SEGMENT) <= FPR_UPPER)
+                        {
+                            best_params = std::move(try_params);
+                            search_type = search_kind::HEURISTIC;
+                        }
+                        try_params.t++;
+                    }
+                }
+
+                if (search_type == search_kind::STELLAR)
+                {
+                    kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type});
+                }
+                else
+                {
+                    double fnr = attr.fnr_for_param_set(pattern, best_params);
+                    double fp_per_pattern = ref_meta.pattern_spurious_match_prob(best_params);
+                    kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type, fnr, fp_per_pattern});
+                }
+            }
+        }
+    }
+    else
+    {
+        for (uint8_t errors{0}; errors <= max_errors; errors++)
+        {
+            search_pattern pattern(errors, ref_meta.pattern_size);
+            search_kind search_type{search_kind::HEURISTIC};
+
+            if (gapped_kmer_threshold(pattern.l, attr.shape, errors) > space.max_thresh)
+            {
+                auto best_params = param_set(attr.shape, gapped_kmer_threshold(pattern.l, attr.shape, errors));
+                double fnr{0}; // == attr.fnr_for_param_set(pattern, best_params)
                 double fp_per_pattern = ref_meta.pattern_spurious_match_prob(best_params);
                 kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type, fnr, fp_per_pattern});
+            }
+            else
+            {
+                auto best_params = param_set(attr.shape, gapped_kmer_threshold(pattern.l, attr.shape, errors), space);
+                auto try_params = best_params;
+                if ((best_params.t < THRESH_LOWER) ||  
+                    segment_fpr(ref_meta.pattern_spurious_match_prob(best_params), PATTERNS_PER_SEGMENT) > FPR_UPPER)
+                {
+                    search_type = search_kind::STELLAR;
+                    try_params.t++;
+                    while ((try_params.t <= space.max_thresh) && 
+                            (attr.fnr_for_param_set(pattern, try_params) < FNR_UPPER))
+                    {
+                        if (segment_fpr(ref_meta.pattern_spurious_match_prob(try_params), PATTERNS_PER_SEGMENT) <= FPR_UPPER)
+                        {
+                            best_params = std::move(try_params);
+                            search_type = search_kind::HEURISTIC;
+                        }
+                        try_params.t++;
+                    }
+                }
+
+                if (search_type == search_kind::STELLAR)
+                {
+                    kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type});
+                }
+                else
+                {
+                    double fnr = attr.fnr_for_param_set(pattern, best_params);
+                    double fp_per_pattern = ref_meta.pattern_spurious_match_prob(best_params);
+                    kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type, fnr, fp_per_pattern});
+                }
             }
         }
     }
