@@ -99,7 +99,7 @@ param_set get_best_params(search_pattern const & pattern,
 }
 
 /**
- * @brief For a chosen kmer size and up to some maximum error rate find the best thresholds. 
+ * @brief For a chosen kmer shape and up to some maximum error rate find the best thresholds. 
  *        Consider different error rates up to max_err.
 */
 search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
@@ -113,16 +113,16 @@ search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
         search_pattern pattern(errors, ref_meta.pattern_size);
         search_kind search_type{search_kind::LEMMA};
 
-        if (kmer_lemma_threshold(pattern.l, attr.k, errors) > space.max_thresh)
+        if (kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors) > space.max_thresh)
         {
-            auto best_params = param_set(attr.k, kmer_lemma_threshold(pattern.l, attr.k, errors));
+            auto best_params = param_set(attr.shape, kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors));
             double fnr{0}; // == attr.fnr_for_param_set(pattern, best_params)
             double fp_per_pattern = ref_meta.pattern_spurious_match_prob(best_params);
             kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type, fnr, fp_per_pattern});
         }
         else
         {
-            auto best_params = param_set(attr.k, kmer_lemma_threshold(pattern.l, attr.k, errors), space);
+            auto best_params = param_set(attr.shape, kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors), space);
             auto try_params = best_params;
             if ((best_params.t < THRESH_LOWER) ||  
                 segment_fpr(ref_meta.pattern_spurious_match_prob(best_params), PATTERNS_PER_SEGMENT) > FPR_UPPER)

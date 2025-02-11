@@ -15,6 +15,7 @@ namespace valik
  * @brief For a kmer size k consider how the FNR changes for various values of the parameters t, e and l. 
  *   
  * @param k Chosen k-mer size.
+ * @param kmer_weight Less than k-mer size for gapped k-mers.
  * @param fn_conf_counts Number of configurations of e errors that do not retain at least t shared kmers after mutation.
 */
 struct kmer_loss
@@ -24,7 +25,7 @@ struct kmer_loss
     using mat_t = std::vector<table_t>;
     
     uint8_t k;
-    //!TODO: adjust the error configuration calculation for gapped k-mers 
+    uint8_t kmer_weight;
     seqan3::shape shape;
     mat_t fn_conf_counts;  // false negative configuration counts
 
@@ -50,19 +51,19 @@ struct kmer_loss
                 for(size_t l = 0; l <= space.max_len; l++)
                 {       
                     int shared_base_count = l - e;
-                    if ((int) (k + t) - 1 > shared_base_count) // all error distributions destroy enough k-mers
+                    if ((int) (kmer_weight + t) - 1 > shared_base_count) // all error distributions destroy enough k-mers
                         row.push_back(combinations(e, l));
                     else if (e == 0)    // this has to be after the first condition; not everything in first row should be 0
                         row.push_back(0);
                     else
                     {                        
                         row.push_back(row.back() + table.back()[l - 1]);
-                        row.back() -= table.back()[l - k - 1];
+                        row.back() -= table.back()[l - kmer_weight - 1];
 
                         for (uint8_t i = 1; i < t; i++)
                         {
-                            row.back() -= matrix[matrix.size() - i][e - 1][l - k - i - 1];
-                            row.back() += matrix[matrix.size() - i][e - 1][l - k - i];
+                            row.back() -= matrix[matrix.size() - i][e - 1][l - kmer_weight - i - 1];
+                            row.back() += matrix[matrix.size() - i][e - 1][l - kmer_weight - i];
                         }
                     }
                 }
@@ -75,20 +76,21 @@ struct kmer_loss
 
     kmer_loss(uint8_t const kmer_size, param_space const & space) : 
                     k(kmer_size),
-                    shape(seqan3::shape(seqan3::ungapped(kmer_size))),
+                    kmer_weight(kmer_size),
                     fn_conf_counts(count_err_conf_below_thresh(space)) { }
 
     kmer_loss(seqan3::shape const kmer_shape, param_space const & space) : 
                     k(kmer_shape.size()), 
-                    shape(kmer_shape),
+                    kmer_weight(kmer_shape.count()),
                     fn_conf_counts(count_err_conf_below_thresh(space)) { }
 
     /**
      * @brief False negative rate for a parameter set.
     */
     double fnr_for_param_set(search_pattern const & pattern, param_set const & params) const
-    {        
-        if (kmer_lemma_threshold(pattern.l, params.k, pattern.e) >= params.t)
+    {
+        //!TODO: differentiate between gapped and ungapped shapes
+        if (kmer_lemma_threshold(pattern.l, params.kmer_weight, pattern.e) >= params.t)
             return 0.0;
         if (params.t > fn_conf_counts.size())
             throw std::runtime_error("Calculated configuration count table for threshold=[1, " + std::to_string(fn_conf_counts.size()) + "]. " 
@@ -105,7 +107,7 @@ struct kmer_loss
     template<class Archive>
     void serialize(Archive & archive)
     {
-      archive(k, fn_conf_counts);
+      archive(k, kmer_weight, fn_conf_counts);
     }
 };
 

@@ -19,7 +19,7 @@ struct fn_confs
      */
     std::filesystem::path fn_filename()
     {
-        std::string outfile = "fn_err_conf_e" + std::to_string(space.max_errors) + "_t" + std::to_string(space.max_thresh) + 
+        std::string outfile = "gapped_fn_err_conf_e" + std::to_string(space.max_errors) + "_t" + std::to_string(space.max_thresh) + 
                                                 "_l" + std::to_string(space.max_len) + "_k" + 
                                                 std::to_string(space.min_k()) + "_" + 
                                                 std::to_string(space.max_k()) + ".bin";
@@ -102,15 +102,15 @@ struct fn_confs
 
         const kmer_loss & get_kmer_loss(seqan3::shape const shape)
         {
-            uint8_t k = shape.size();
+            uint8_t k = shape.count();
             if (k < space.min_k() || k > space.max_k())
             {
                 throw std::runtime_error("k-mer length " + std::to_string(k) + " is out of range [" + 
                       std::to_string(space.min_k()) + ", " + std::to_string(space.max_k()) + "]");
             }
 
-            //!TODO: adjust precalculated attribute vectors to account for gapped shapes
-            // currently hack to copy the ungapped attribute without adjusting threshold 
+            //!TODO: increase precalculated attribute FN values to account for gapped shapes
+            // currently treating gapped k-mers as same weight ungapped k-mers
             attr_vec[k - space.min_k()].shape = shape;
             return attr_vec[k - space.min_k()];
         }
