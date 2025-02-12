@@ -610,7 +610,7 @@ struct metadata
         double pattern_spurious_match_prob(param_set const & params, double const information_content = 0.35) const
         {
             double fpr{1};
-            double p = ibf_fpr + kmer_spurious_match_prob(params.k);
+            double p = ibf_fpr + kmer_spurious_match_prob(params.kmer.weight());
             const double precision{1e-9};
             /*
             For parameters 
@@ -634,7 +634,7 @@ struct metadata
             the probability of 1 k-mer out of n matching is P(1 k-mer matches) = (n take 1) * p^1 * (1 - p)^(n - 1).
             */
 
-        size_t kmers_per_pattern = std::min((size_t) params.t, pattern_size - params.k + 1);
+        size_t kmers_per_pattern = std::min((size_t) params.t, pattern_size - params.kmer.size() + 1);
 	    for (uint16_t matching_kmer_count{0}; matching_kmer_count < (uint16_t) std::round(params.t * information_content); matching_kmer_count++)
             {
                 if (fpr < precision) 

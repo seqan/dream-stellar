@@ -10,9 +10,6 @@
 #include <filesystem>
 #include <map>
 
-#include <seqan3/search/kmer_index/shape.hpp>
-#include <seqan3/core/debug_stream.hpp>
-
 #include <cereal/archives/binary.hpp> 
 #include <cereal/types/tuple.hpp>
 
@@ -38,58 +35,6 @@ double expected_kmer_occurrences(var_t const & bin_size,
 }
 
 /**
- * @brief K-mer lemma threshold.
-*/
-inline size_t kmer_lemma_threshold(size_t const l, uint8_t const k, uint8_t const e)
-{
-    if (l < k)
-        return 0;
-    if ((l - k + 1) <= (size_t) e*k)
-        return 0;
-    
-    return l - k + 1 - e * k;
-}
-
-/**
- * @brief Gapped k-mer threshold.
-*/
-inline size_t gapped_kmer_threshold(size_t const l, seqan3::shape const shape, uint8_t const e)
-{
-    uint8_t k = shape.size();
-    uint8_t longest_ungapped{0};
-
-    if (shape.count() == shape.size())
-        longest_ungapped = shape.size();
-    else
-    {
-        uint8_t curr_ungapped{0};
-        for (auto c : shape.to_string())
-        {
-            if (c == '1')
-                curr_ungapped++;
-            else
-            {
-                if (curr_ungapped > longest_ungapped)
-                    longest_ungapped = curr_ungapped;
-                curr_ungapped = 0;
-            }
-        }
-        if (curr_ungapped > longest_ungapped)
-            longest_ungapped = curr_ungapped;
-    }
-
-    if (longest_ungapped == 0)
-        throw std::runtime_error{"No ungapped section in " + shape.to_string()};
-        
-    if (l < k)
-        return 0;
-    if ((l - k + 1) <= (size_t) e*longest_ungapped)
-        return 0;
-    
-    return l - k + 1 - e * longest_ungapped;
-}
-
-/**
  * @brief Definition of the search space for the parameter tuning algorithm.
  * 
  * @param max_errors Maximum number of errors.
@@ -102,7 +47,7 @@ struct param_space
     constexpr static uint8_t max_errors{15};    
     uint16_t max_thresh{20};
     constexpr static size_t max_len{150};
-    constexpr static std::pair<uint8_t, uint8_t> kmer_range{9, 23};
+    constexpr static std::pair<uint8_t, uint8_t> kmer_range{7, 23};
 
     param_space() noexcept = default;
     param_space(param_space const &) noexcept = default;

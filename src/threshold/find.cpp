@@ -17,8 +17,9 @@ param_set get_best_params(search_pattern const & pattern,
     {
         for (uint8_t k = space.max_k(); k >= space.min_k(); k--)
         {
-            if (kmer_lemma_threshold(pattern.l, k, pattern.e) > THRESH_LOWER)
-                return param_set(k, kmer_lemma_threshold(pattern.l, k, pattern.e));
+            utilities::kmer kmer{k};
+            if (kmer.lemma_threshold(pattern.l, pattern.e) > THRESH_LOWER)
+                return param_set(kmer, kmer.lemma_threshold(pattern.l, pattern.e));
         }
 
         throw std::runtime_error{"Unable to deduce threshold for min_len=" + std::to_string(pattern.l) + " and errors=" + std::to_string(pattern.e)};
@@ -107,8 +108,8 @@ search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
                                                   uint8_t const max_errors)
 {
     constexpr param_space space{};
-    search_kmer_profile kmer_thresh{attr.shape, ref_meta.pattern_size};
-    bool is_ungapped_shape = (attr.shape.size() == attr.shape.count());
+    search_kmer_profile kmer_thresh{attr.kmer, ref_meta.pattern_size};
+    bool is_ungapped_shape = !attr.kmer.is_gapped();
     if (is_ungapped_shape)
     {
         for (uint8_t errors{0}; errors <= max_errors; errors++)
@@ -116,16 +117,16 @@ search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
             search_pattern pattern(errors, ref_meta.pattern_size);
             search_kind search_type{search_kind::LEMMA};
 
-            if (kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors) > space.max_thresh)
+            if (attr.kmer.lemma_threshold(pattern.l, errors) > space.max_thresh)
             {
-                auto best_params = param_set(attr.shape, kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors));
+                auto best_params = param_set(attr.kmer, attr.kmer.lemma_threshold(pattern.l, errors));
                 double fnr{0}; // == attr.fnr_for_param_set(pattern, best_params)
                 double fp_per_pattern = ref_meta.pattern_spurious_match_prob(best_params);
                 kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type, fnr, fp_per_pattern});
             }
             else
             {
-                auto best_params = param_set(attr.shape, kmer_lemma_threshold(pattern.l, attr.kmer_weight, errors), space);
+                auto best_params = param_set(attr.kmer, attr.kmer.lemma_threshold(pattern.l, errors), space);
                 auto try_params = best_params;
                 if ((best_params.t < THRESH_LOWER) ||  
                     segment_fpr(ref_meta.pattern_spurious_match_prob(best_params), PATTERNS_PER_SEGMENT) > FPR_UPPER)
@@ -164,16 +165,16 @@ search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
             search_pattern pattern(errors, ref_meta.pattern_size);
             search_kind search_type{search_kind::HEURISTIC};
 
-            if (gapped_kmer_threshold(pattern.l, attr.shape, errors) > space.max_thresh)
+            if (attr.kmer.gapped_threshold(pattern.l, errors) > space.max_thresh)
             {
-                auto best_params = param_set(attr.shape, gapped_kmer_threshold(pattern.l, attr.shape, errors));
+                auto best_params = param_set(attr.kmer, attr.kmer.gapped_threshold(pattern.l, errors));
                 double fnr{0}; // == attr.fnr_for_param_set(pattern, best_params)
                 double fp_per_pattern = ref_meta.pattern_spurious_match_prob(best_params);
                 kmer_thresh.add_error_rate(errors, {best_params, pattern, search_type, fnr, fp_per_pattern});
             }
             else
             {
-                auto best_params = param_set(attr.shape, gapped_kmer_threshold(pattern.l, attr.shape, errors), space);
+                auto best_params = param_set(attr.kmer, attr.kmer.gapped_threshold(pattern.l, errors), space);
                 auto try_params = best_params;
                 if ((best_params.t < THRESH_LOWER) ||  
                     segment_fpr(ref_meta.pattern_spurious_match_prob(best_params), PATTERNS_PER_SEGMENT) > FPR_UPPER)
