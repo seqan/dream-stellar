@@ -33,7 +33,7 @@ struct execution_metadata
         {
             output_files.insert(output_files.end(), td.output_files.begin(), td.output_files.end());
             time_statistics.cart_processing_times.insert(time_statistics.cart_processing_times.end(), td.time_statistics.begin(), td.time_statistics.end());
-            if (arguments.verbose)
+            if (arguments.very_verbose)
                 text_out << td.text_out.str();
         }
     }

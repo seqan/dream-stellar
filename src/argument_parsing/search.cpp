@@ -55,6 +55,11 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                     .long_id = "verbose",
                     .description = "Print verbose output.",
                     .advanced = true});
+    parser.add_flag(arguments.very_verbose,
+                    sharg::config{.short_id = '\0',
+                    .long_id = "very-verbose",
+                    .description = "Print verbose output.",
+                    .advanced = true});
     parser.add_option(arguments.ref_meta_path,
                     sharg::config{.short_id = '\0',
                     .long_id = "ref-meta",
@@ -205,6 +210,9 @@ void run_search(sharg::parser & parser)
     init_search_parser(parser, arguments);
 
     try_parsing(parser);
+
+    if (arguments.very_verbose)
+        arguments.verbose = true;
 
     if (arguments.manual_parameters && !parser.is_option_set("ref-meta") && arguments.split_query)
     {
