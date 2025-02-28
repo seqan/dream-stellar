@@ -89,6 +89,20 @@ struct fn_confs
                 precalc_fn_confs();
         }
 
+        kmer_loss & get_kmer_loss(utilities::kmer const & valik_kmer)
+        {
+            uint8_t k = std::max(space.min_k(), valik_kmer.effective_size());
+            if (k < space.min_k() || k > space.max_k())
+            {
+                throw std::runtime_error("k-mer length " + std::to_string(k) + " is out of range [" + 
+                      std::to_string(space.min_k()) + ", " + std::to_string(space.max_k()) + "]");
+            }
+
+            //!TODO: make const
+            attr_vec[k - space.min_k()].kmer = valik_kmer;
+            return attr_vec[k - space.min_k()];
+        }
+
         const kmer_loss & get_kmer_loss(uint8_t const k) const
         {
             if (k < space.min_k() || k > space.max_k())
@@ -96,22 +110,7 @@ struct fn_confs
                 throw std::runtime_error("k-mer length " + std::to_string(k) + " is out of range [" + 
                       std::to_string(space.min_k()) + ", " + std::to_string(space.max_k()) + "]");
             }
-            
-            return attr_vec[k - space.min_k()];
-        }
 
-        const kmer_loss & get_kmer_loss(seqan3::shape const shape)
-        {
-            uint8_t k = shape.size();
-            if (k < space.min_k() || k > space.max_k())
-            {
-                throw std::runtime_error("k-mer length " + std::to_string(k) + " is out of range [" + 
-                      std::to_string(space.min_k()) + ", " + std::to_string(space.max_k()) + "]");
-            }
-
-            //!TODO: adjust precalculated attribute vectors to account for gapped shapes
-            // currently hack to copy the ungapped attribute without adjusting threshold 
-            attr_vec[k - space.min_k()].shape = shape;
             return attr_vec[k - space.min_k()];
         }
 };

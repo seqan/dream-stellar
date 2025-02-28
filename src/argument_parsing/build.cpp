@@ -101,7 +101,7 @@ void run_build(sharg::parser & parser)
 
         if (parser.is_option_set("kmer"))
         {
-            seqan3::debug_stream << "WARNING: kmer size k=" << arguments.kmer_size << " will be updated to " << search_profile.k 
+            seqan3::debug_stream << "WARNING: kmer size k=" << arguments.kmer_size << " will be updated to " << search_profile.kmer.size() 
                                  << ". Set --without-parameter-tuning to force manual input.";
         }
         if (parser.is_option_set("window"))
@@ -110,9 +110,9 @@ void run_build(sharg::parser & parser)
                                  << "Set --without-parameter-tuning to force manual input.";
         }
         
-        arguments.kmer_size = search_profile.k;
-        arguments.window_size = search_profile.k;
-        arguments.shape = search_profile.shape;
+        arguments.kmer_size = search_profile.kmer.size();
+        arguments.window_size = search_profile.kmer.size();
+        arguments.shape = search_profile.kmer.shape;
     }
     else
     {

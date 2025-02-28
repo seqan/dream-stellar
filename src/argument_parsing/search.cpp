@@ -338,7 +338,8 @@ void run_search(sharg::parser & parser)
         arguments.search_type = error_profile.search_type;
         if (parser.is_option_set("threshold"))
         {
-            auto lemma_thresh = kmer_lemma_threshold(arguments.pattern_size, arguments.shape_weight, arguments.errors);
+            utilities::kmer kmer{arguments.shape};
+            auto lemma_thresh = kmer.lemma_threshold(arguments.pattern_size, arguments.errors);
             if (arguments.threshold > lemma_thresh)
                 arguments.search_type = search_kind::HEURISTIC;
             else 

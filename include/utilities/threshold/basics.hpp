@@ -35,19 +35,6 @@ double expected_kmer_occurrences(var_t const & bin_size,
 }
 
 /**
- * @brief K-mer lemma threshold.
-*/
-inline size_t kmer_lemma_threshold(size_t const l, uint8_t const k, uint8_t const e)
-{
-    if (l < k)
-        return 0;
-    if ((l - k + 1) <= (size_t) e*k)
-        return 0;
-    
-    return l - k + 1 - e * k;
-}
-
-/**
  * @brief Definition of the search space for the parameter tuning algorithm.
  * 
  * @param max_errors Maximum number of errors.
@@ -60,7 +47,7 @@ struct param_space
     constexpr static uint8_t max_errors{15};    
     uint16_t max_thresh{20};
     constexpr static size_t max_len{150};
-    constexpr static std::pair<uint8_t, uint8_t> kmer_range{9, 23};
+    constexpr static std::pair<uint8_t, uint8_t> kmer_range{7, 23};
 
     param_space() noexcept = default;
     param_space(param_space const &) noexcept = default;

@@ -12,9 +12,9 @@ namespace valik
 {
 
 /**
- * @brief For a kmer size k consider how the FNR changes for various values of the parameters t, e and l. 
+ * @brief For a kmer consider how the FNR changes for various values of the parameters t, e and l. 
  *   
- * @param k Chosen k-mer size.
+ * @param kmer Shaped k-mer.
  * @param fn_conf_counts Number of configurations of e errors that do not retain at least t shared kmers after mutation.
 */
 struct kmer_loss
@@ -23,9 +23,7 @@ struct kmer_loss
     using table_t = std::vector<row_t>;
     using mat_t = std::vector<table_t>;
     
-    uint8_t k;
-    //!TODO: adjust the error configuration calculation for gapped k-mers 
-    seqan3::shape shape;
+    utilities::kmer kmer;
     mat_t fn_conf_counts;  // false negative configuration counts
 
     kmer_loss() noexcept = default;
@@ -40,6 +38,7 @@ struct kmer_loss
     */
     mat_t count_err_conf_below_thresh(param_space const & space)
     {
+        uint8_t k = std::max(kmer.effective_size(), space.min_k());
         mat_t matrix;
         for (uint8_t t = 1; t <= space.max_thresh; t++)
         {
@@ -74,21 +73,21 @@ struct kmer_loss
     }
 
     kmer_loss(uint8_t const kmer_size, param_space const & space) : 
-                    k(kmer_size),
-                    shape(seqan3::shape(seqan3::ungapped(kmer_size))),
+                    kmer(kmer_size),
                     fn_conf_counts(count_err_conf_below_thresh(space)) { }
 
     kmer_loss(seqan3::shape const kmer_shape, param_space const & space) : 
-                    k(kmer_shape.size()), 
-                    shape(kmer_shape),
+                    kmer(kmer_shape), 
                     fn_conf_counts(count_err_conf_below_thresh(space)) { }
 
     /**
      * @brief False negative rate for a parameter set.
     */
     double fnr_for_param_set(search_pattern const & pattern, param_set const & params) const
-    {        
-        if (kmer_lemma_threshold(pattern.l, params.k, pattern.e) >= params.t)
+    {
+        if (!kmer.is_gapped() && kmer.lemma_threshold(pattern.l, pattern.e) >= params.t)
+            return 0.0;
+        if (kmer.is_gapped() && kmer.gapped_threshold(pattern.l, pattern.e) >= params.t)
             return 0.0;
         if (params.t > fn_conf_counts.size())
             throw std::runtime_error("Calculated configuration count table for threshold=[1, " + std::to_string(fn_conf_counts.size()) + "]. " 
@@ -105,7 +104,7 @@ struct kmer_loss
     template<class Archive>
     void serialize(Archive & archive)
     {
-      archive(k, fn_conf_counts);
+        archive(kmer, fn_conf_counts);
     }
 };
 
