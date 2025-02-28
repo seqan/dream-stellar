@@ -66,7 +66,6 @@ struct kmer
             return shape.count();
     }
 
-    //!TODO: cout triplets
     uint8_t ungapped_triplet_length() const
     {
         if (is_gapped())

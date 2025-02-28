@@ -166,3 +166,63 @@ INSTANTIATE_TEST_SUITE_P(split_shared_memory_dream_suite,
                              std::string name = std::to_string(std::get<0>(info.param)) + "_error";
                              return name;
                          });
+
+
+TEST_P(dream_split_search, split_shaped_kmer)
+{
+    auto const [number_of_errors] = GetParam();
+    size_t pattern_size = 50;
+    float error_rate = (float) number_of_errors / (float) pattern_size;
+    float max_error_rate = 0.04;
+
+    setup_tmp_dir();
+    setenv("VALIK_MERGE", "cat", true);
+
+    std::filesystem::path ref_meta_path = "ref_meta.bin";
+    std::filesystem::path index_path = "index.ibf";
+
+    cli_test_result const split_ref = execute_app("valik", "split",
+                                                           data("ref.fasta"),
+                                                           "--fpr 0.001",
+                                                           "--shape 1111110110110111111",
+                                                           "--out", ref_meta_path,
+                                                           "--pattern ", std::to_string(pattern_size), 
+                                                           "--error-rate ", std::to_string(max_error_rate));
+    EXPECT_EQ(split_ref.exit_code, 0);
+    EXPECT_EQ(split_ref.err, std::string{});
+    valik::metadata reference(ref_meta_path);
+
+    cli_test_result const build = execute_app("valik", "build",
+                                                       "--ref-meta", ref_meta_path,
+                                                       "--output ", index_path);
+    EXPECT_EQ(build.exit_code, 0);
+
+    cli_test_result const search = execute_app("valik", "search",
+                                                        "--output search.gff",
+                                                        "--split-query",
+                                                        "--error-rate ", std::to_string(error_rate),
+                                                        "--index ", index_path,
+                                                        "--query ", data("query.fasta"),
+                                                        "--ref-meta", ref_meta_path,
+                                                        "--repeatPeriod 1",
+                                                        "--repeatLength 10", 
+                                                        "--numMatches 2");
+
+    EXPECT_EQ(search.exit_code, 0);
+    EXPECT_EQ(search.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 4 database sequences.\n"});
+    EXPECT_EQ(search.err, std::string{});
+
+    auto distributed = valik::read_alignment_output<valik::stellar_match>(search_result_path(number_of_errors), reference, std::ios::binary);
+    auto local = valik::read_alignment_output<valik::stellar_match>("search.gff", reference);
+    
+    compare_gff_out(distributed, local);
+}
+
+INSTANTIATE_TEST_SUITE_P(split_shared_memory_gapped_dream_suite,
+                         dream_split_search,
+                         testing::Combine(testing::Values(1, 2)),
+                         [] (testing::TestParamInfo<dream_split_search::ParamType> const & info)
+                         {
+                             std::string name = std::to_string(std::get<0>(info.param)) + "_error";
+                             return name;
+                         });
