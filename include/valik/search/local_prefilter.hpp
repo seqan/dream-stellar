@@ -33,7 +33,7 @@ constexpr double sample_begin_positions(size_t const read_len, uint64_t const pa
 
     size_t corrected_pattern_count{0u};
     double total_correction{0};
-    for (size_t pos = first_pos; pos <= read_len - pattern_size; pos = pos + query_every * pattern_size * 2)
+    for (size_t pos = first_pos; pos <= read_len - pattern_size; pos = pos + query_every * pattern_size)
     {
         auto correction = callback(pos);
         if (correction > 0)
@@ -309,10 +309,8 @@ void local_prefilter(
             });
         }
 
-        /*
         if (threshold_correction > 1.0000001)
             seqan3::debug_stream << "Correct threshold by " << threshold_correction << '\n';
-        */
         pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, [&](size_t const begin)
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
