@@ -2,6 +2,7 @@
 
 #include <filesystem>
 
+#include <utilities/threshold/kmer.hpp>
 #include <utilities/threshold/kmer_loss.hpp>
 #include <utilities/threshold/fn_confs.hpp>
 #include <utilities/threshold/search_pattern.hpp>
@@ -30,10 +31,11 @@ TEST(kmer_loss, equal_after_serialization)
 
     for (uint8_t k{space.min_k()}; k <= space.max_k(); k++)
     {
-        const valik::kmer_loss & precalc_loss = precalc_fn_attr.get_kmer_loss(k);
-        const valik::kmer_loss & deserialized_loss = deserialized_fn_attr.get_kmer_loss(k);
+        utilities::kmer shaped_kmer{k};
+        const valik::kmer_loss & precalc_loss = precalc_fn_attr.get_kmer_loss(shaped_kmer);
+        const valik::kmer_loss & deserialized_loss = deserialized_fn_attr.get_kmer_loss(shaped_kmer);
         
-        EXPECT_EQ(precalc_loss.k, deserialized_loss.k);
+        EXPECT_EQ(precalc_loss.kmer.weight(), deserialized_loss.kmer.weight());
         EXPECT_EQ(precalc_loss.fn_conf_counts.size(), deserialized_loss.fn_conf_counts.size());
         for (size_t j{0}; j < precalc_loss.fn_conf_counts.size(); j++)
         {
@@ -55,7 +57,8 @@ TEST(kmer_loss, basic_checks)
     EXPECT_EQ(space.max_k(), fn_attr.space.max_k());
     for (uint8_t k{space.min_k()}; k < space.max_k(); k++)
     {
-        const valik::kmer_loss & attr = fn_attr.get_kmer_loss(k);
+        utilities::kmer shaped_kmer{k};
+        const valik::kmer_loss & attr = fn_attr.get_kmer_loss(shaped_kmer);
         EXPECT_EQ(attr.fn_conf_counts.size(), space.max_thresh);
         for (auto & thresh_table : attr.fn_conf_counts)
         {
@@ -78,12 +81,12 @@ static void check_len_less_than_kmer_size(valik::kmer_loss const & attr)
         for (size_t e{0}; e < thresh_table.size(); e++)
         {
             auto error_row = thresh_table[e];
-            for (size_t l{0}; l < attr.k; l++)
+            for (size_t l{0}; l < attr.kmer.weight(); l++)
             {
                 if (error_row[l] != valik::combinations(e, l))
                 {
                     std::cout << "l\t" << std::to_string(l) << '\n';
-                    std::cout << "k\t" << std::to_string(attr.k) << '\n';
+                    std::cout << "k\t" << std::to_string(attr.kmer.weight()) << '\n';
                     std::cout << "e\t" << std::to_string(e) << '\n';
                     std::cout << "t\t" << std::to_string(t) << '\n';
                 }
@@ -103,14 +106,15 @@ static void check_thresh_from_kmer_lemma(valik::kmer_loss const & attr)
         for (uint8_t e{0}; e < thresh_table.size(); e++)
         {
             auto error_row = thresh_table[e];
-            for (size_t l{attr.k}; l < error_row.size(); l++)
+            for (size_t l{attr.kmer.weight()}; l < error_row.size(); l++)
             {
-                if (valik::kmer_lemma_threshold(l, attr.k, e) >= t)
+                utilities::kmer shaped_kmer{attr.kmer.weight()};
+                if (shaped_kmer.lemma_threshold(l, e) >= t)
                 {
                     if (error_row[l] != 0)
                     {
                         std::cout << "l\t" << std::to_string(l) << '\n';
-                        std::cout << "k\t" << std::to_string(attr.k) << '\n';
+                        std::cout << "k\t" << std::to_string(shaped_kmer.weight()) << '\n';
                         std::cout << "e\t" << std::to_string(e) << '\n';
                         std::cout << "t\t" << std::to_string(t) << '\n';
                     }
@@ -128,7 +132,8 @@ TEST(kmer_loss, edge_cases)
 
     for (uint8_t k{space.min_k()}; k <= space.max_k(); k++)
     {
-        const valik::kmer_loss & attr = fn_attr.get_kmer_loss(k);
+        utilities::kmer shaped_kmer{k};
+        const valik::kmer_loss & attr = fn_attr.get_kmer_loss(shaped_kmer);
         check_len_less_than_kmer_size(attr);
         check_thresh_from_kmer_lemma(attr);
     }
@@ -145,7 +150,8 @@ TEST(kmer_loss, exhaustive_comparison)
 
     for (uint8_t k{space.min_k()}; k <= space.max_k(); k++)
     {   
-        const valik::kmer_loss & kmer_attr = fn_attr.get_kmer_loss(k);
+        utilities::kmer shaped_kmer{k};
+        const valik::kmer_loss & kmer_attr = fn_attr.get_kmer_loss(shaped_kmer);
         for (size_t t{1}; t <= space.max_thresh; t++)
         {
             for (size_t e{1}; e <= space.max_errors; e++)
@@ -179,7 +185,8 @@ void try_fnr(uint8_t e, size_t l, uint8_t k, uint16_t t, double expected_fnr)
 
     valik::fn_confs fn_attr(space);
 
-    EXPECT_EQ(fn_attr.get_kmer_loss(k).fnr_for_param_set(pattern, param), expected_fnr); 
+    utilities::kmer shaped_kmer{k};
+    EXPECT_EQ(fn_attr.get_kmer_loss(shaped_kmer).fnr_for_param_set(pattern, param), expected_fnr); 
 }
 
 TEST(false_negative, try_kmer_lemma_thershold)

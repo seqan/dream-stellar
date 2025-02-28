@@ -8,6 +8,7 @@
 #include <seqan3/core/debug_stream.hpp>
 
 #include <cereal/archives/binary.hpp> 
+#include <cereal/types/string.hpp>
 
 namespace utilities
 {
