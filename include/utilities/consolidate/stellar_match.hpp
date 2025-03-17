@@ -84,8 +84,7 @@ struct stellar_match
             dend == other.dend &&
             is_forward_match == other.is_forward_match &&
             qname == other.qname &&
-            qbegin == other.qbegin &&
-            percid_is_equal_to(other.percid))
+            qbegin == other.qbegin)
             return true;
         else
             return false;
@@ -104,7 +103,14 @@ struct stellar_match
             else if (dbegin < match.dbegin)
                 return false;
             else
-                return (dend > match.dend);
+            {
+                if (dend > match.dend)
+                    return true;
+                else if (dend < match.dend)
+                    return false;
+                else
+                    return percid_is_greater(match.percid);
+            }
         }
     }
 
@@ -119,13 +125,12 @@ struct stellar_match
         return alignment_attributes.substr(alignment_attributes.find("mutations="));
     }
 
-    bool percid_is_equal_to(std::string const & other) const
+    bool percid_is_greater(std::string const & other) const
     {
-        float eps{0.001};
         float this_percid = std::stof(percid);
         float other_percid = std::stof(other);
 
-        return abs(this_percid - other_percid) < eps;
+        return this_percid > other_percid;
     }
 
     std::string to_string() const
