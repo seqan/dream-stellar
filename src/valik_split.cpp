@@ -8,7 +8,7 @@ namespace valik::app
  *
  * @param arguments Command line arguments.
  */
-void valik_split(split_arguments & arguments)
+metadata valik_split(build_arguments & arguments)
 {
     if (arguments.only_split)
     {
@@ -22,7 +22,7 @@ void valik_split(split_arguments & arguments)
     }
 
     metadata meta(arguments);
-    meta.save(arguments.meta_out);
+    meta.save(arguments.ref_meta_path);
 
     if (arguments.verbose)
     {
@@ -63,7 +63,7 @@ void valik_split(split_arguments & arguments)
         if (arguments.verbose)
             search_profile.print();
 
-        std::filesystem::path search_profile_file{arguments.meta_out};
+        std::filesystem::path search_profile_file{arguments.ref_meta_path};
         search_profile_file.replace_extension("arg");
         search_profile.save(search_profile_file);
     }
@@ -72,6 +72,8 @@ void valik_split(split_arguments & arguments)
     {
         write_reference_segments(meta, arguments.db_file);
     }
+
+    return meta;
 }
 
 } // namespace valik::app
