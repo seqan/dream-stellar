@@ -273,6 +273,9 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,  // iterate over database
                stellar_kernel_runtime & stellar_kernel_runtime) {
     StellarComputeStatistics statistics{};
 
+    for (auto seq : seqan2::indexText(seqan2::needle(pattern)))
+        std::cerr << "seqan2::length(seq)\t" << seqan2::length(seq) << '\n';
+                
     while (true) {
 
         bool const has_next = stellar_kernel_runtime.swift_filter_time.measure_time([&]()
