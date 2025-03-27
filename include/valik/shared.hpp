@@ -171,7 +171,7 @@ struct search_arguments final : public minimiser_threshold_arguments, search_pro
     size_t threshold{};
     uint32_t seg_count{64};
     uint32_t seg_count_in{std::numeric_limits<uint32_t>::max()};
-    uint64_t max_segment_len{(uint64_t) 1e5};
+    uint64_t max_segment_len{(uint64_t) 2500};
 
     uint8_t threads{1u};
 
