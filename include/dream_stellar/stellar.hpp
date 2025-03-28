@@ -310,7 +310,7 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,  // iterate over database
             swiftVerifier.verify(
                 databaseSegment,
                 querySegment,
-                pattern.bucketParams[0].delta + pattern.bucketParams[0].overlap,
+                pattern.bucketParams[0].delta + pattern.bucketParams[0].overlap, //this delta is not a power of two
                 onAlignmentResult,
                 stellar_kernel_runtime.verification_time);
         }); // measure_time
