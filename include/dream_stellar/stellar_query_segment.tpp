@@ -5,6 +5,7 @@
 // needed for seqan2::indexText, seqan2::needle
 #include <seqan/index.h>
 
+#include <cassert>
 #include <dream_stellar/stellar_sequence_segment.hpp>
 
 namespace dream_stellar
@@ -24,6 +25,18 @@ StellarQuerySegment<TAlphabet>::fromPatternMatch(TSwiftPattern const & swiftPatt
 
     std::cerr << "seqan2::length(host(swiftPattern))\t" << seqan2::length(host(swiftPattern)) << '\n';
     std::cerr << "seqan2::length(host(queryInfix))\t" << seqan2::length(host(queryInfix)) << '\n';
+
+    std::cerr << "seqan2::indexRawText(seqan2::host(swiftPattern))\t";
+    size_t len{0};
+    for (auto & seq : seqan2::indexRawText(seqan2::host(swiftPattern))) 
+    {
+        std::cerr << seq;
+        len++;
+    }    
+    std::cerr << '\n';
+    std::cerr << "rawTextLength\t" << len << '\n'; 
+    
+    //static_assert(std::is_same_v<decltype(seqan2::host(swiftPattern)), decltype(seqan2::host(queryInfix))>);
      
     std::cerr << "seqan2::beginPosition(queryInfixInfix)\t" << seqan2::beginPosition(queryInfixInfix) << '\n';
     std::cerr << "seqan2::endPosition(queryInfixInfix)\t" << seqan2::endPosition(queryInfixInfix) << '\n';
