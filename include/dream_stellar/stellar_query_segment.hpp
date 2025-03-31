@@ -30,10 +30,12 @@ struct StellarQuerySegment : public StellarSequenceSegment<TAlphabet>
         auto patternInfix = this->asInfixSegment();
 
         TInfixSegment const patternInfixSeq = infix(_query, 0, length(_query));
+
+        assert(seqan2::beginPosition(patternInfixSeq) == 0UL);
         return {
             patternInfixSeq,
-            seqan2::beginPosition(patternInfix) - seqan2::beginPosition(patternInfixSeq),
-            seqan2::endPosition(patternInfix) - seqan2::beginPosition(patternInfixSeq)
+            seqan2::beginPosition(patternInfix),
+            seqan2::endPosition(patternInfix)
         };
     }
 };

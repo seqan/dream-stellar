@@ -21,31 +21,12 @@ StellarQuerySegment<TAlphabet>::fromPatternMatch(TSwiftPattern const & swiftPatt
     auto const & underlyingQuery = host(queryInfix);
     static_assert(std::is_same_v<decltype(underlyingQuery), seqan2::String<TAlphabet> const &>);
     
-    // Hit gets clipped in find_swift.hpp
-    // needle(Pattern) only has access to the segment and not the underlying sequence length?
-    // extend infix over underlying query sequence
-    auto const queryInfixInfix = seqan2::infix(swiftPattern, queryInfix);
+    assert(seqan2::endPosition(queryInfix) > seqan2::beginPosition(queryInfix)); // Infix coordinates relative to query sequence
+    assert(swiftPattern.curEndPos > swiftPattern.curBeginPos); // SWIFT hit coordinates relative to query infix
+    assert(seqan2::beginPosition(queryInfix) + swiftPattern.curBeginPos >= 0UL);  // swiftPattern.curBeginPos can be negative
+    assert(seqan2::beginPosition(queryInfix) + swiftPattern.curEndPos <= seqan2::length(seqan2::host(queryInfix))); 
 
-    int64_t hitBegin = swiftPattern.curBeginPos;
-    int64_t hitEnd = swiftPattern.curEndPos;
-    uint64_t hostLength = seqan2::length(underlyingQuery);
-
-    //std::cerr << "hostLength\t" << hostLength << '\n';
-    uint64_t segBegin = seqan2::beginPosition(queryInfixInfix);
-    uint64_t segEnd = seqan2::endPosition(queryInfixInfix);
-
-    assert(segEnd > segBegin);
-    assert(hitEnd > 0);
-    if (segEnd - segBegin < hitEnd)
-        segEnd = std::clamp(segBegin + hitEnd, segEnd, hostLength);
-
-    if (hitBegin < 0)
-    {
-        assert(hitBegin + segBegin > 0);
-        segBegin = std::clamp(segBegin + hitBegin, 0UL, segBegin);
-    }
-
-    return {underlyingQuery, segBegin, segEnd};
+    return {underlyingQuery, seqan2::beginPosition(queryInfix) + swiftPattern.curBeginPos, seqan2::beginPosition(queryInfix) + swiftPattern.curEndPos};
 }
 
 } // namespace dream_stellar
