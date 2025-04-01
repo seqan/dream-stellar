@@ -21,12 +21,13 @@ StellarQuerySegment<TAlphabet>::fromPatternMatch(TSwiftPattern const & swiftPatt
     static_assert(std::is_same_v<decltype(queryInfix), TInfixSegment const &>);
     auto const & underlyingQuery = host(queryInfix);
     static_assert(std::is_same_v<decltype(underlyingQuery), seqan2::String<TAlphabet> const &>);
-    
+
     assert(seqan2::endPosition(queryInfix) > seqan2::beginPosition(queryInfix)); // Infix coordinates relative to query sequence
-    assert(swiftPattern.curBeginPos < 0LL || seqan2::beginPosition(queryInfix) < (std::numeric_limits<int64_t>::max() - swiftPattern.curBeginPos));
+    assert(swiftPattern.curBeginPos < 0LL || seqan2::beginPosition(queryInfix) < (uint64_t) (std::numeric_limits<int64_t>::max() - swiftPattern.curBeginPos));
     assert((int64_t) seqan2::beginPosition(queryInfix) + swiftPattern.curBeginPos >= 0LL);  // swiftPattern.curBeginPos can be negative
-    assert(seqan2::beginPosition(queryInfix) + swiftPattern.curEndPos <= seqan2::length(seqan2::host(queryInfix))); 
-    return {underlyingQuery, (int64_t) seqan2::beginPosition(queryInfix) + swiftPattern.curBeginPos, seqan2::beginPosition(queryInfix) + swiftPattern.curEndPos};
+    assert(seqan2::beginPosition(queryInfix) + swiftPattern.curEndPos <= seqan2::length(underlyingQuery)); 
+
+    return {underlyingQuery, (size_t) seqan2::beginPosition(queryInfix) + swiftPattern.curBeginPos, seqan2::beginPosition(queryInfix) + swiftPattern.curEndPos};
 }
 
 } // namespace dream_stellar
