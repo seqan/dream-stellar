@@ -114,6 +114,7 @@ declare_datasource (FILE bin_paths.txt
                 URL ${CMAKE_SOURCE_DIR}/test/data/build/bin_paths.txt
                 URL_HASH SHA256=614e23263b689c7b4cc0ae41e99aeb5b43b351f865b4604f892320f2cc4377c7)
 
+
 declare_datasource (FILE 8bins19window0error100pattern1query_every.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/search/8bins19window0error100pattern1query_every.gff.out
                 URL_HASH SHA256=af90795ca7b27c762c2b9c8d2fa45b130fb528d038020279a1dea690f31bf8cd)
@@ -228,7 +229,7 @@ declare_datasource (FILE 1error_stellar.gff
                 URL_HASH SHA256=01993f28b0973e612a7cc3e84abdbe551c9b47a6cc7507106ff4b48071c21613)
 declare_datasource (FILE 2error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/2error.gff
-                URL_HASH SHA256=bc5505343684c0e91e86207b84b1d898f701532f0afb635e44ecfaa19a3bb659)
+                URL_HASH SHA256=ae95fcdba6f8082424bb9a554439fd3d3335de6a24f89fb75ca039a9abfe8255)
 declare_datasource (FILE 2error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/2error.gff.out
                 URL_HASH SHA256=dc353e70547278d7a90db0e50e44a9f953946447be00998ba3a1031ad5fa4f2d)
