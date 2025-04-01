@@ -194,7 +194,7 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
     typedef Segment<TInfix, InfixSegment> TSegment;
     typedef typename StellarMatch<TSequence const, seqan2::CharString>::TAlign TAlign;
 
-    TSize maxLength = 1000000000;
+    TSize maxLength = 1e9;
     if ((TSize)length(infH) > maxLength) {
         std::cerr << "Warning: SWIFT hit <" << beginPosition(infH) << "," << endPosition(infH);
         std::cerr << "> , <" << beginPosition(infV) << "," << endPosition(infV);
