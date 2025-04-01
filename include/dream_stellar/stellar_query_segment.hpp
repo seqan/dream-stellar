@@ -32,11 +32,11 @@ struct StellarQuerySegment : public StellarSequenceSegment<TAlphabet>
         TInfixSegment const patternInfixSeq = infix(_query, 0, length(_query));
 
         assert(seqan2::beginPosition(patternInfixSeq) == 0UL);
-        return {
-            patternInfixSeq,
-            seqan2::beginPosition(patternInfix),
-            seqan2::endPosition(patternInfix)
-        };
+        TNestedPatternSegment patternSegment{patternInfixSeq, 
+                                             seqan2::beginPosition(patternInfix), 
+                                             seqan2::endPosition(patternInfix)};
+        assert(seqan2::length(patternInfix) == seqan2::length(patternSegment));
+        return patternSegment;
     }
 };
 
