@@ -34,8 +34,8 @@ struct StellarQuerySegment : public StellarSequenceSegment<TAlphabet>
         assert(seqan2::beginPosition(patternInfixSeq) == 0UL);
         return {
             patternInfixSeq,
-            seqan2::beginPosition(patternInfix),
-            seqan2::endPosition(patternInfix)
+            seqan2::beginPosition(patternInfix) - seqan2::beginPosition(patternInfixSeq),
+            seqan2::endPosition(patternInfix) - seqan2::beginPosition(patternInfixSeq)
         };
     }
 };
