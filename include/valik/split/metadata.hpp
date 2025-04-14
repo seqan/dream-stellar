@@ -634,8 +634,8 @@ struct metadata
             the probability of 1 k-mer out of n matching is P(1 k-mer matches) = (n take 1) * p^1 * (1 - p)^(n - 1).
             */
 
-        size_t kmers_per_pattern = std::min((size_t) params.t, pattern_size - params.kmer.size() + 1);
-	    for (uint16_t matching_kmer_count{0}; matching_kmer_count < (uint16_t) std::round(params.t * information_content); matching_kmer_count++)
+            size_t kmers_per_pattern = pattern_size - params.kmer.size() + 1;
+            for (uint16_t matching_kmer_count{0}; matching_kmer_count < (uint16_t) std::round(params.t * information_content); matching_kmer_count++)
             {
                 if (fpr < precision) 
                     break;
