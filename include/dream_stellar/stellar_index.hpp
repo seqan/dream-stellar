@@ -77,12 +77,13 @@ inline void _createHit(
     {
         ndlBegin = std::clamp<int64_t>(ndlBegin, -queryInfixBegin, 0);
         height = lastInc + length(pattern.shape) - diag - ndlBegin;
-        assert(lastInc + length(pattern.shape) >= diag + ndlBegin); 
         // can not extend seed past the beginning of the host sequence
         if (height < width)
             return;
+
+        assert(diag + ndlBegin < 0 || lastInc + length(pattern.shape) >= (uint64_t) (diag + ndlBegin));
     }
-    
+
     // extend seed past the end of the infix segment
     int64_t swiftHitEnd = queryInfixBegin + ndlBegin + height; 
     if (swiftHitEnd > 0 && (uint64_t) swiftHitEnd > seqan2::length(seqan2::host(queryInfix)))
