@@ -1,4 +1,4 @@
-# valik [![build status][1]][2] [![codecov][3]][4]
+# DREAM-Stellar [![build status][1]][2] [![codecov][3]][4]
 <!--
     Above uses reference-style links with numbers.
     See also https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links.
@@ -47,32 +47,12 @@
 -->
 [4]: https://codecov.io/gh/eaasna/valik
 
-The FASTA identifiers are trimmed after the first whitespace.
+## Quick run: split and search a reference genome
+`valik split test/data/split/single_reference.fasta --ref-meta reference_metadata.bin --bins 4`
 
-## Quick run: split and search single reference sequence
-`valik split test/data/split/single_reference.fasta --ref-meta reference_metadata.txt --seg-meta segment_metadata.txt --bins 4`
+`valik build --ref-meta reference_metadata.txt --output seg_file_index.ibf`
 
-`valik build --from-segments test/data/split/single_reference.fasta --seg-meta segment_metadata.txt --ref-meta reference_metadata.txt --window 15 --kmer 13 --output seg_file_index.ibf --size 100k`
-
-`valik search --index seg_file_index.ibf --threads 4 --query test/data/search/query.fq --pattern 50 --overlap 49 --error 1 --output search.gff --seg-meta segment_metadata.txt`
-
-`valik consolidate --input search.gff --ref-meta reference_metadata.txt --output consolidated.gff`
-
-```text
-read-0  0,
-read-1  0,
-read-2  0,
-read-3  0,
-read-4  0,
-read-5  1,
-read-6  1,
-read-7  1,
-read-8  1,
-read-9  1,
-read-10 1,2,
-```
-
-Each line of the search output consists of a read ID and matching bin IDs.
+`valik search --index seg_file_index.ibf --query test/data/search/query.fq --pattern 50 --error 2 --output search.gff --ref-meta segment_metadata.bin`
 
 For a detailed list of options, see the help pages:
 ```console
@@ -82,19 +62,11 @@ valik build --help
 valik search --help
 ```
 
-### Distributed local search
-The valik application employs an IBF based prefilter (Estonian: _valik_) for searching approximate local matches in a nucleotide sequence database. The IBF is created from the (w,k)-minimiser content of the reference database. The filter excludes parts of the reference database for each query read. Only reference sequences where an approximate local match for the query sequence was found are retained.
-A local match is defined as:
-* length >= `pattern`
-* errors <= `errors`
-
-where `pattern` is the pattern size and `errors` the allowed number of errors. Each read is divided into multiple possibly overlapping pattern. The (w, k)-minimiser content of each window is then queried in the IBF.
-
 ## Download and Installation
 
 <details><summary>Prerequisites (click to expand)</summary>
 
-* CMake >= 3.16.9
+* CMake >= 3.25
 * GCC 10, 11 or 12 (most recent minor version)
 * git
 
@@ -104,7 +76,7 @@ Refer to the [Seqan3 Setup Tutorial](https://docs.seqan.de/seqan/3-master-user/s
 <details><summary>Download current master branch (click to expand)</summary>
 
 ```bash
-git clone --recurse-submodules https://github.com/eaasna/valik
+git clone --recurse-submodules https://github.com/eaasna/DREAM-Stellar
 ```
 
 </details>
