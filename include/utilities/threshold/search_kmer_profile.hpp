@@ -123,6 +123,8 @@ struct search_kmer_profile
     {
         if (error_table.find(errors) == error_table.end())
         {
+            std::cerr << "max_errors\t" << std::to_string(max_errors) << '\n';
+            std::cerr << "errors\t" << std::to_string(errors) << '\n';
             auto highest_er = error_table.at(max_errors);
             return {highest_er.params, highest_er.pattern, search_kind::STELLAR};
         }

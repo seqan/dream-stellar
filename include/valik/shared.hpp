@@ -76,7 +76,6 @@ struct split_arguments
     std::filesystem::path ref_meta_path{};
     bool write_out{false};
     bool split_query{false};
-    bool only_split{false};
 };
 
 struct build_arguments final : public split_arguments
@@ -86,7 +85,6 @@ struct build_arguments final : public split_arguments
     std::filesystem::path out_dir{"./"};
     float fpr{0.05};
     std::string size{};
-    uint64_t bins{64};
     uint64_t bits{4096};
     uint64_t hash{2};
     bool fast{false};
@@ -109,7 +107,7 @@ struct minimiser_threshold_arguments
     double p_max{0.15};
     double fpr{0.05};
     uint8_t errors{0};
-    size_t pattern_size{};
+    size_t pattern_size{100};
     double threshold_percentage{std::numeric_limits<double>::quiet_NaN()};
     bool threshold_was_set{false};
     bool cache_thresholds{false};
