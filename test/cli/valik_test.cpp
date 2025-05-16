@@ -25,7 +25,6 @@ TEST_P(valik_build_clusters, build_from_clusters)
         file << '\n';
     }
 
-    std::cerr << "bin_paths\n";
     cli_test_result const result = execute_app("valik", "build",
                                                          "bin_paths.txt",
                                                          "--metagenome",
@@ -38,6 +37,12 @@ TEST_P(valik_build_clusters, build_from_clusters)
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
+
+    std::filesystem::path ref_meta_path = ibf_path(number_of_bins, window_size);
+    ref_meta_path.replace_extension("bin");
+    EXPECT_TRUE(std::filesystem::exists(ref_meta_path));
+    valik::metadata expected(ref_meta_path);
+    valik::metadata actual("index.bin");
 
     compare_index(ibf_path(number_of_bins, window_size), "index.ibf");
 }
@@ -62,12 +67,10 @@ TEST_P(valik_build_segments, build_from_segments)
 {
     auto const [overlap, number_of_bins, window_size] = GetParam();
 
-    //!TODO: faults because bin_paths is incorrect?
-
     cli_test_result const result = execute_app("valik", "build",
                                                         data("single_reference.fasta"),
                                                         "--kmer 13",
-                                                        "--pattern 150", 
+                                                        "--pattern 50", 
                                                         "--seg-count ", std::to_string(number_of_bins), 
                                                         "--window ", std::to_string(window_size),
                                                         "--size 32k",
@@ -77,13 +80,20 @@ TEST_P(valik_build_segments, build_from_segments)
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
+    std::filesystem::path ref_meta_path = ibf_path(overlap, number_of_bins, window_size);
+    ref_meta_path.replace_extension("bin");
+    EXPECT_TRUE(std::filesystem::exists(ref_meta_path));
+    valik::metadata expected(ref_meta_path);
+    valik::metadata actual("index.bin");
+
+    EXPECT_EQ(expected.to_string(), actual.to_string());
     compare_index(ibf_path(overlap, number_of_bins, window_size), "index.ibf");
 }
 
 
 INSTANTIATE_TEST_SUITE_P(segment_build_suite,
                          valik_build_segments,
-                         testing::Combine(testing::Values(150), testing::Values(4, 16), testing::Values(15, 13)),
+                         testing::Combine(testing::Values(50), testing::Values(4, 16), testing::Values(15, 13)),
                          [] (testing::TestParamInfo<valik_build_segments::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_overlap_" +
@@ -144,7 +154,7 @@ INSTANTIATE_TEST_SUITE_P(cluster_search_suite,
 
 TEST_P(valik_search_segments, search)
 {
-    auto const [segment_overlap, number_of_bins, window_size, number_of_errors, pattern_size, query_every] = GetParam();
+    auto const [number_of_bins, window_size, number_of_errors, pattern_size, query_every] = GetParam();
     float error_rate = (float) number_of_errors / (float) pattern_size;
 
     setup_tmp_dir();
@@ -162,7 +172,7 @@ TEST_P(valik_search_segments, search)
                                                         "--pattern", std::to_string(pattern_size),
                                                         "--query-every", std::to_string(query_every),
                                                         "--error-rate ", std::to_string(error_rate),
-                                                        "--index ", ibf_path(segment_overlap, number_of_bins, window_size),
+                                                        "--index ", ibf_path(pattern_size, number_of_bins, window_size),
                                                         "--query ", data("single_query.fasta"),
                                                         "--threads 1", "--very-verbose",
                                                         "--cart-max-capacity 3",
@@ -170,7 +180,7 @@ TEST_P(valik_search_segments, search)
                                                         "--without-parameter-tuning");
     EXPECT_EQ(result.exit_code, 0);
 
-    auto expected = string_list_from_file(search_result_path(segment_overlap, number_of_bins, window_size, 
+    auto expected = string_list_from_file(search_result_path(pattern_size, number_of_bins, window_size, 
                                                              number_of_errors), std::ios::binary);
     auto actual = string_list_from_file("search.gff.out");
 
@@ -179,14 +189,14 @@ TEST_P(valik_search_segments, search)
 
 INSTANTIATE_TEST_SUITE_P(segment_search_suite,
                          valik_search_segments,
-                         testing::Combine(testing::Values(150), testing::Values(4, 16), testing::Values(15, 13), testing::Values(1),
+                         testing::Combine(testing::Values(4, 16), testing::Values(15, 13), testing::Values(1),
                          testing::Values(50), testing::Values(1)),
                          [] (testing::TestParamInfo<valik_search_segments::ParamType> const & info)
                          {
-                             std::string name = std::to_string(std::get<1>(info.param)) + "_bins_" +
-                                                std::to_string(std::get<2>(info.param)) + "_window_" +
-                                                std::to_string(std::get<3>(info.param)) + "_error_" +
-                                                std::to_string(std::get<4>(info.param)) + "_pattern_" +
-                                                std::to_string(std::get<5>(info.param)) + "_query_every";
+                             std::string name = std::to_string(std::get<0>(info.param)) + "_bins_" +
+                                                std::to_string(std::get<1>(info.param)) + "_window_" +
+                                                std::to_string(std::get<2>(info.param)) + "_error_" +
+                                                std::to_string(std::get<3>(info.param)) + "_pattern_" +
+                                                std::to_string(std::get<4>(info.param)) + "_query_every";
                              return name;
                          });

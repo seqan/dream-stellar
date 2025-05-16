@@ -502,7 +502,7 @@ struct valik_build_segments : public valik_base, public testing::WithParamInterf
 
 struct valik_search_clusters : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t,
     size_t, size_t>> {};
-struct valik_search_segments : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t, size_t,
+struct valik_search_segments : public valik_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t,
     size_t, size_t>> {};
 
 struct dream_short_search : public valik_base, public testing::WithParamInterface<std::tuple<size_t>> {};

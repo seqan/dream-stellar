@@ -36,6 +36,7 @@ done
 
 echo "### Running valik split ###"
 ./split/cli_test_output.sh
+./split/api_test_output.sh
 
 echo "### Running valik build ###"
 ./build/cli_test_output.sh

@@ -147,6 +147,7 @@ TEST_F(argparse_build, kmer_window)
                                                          "--size 8m",
                                                          "--output ibf.out", 
                                                          "--pattern 10",
+                                                         "--seg-count 8",
                                                          "--without-parameter-tuning");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
@@ -258,13 +259,16 @@ TEST_F(argparse_search, incorrect_error_rate)
     EXPECT_EQ(result.err, std::string{"[Error] Validation failed for option -e/--error-rate: Value 0.210000 is not in range [0.000000,0.200000].\n"});
 }
 
-TEST_F(argparse_search, not_manual_no_meta)
+TEST_F(argparse_search, no_meta_file)
 {
     cli_test_result const result = execute_app("valik", "search",
                                                         "--query ", dummy_query_file.file_path,
-                                                        "--index ", data("8bins19window.ibf"),
+                                                        "--index ", data("index_copy_without_meta.ibf"),
                                                         "--output search.gff");
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{"[Error] Provide --ref-meta to deduce suitable search parameters or set --without-parameter-tuning and --pattern size.\n"});
+    
+    EXPECT_TRUE(result.err.find("[Error] The file") != std::string::npos);
+    // do not specify metadata file path
+    EXPECT_TRUE(result.err.find("does not exist!") != std::string::npos);
 }

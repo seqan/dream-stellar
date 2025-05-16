@@ -1,0 +1,8 @@
+../dream/ref_0.fasta
+../dream/ref_1.fasta
+../dream/ref_2.fasta
+../dream/ref_3.fasta
+../dream/ref_4.fasta
+../dream/ref_5.fasta
+../dream/ref_6.fasta
+../dream/ref_7.fasta

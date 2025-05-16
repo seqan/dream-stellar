@@ -66,7 +66,7 @@ min_len=50
 
 for bin in 8 16
 do
-        valik split $ref_file --out ${bin}bins${min_len}overlap_reference_metadata.bin --seg-count $bin --pattern $min_len --without-parameter-tuning --write-out        
+        valik build $ref_file --output ${bin}bins${min_len}overlap_reference_metadata.index --seg-count $bin --pattern $min_len --without-parameter-tuning --write-out        
         cat multi_seq_ref_*.fasta > multi_seq_ref.segments.fasta
         rm multi_seq_ref_*.fasta
         rm seg_files.txt
@@ -85,3 +85,5 @@ do
         cat multi_seq_ref_*.gff > ${bin}bins${min_len}overlap_dream_all.gff
         rm multi_seq_ref_*
 done
+
+rm fn_err_conf*.bin
