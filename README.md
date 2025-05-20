@@ -47,12 +47,12 @@
 -->
 [4]: https://codecov.io/gh/eaasna/valik
 
-## Quick run: split and search a reference genome
-`valik split test/data/split/single_reference.fasta --ref-meta reference_metadata.bin --bins 4`
+## Example: align a query to a reference sequence
+`valik split test/data/dream/ref.fasta --out meta.bin --pattern 50`
 
-`valik build --ref-meta reference_metadata.txt --output seg_file_index.ibf`
+`valik build --ref-meta meta.bin --output index.ibf`
 
-`valik search --index seg_file_index.ibf --query test/data/search/query.fq --pattern 50 --error 2 --output search.gff --ref-meta segment_metadata.bin`
+`valik search --ref-meta meta.bin --index index.ibf --query test/data/dream/query.fasta --pattern 50 --error-rate 0.02 --output search.gff`
 
 For a detailed list of options, see the help pages:
 ```console
@@ -102,4 +102,4 @@ valik --version
 </details>
 
 ## Authorship and Copyright
-The Valik application is an offshoot of Raptor [license](https://github.com/seqan/raptor/blob/master/LICENSE.md).
+DREAM-Stellar is licensed under BSD 3, for details please see the [license]([https://github.com/eaasna/DREAM-Stellar/blob/main/LICENSE.md]).
