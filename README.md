@@ -47,7 +47,9 @@
 -->
 [4]: https://codecov.io/gh/eaasna/valik
 
-## Example: align a query to a reference sequence
+## Getting started 
+Find the set of local alignments between sets of reference and query sequences.
+
 `valik split test/data/dream/ref.fasta --out meta.bin --pattern 50`
 
 `valik build --ref-meta meta.bin --output index.ibf`
@@ -100,6 +102,9 @@ valik --version
 ```
 
 </details>
+
+## DREAM-Stellar benchmark
+The DREAM-Stellar [benchmark](https://github.com/eaasna/DREAM-stellar-benchmark/tree/v2.0) contains example workflows for using DREAM-Stellar for distributed local alignment.
 
 ## Authorship and Copyright
 DREAM-Stellar is licensed under BSD 3, for details please see the [license]([https://github.com/eaasna/DREAM-Stellar/blob/main/LICENSE.md]).
