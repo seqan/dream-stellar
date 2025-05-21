@@ -7,7 +7,7 @@ set -Eeuo pipefail
 seg_input="various_chromosome_lengths.fasta"
 for p in 20
 do
-    for b in 4 16
+    for b in 5 16
     do
         echo "Splitting the genome into $b segments that overlap by $p"
         seg_meta="multi/"$p"overlap"$b"bins.index"
