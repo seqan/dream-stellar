@@ -69,14 +69,15 @@ private:
             std::vector<std::string> header_paths = parse_bin_paths(*arguments, "header");
             std::string shape_string{};
             uint64_t window_size{};
-            size_t count{};
+            uint64_t distinct_count{};
+            uint64_t unique_count{};
             uint64_t bin_size{};
             entropy_ranking.reserve(header_paths.size());
             for (auto && [file_name, bin_number] : seqan3::views::zip(header_paths, std::views::iota(0u)))
             {
                 std::ifstream file_stream{file_name};
-                file_stream >> shape_string >> window_size >> count >> bin_size;
-                entropy_map.emplace_back(std::make_pair((size_t) bin_number, (double) count / (double) bin_size));
+                file_stream >> shape_string >> window_size >> unique_count >> distinct_count >> bin_size;
+                entropy_map.emplace_back(std::make_pair((size_t) bin_number, (double) unique_count / (double) bin_size));
             }
 
             std::ranges::sort(entropy_map.begin(), entropy_map.end(), [](const std::pair<size_t, double> &a, const std::pair<size_t, double> &b)
