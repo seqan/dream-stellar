@@ -89,17 +89,15 @@ struct fn_confs
                 precalc_fn_confs();
         }
 
-        kmer_loss & get_kmer_loss(utilities::kmer const & valik_kmer)
+        const kmer_loss & get_kmer_loss(utilities::kmer const & valik_kmer, uint8_t const e) const
         {
-            uint8_t k = std::max(space.min_k(), valik_kmer.effective_size());
+            uint8_t k = std::max(space.min_k(), valik_kmer.effective_size(e));
             if (k < space.min_k() || k > space.max_k())
             {
                 throw std::runtime_error("k-mer length " + std::to_string(k) + " is out of range [" + 
                       std::to_string(space.min_k()) + ", " + std::to_string(space.max_k()) + "]");
             }
 
-            //!TODO: make const
-            attr_vec[k - space.min_k()].kmer = valik_kmer;
             return attr_vec[k - space.min_k()];
         }
 

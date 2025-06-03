@@ -61,13 +61,13 @@ struct split_arguments
     std::vector<std::string> bin_path{};
     std::filesystem::path db_file{};
 
-    size_t pattern_size{150};
+    size_t pattern_size{100};
     uint32_t seg_count{64};
     uint32_t seg_count_in{std::numeric_limits<uint32_t>::max()};
     float error_rate{0.05};
-    uint8_t errors{0};
+    uint8_t errors{2};
     uint8_t kmer_size{std::numeric_limits<uint8_t>::max()};
-    std::string shape_str{};
+    std::string shape_str{"11111010010100110111111"};
     seqan3::shape shape{};
     uint8_t shape_weight{};
     uint8_t window_size{};
@@ -76,6 +76,8 @@ struct split_arguments
     std::filesystem::path ref_meta_path{};
     bool write_out{false};
     bool split_query{false};
+    double information_content{1.0};
+    bool split_only{false};
 };
 
 struct build_arguments final : public split_arguments

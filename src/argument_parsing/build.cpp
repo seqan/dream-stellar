@@ -43,7 +43,7 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
     parser.add_option(arguments.seg_count_in,
                       sharg::config{.short_id = 'n',
                       .long_id = "seg-count",
-                      .description = "The suggested number of database segments that might be adjusted by the split algorithm.",
+                      .description = "The number of database segments should be a multiple of 64.",
                       .validator = positive_integer_validator{false}});
     parser.add_flag(arguments.metagenome,
                       sharg::config{.short_id = '\0',
@@ -67,6 +67,16 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                       sharg::config{.short_id = '\0',
                       .long_id = "without-parameter-tuning",
                       .description = "Do not read parameters from metadata.",
+                      .advanced = true});
+    parser.add_flag(arguments.split_only,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "split-only",
+                      .description = "Do not build IBF.",
+                      .advanced = true});
+    parser.add_option(arguments.information_content,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "inf-cont",
+                      .description = "Effective sequence size constant.",
                       .advanced = true});
     /////////////////////////////////////////
     // Advanced options
@@ -120,7 +130,6 @@ void run_build(sharg::parser & parser)
     build_arguments arguments{};
     init_build_parser(parser, arguments);
     try_parsing(parser);
-    double information_content{0.35};
 
     if (parser.is_option_set("kmer"))
     {
@@ -183,10 +192,13 @@ void run_build(sharg::parser & parser)
     arguments.ref_meta_path = arguments.out_path;
     arguments.ref_meta_path.replace_extension("bin");
 
-    if (parser.is_option_set("seg-count") && !arguments.manual_parameters)
+    if ((parser.is_option_set("seg-count") || parser.is_option_set('n')) && !arguments.manual_parameters)
     {
-        std::cerr << "WARNING: seg count will be adjusted to the next multiple of 64. "
-                  << "Set --without-parameter-tuning to force manual input.\n";
+        if (arguments.seg_count_in % 64 != 0)
+        {
+            std::cerr << "WARNING: seg count will be adjusted to the next multiple of 64. "
+                      << "Set --without-parameter-tuning to force manual input.\n";
+        }
     }
 
     // ==========================================
@@ -231,11 +243,27 @@ void run_build(sharg::parser & parser)
         
     if (arguments.kmer_size == std::numeric_limits<uint8_t>::max())
     {
-        auto best_params = get_best_params(pattern, meta, fn_attr, information_content, arguments.verbose);
+        auto deduced_ungapped = get_best_params(pattern, meta, fn_attr, arguments.verbose);
+        if (arguments.verbose)
+            std::cerr << "Deduced k-mer size: " << (int) deduced_ungapped.kmer.size() << '\n';
+
+        auto best_params = deduced_ungapped.get_equivalent_gapped();
+
         arguments.kmer_size = best_params.kmer.size();
-        arguments.shape = seqan3::shape{seqan3::ungapped(arguments.kmer_size)};
-        arguments.shape_str = std::string(arguments.kmer_size, '1');
-        arguments.shape_weight = arguments.kmer_size;
+        arguments.shape = best_params.kmer.shape;
+        arguments.shape_str = best_params.kmer.to_string();
+        arguments.shape_weight = best_params.kmer.weight();
+    }
+    else if (arguments.shape_str.empty() && !parser.is_option_set("shape"))
+    {
+        auto kmer = utilities::kmer{arguments.kmer_size};
+        auto input_ungapped = param_set{kmer, kmer.lemma_threshold(arguments.pattern_size, arguments.errors)};
+        auto best_params = input_ungapped.get_equivalent_gapped();
+
+        arguments.kmer_size = best_params.kmer.size();
+        arguments.shape = best_params.kmer.shape;
+        arguments.shape_str = best_params.kmer.to_string();
+        arguments.shape_weight = best_params.kmer.weight();
     }
     
     if (!parser.is_option_set("window"))
@@ -254,9 +282,8 @@ void run_build(sharg::parser & parser)
         throw sharg::parser_error{"The k-mer size cannot be bigger than the window size."};
     }
 
-    const kmer_loss & attr = fn_attr.get_kmer_loss(utilities::kmer{arguments.shape});
-
-    search_kmer_profile search_profile = find_thresholds_for_kmer_size(meta, attr, arguments.errors, information_content);
+    search_kmer_profile search_profile = find_thresholds_for_kmer_size(meta, fn_attr, utilities::kmer{arguments.shape}, 
+                                                                       arguments.errors, arguments.fast);
     if (arguments.verbose)
         search_profile.print();
 
@@ -281,54 +308,68 @@ void run_build(sharg::parser & parser)
         std::exit(-1);
     }
 
-    // ==========================================
-    // Process minimiser parameters for IBF size calculation.
-    // ==========================================
-    if (arguments.fast)
-        raptor::compute_minimiser(arguments);   // requires bin_path and out_dir
-    
-    // ==========================================
-    // Find IBF size.
-    // ==========================================
-    if (parser.is_option_set("size"))
+    if (!arguments.split_only)
     {
-        arguments.size.erase(std::remove(arguments.size.begin(), arguments.size.end(), ' '), arguments.size.end());
-
-        size_t multiplier{};
-
-        switch (std::tolower(arguments.size.back()))
+        // ==========================================
+        // Process minimiser parameters for IBF size calculation.
+        // ==========================================
+        if (arguments.fast)
+            raptor::compute_minimiser(arguments);   // requires bin_path and out_dir
+    
+        // ==========================================
+        // Find IBF size.
+        // ==========================================
+        if (parser.is_option_set("size"))
         {
-            case 't':
-                multiplier = 8ull * 1024ull * 1024ull * 1024ull * 1024ull;
-                break;
-            case 'g':
-                multiplier = 8ull * 1024ull * 1024ull * 1024ull;
-                break;
-            case 'm':
-                multiplier = 8ull * 1024ull * 1024ull;
-                break;
-            case 'k':
-                multiplier = 8ull * 1024ull;
-                break;
-            default:
-                throw sharg::parser_error{"Use {k, m, g, t} to pass size. E.g., --size 8g."};
-        }
+            arguments.size.erase(std::remove(arguments.size.begin(), arguments.size.end(), ' '), arguments.size.end());
 
-        size_t size{};
-        std::from_chars(arguments.size.data(), arguments.size.data() + arguments.size.size() - 1, size);
-        size *= multiplier;
-        arguments.bits = size / (((arguments.seg_count + 63) >> 6) << 6);
-    }
-    else 
-    {
-        arguments.fpr = meta.ibf_fpr;
-        arguments.bits = raptor::compute_bin_size(arguments);
-    }
+            size_t multiplier{};
+
+            switch (std::tolower(arguments.size.back()))
+            {
+                case 't':
+                    multiplier = 8ull * 1024ull * 1024ull * 1024ull * 1024ull;
+                    break;
+                case 'g':
+                    multiplier = 8ull * 1024ull * 1024ull * 1024ull;
+                    break;
+                case 'm':
+                    multiplier = 8ull * 1024ull * 1024ull;
+                    break;
+                case 'k':
+                    multiplier = 8ull * 1024ull;
+                    break;
+                default:
+                    throw sharg::parser_error{"Use {k, m, g, t} to pass size. E.g., --size 8g."};
+            }
+
+            size_t size{};
+            std::from_chars(arguments.size.data(), arguments.size.data() + arguments.size.size() - 1, size);
+            size *= multiplier;
+            arguments.bits = size / (((arguments.seg_count + 63) >> 6) << 6);
+        }
+        else 
+        {
+            arguments.fpr = meta.ibf_fpr;
+            arguments.bits = raptor::compute_bin_size(arguments);
+        }
     
-    // ==========================================
-    // Dispatch
-    // ==========================================
-    valik_build(arguments);
+        // ==========================================
+        // Dispatch
+        // ==========================================
+
+        if (arguments.verbose)
+        {
+            std::cout << "\n-----------Building index-----------\n";
+            std::cout << "IBF size " << arguments.bits << " bits\n";
+            std::cout << "k-mer size " << (int) arguments.kmer_size << '\n';
+            std::cout << "shape weight " << (int) arguments.shape_weight << '\n';
+            std::cout << "window size " << (int) arguments.window_size << '\n';
+        }
+        valik_build(arguments);
+    }
+    else
+        return;
 }
 
 } // namespace valik::app

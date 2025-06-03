@@ -4,7 +4,7 @@ set -Eeuo pipefail
 
 ref_input="../dream/ref.fasta"
 p=50
-for shape in "11111111" "1001"
+for shape in "11111111" "111110011111"
 do
     echo "Creating IBF for shape $shape"
     index="s${shape}.ibf"
@@ -15,7 +15,7 @@ do
     fi
 
     valik build "$ref_input" --shape $shape --pattern "$p" --write-out --kmer-count-min 0 --kmer-count-max 254 \
-                            --output "$index" --fast --without-parameter-tuning --seg-count 8
+                            --output "$index" --fast --without-parameter-tuning --seg-count 8 
 
     mv ref.*.header s$shape/
     mv ref.*.minimiser s$shape/

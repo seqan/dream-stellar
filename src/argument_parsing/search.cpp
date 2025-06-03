@@ -249,23 +249,20 @@ void run_search(sharg::parser & parser)
         throw sharg::parser_error{"Option --index is required but not set."};
     }
 
-    if (!arguments.stellar_only)
-    {
-        // ==========================================
-        // Read window and kmer size, and the bin paths.
-        // ==========================================
-        std::ifstream is{arguments.index_file.string(),std::ios::binary};
-        cereal::BinaryInputArchive iarchive{is};
-        valik_index<> tmp{};
-        tmp.load_parameters(iarchive);
-        arguments.shape = tmp.shape();
-        arguments.shape_size = arguments.shape.size();
-        arguments.shape_weight = arguments.shape.count();
-        arguments.window_size = tmp.window_size();
-        arguments.bin_path = tmp.bin_path();
-        if (arguments.bin_path.size() > 1)
-            arguments.distribute = true;
-    }
+    // ==========================================
+    // Read window and kmer size, and the bin paths.
+    // ==========================================
+    std::ifstream is{arguments.index_file.string(),std::ios::binary};
+    cereal::BinaryInputArchive iarchive{is};
+    valik_index<> tmp{};
+    tmp.load_parameters(iarchive);
+    arguments.shape = tmp.shape();
+    arguments.shape_size = arguments.shape.size();
+    arguments.shape_weight = arguments.shape.count();
+    arguments.window_size = tmp.window_size();
+    arguments.bin_path = tmp.bin_path();
+    if (arguments.bin_path.size() > 1)
+        arguments.distribute = true;
 
     // ==========================================
     // Process --pattern.
@@ -336,8 +333,7 @@ void run_search(sharg::parser & parser)
 
         if (arguments.search_type == search_kind::STELLAR)
         {
-            std::cout << "Can not prefilter matches of length " << std::to_string(error_profile.pattern.l) << 
-                                     " with " << std::to_string(error_profile.pattern.e) << " errors. Searching without prefiltering.\n";
+            std::cout << "Searching without prefiltering.\n";
             arguments.fnr = 0.0;
         }
         else
@@ -353,8 +349,6 @@ void run_search(sharg::parser & parser)
             arguments.threshold_percentage = arguments.threshold / (double) (arguments.pattern_size - arguments.shape.size() + 1);
             arguments.fnr = error_profile.fnr;
 
-            if (arguments.window_size > arguments.shape_size)
-                arguments.search_type = search_kind::MINIMISER;
         }
 
         // ==========================================

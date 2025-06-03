@@ -9,30 +9,6 @@
 namespace valik
 {
 
-constexpr double FPR_UPPER{0.001};
-constexpr double FNR_UPPER{0.15};
-constexpr uint8_t THRESH_LOWER{2};
-constexpr size_t PATTERNS_PER_SEGMENT{1000};
-
-/**
- * @brief The false positive probability of a query segment that contains partially overlapping patterns.
-*/
-inline double segment_fpr(double const pattern_p, size_t const patterns_per_segment)
-{
-    double none_match_p = pow(1 - pattern_p, patterns_per_segment);
-    return std::min(1 - none_match_p, 1.0);
-}
-
-/**
-* @brief The maximum length of a query segment that does not appear spuriously in reference bins. 
-*/
-inline uint64_t max_segment_len(double const pattern_p, size_t const pattern_size, uint8_t query_every)
-{
-    //!TODO: this const is the *minimum* number of patterns per segment
-    // higher values are possible if pattern_p is small    
-    return pattern_size + query_every * (PATTERNS_PER_SEGMENT - 1);
-}
-
 /**
 * @brief Score of the objective function for a parameter set. Smaller values are better.
 */
@@ -40,13 +16,9 @@ inline double score(kmer_loss const & attr,
                     search_pattern const & pattern, 
                     param_set const & params, 
                     metadata const & ref_meta,
-                    size_t const PATTERNS_PER_SEGMENT, 
-                    double const information_content)
+                    size_t const patterns_per_segment = PATTERNS_PER_SEGMENT)
 {
-    
-    double none_match_p = pow(1 - ref_meta.pattern_spurious_match_prob(params, information_content), PATTERNS_PER_SEGMENT);
-    double fpr = std::min(1 - none_match_p, 1.0);
-
+    double fpr = segment_fpr(ref_meta.pattern_spurious_match_prob(params), patterns_per_segment);
     return attr.fnr_for_param_set(pattern, params) + fpr;
 }
 
@@ -56,15 +28,16 @@ inline double score(kmer_loss const & attr,
 param_set get_best_params(search_pattern const & pattern, 
                           metadata const & ref_meta,
                           fn_confs const & fn_attr, 
-                          double const information_content,
                           bool const verbose);
 
 /**
  * @brief For a chosen kmer size and some maximum error rate find the best threshold. 
 */
 search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
-                                                  kmer_loss const attr, 
-                                                  uint8_t const max_errors,
-                                                  double const information_content);
+                                                  fn_confs const & fn_attr,
+                                                  utilities::kmer const & kmer, 
+                                                  uint8_t const max_errors, 
+                                                  bool const fast);
+
 
 }   // namespace valik

@@ -13,10 +13,26 @@
 #include <cereal/archives/binary.hpp> 
 #include <cereal/types/tuple.hpp>
 
+#include <utilities/threshold/kmer.hpp>
+
 namespace valik
 {
 
-constexpr uint8_t query_every = 2; // query every 2nd pattern by default
+constexpr double FPR_UPPER{0.045};
+constexpr double EXACT_FNR_UPPER{0.01};
+constexpr double MIN_FNR_UPPER{0.1};
+
+constexpr uint8_t THRESH_LOWER{2};
+constexpr size_t PATTERNS_PER_SEGMENT{1000};
+
+enum class search_kind {LEMMA, HEURISTIC, GAPPED, STELLAR};
+
+// symmetrical seed where adjacent k-mers share only 5 positions
+static const std::string BEST_WEIGHT12{"111010101101010111"};
+constexpr uint8_t BEST_WEIGHT{12};
+
+constexpr uint8_t ALPHABET_SIZE{4}; // DNA4
+constexpr uint8_t QUERY_EVERY = 2; // query every 2nd pattern by default
 
 /**
  *  @brief Assuming k-mers are distributed uniformly randomly, what is the expected count of a k-mer in a bin.
@@ -25,13 +41,34 @@ constexpr uint8_t query_every = 2; // query every 2nd pattern by default
  * @param kmer_size K-mer size.
  * 
 */
-template <typename var_t, typename par_t>
-double expected_kmer_occurrences(var_t const & bin_size,
-                                par_t const & kmer_size)
+template <typename var_t>
+double expected_kmer_occurrences(var_t const bin_size,
+                                utilities::kmer const & kmer, 
+                                double const information_content)
 {
-    constexpr uint8_t alphabet_size{4};
-    return (double) (bin_size - kmer_size + 1) / (double) (pow(alphabet_size, kmer_size));
+    var_t total_kmer_count = bin_size - kmer.size() + 1;
+    return (double) 2u*(total_kmer_count) / ((double) pow(ALPHABET_SIZE, kmer.weight()) * information_content);
 }
+
+/**
+ * @brief The false positive probability of a query segment that contains partially overlapping patterns.
+*/
+inline double segment_fpr(double const pattern_p, size_t const patterns_per_segment)
+{
+    double none_match_p = pow(1 - pattern_p, patterns_per_segment);
+    return std::min(1 - none_match_p, 1.0);
+}
+
+/**
+* @brief The maximum length of a query segment that does not appear spuriously in reference bins. 
+*/
+inline uint64_t max_segment_len(double const pattern_p, size_t const pattern_size, uint8_t query_every)
+{
+    //!TODO: this const is the *minimum* number of patterns per segment
+    // higher values are possible if pattern_p is small    
+    return pattern_size + query_every * (PATTERNS_PER_SEGMENT - 1);
+}
+
 
 /**
  * @brief Definition of the search space for the parameter tuning algorithm.
@@ -120,7 +157,5 @@ inline uint64_t combinations(size_t const k, size_t const n)
     else
         return 0;
 }
-
-enum class search_kind {LEMMA, HEURISTIC, MINIMISER, STELLAR};
 
 }   //namespace valik

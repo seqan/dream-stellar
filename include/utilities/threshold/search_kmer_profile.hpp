@@ -23,7 +23,6 @@ namespace valik
  * \param search_type One of: LEMMA, HEURISTIC, STELLAR
  * \param fnr False negative rate of search, shared k-mer count is less than threshold although there exists an epsilon match
  * \param fp_per_pattern Probability of a query pattern appearing spuriously in one of the reference bins
- * \param max_segment_len Maximum size of a query segment that does not appear spuriously in more than 10% of reference bins
  * 
 */
 struct search_error_profile
@@ -71,10 +70,11 @@ struct search_error_profile
                 switch (search_type)
                 {
                     case search_kind::HEURISTIC: std::cout << "heuristic"; break;
+                    case search_kind::GAPPED: std::cout << "gapped"; break;
                     case search_kind::LEMMA: std::cout << "kmer lemma"; break;
                     default: break;
                 }
-                std::cout << '\t' << std::to_string(params.t) << '\t' << fnr << '\t' << fp_per_pattern << '\n';
+                std::cout << '\t' << std::to_string(params.t) << '\t' << fnr << '\t' << segment_fpr(fp_per_pattern, PATTERNS_PER_SEGMENT) << '\n';
             }
         }
     }
@@ -170,7 +170,7 @@ struct search_kmer_profile
             
         std::cout << "thresholds for matches of (min_length=" << std::to_string(l) 
                   << "; max_error_rate=" << max_error_rate() << ")\n";
-        std::cout << "errors\tthreshold_kind\tthreshold\tFNR\tFP_per_pattern\n";
+        std::cout << "errors\tthreshold_kind\tthreshold\tFNR\tFPR\n";
 
         for (uint8_t er{0}; er <= max_errors; er++)
         {
