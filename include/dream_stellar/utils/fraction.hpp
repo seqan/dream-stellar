@@ -195,7 +195,7 @@ struct fraction
         };
     }
 
-    constexpr fraction limit_denominator(size_t max_denominator=1000000) const
+    constexpr fraction limit_denominator(size_t max_denominator=1000) const
     {
         // https://stackoverflow.com/questions/17537613/does-python-have-a-function-to-reduce-fractions
         // https://hg.python.org/cpython/file/822c7c0d27d1/Lib/fractions.py#l211
@@ -280,8 +280,9 @@ private:
     The longest allowed min local match length is 1000 which means that the smallest meaningful error rate is 1 / 1000.
     Adding a 5% allowance to account for floating point inexactness the _limiter gives a lower bound for the error rate.
     It is crucial to have a lower bound for the error rate because values close to 0 have a detrimental effect on the runtime. 
-    */ 
-    uint32_t _limiter{1050u}; 
+    */
+// 
+    uint32_t _limiter{50u}; 
     difference_t _numerator{0u};
     size_t _denominator{1u};
 };

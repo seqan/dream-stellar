@@ -213,11 +213,18 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
     Score<TScore> scoreMatrix(match, mismatchIndel, mismatchIndel);
     TScore scoreDropOff = (TScore) _max((TScore) xDrop * (-mismatchIndel), MinValue<TScore>::VALUE + 1);
 
+    //std::cerr << "Banded local alignment with eps = " << std::to_string(eps) << ", minLength = " << std::to_string(minLength)
+    //          << ", delta = " << std::to_string(delta) << ", xDrop = " << std::to_string(xDrop) << "\n";
+
+    //std::cerr << "mismatchindel = " << mismatchIndel << ", scoreDropOff = " << scoreDropOff << "\n";
     // calculate minimal score for local alignments
     TEpsilon e = floor(eps*minLength);
+    //std::cerr << "e = " << e << "\n";
     TSize minLength1 = _max(0, (TSize)ceil((e+1) / eps));
+    //std::cerr << "minLength1 = " << minLength1 << "\n";
     TEpsilon e1 = floor(eps*minLength1);
     TScore minScore = _min((TSize)ceil((minLength-e) / (e+1)), (TSize)ceil((minLength1-e1) / (e1+1)));
+    //std::cerr << "minScore = " << minScore << "\n";
 
     // diagonals for banded local alignment
     int64_t upperDiag = 0;
@@ -237,7 +244,8 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
                   << ">" << endPosition(infV) - beginPosition(infV);
         return;
     }
-        
+
+    //std::cerr << "lowerDiag = " << lowerDiag << ", upperDiag = " << upperDiag << "\n";  
 
     // banded local alignment
     LocalAlignmentEnumerator<Score<TScore>, Banded> enumerator(scoreMatrix, lowerDiag, upperDiag, minScore);
@@ -246,14 +254,17 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
     assignSource(row(localAlign, 0), infH);
     assignSource(row(localAlign, 1), infV);
 
+    //uint32_t has_next_count{0};
     while (true) {
         bool const has_next = verification_runtime.next_local_alignment_time.measure_time([&]()
         {
+            //has_next_count++;
             return nextLocalAlignment(localAlign, enumerator);
         });
 
         if (!has_next)
             break;
+            
 
     // while (localAlignment(localAlign, finder, scoreMatrix, minScore, lowerDiag, upperDiag, BandedWatermanEggert())) {
 
@@ -296,12 +307,17 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
             // insert eps-match in matches string
             bool success = onAlignmentResult(align);
             if (!success)
+            {
+                //std::cerr << "has_next_count: " << has_next_count << "\n";
                 return;
+            }
+                
 
             ++aliIt;
         }
         if (bestLocalMethod) break;
     }
+    //std::cerr << "has next count: " << has_next_count << "\n";
 }
 
 } // namespace dream_stellar

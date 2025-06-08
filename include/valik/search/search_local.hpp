@@ -38,7 +38,7 @@ static inline dream_stellar::StellarOptions make_thread_options(search_arguments
     threadOptions.segmentBegin = seg.start;
     threadOptions.segmentEnd = seg.start + seg.len;
     threadOptions.minLength = arguments.minLength;
-    threadOptions.epsilon = dream_stellar::utils::fraction::from_double_with_limit(arguments.error_rate, arguments.minLength).limit_denominator();
+    threadOptions.epsilon = dream_stellar::utils::fraction::from_double_with_limit(arguments.error_rate, arguments.minLength).limit_denominator(std::round(arguments.minLength*3));
     threadOptions.outputFile = cart_queries_path.string() + ".gff";
     
     {
