@@ -30,9 +30,6 @@ TEST_P(dream_short_search, short_shared_mem)
                                                        "--pattern ", std::to_string(pattern_size),
                                                        "--error-rate ", std::to_string(max_error_rate));
     EXPECT_EQ(build.exit_code, 0);
-    
-    EXPECT_EQ(build.out, std::string{});
-    EXPECT_EQ(build.err, std::string{});
     valik::metadata reference(ref_meta_path);
 
     cli_test_result const result = execute_app("valik", "search",

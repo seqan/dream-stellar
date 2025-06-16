@@ -158,7 +158,7 @@ search_kmer_profile find_thresholds_for_kmer_size(metadata const & ref_meta,
                 while (((try_params.t <= space.max_thresh) && 
                         (attr.fnr_for_param_set(pattern, try_params) < FNR_UPPER) &&
                         (curr_score <= last_score)) || 
-                       (segment_fpr(ref_meta.pattern_spurious_match_prob(try_params), PATTERNS_PER_SEGMENT) > 0.5))
+                       (segment_fpr(ref_meta.pattern_spurious_match_prob(try_params), PATTERNS_PER_SEGMENT) > FPR_UPPER))
                 {
                     best_params = std::move(try_params);
                     if (segment_fpr(ref_meta.pattern_spurious_match_prob(try_params), PATTERNS_PER_SEGMENT) <= FPR_UPPER)

@@ -79,12 +79,12 @@ struct param_set
                                  BEST_WEIGHT12.substr(BEST_WEIGHT12.size() / 2) + 
                                  std::string(std::floor((kmer.size() - BEST_WEIGHT) / 2.0), '1');                                
                 }
-                assert(gapped_str.size() == kmer.size());
             }
             
             uint64_t bin_shape{};
             std::from_chars(gapped_str.data(), gapped_str.data() + gapped_str.size(), bin_shape, 2);
             auto best_shape = seqan3::shape(seqan3::bin_literal{bin_shape});
+            assert(best_shape.count() == kmer.size());
             return param_set{best_shape, t};
         }
     }
