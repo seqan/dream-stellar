@@ -84,7 +84,7 @@ struct param_set
             uint64_t bin_shape{};
             std::from_chars(gapped_str.data(), gapped_str.data() + gapped_str.size(), bin_shape, 2);
             auto best_shape = seqan3::shape(seqan3::bin_literal{bin_shape});
-            assert(best_shape.count() == kmer.size());
+            assert((best_shape.count() == BEST_WEIGHT) || (best_shape.count() == kmer.size()));
             return param_set{best_shape, t};
         }
     }
