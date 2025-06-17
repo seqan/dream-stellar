@@ -5,7 +5,7 @@ namespace valik::app
 
 void init_shared_meta(sharg::parser & parser)
 {
-    parser.info.app_name = "valik";
+    parser.info.app_name = "dream-stellar";
     parser.info.author = "Evelin Aasna";
     parser.info.email = "evelin.aasna@fu-berlin.de";
     parser.info.long_copyright = R"(BSD 3-Clause License
@@ -38,8 +38,8 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.)";
     parser.info.short_copyright = "BSD 3-Clause License";
-    parser.info.short_description = "Pre-filter for querying databases of nucleotide sequences for approximate local matches.";
-    parser.info.url = "https://github.com/eaasna/valik";
+    parser.info.short_description = "DNA search tool for finding local alignments between long sequences.";
+    parser.info.url = "https://github.com/seqan/dream-stellar";
     parser.info.version = "1.0";
 }
 
