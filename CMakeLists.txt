@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.16)
 ## CUSTOMISE
 
 # Define the application name and version.
-project (valik VERSION 1.0)
+project (dream-stellar VERSION 1.0)
 
 ## BUILD
 

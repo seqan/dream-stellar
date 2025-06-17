@@ -23,7 +23,7 @@ TEST_P(dream_short_search, short_shared_mem)
     std::filesystem::path ref_meta_path = "ref.bin";
     std::filesystem::path index_path = "ref.ibf";
 
-    cli_test_result const build = execute_app("valik", "build",
+    cli_test_result const build = execute_app("dream-stellar", "build",
                                                        data("ref.fasta"),
                                                        "--output ", index_path, 
                                                        "--fpr 0.001", 
@@ -32,7 +32,7 @@ TEST_P(dream_short_search, short_shared_mem)
     EXPECT_EQ(build.exit_code, 0);
     valik::metadata reference(ref_meta_path);
 
-    cli_test_result const result = execute_app("valik", "search",
+    cli_test_result const result = execute_app("dream-stellar", "search",
                                                         "--output search.gff",
                                                         "--error-rate ", std::to_string(error_rate),
                                                         "--index ", index_path,
@@ -69,14 +69,14 @@ TEST_F(dream_short_search, no_matches)
     std::filesystem::path ref_meta_path = "ref.bin";
     std::filesystem::path index_path = "ref.ibf";
     
-    cli_test_result const build = execute_app("valik", "build",
+    cli_test_result const build = execute_app("dream-stellar", "build",
                                                        data("ref.fasta"),
                                                        "--pattern ", std::to_string(pattern_size),
                                                        "--output ", index_path);
     EXPECT_EQ(build.exit_code, 0);
     EXPECT_EQ(build.err, std::string{});
 
-    cli_test_result const result = execute_app("valik", "search",
+    cli_test_result const result = execute_app("dream-stellar", "search",
                                                         "--output search.gff",
                                                         "--error-rate 0",
                                                         "--index ", index_path,
@@ -108,7 +108,7 @@ TEST_P(dream_split_search, split_shared_mem)
     std::filesystem::path ref_meta_path = "ref.bin";
     std::filesystem::path index_path = "ref.ibf";
 
-    cli_test_result const build = execute_app("valik", "build",
+    cli_test_result const build = execute_app("dream-stellar", "build",
                                                        data("ref.fasta"),
                                                        "--fpr 0.001",
                                                        "--pattern ", std::to_string(pattern_size), 
@@ -118,7 +118,7 @@ TEST_P(dream_split_search, split_shared_mem)
     EXPECT_EQ(build.exit_code, 0);
     valik::metadata reference(ref_meta_path);
 
-    cli_test_result const search = execute_app("valik", "search",
+    cli_test_result const search = execute_app("dream-stellar", "search",
                                                         "--output search.gff",
                                                         "--split-query",
                                                         "--error-rate ", std::to_string(error_rate),
@@ -161,7 +161,7 @@ TEST_P(dream_split_search, split_shaped_kmer)
     std::filesystem::path ref_meta_path = "ref.bin";
     std::filesystem::path index_path = "ref.ibf";
 
-    cli_test_result const build = execute_app("valik", "build",
+    cli_test_result const build = execute_app("dream-stellar", "build",
                                                        data("ref.fasta"),
                                                        "--output ", index_path,
                                                        "--fpr 0.001",
@@ -172,7 +172,7 @@ TEST_P(dream_split_search, split_shaped_kmer)
     EXPECT_EQ(build.exit_code, 0);
     valik::metadata reference(ref_meta_path);
 
-    cli_test_result const search = execute_app("valik", "search",
+    cli_test_result const search = execute_app("dream-stellar", "search",
                                                         "--output search.gff",
                                                         "--split-query",
                                                         "--error-rate ", std::to_string(error_rate),
