@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
 #include <charconv>
 #include <string>
@@ -111,16 +112,41 @@ struct kmer
         return shape.size();
     }
 
-    uint8_t effective_size() const
+    uint64_t count_set_pos(uint64_t n) const 
+    {
+        size_t count = 0;
+        while (n) 
+        {
+            count += n & 1;
+            n >>= 1;
+        }
+        return count;
+    }
+
+    uint8_t forward_or_reverse_1() const
     {
         if (is_gapped())
         {
-            // 28 18 20 16
-            // double ungapped_frac = weight() / (double) size();
-            // return std::round(longest_ungapped() * (1 + ungapped_frac));
-            // 
-            // 28 17 18 13
-            return ungapped_triplet_length();
+            std::string forw = to_string();
+            std::string rev = to_string();
+            std::reverse(rev.begin(), rev.end());
+            uint64_t forw_shape{};
+            std::from_chars(forw.data(), forw.data() + forw.size(), forw_shape, 2);
+            uint64_t rev_shape{};
+            std::from_chars(rev.data(), rev.data() + rev.size(), rev_shape, 2);
+            return count_set_pos(forw_shape | rev_shape);
+        }
+        else
+            return size();
+    }
+
+    uint8_t effective_size(uint8_t const e) const
+    {
+        if (is_gapped())
+        {
+            if (e < 2)
+                return forward_or_reverse_1();
+            return forward_or_reverse_1() - e + 2;
         }
         else
             return size();
@@ -158,10 +184,10 @@ struct kmer
         uint8_t k = size();
         if (l < k)
             return 0;
-        if ((l - k + 1) <= (size_t) e*effective_size())
+        if ((l - k + 1) <= (size_t) e*effective_size(e))
             return 0;
 
-        return l - k + 1 - e * effective_size();
+        return l - k + 1 - e * effective_size(e);
     }
 
     template<class Archive>

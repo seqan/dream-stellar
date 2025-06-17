@@ -643,8 +643,6 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
     typedef typename Position<TSequence>::Type TPos;
     typedef Seed<Simple> TSeed;
 
-    //!TODO: what are infH and infV segments?
-
     // std::cerr << "LOCAL ALIGN\n" << row(localAlign, 0) << "\n" << row(localAlign, 1) << "\n";
     // std::cerr << "ALIGN\n" << row(align, 0) << "\n" << row(align, 1) << "\n";
     integrateAlign(align, localAlign);

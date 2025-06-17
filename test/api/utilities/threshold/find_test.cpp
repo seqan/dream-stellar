@@ -32,9 +32,8 @@ TEST(find_thresholds, small)
     valik::metadata ref_meta(data("150overlap4bins.bin"));
     
     uint8_t kmer_size{11};
-    auto kmer_attr = fn_confs.get_kmer_loss(kmer_size);
-    
     uint8_t max_errors{15};
+    auto kmer_attr = fn_confs.get_kmer_loss(kmer_size);
 
     auto profile = valik::find_thresholds_for_kmer_size(ref_meta, kmer_attr, max_errors);
 

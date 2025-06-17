@@ -138,7 +138,7 @@ done
 
 cd ../prepare
 
-for shape in "11111111" "1001"; do
+for shape in "11111111" "111110011111"; do
     file="s$shape.bin"
     echo -n "declare_datasource (FILE s${shape}.bin
                 URL \${CMAKE_SOURCE_DIR}/test/data/prepare/${file}
@@ -160,7 +160,7 @@ for b in $(seq 0 7); do
     echo -n $sha >> ../datasources.cmake
     echo ")" >> ../datasources.cmake
 
-    for shape in "11111111" "1001"; do
+    for shape in "11111111" "111110011111"; do
         file="ref.$b.header"
         echo -n "declare_datasource (FILE s${shape}_${file}
                     URL \${CMAKE_SOURCE_DIR}/test/data/prepare/s$shape/${file}

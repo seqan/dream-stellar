@@ -21,7 +21,7 @@ TEST(max_bin_count, split_db_no_count_cutoff)
     for (size_t b{0}; b < bin_count; b++)
         arguments.bin_path.emplace_back(data("ref_bin_" + std::to_string(b) + ".fasta"));
 
-    std::vector<seqan3::shape> shapes{seqan3::shape{seqan3::ungapped{8}}, seqan3::shape{seqan3::bin_literal{0b1001}}};
+    std::vector<seqan3::shape> shapes{seqan3::shape{seqan3::ungapped{8}}, seqan3::shape{seqan3::bin_literal{0b111110011111}}};
     for (auto shape : shapes)
     {
         arguments.shape = shape;
@@ -45,7 +45,7 @@ TEST(max_bin_count, segment_db_no_count_cutoff)
     arguments.kmer_count_min_cutoff = 0;
     arguments.kmer_count_max_cutoff = 254;
 
-    std::vector<seqan3::shape> shapes{seqan3::shape{seqan3::ungapped{8}}, seqan3::shape{seqan3::bin_literal{0b1001}}};
+    std::vector<seqan3::shape> shapes{seqan3::shape{seqan3::ungapped{8}}, seqan3::shape{seqan3::bin_literal{0b111110011111}}};
     for (auto shape : shapes)
     {
         arguments.ref_meta_path = data("s" + shape.to_string() + ".bin");

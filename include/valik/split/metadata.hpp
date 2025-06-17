@@ -184,6 +184,7 @@ struct metadata
     size_t seg_count;
     size_t pattern_size;
     float ibf_fpr;
+    double information_content{1.0};
 
     std::vector<sequence_file> files;
     std::vector<sequence_stats> sequences;
@@ -427,6 +428,7 @@ struct metadata
         metadata(build_arguments const & arguments)
         {
             ibf_fpr = arguments.fpr;
+            information_content = arguments.information_content;
             if (arguments.metagenome)
             {
                 scan_metagenome_bins(arguments.bin_path);
@@ -447,8 +449,6 @@ struct metadata
             scan_database_file(arguments.query_file);
             if (arguments.seg_count_in == std::numeric_limits<uint32_t>::max())
             {
-                //!TODO: what is a suitable value for this magic const
-                //!TODO: switch between prefiltered and stellar_only search?
                 if (total_len > (arguments.max_segment_len * 10))
                     arguments.seg_count = std::round(total_len / (arguments.max_segment_len - arguments.pattern_size));
                 else
@@ -529,7 +529,7 @@ struct metadata
         {
             std::ofstream os(filepath, std::ios::binary);
             cereal::BinaryOutputArchive archive(os);
-            archive(total_len, pattern_size, files, sequences, segments, ibf_fpr);
+            archive(total_len, pattern_size, files, sequences, segments, ibf_fpr, information_content);
         }
       
         /**
@@ -541,7 +541,7 @@ struct metadata
         {
             std::ifstream is(filepath, std::ios::binary);
             cereal::BinaryInputArchive archive(is);
-            archive(total_len, pattern_size, files, sequences, segments, ibf_fpr);
+            archive(total_len, pattern_size, files, sequences, segments, ibf_fpr, information_content);
             seq_count = sequences.size();
             seg_count = segments.size();
         }
@@ -596,18 +596,18 @@ struct metadata
         /**
         * @brief Probability of a k-mer appearing spuriously in a bin.
         */
-        double kmer_spurious_match_prob(uint8_t const kmer_size) const
+        double kmer_spurious_match_prob(utilities::kmer const & kmer) const
         {
-            return std::min(1.0, expected_kmer_occurrences(std::round(total_len / (double) seg_count), kmer_size));
+            return std::min(1.0, expected_kmer_occurrences(std::round(total_len / (double) seg_count), kmer, information_content));
         }
 
         /**
         * @brief The probability of at least threshold k-mers matching spuriously between a query pattern and a reference bin.
         */
-        double pattern_spurious_match_prob(param_set const & params, double const information_content) const
+        double pattern_spurious_match_prob(param_set const & params) const
         {
             double fpr{1};
-            double p = ibf_fpr + kmer_spurious_match_prob(params.kmer.weight());
+            double p = ibf_fpr + kmer_spurious_match_prob(params.kmer) - ibf_fpr * kmer_spurious_match_prob(params.kmer);
             const double precision{1e-9};
             /*
             For parameters 
@@ -632,9 +632,9 @@ struct metadata
             */
 
             size_t kmers_per_pattern = pattern_size - params.kmer.size() + 1;
-            for (uint16_t matching_kmer_count{0}; matching_kmer_count < (uint16_t) std::round(params.t * information_content); matching_kmer_count++)
+            for (uint16_t matching_kmer_count{0}; matching_kmer_count < (uint16_t) std::round(params.t); matching_kmer_count++)
             {
-                if (fpr < precision) 
+                if (fpr < precision)
                     break;
                 fpr -= combinations(matching_kmer_count, kmers_per_pattern) * 
                                     pow(p, matching_kmer_count) * 

@@ -23,8 +23,10 @@ struct kmer_loss
     using table_t = std::vector<row_t>;
     using mat_t = std::vector<table_t>;
     
-    utilities::kmer kmer;
-    mat_t fn_conf_counts;  // false negative configuration counts
+    private:
+        utilities::kmer kmer;
+    public:
+        mat_t fn_conf_counts;  // false negative configuration counts
 
     kmer_loss() noexcept = default;
     kmer_loss(kmer_loss const &) noexcept = default;
@@ -38,7 +40,7 @@ struct kmer_loss
     */
     mat_t count_err_conf_below_thresh(param_space const & space)
     {
-        uint8_t k = std::max(kmer.effective_size(), space.min_k());
+        uint8_t k = std::max(kmer.effective_size(1u), space.min_k());
         mat_t matrix;
         for (uint8_t t = 1; t <= space.max_thresh; t++)
         {
@@ -99,6 +101,21 @@ struct kmer_loss
             throw std::runtime_error("Calculated configuration count table for min_len=[1, " + std::to_string(fn_conf_counts[0][0].size()) + "]. " 
                                      "Can't find FNR for min_len=" + std::to_string(pattern.l));
         return fn_conf_counts[params.t - 1][pattern.e][pattern.l] / (double) pattern.total_conf_count();
+    }
+
+    size_t kmer_weight() const
+    {
+        return kmer.weight();
+    }
+
+    size_t kmer_size() const
+    {
+        return kmer.size();
+    }
+
+    seqan3::shape const kmer_shape() const
+    {
+        return kmer.shape;
     }
 
     template<class Archive>
