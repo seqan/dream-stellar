@@ -19,9 +19,9 @@ TEST_F(argparse, no_options)
     cli_test_result const result = execute_app("dream-stellar");
     std::string const expected
     {
-        "dream-stellar - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
-        "================================================================================================\n"
-        "    Try -h or --help for more information.\n"
+	"dream-stellar - DNA search tool for finding local alignments between long sequences.\n"
+	"====================================================================================\n"
+    	"    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
@@ -33,9 +33,9 @@ TEST_F(argparse_build, no_options)
     cli_test_result const result = execute_app("dream-stellar", "build");
     std::string const expected
     {
-        "dream-stellar - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
-        "================================================================================================\n"
-        "    Try -h or --help for more information.\n"
+	"dream-stellar - DNA search tool for finding local alignments between long sequences.\n"
+	"====================================================================================\n"
+    	"    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
@@ -47,9 +47,9 @@ TEST_F(argparse_search, no_options)
     cli_test_result const result = execute_app("dream-stellar", "search");
     std::string const expected
     {
-        "dream-stellar - Pre-filter for querying databases of nucleotide sequences for approximate local matches.\n"
-        "================================================================================================\n"
-        "    Try -h or --help for more information.\n"
+	"dream-stellar - DNA search tool for finding local alignments between long sequences.\n"
+	"====================================================================================\n"
+    	"    Try -h or --help for more information.\n"
     };
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.out, expected);
