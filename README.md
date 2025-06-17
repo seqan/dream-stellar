@@ -50,18 +50,15 @@
 ## Getting started 
 Find the set of local alignments between sets of reference and query sequences.
 
-`valik split test/data/dream/ref.fasta --out meta.bin --pattern 50`
+`dream-stellar build test/data/dream/ref.fasta --pattern 50 --output index.ibf`
 
-`valik build --ref-meta meta.bin --output index.ibf`
-
-`valik search --ref-meta meta.bin --index index.ibf --query test/data/dream/query.fasta --pattern 50 --error-rate 0.02 --output search.gff`
+`dream-stellar search --index index.ibf --query test/data/dream/query.fasta --error-rate 0.02 --output search.gff`
 
 For a detailed list of options, see the help pages:
 ```console
-valik --help
-valik split --help
-valik build --help
-valik search --help
+dream-stellar --help
+dream-stellar build --help
+dream-stellar search --help
 ```
 
 ## Download and Installation
@@ -78,7 +75,7 @@ Refer to the [Seqan3 Setup Tutorial](https://docs.seqan.de/seqan/3-master-user/s
 <details><summary>Download current master branch (click to expand)</summary>
 
 ```bash
-git clone --recurse-submodules https://github.com/eaasna/DREAM-Stellar
+git clone --recurse-submodules https://github.com/seqan/dream-stellar
 ```
 
 </details>
@@ -86,7 +83,7 @@ git clone --recurse-submodules https://github.com/eaasna/DREAM-Stellar
 <details><summary>Building (click to expand)</summary>
 
 ```bash
-cd valik
+cd dream-stellar
 mkdir -p build
 cd build
 cmake ..
