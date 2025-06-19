@@ -193,10 +193,10 @@ double find_dynamic_threshold_correction(pattern_bounds const & pattern,
  */
 template <typename binning_bitvector_t>
 void find_pattern_bins(pattern_bounds const & pattern,
-                       double const & correction_coef,
-                       size_t const & bin_count,
+                       size_t const bin_count,
                        binning_bitvector_t const & counting_table,
-                       std::unordered_set<size_t> & sequence_hits)
+                       std::unordered_set<size_t> & sequence_hits,
+                       uint8_t const correction = 0)
 {
     // counting vector for the current pattern
     seqan3::counting_vector<uint8_t> total_counts(bin_count, 0);
@@ -206,8 +206,7 @@ void find_pattern_bins(pattern_bounds const & pattern,
 
     for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
     {
-        auto &&count = total_counts[current_bin];
-        if (count >= (pattern.threshold * correction_coef))
+        if (total_counts[current_bin] >= (pattern.threshold + correction))
         {
             // the result is a union of results from all patterns of a read
             sequence_hits.insert(current_bin);
@@ -289,20 +288,22 @@ void local_prefilter(
         minimiser.clear();
 
         std::unordered_set<size_t> sequence_hits{};
-        double threshold_correction{1};
-        if (!arguments.static_threshold)
-        {
-            threshold_correction = sample_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, [&](size_t const begin) -> double
-            {
-                pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
-                return find_dynamic_threshold_correction(pattern, bin_count, counting_table);
-            });
-        }
-
         pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, [&](size_t const begin)
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
-            find_pattern_bins(pattern, threshold_correction, bin_count, counting_table, sequence_hits);
+            find_pattern_bins(pattern, bin_count, counting_table, sequence_hits);
+            
+            if (!arguments.static_threshold)
+            {
+                uint8_t threshold_correction{1};
+                while ((sequence_hits.size() > std::max<size_t>(4, std::round(bin_count / 4.0))) &&
+                       (pattern.threshold + threshold_correction) < pattern.minimiser_count())
+                {
+                    sequence_hits.clear();
+                    find_pattern_bins(pattern, bin_count, counting_table, sequence_hits, threshold_correction);
+                    threshold_correction++;
+                }
+            }
         });
 
         result_cb(record, sequence_hits);
