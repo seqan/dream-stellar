@@ -19,11 +19,11 @@ class sync_out
     using output_format = seqan3::type_list<seqan3::format_fasta>;
 
 public:
-    sync_out() = default;
-    sync_out(sync_out const &) = default;
-    sync_out & operator=(sync_out const &) = default;
-    sync_out(sync_out &&) = default;
-    sync_out & operator=(sync_out &&) = default;
+    sync_out() = delete; // fout
+    sync_out(sync_out const &) = delete; // fout
+    sync_out & operator=(sync_out const &) = delete; // fout
+    sync_out(sync_out &&) = delete; // write_mutex
+    sync_out & operator=(sync_out &&) = delete; // write_mutex
     ~sync_out() = default;
 
     sync_out(std::filesystem::path const & path) : fout{path} 

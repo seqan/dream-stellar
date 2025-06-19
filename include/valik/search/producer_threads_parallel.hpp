@@ -113,7 +113,7 @@ inline void search_all_parallel(size_t const ref_seg_count,
 
         std::span<query_t const> records_slice{&records[start], &records[end]};
 
-        auto all_cb = [=,&queue,&arguments](query_t const& record)
+        auto all_cb = [=,&queue](query_t const& record)
         {
             for (size_t bin{0}; bin < ref_seg_count; bin++)
             {

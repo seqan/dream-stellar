@@ -63,8 +63,7 @@ void iterate_all_queries(size_t const ref_seg_count,
     std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
     bool idsUnique = true;
 
-    size_t seqCount{0};
-    for (; !atEnd(inSeqs); ++seqCount)
+    for (; !atEnd(inSeqs);)
     {
         TSequence seq{};
         TId id{};
@@ -114,8 +113,7 @@ void iterate_short_queries(search_arguments const & arguments,
     std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
     bool idsUnique = true;
 
-    size_t seqCount{0};
-    for (; !atEnd(inSeqs); ++seqCount)
+    for (; !atEnd(inSeqs);)
     {
         TSequence seq{};
         TId id{};
