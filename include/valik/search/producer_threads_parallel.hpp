@@ -51,7 +51,11 @@ inline void prefilter_queries_parallel(index_t const & index,
             {
                 if (arguments.verbose)
                     verbose_out.write_warning(record, bin_hits.size());
-                if (arguments.keep_best_repeats)    // keep hits for bins with the highest entropy
+                if (arguments.best_bin_entropy_cutoff == 0)
+                {
+                    return;
+                }
+                else if (arguments.best_bin_entropy_cutoff < 1.0)    // keep hits for bins with the highest entropy
                 {
                     auto const & entropy_ranking = index.entropy_ranking();
                     size_t inserted_bins{0};
@@ -66,13 +70,14 @@ inline void prefilter_queries_parallel(index_t const & index,
                             return;
                     }
                 }
-                else if (arguments.keep_all_repeats)
+                else if (arguments.best_bin_entropy_cutoff == 1.0)
                 {
                     for (auto & bin : bin_hits)
                     {
                         queue.insert(bin, record);
                     }
                 }
+
                 return;
             }
             

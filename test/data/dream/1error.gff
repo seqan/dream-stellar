@@ -40,7 +40,7 @@ chr1	Stellar	eps-matches	122	271	98	-	.	6_1023;seq2Range=1,150;cigar=150M;mutati
 chr2	Stellar	eps-matches	559	708	98	+	.	0_1023;seq2Range=1,150;cigar=150M;mutations=15G,56C,113T
 chr1	Stellar	eps-matches	559	708	98	+	.	0_1023;seq2Range=1,150;cigar=150M;mutations=15G,56C,113T
 chr2	Stellar	eps-matches	841	989	98	+	.	1_2300;seq2Range=1,150;cigar=1M1I148M;mutations=2G,103G,124T
-chr1	Stellar	eps-matches	841	989	98	+	.	1_2300;seq2Range=1,150;cigar=2M1I147M;mutations=3G,103G,124T
+chr1	Stellar	eps-matches	841	989	98	+	.	1_2300;seq2Range=1,150;cigar=1M1I148M;mutations=2G,103G,124T
 chr1	Stellar	eps-matches	137	288	98.0263	-	.	9_2300;seq2Range=1,150;cigar=2D150M;mutations=111G
 chr1	Stellar	eps-matches	135	286	98.0263	-	.	9_2300;seq2Range=1,150;cigar=150M2D;mutations=111G
 chr2	Stellar	eps-matches	509	658	98	-	.	8_2300;seq2Range=1,150;cigar=150M;mutations=46G,110T,119T
