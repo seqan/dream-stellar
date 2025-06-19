@@ -9,11 +9,29 @@ target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE seqan3::seqan3)
 target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE sharg::sharg)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)
 # SYSTEM keyword turns off compiler warnings for subprojects
-target_include_directories ("${PROJECT_NAME}_interface" SYSTEM INTERFACE ../lib/stellar3/include)
-target_include_directories ("${PROJECT_NAME}_interface" SYSTEM INTERFACE ../lib/seqan/include)
-target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra" "-Wno-interference-size")
+target_include_directories ("${PROJECT_NAME}_interface" SYSTEM INTERFACE ${seqan2_SOURCE_DIR}/include)
+target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
 
-# IBF size 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # GCC12 and above: Disable warning about std::hardware_destructive_interference_size not being ABI-stable.
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
+        target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-Wno-interference-size")
+    endif ()
+
+    # Warn about failed return value optimization.
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14)
+        target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-Wnrvo")
+    endif ()
+
+    # GCC on arm64 (M1): Disable notes about ABI changes. Example:
+    # `parameter passing for argument of type 'std::ranges::single_view<double>' when C++17 is enabled changed to match C++14 in GCC 10.1`
+    # https://github.com/gcc-mirror/gcc/commit/56fe3ca30e1343e4f232ca539726506440e23dd3
+    if ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "arm64")
+        target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-Wno-psabi")
+    endif ()
+endif ()
+
+# IBF size
 add_library ("${PROJECT_NAME}_index_size_lib" STATIC prepare/compute_bin_size.cpp)
 target_link_libraries ("${PROJECT_NAME}_index_size_lib" PUBLIC "${PROJECT_NAME}_interface")
 
@@ -92,8 +110,6 @@ execute_process(COMMAND git rev-parse HEAD
 add_custom_command(TARGET "${PROJECT_NAME}" POST_BUILD
     WORKING_DIRECTORY
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    DEPENDS
-        ${COMMIT_ID}
     COMMAND
         ${CMAKE_COMMAND} -E echo ${COMMIT_ID} > version.md
     COMMENT

@@ -6,20 +6,14 @@ add_definitions (-DOUTPUTDIR=\"${CMAKE_CURRENT_BINARY_DIR}/output/\")
 add_definitions (-DDATADIR=\"${CMAKE_CURRENT_BINARY_DIR}/data/\")
 add_definitions (-DBINDIR=\"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\")
 
-# Define cmake configuration flags to configure and build external projects with the same flags as specified for
-# this project.
-# We also pass the C_COMPILER such that googletest is built with the corresponding GCC.
-# Otherwise, it might happen that the app is built with, e.g., g++-11, but gtest with gcc-7, which might cause trouble.
-set (SEQAN3_EXTERNAL_PROJECT_CMAKE_ARGS "")
-list (APPEND SEQAN3_EXTERNAL_PROJECT_CMAKE_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}")
-list (APPEND SEQAN3_EXTERNAL_PROJECT_CMAKE_ARGS "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
-list (APPEND SEQAN3_EXTERNAL_PROJECT_CMAKE_ARGS "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
-list (APPEND SEQAN3_EXTERNAL_PROJECT_CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}")
-list (APPEND SEQAN3_EXTERNAL_PROJECT_CMAKE_ARGS "-DCMAKE_VERBOSE_MAKEFILE=${CMAKE_VERBOSE_MAKEFILE}")
-set (SEQAN3_TEST_CLONE_DIR "${PROJECT_BINARY_DIR}/vendor/googletest")
+# !Workaround: Get seqan3 test dir from seqan3 target
+find_path (SEQAN3_TEST_DIR
+           NAMES seqan3-test.cmake
+           HINTS "${seqan3_SOURCE_DIR}/test"
+)
+list (APPEND CMAKE_MODULE_PATH "${SEQAN3_TEST_DIR}/cmake")
 
-include (seqan3_require_test)
-seqan3_require_test ()
+CPMGetPackage (googletest)
 
 # Build tests just before their execution, because they have not been built with "all" target.
 # The trick is here to provide a cmake file as a directory property that executes the build command.
@@ -45,11 +39,10 @@ macro (add_app_test test_filename)
 
     # Create the test target.
     add_executable (${target} ${test_filename})
-    target_link_libraries (${target} "${PROJECT_NAME}_lib" seqan3::seqan3 gtest gtest_main)
+    target_link_libraries (${target} "${PROJECT_NAME}_lib" GTest::gtest_main)
 
     # Make seqan3::test available for both cli and api tests.
-    target_include_directories (${target} PUBLIC "${SEQAN3_CLONE_DIR}/test/include")
-    target_include_directories (${target} PUBLIC "${SEQAN3_TEST_CLONE_DIR}/googletest/include/")
+    target_include_directories (${target} PUBLIC "${SEQAN3_TEST_DIR}/include")
 
     # Generate and set the test name.
     add_test (NAME "${test_name}" COMMAND ${target})

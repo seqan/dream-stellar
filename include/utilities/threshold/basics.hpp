@@ -15,6 +15,11 @@
 
 #include <utilities/threshold/kmer.hpp>
 
+// Workaround, seqan3 IBF includes sdsl, which defines ALPHABET_SIZE.
+#ifdef ALPHABET_SIZE
+#undef ALPHABET_SIZE
+#endif
+
 namespace valik
 {
 

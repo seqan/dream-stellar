@@ -61,7 +61,7 @@ TEST_F(argparse, no_subparser)
     cli_test_result const result = execute_app("dream-stellar", "foo");
     std::string const expected
     {
-        "[Error] You misspelled the subcommand! Please specify which sub-program you want to use: one of [build, search]. "
+        "[Error] You specified an unknown subcommand! Available subcommands are: [build, search]. "
         "Use -h/--help for more information.\n"
     };
     EXPECT_NE(result.exit_code, 0);
@@ -74,8 +74,8 @@ TEST_F(argparse, unknown_option)
     cli_test_result const result = execute_app("dream-stellar", "-v");
     std::string const expected
     {
-        "[Error] You misspelled the subcommand! Please specify which sub-program you want to use: one of [build, search]. "
-        "Use -h/--help for more information.\n"
+        "[Error] Unknown option -v. In case this is meant to be a non-option/argument/parameter, "
+        "please specify the start of non-options with '--'. See -h/--help for program information.\n"
     };
     EXPECT_NE(result.exit_code, 0);
     EXPECT_EQ(result.out, std::string{});

@@ -24,22 +24,22 @@ string (ASCII 27 Esc)
 set (FontBold "${Esc}[1m")
 set (FontReset "${Esc}[m")
 
-# Dependency: SeqAn3.
-set (SEQAN3_CEREAL ON CACHE BOOL "Require cereal to be present.")
-find_package (SeqAn3 QUIET REQUIRED HINTS lib/seqan3/build_system)
+# ----------------------------------------------------------------------------
+# CPM
+# ----------------------------------------------------------------------------
 
-# Allow to include CMake scripts from seqan3.
-list (APPEND CMAKE_MODULE_PATH "${SEQAN3_CLONE_DIR}/test/cmake/")
+set (CPM_INDENT "  CMake Package Manager CPM: ")
+include (${PROJECT_SOURCE_DIR}/cmake/CPM.cmake)
+CPMUsePackageLock (${PROJECT_SOURCE_DIR}/cmake/package-lock.cmake)
 
-# Allow to include CMake scripts from the app-template.
-list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/test/cmake/")
+# ----------------------------------------------------------------------------
+# Find or add dependencies
+# ----------------------------------------------------------------------------
 
-# Use ccache.
-include (seqan3_require_ccache)
-seqan3_require_ccache ()
-
-# Dependency: Sharg.
-find_package (Sharg REQUIRED PATHS lib/sharg/build_system)
+CPMGetPackage (use_ccache)
+CPMGetPackage (sharg)
+CPMGetPackage (seqan2)
+CPMGetPackage (seqan3)
 
 # Add the application.
 add_subdirectory (src)
