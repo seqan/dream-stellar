@@ -250,7 +250,7 @@ declare_datasource (FILE stellar_truth_num9_dis8.gff
 
 declare_datasource (FILE 1error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/1error.gff
-                URL_HASH SHA256=320bd247df63f0af37b069914a690e168460666f0c1b6040d3138bf387e2cd4a)
+                URL_HASH SHA256=bf2ef08a6dfc96edeb9166092532a70f50f1ddaf391323d73ce6db2269977ccb)
 declare_datasource (FILE 1error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/1error.gff.out
                 URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
@@ -265,7 +265,7 @@ declare_datasource (FILE 2error_50pattern_index.bin
                 URL_HASH SHA256=71026ae89f1f5830301ccd9f7047120c3ded932915c50b1222b2b46525169a48)
 declare_datasource (FILE 2error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/2error.gff
-                URL_HASH SHA256=ae95fcdba6f8082424bb9a554439fd3d3335de6a24f89fb75ca039a9abfe8255)
+                URL_HASH SHA256=526bb6a5a8586f5ea5bee2b40a73412dfe228ce351d16805b6489b0669558b9c)
 declare_datasource (FILE 2error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/2error.gff.out
                 URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
