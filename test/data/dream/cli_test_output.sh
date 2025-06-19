@@ -31,11 +31,11 @@ do
 
     echo "Searching IBF with error rate $er"
     dist_out=$e"error.gff"
-    dream-stellar search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" \
-                --repeatPeriod 1 --repeatLength 10 --numMatches 2
-    #local_out="local${e}error.gff"
-    #dream-stellar search --index "$index" --query "$query" --output "$local_out" --error-rate "$er" \
-    #             --repeatPeriod 1 --repeatLength 10 --numMatches 2
+    #dream-stellar search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" \
+    #            --repeatPeriod 1 --repeatLength 10 --numMatches 2
+    local_out="${e}error.gff"
+    dream-stellar search --index "$index" --query "$query" --output "$local_out" --error-rate "$er" \
+                 --repeatPeriod 1 --repeatLength 10 --numMatches 2
 
     if [ -d "${VALIK_TMP}" ]; then
         rm $VALIK_TMP/*
