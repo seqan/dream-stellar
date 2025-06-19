@@ -299,12 +299,15 @@ void local_prefilter(
                 while ((sequence_hits.size() > std::max<size_t>(4, std::round(bin_count / 4.0))) &&
                        (pattern.threshold + threshold_correction) < pattern.minimiser_count())
                 {
+                    std::cerr << "Query " << record.sequence_id << ". Correcting " << std::to_string(threshold_correction + pattern.threshold) << " threshold " << std::to_string(pattern.threshold) << " for pattern starting at" << std::to_string(begin) << ". Hit count:" << std::to_string(sequence_hits.size()) << '\n';
                     sequence_hits.clear();
                     find_pattern_bins(pattern, bin_count, counting_table, sequence_hits, threshold_correction);
+                    std::cerr << "New hit count: " << std::to_string(sequence_hits.size()) << '\n';
                     threshold_correction++;
                 }
             }
         });
+        std::cerr << "Final hit count for query " << record.sequence_id << ": " << std::to_string(sequence_hits.size()) << '\n';
 
         result_cb(record, sequence_hits);
     }
