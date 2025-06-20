@@ -34,7 +34,7 @@ TEST_P(valik_build_clusters, build_from_clusters)
                                                          "--threads ", run_parallel ? "2" : "1",
                                                          "--output index.ibf", 
                                                          "--without-parameter-tuning");
-    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_SUCCESS(result);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
@@ -76,7 +76,7 @@ TEST_P(valik_build_segments, build_from_segments)
                                                         "--size 32k",
                                                         "--output index.ibf", 
                                                         "--without-parameter-tuning");
-    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_SUCCESS(result);
     EXPECT_EQ(result.out, std::string{});
     EXPECT_EQ(result.err, std::string{});
 
@@ -129,7 +129,7 @@ TEST_P(valik_search_clusters, search)
                                                         "--cart-max-capacity 3",
                                                         "--max-queued-carts 10",
                                                         "--without-parameter-tuning");
-    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_SUCCESS(result);
 
     auto expected = string_list_from_file(search_result_path(number_of_bins, window_size, number_of_errors,
                                                              pattern_size, query_every), std::ios::binary);
@@ -178,7 +178,7 @@ TEST_P(valik_search_segments, search)
                                                         "--cart-max-capacity 3",
                                                         "--max-queued-carts 10",
                                                         "--without-parameter-tuning");
-    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_SUCCESS(result);
 
     auto expected = string_list_from_file(search_result_path(pattern_size, number_of_bins, window_size, 
                                                              number_of_errors), std::ios::binary);
