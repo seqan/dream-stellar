@@ -5,7 +5,7 @@ namespace valik
 
 using sequence_file_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>>;
 
-using types = seqan3::type_list<std::vector<seqan3::dna4>, std::string>;
+using types = seqan3::type_list<std::span<seqan3::dna4>, std::string>;
 using fields = seqan3::fields<seqan3::field::seq, seqan3::field::id>;
 using sequence_record_type = seqan3::sequence_record<types, fields>;
 
@@ -32,12 +32,12 @@ void write_reference_segments(metadata & reference_metadata,
             file_paths_out << seg_file.string() << '\n';
 
             std::string id{seg.unique_id()};
-            seqan3::dna4_vector seg_sequence(&seq[seg.start], &seq[seg.start+seg.len]);
-            assert(seg_sequence.size() == seg.len);
+            std::span<seqan3::dna4> seq_span{seq.data() + seg.start, seg.len};
+            assert(seq_span.size() == seg.len);
 
             seqan3::sequence_file_output seg_out{seg_file};
 
-            sequence_record_type record{std::move(seg_sequence), std::move(id)};
+            sequence_record_type record{seq_span, std::move(id)};
             seg_out.push_back(record);
         }
         i++;
@@ -59,10 +59,10 @@ void write_query_segments(metadata & query_metadata,
         for (auto & seg : query_metadata.segments_from_ind(i))
         {
             std::string id{seg.unique_id()};
-            seqan3::dna4_vector seg_sequence(&seq[seg.start], &seq[seg.start+seg.len]);
-            assert(seg_sequence.size() == seg.len);
+            std::span<seqan3::dna4> seq_span{seq.data() + seg.start, seg.len};
+            assert(seq_span.size() == seg.len);
 
-            sequence_record_type record{std::move(seg_sequence), std::move(id)};
+            sequence_record_type record{seq_span, std::move(id)};
             seg_out.push_back(record);
         }
         i++;

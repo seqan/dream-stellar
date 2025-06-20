@@ -39,9 +39,9 @@ inline void prefilter_queries_parallel(index_t const & index,
     for (size_t i = 0; i < arguments.threads; ++i)
     {
         size_t const start = records_per_thread * i;
-        size_t const end = i == (unsigned) (arguments.threads - 1) ? num_records : records_per_thread * (i + 1);
+        size_t const extent = (i + 1u == arguments.threads) ? num_records - i * records_per_thread : records_per_thread;
 
-        std::span<query_t const> records_slice{&records[start], &records[end]};
+        std::span<query_t const> records_slice{records.data() + start, extent};
 
         auto prefilter_cb = [&queue,&arguments,&verbose_out,&index](query_t const & record, 
                                                                   std::unordered_set<size_t> const & bin_hits)
@@ -109,9 +109,9 @@ inline void search_all_parallel(size_t const ref_seg_count,
     for (size_t i = 0; i < arguments.threads; ++i)
     {
         size_t const start = records_per_thread * i;
-        size_t const end = i == (unsigned) (arguments.threads - 1) ? num_records : records_per_thread * (i + 1);
+        size_t const extent = (i + 1u == arguments.threads) ? num_records - i * records_per_thread : records_per_thread;
 
-        std::span<query_t const> records_slice{&records[start], &records[end]};
+        std::span<query_t const> records_slice{records.data() + start, extent};
 
         auto all_cb = [=,&queue](query_t const& record)
         {
