@@ -12,6 +12,13 @@ target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)
 target_include_directories ("${PROJECT_NAME}_interface" SYSTEM INTERFACE ${seqan2_SOURCE_DIR}/include)
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    # std::jthread is experimental before LLVM 20.
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 20)
+        target_compile_definitions ("${PROJECT_NAME}_interface" INTERFACE "_LIBCPP_ENABLE_EXPERIMENTAL")
+    endif ()
+endif ()
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # GCC12 and above: Disable warning about std::hardware_destructive_interference_size not being ABI-stable.
     if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)

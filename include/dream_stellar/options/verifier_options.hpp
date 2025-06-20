@@ -16,8 +16,8 @@ using BestLocal = seqan2::Tag<VerifyBestLocal_> const;
 // basically a std::variant<AllLocal, BestLocal>
 struct StellarVerificationMethod
 {
-    StellarVerificationMethod(AllLocal) : _index{0} {}
-    StellarVerificationMethod(BestLocal) : _index{1} {}
+    constexpr StellarVerificationMethod(AllLocal) : _index{0} {}
+    constexpr StellarVerificationMethod(BestLocal) : _index{1} {}
 
     constexpr std::size_t index() const noexcept
     {

@@ -30,12 +30,14 @@ inline void prefilter_queries_parallel(index_t const & index,
 {
     if (records.empty())
         return;
+    
+    // Must be before tasks. sync_out's mutex must outlive tasks.
+    sync_out verbose_out(arguments.disabledQueriesFile);
 
     std::vector<std::jthread> tasks;
     size_t const num_records = records.size();
     size_t const records_per_thread = num_records / arguments.threads;
 
-    sync_out verbose_out(arguments.disabledQueriesFile);
     for (size_t i = 0; i < arguments.threads; ++i)
     {
         size_t const start = records_per_thread * i;
