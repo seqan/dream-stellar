@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.16)
+cmake_minimum_required (VERSION 3.25...3.31)
 
 # Find doxygen.
 find_package (Doxygen QUIET)

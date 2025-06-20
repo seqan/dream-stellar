@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.16)
+cmake_minimum_required (VERSION 3.25...3.31)
 
 # A interface to reuse common properties.
 # You can add more external include paths of other projects that are needed for your project.
