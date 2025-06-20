@@ -106,4 +106,4 @@ valik --version
 The DREAM-Stellar [benchmark](https://github.com/eaasna/DREAM-stellar-benchmark/tree/v2.0) contains example workflows for using DREAM-Stellar for distributed local alignment.
 
 ## Authorship and Copyright
-DREAM-Stellar is licensed under BSD 3, for details please see the [license]([https://github.com/seqan/dream-stellar/blob/main/LICENSE.md]).
+DREAM-Stellar is licensed under BSD 3, for details please see the [license](https://github.com/seqan/dream-stellar/blob/main/LICENSE.md).
