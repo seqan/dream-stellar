@@ -56,13 +56,13 @@ string (TOUPPER ${PROJECT_NAME} uppercase_project_name)
 set (${uppercase_project_name}_HEADER_TEST_ONLY OFF CACHE BOOL "Only build header test.")
 
 if (${uppercase_project_name}_HEADER_TEST_ONLY)
+    message (STATUS "${FontBold}Building header test only.${FontReset}")
     add_subdirectory (header)
 else ()
     # Fetch data and add the tests.
     include (data/datasources.cmake)
     add_subdirectory (api)
     add_subdirectory (cli)
-    add_subdirectory (coverage)
 endif ()
 
 message (STATUS "${FontBold}You can run `make test` to build and run tests.${FontReset}")

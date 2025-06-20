@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve Raptor
+about: Create a report to help us improve DREAM-Stellar
 title: ''
 labels: bug
 assignees: ''
@@ -9,7 +9,7 @@ assignees: ''
 
 ## Platform
 
-  - Raptor version: <!-- enter version or commit here -->
+  - DREAM-Stellar version: <!-- enter version or commit here -->
   - Operating system: <!-- enter output of `uname -a` here-->
   - Source: <!-- bioconda or compiled from source, etc. -->
   - Compiler: <!-- if compiled from source: enter output of `/path/to/compiler -v` here -->
