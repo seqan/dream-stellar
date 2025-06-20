@@ -257,7 +257,10 @@ void run_build(sharg::parser & parser)
     else if (arguments.shape_str.empty() && !parser.is_option_set("shape"))
     {
         auto kmer = utilities::kmer{arguments.kmer_size};
-        auto input_ungapped = param_set{kmer, kmer.lemma_threshold(arguments.pattern_size, arguments.errors)};
+        auto threshold = kmer.lemma_threshold(arguments.pattern_size, arguments.errors);
+        assert(threshold <= std::numeric_limits<uint16_t>::max());
+        auto input_ungapped = param_set{kmer, static_cast<uint16_t>(threshold)};
+        static_assert(std::same_as<decltype(input_ungapped.t), uint16_t>);
         auto best_params = input_ungapped.get_equivalent_gapped();
 
         arguments.kmer_size = best_params.kmer.size();

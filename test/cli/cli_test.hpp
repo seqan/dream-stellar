@@ -14,15 +14,29 @@
 #include <ranges>
 #include <string_view>
 
+// Checks for CLI test result for success, and prints the command line call if the test fails.
+#ifndef EXPECT_SUCCESS
+#    define EXPECT_SUCCESS(arg)                                                                                        \
+        EXPECT_EQ(arg.exit_code, 0) << "Command: " << arg.command << "\n Working directory: " << arg.current_workdir
+#endif
+
+// Checks the exit code of a CLI test result for failure, and prints the command line call if the test fails.
+#ifndef EXPECT_FAILURE
+#    define EXPECT_FAILURE(arg)                                                                                        \
+        EXPECT_NE(arg.exit_code, 0) << "Command: " << arg.command << "\n Working directory: " << arg.current_workdir
+#endif
+
 #pragma once
 
 // Provides functions for CLI test implementation.
 struct cli_test : public ::testing::Test
 {
 private:
-
     // Holds the original work directory where Gtest has been started.
     std::filesystem::path original_workdir{};
+    
+    // Holds the current work directory.
+    std::filesystem::path current_workdir{};
 
 protected:
 
@@ -31,6 +45,8 @@ protected:
     {
         std::string out{};
         std::string err{};
+        std::string command{};
+        std::string current_workdir{};
         int exit_code{};
     };
 
@@ -38,20 +54,23 @@ protected:
     template <typename... CommandItemTypes>
     cli_test_result execute_app(CommandItemTypes &&... command_items)
     {
-        cli_test_result result{};
+        cli_test_result result{.current_workdir = current_workdir};
 
         // Assemble the command string and disable version check.
-        std::ostringstream command{};
-        command << "SEQAN3_NO_VERSION_CHECK=1 " << BINDIR;
-        int a[] = {0, ((void)(command << command_items << ' '), 0) ... };
-        (void) a;
+        result.command = [&command_items...]()
+        {
+            std::ostringstream command{};
+            command << "SHARG_NO_VERSION_CHECK=1 " << BINDIR;
+            (void)((command << command_items << ' '), ...); // (void) silences "state has no effect" warning if no items
+            return command.str();
+        }();
 
         // Always capture the output streams.
         testing::internal::CaptureStdout();
         testing::internal::CaptureStderr();
 
         // Run the command and return results.
-        result.exit_code = std::system(command.str().c_str());
+        result.exit_code = std::system(result.command.c_str());
         result.out = testing::internal::GetCapturedStdout();
         result.err = testing::internal::GetCapturedStderr();
         return result;
@@ -68,20 +87,18 @@ protected:
     {
         // Assemble the directory name.
         ::testing::TestInfo const * const info = ::testing::UnitTest::GetInstance()->current_test_info();
-        std::filesystem::path const test_dir{std::string{OUTPUTDIR} +
-                                             std::string{info->test_case_name()} +
-                                             std::string{"."} +
-                                             std::string{info->name()}};
+        current_workdir = std::filesystem::path{std::string{OUTPUTDIR} + std::string{info->test_case_name()}
+                                                + std::string{"."} + std::string{info->name()}};
         try
         {
-            std::filesystem::remove_all(test_dir);              // delete the directory if it exists
-            std::filesystem::create_directories(test_dir);      // create the new empty directory
-            original_workdir = std::filesystem::current_path(); // store original work dir path
-            std::filesystem::current_path(test_dir);            // change the work dir
+            std::filesystem::remove_all(current_workdir);         // delete the directory if it exists
+            std::filesystem::create_directories(current_workdir); // create the new empty directory
+            original_workdir = std::filesystem::current_path();   // store original work dir path
+            std::filesystem::current_path(current_workdir);       // change the work dir
         }
         catch (std::exception const & exc)
         {
-            FAIL() << "Failed to set up the test directory " << test_dir << ":\n" << exc.what();
+            FAIL() << "Failed to set up the test directory " << current_workdir << ":\n" << exc.what();
         }
     }
 

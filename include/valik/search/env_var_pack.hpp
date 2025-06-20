@@ -28,11 +28,11 @@ struct env_var_pack
             tmp_path = std::string(ptr);
             std::filesystem::file_status s = status(tmp_path);
             std::filesystem::perms p = s.permissions();
-            bool is_writable = (std::filesystem::perms::none != (p & std::filesystem::perms::owner_write)) |
-                               (std::filesystem::perms::none != (p & std::filesystem::perms::group_write)) |
+            bool is_writable = (std::filesystem::perms::none != (p & std::filesystem::perms::owner_write)) ||
+                               (std::filesystem::perms::none != (p & std::filesystem::perms::group_write)) ||
                                (std::filesystem::perms::none != (p & std::filesystem::perms::others_write));
 
-            if (!exists(tmp_path) | !is_directory(s) | !is_writable )
+            if (!exists(tmp_path) || !is_directory(s) || !is_writable )
                 throw std::runtime_error("Directory $VALIK_TMP=" + std::string(ptr) + " must exist and write permission must be granted");
         }
 

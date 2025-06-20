@@ -251,9 +251,9 @@ struct fraction
         // abs(bound2 - *this)
         difference_t numerator2 = _abs(_numerator_times_denominator(bound2, *this) - _numerator_times_denominator(*this, bound2));
         if (numerator2 <= numerator1)
-            return bound2;
+            return {bound2};
         else
-            return bound1;
+            return {bound1};
     }
 
     template< class CharT, class Traits>

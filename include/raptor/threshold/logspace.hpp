@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 
 namespace raptor::logspace

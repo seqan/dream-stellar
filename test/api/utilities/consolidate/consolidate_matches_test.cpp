@@ -95,7 +95,7 @@ void check_consolidation(std::set<std::string> const &  query_ids,
     seqan3::debug_stream << "\tdisableThresh:\t" << arguments.disableThresh << "\n\tnumMatches:\t" << arguments.numMatches << '\n';
     for (auto & id : query_ids)
     {
-        auto query_match = [&arguments, &id](auto match) { return match.qname == id; };
+        auto query_match = [&id](auto match) { return match.qname == id; };
         auto initial_matches = initial | std::views::filter(query_match);
         auto consolidated_matches = actual | std::views::filter(query_match);
 

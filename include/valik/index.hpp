@@ -47,7 +47,7 @@ public:
 
     explicit valik_index(window const window_size,
                           seqan3::shape const shape,
-                          std::vector<std::vector<std::string>> const & bin_path,
+                          std::vector<std::string> const & bin_path,
                           data_t && ibf)
     :
         window_size_{window_size.v},

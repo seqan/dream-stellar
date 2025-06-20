@@ -18,6 +18,10 @@ std::vector<match_t> read_alignment_output(std::filesystem::path const & match_p
     std::string line;
     while (std::getline(fin, line))
     {
+        //!WORKAROUND: search.gff.preliminary starts with an empty line on Clang
+        if (line.empty())
+            continue;
+
         auto line_vec = get_line_vector<std::string>(line, '\t');
 
         //!WORKAROUND: for valik_search_segments test that writes output file names instead of matches

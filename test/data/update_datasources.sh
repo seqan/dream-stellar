@@ -2,7 +2,7 @@
 cd "$(dirname "$0")"
 set -Eeuo pipefail
 
-echo -e "cmake_minimum_required (VERSION 3.16)\n" > datasources.cmake
+echo -e "cmake_minimum_required (VERSION 3.25...3.31)\n" > datasources.cmake
 
 echo -e "include (cmake/app_datasources.cmake)\n" >> datasources.cmake
 

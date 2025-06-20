@@ -78,7 +78,7 @@ private:
         if (!envPath) {
             throw std::runtime_error("PATH variable is not accessible");
         }
-        std::string_view{envPath} | std::views::split(':');
+
         for (auto _view : std::string_view{envPath} | std::views::split(':')) {
 
             // The following lambda can be replaced with using gcc-12 and above

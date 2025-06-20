@@ -173,9 +173,9 @@ private:
                              }()};
     std::vector<std::string> combined_extensions{[&] ()
                              {
-                                 if (compression_extensions.empty())
-                                    return sequence_extensions;
                                  std::vector<std::string> result;
+                                 if (compression_extensions.empty())
+                                    return result;
                                  for (auto && sequence_extension : sequence_extensions)
                                  {
                                      result.push_back(sequence_extension);
