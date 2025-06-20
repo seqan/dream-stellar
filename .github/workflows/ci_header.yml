@@ -47,13 +47,9 @@ jobs:
                    -DDREAM-STELLAR_HEADER_TEST_ONLY=ON
           make gtest_main
 
-      - name: Build tests
+      - name: Build and run tests
         working-directory: build
         run: |
           ccache -z
-          make -k
+          ctest . -j --output-on-failure --no-tests=error
           ccache -sv
-
-      - name: Run tests
-        working-directory: build
-        run: ctest . -j --output-on-failure --no-tests=error
