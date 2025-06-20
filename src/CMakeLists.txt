@@ -12,6 +12,13 @@ target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)
 target_include_directories ("${PROJECT_NAME}_interface" SYSTEM INTERFACE ${seqan2_SOURCE_DIR}/include)
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
 
+option (DREAM_STELLAR_WITH_WERROR "Report compiler warnings as errors." ON)
+
+if (DREAM_STELLAR_WITH_WERROR)
+    target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-Werror")
+    message (STATUS "Building tests with -Werror.")
+endif ()
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     # std::jthread is experimental before LLVM 20.
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 20)

@@ -4,10 +4,10 @@ include (seqan3_test_files)
 include (seqan3_test_component)
 
 add_library ("${PROJECT_NAME}_header_test_lib" INTERFACE)
-target_link_libraries ("${PROJECT_NAME}_header_test_lib" INTERFACE "${PROJECT_NAME}_interface" gtest gtest_main)
-target_include_directories ("${PROJECT_NAME}_header_test_lib" INTERFACE "${SEQAN3_TEST_CLONE_DIR}/googletest/include/")
+target_link_libraries ("${PROJECT_NAME}_header_test_lib" INTERFACE "${PROJECT_NAME}_interface" GTest::gtest_main)
 # SeqAn3 script adds an include for <bechmark/benchmark.h>
 target_include_directories ("${PROJECT_NAME}_header_test_lib" INTERFACE ./dummy_include)
+target_compile_options ("${PROJECT_NAME}_header_test_lib" INTERFACE "-Wno-unused-function" "-Wno-unused-const-variable")
 set (target "header_test")
 
 set (header_base_path "${CMAKE_CURRENT_LIST_DIR}/../../include/")
@@ -44,17 +44,7 @@ foreach (header ${header_files})
                                     "${SEQAN3_CLONE_DIR}/test/header/generate_header_source.cmake")
 
         add_library (${header_target} OBJECT "${header_target_source}")
-
-        # NOTE: a simple target_link_libraries (${header_target} ${PROJECT_NAME}_header_test_lib)
-        # is not possible for OBJECT libraries before cmake 3.12
-        if (CMAKE_VERSION VERSION_LESS 3.12)
-            target_compile_options (${header_target} PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME}_header_test_lib,INTERFACE_COMPILE_OPTIONS>)
-            target_compile_definitions (${header_target} PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME}_header_test_lib,INTERFACE_COMPILE_DEFINITIONS>)
-            target_include_directories (${header_target} PRIVATE $<TARGET_PROPERTY:${PROJECT_NAME}_header_test_lib,INTERFACE_INCLUDE_DIRECTORIES>)
-            add_dependencies (${header_target} "${PROJECT_NAME}_interface" gtest gtest_main)
-        else ()
-            target_link_libraries (${header_target} ${PROJECT_NAME}_header_test_lib)
-        endif ()
+        target_link_libraries (${header_target} "${PROJECT_NAME}_interface" ${PROJECT_NAME}_header_test_lib)
 
         target_sources (${target} PRIVATE $<TARGET_OBJECTS:${header_target}>)
     endforeach ()

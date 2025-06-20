@@ -128,7 +128,9 @@ struct metadata
         uint64_t len;
 
         segment_stats() noexcept = default;
+SEQAN3_WORKAROUND_GCC_BOGUS_MEMCPY_START(-Warray-bounds, -Wstringop-overflow)
         segment_stats(segment_stats const &) noexcept = default;
+SEQAN3_WORKAROUND_GCC_BOGUS_MEMCPY_STOP
         segment_stats & operator=(segment_stats const &) noexcept = default;
         segment_stats & operator=(segment_stats &&) noexcept = default;
         ~segment_stats() noexcept = default;
