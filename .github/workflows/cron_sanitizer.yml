@@ -46,7 +46,7 @@ jobs:
 
           - name: "ASan"
             os: ubuntu-latest
-            cxx_flags: "-fno-omit-frame-pointer -Wno-maybe-unitialized -fsanitize=address"
+            cxx_flags: "-fno-omit-frame-pointer -Wno-maybe-uninitialized -fsanitize=address"
             
           - name: "TSan"
             cxx_flags: "-fno-omit-frame-pointer -fsanitize=thread"
