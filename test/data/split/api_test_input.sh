@@ -28,7 +28,7 @@ do
         mkdir -p ${out_dir}
 
         echo "Running Valik with pattern ${pattern} and bins ${bins}"
-        valik build database.fasta --pattern ${pattern} --seg-count ${bins} --output ${out_dir}/reference_metadata.index \
+        dream-stellar build database.fasta --pattern ${pattern} --seg-count ${bins} --output ${out_dir}/reference_metadata.index \
             --without-parameter-tuning
 
         rm ${out_dir}/*.arg

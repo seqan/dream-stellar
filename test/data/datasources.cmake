@@ -259,13 +259,13 @@ declare_datasource (FILE 1error_stellar.gff
                 URL_HASH SHA256=01993f28b0973e612a7cc3e84abdbe551c9b47a6cc7507106ff4b48071c21613)
 declare_datasource (FILE 2error_50pattern_index.arg
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/2error_50pattern_index.arg
-                URL_HASH SHA256=3ce4a112e1b2024fafc6a7dfd476bf4a627f7812a9a6bf91ff770d92833862ca)
+                URL_HASH SHA256=0953aff9a979cd52891a2371af99cd8560c12749c2a2e6f4df91ee6dc6402fc4)
 declare_datasource (FILE 2error_50pattern_index.bin
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/2error_50pattern_index.bin
-                URL_HASH SHA256=71026ae89f1f5830301ccd9f7047120c3ded932915c50b1222b2b46525169a48)
+                URL_HASH SHA256=dd3f0b77ca46a3792c024d2ceb3036fb46e9c4698e3dd7accc52e5bdd9e4b6cf)
 declare_datasource (FILE 2error.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/2error.gff
-                URL_HASH SHA256=ae95fcdba6f8082424bb9a554439fd3d3335de6a24f89fb75ca039a9abfe8255)
+                URL_HASH SHA256=1e00e21cf8301a5d14dfdc60e422fb4f6234289dcd4cefb7a89cf2e76489c8ff)
 declare_datasource (FILE 2error.gff.out
                 URL ${CMAKE_SOURCE_DIR}/test/data/dream/2error.gff.out
                 URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)

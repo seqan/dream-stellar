@@ -127,6 +127,8 @@ bool search_distributed(search_arguments & arguments, search_time_statistics & t
                 process_args.insert(process_args.end(), {"--verification", arguments.strVerificationMethod});
                 process_args.insert(process_args.end(), {"--xDrop", std::to_string(arguments.xDrop)});
                 process_args.insert(process_args.end(), {"--abundanceCut", std::to_string(arguments.qgramAbundanceCut)});
+                process_args.insert(process_args.end(), {"--numMatches", std::to_string(arguments.numMatches)});
+                process_args.insert(process_args.end(), {"--sortThresh", std::to_string(arguments.compactThresh)});
 
                 auto start = std::chrono::high_resolution_clock::now();
                 external_process process(process_args);

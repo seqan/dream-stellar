@@ -23,7 +23,7 @@ max_er=$(echo $max_errors/$pattern | bc -l)
 
 echo "Creating IBF for max_er=$max_er and pattern=$pattern"
 index=$max_errors"error_"$pattern"pattern_index.ibf"
-valik build "$ref_input" --seg-count 8 --pattern "$pattern" --error-rate "$max_err_rate" --size "$ibf_size" --output "$index" --without-parameter-tuning 
+dream-stellar build "$ref_input" --pattern "$pattern" --fpr 0.001 --error-rate "$max_err_rate" --output "$index"
 
 for e in 1 2
 do
@@ -31,13 +31,16 @@ do
 
     echo "Searching IBF with error rate $er"
     dist_out=$e"error.gff"
-    valik search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" \
+    dream-stellar search --distribute --index "$index" --query "$query" --output "$dist_out" --error-rate "$er" \
                 --repeatPeriod 1 --repeatLength 10 --numMatches 2
-    #local_out=$e"error.gff"
-    #valik search --index "$index" --query "$query" --output "$local_out" --error-rate "$er" \
+    #local_out="${e}error.gff"
+    #dream-stellar search --index "$index" --query "$query" --output "$local_out" --error-rate "$er" \
     #             --repeatPeriod 1 --repeatLength 10 --numMatches 2
 
-    rm $VALIK_TMP/*
+    if [ -d "${VALIK_TMP}" ]; then
+        rm $VALIK_TMP/*
+    fi
+    mkdir -p $VALIK_TMP
 
     stellar_out=$e"error_stellar.gff"
     stellar $ref_input $query -e $er -l $pattern -o $stellar_out --repeatPeriod 1 --repeatLength 10 --numMatches 2 &> /dev/null
