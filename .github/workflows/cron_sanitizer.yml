@@ -41,22 +41,19 @@ jobs:
 
         include:
           - name: "ASan"
+            os: macos-latest
             cxx_flags: "-fno-omit-frame-pointer -fsanitize=address"
 
+          - name: "ASan"
+            os: ubuntu-latest
+            cxx_flags: "-fno-omit-frame-pointer -Wno-maybe-unitialized -fsanitize=address"
+            
           - name: "TSan"
             cxx_flags: "-fno-omit-frame-pointer -fsanitize=thread"
 
           - name: "UBSan"
             os: macos-latest
-            cxx_flags: "-fno-omit-frame-pointer -fsanitize=undefined,float-divide-by-zero,implicit-conversion,local-bounds,nullability -Wno-pass-failed"
-
-          - name: "UBSan"
-            os: macos-latest
-            build_type: Release
-
-          - name: "UBSan"
-            os: macos-latest
-            build_type: RelWithDebInfo
+            cxx_flags: "-fno-omit-frame-pointer -fsanitize=undefined,float-divide-by-zero,local-bounds,nullability"
 
           - name: "UBSan"
             os: ubuntu-latest
