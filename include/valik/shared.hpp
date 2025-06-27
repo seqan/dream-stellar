@@ -85,7 +85,7 @@ struct build_arguments final : public split_arguments
     uint8_t threads{1u};
     std::filesystem::path out_path;
     std::filesystem::path out_dir{"./"};
-    float fpr{0.05};
+    float fpr{0.005};
     std::string size{};
     uint64_t bits{4096};
     uint64_t hash{2};
