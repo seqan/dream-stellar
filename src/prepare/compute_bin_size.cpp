@@ -70,22 +70,22 @@ void compute_minimiser(valik::build_arguments const & arguments)
                                          distinct_minimisers.insert(hash);
                                      });
 
-                uint64_t count{};
-
+                uint64_t distinct_kmer_count{0};
+                uint64_t unique_kmer_count{0};
                 {
-                    //!TODO: apply k-mer count cutoffs in metagenome search
+                    //!TODO: apply k-mer count cutoffs in metagenome search and count unique k-mers
                     std::ofstream outfile{minimiser_file, std::ios::binary};
                     for (auto && hash : distinct_minimisers)
                     {
                         outfile.write(reinterpret_cast<const char *>(&hash), sizeof(hash));
-                        ++count;
+                        ++distinct_kmer_count;
                     }
                 }
 
                 {
                     std::ofstream headerfile{header_file};
                     headerfile << arguments.shape.to_string() << '\t' << std::to_string(arguments.window_size) << '\t' << 
-                                  count << '\t' << seq_size << '\n';
+                                  unique_kmer_count << '\t' << distinct_kmer_count << '\t' << seq_size << '\n';
                 }
 
                 std::filesystem::remove(progress_file);
@@ -145,15 +145,18 @@ void compute_minimiser(valik::build_arguments const & arguments)
                     minimiser_table[value] = std::min<uint8_t>(254u, minimiser_table[value] + 1);  
                 }
 
-                uint64_t count{};
+                uint64_t distinct_kmer_count{0};
+                uint64_t unique_kmer_count{0};
                 {
                     std::ofstream outfile{minimiser_file, std::ios::binary};
                     for (auto && [hash, occurrences] : minimiser_table)
                     {
                         if (occurrences >= arguments.kmer_count_min_cutoff && occurrences <= arguments.kmer_count_max_cutoff)
                         {
+                            if (occurrences == 1)
+                                ++unique_kmer_count;
                             outfile.write(reinterpret_cast<const char *>(&hash), sizeof(hash));
-                            ++count;
+                            ++distinct_kmer_count;
                         }
                     }
                 }
@@ -161,7 +164,7 @@ void compute_minimiser(valik::build_arguments const & arguments)
                 {
                     std::ofstream headerfile{header_file};
                     headerfile << arguments.shape.to_string() << '\t' << std::to_string(arguments.window_size) << '\t' << 
-                                  count << '\t' << seg.len << '\n';
+                                  unique_kmer_count << '\t' << distinct_kmer_count << '\t' << seg.len << '\n';
                 }
 
                 std::filesystem::remove(progress_file);
@@ -244,12 +247,13 @@ size_t kmer_count_from_minimiser_files(std::vector<std::string> const & minimise
 
     std::string shape_string{};
     uint64_t window_size{};
-    size_t max_count{};
+    uint64_t max_unique{};
+    uint64_t max_count{};
     uint64_t bin_size{};
 
     biggest_file.replace_extension("header");
     std::ifstream file_stream{biggest_file};
-    file_stream >> shape_string >> window_size >> max_count >> bin_size;
+    file_stream >> shape_string >> window_size >> max_unique >> max_count >> bin_size;
 
     return max_count;
 }

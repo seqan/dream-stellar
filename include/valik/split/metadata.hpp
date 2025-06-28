@@ -561,8 +561,8 @@ SEQAN3_WORKAROUND_GCC_BOGUS_MEMCPY_STOP
                 segment_stats seg = segments[seg_id];
                 out_str << seg_id << '\t';
                 for (size_t ind : seg.seq_vec) 
-                    out_str << ind << '\t';
-                out_str << seg.start << '\t' << seg.len << '\n';
+                    out_str << ind << ';';
+                out_str << '\t' << seg.start << '\t' << seg.len << '\n';
             }
 
             out_str << "$\n";
