@@ -35,14 +35,14 @@ for exec in "${execs[@]}"; do
 done
 
 echo "### Reference metadata tests ###"
-#./split/cli_test_output.sh
-#./split/api_test_output.sh
+./split/cli_test_output.sh
+./split/api_test_output.sh
 
 echo "### Running dream-stellar build ###"
-#./build/cli_test_output.sh
+./build/cli_test_output.sh
 
 echo "### Running dream-stellar search ###"
-#./search/cli_test_output.sh
+./search/cli_test_output.sh
 
 export VALIK_STELLAR=stellar
 export VALIK_MERGE=cat
@@ -51,6 +51,6 @@ echo "### Running distributed DREAM-Stellar ###"
 ./dream/cli_test_output.sh
 
 echo "### Running sequential Stellar ###"
-#./consolidate/api_test_output.sh
+./consolidate/api_test_output.sh
 
 echo "### Finished ###"
