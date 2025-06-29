@@ -121,7 +121,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
         if (!arguments.manual_parameters)
         {
             search_pattern pattern(arguments.errors, arguments.pattern_size);
-            param_space space;
+            // param_space space;
             param_set params(arguments.shape, arguments.threshold);
             filtering_request request(pattern, ref_meta, query_meta.value());
             if ((request.fpr(params) > 0.2) && (arguments.search_type != search_kind::STELLAR))

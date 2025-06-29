@@ -31,7 +31,7 @@ struct param_set
 
     param_set(utilities::kmer const valik_kmer, uint16_t const thresh, param_space const & space) : kmer(valik_kmer), t(thresh)
     {
-        if ((kmer.weight() < std::get<0>(space.kmer_range)) | (kmer.weight() > std::get<1>(space.kmer_range)))
+        if ((kmer.weight() < std::get<0>(space.kmer_range)) || (kmer.weight() > std::get<1>(space.kmer_range)))
         {
             throw std::runtime_error{"k=" + std::to_string(kmer.weight()) + " out of range [" + 
                                                 std::to_string(std::get<0>(space.kmer_range)) + ", " + 

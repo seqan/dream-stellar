@@ -15,6 +15,11 @@
 
 #include <utilities/threshold/kmer.hpp>
 
+// Workaround, seqan3 IBF includes sdsl, which defines ALPHABET_SIZE.
+#ifdef ALPHABET_SIZE
+#undef ALPHABET_SIZE
+#endif
+
 namespace valik
 {
 
@@ -62,7 +67,7 @@ inline double segment_fpr(double const pattern_p, size_t const patterns_per_segm
 /**
 * @brief The maximum length of a query segment that does not appear spuriously in reference bins. 
 */
-inline uint64_t max_segment_len(double const pattern_p, size_t const pattern_size, uint8_t query_every)
+inline uint64_t max_segment_len(double const /*pattern_p*/, size_t const pattern_size, uint8_t query_every)
 {
     //!TODO: this const is the *minimum* number of patterns per segment
     // higher values are possible if pattern_p is small    

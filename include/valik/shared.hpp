@@ -187,16 +187,16 @@ struct search_arguments final : public minimiser_threshold_arguments, search_pro
     {
         return
         {
-            .window_size{window_size},
-            .shape{shape},
-            .query_length{pattern_size},
-            .errors{errors},
-            .percentage{threshold_percentage},
-            .p_max{p_max},
-            .fpr{fpr},
-            .tau{tau},
-            .cache_thresholds{cache_thresholds},
-            .output_directory{index_file.parent_path()}
+            .window_size = window_size,
+            .shape = shape,
+            .query_length = pattern_size,
+            .errors = errors,
+            .percentage = threshold_percentage,
+            .p_max = p_max,
+            .fpr = fpr,
+            .tau = tau,
+            .cache_thresholds = cache_thresholds,
+            .output_directory = index_file.parent_path()
         };
     }
 

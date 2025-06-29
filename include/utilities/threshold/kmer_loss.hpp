@@ -103,7 +103,7 @@ struct kmer_loss
         return fn_conf_counts[params.t - 1][pattern.e][pattern.l] / (double) pattern.total_conf_count();
     }
 
-    size_t kmer_weight() const
+    uint8_t kmer_weight() const
     {
         return kmer.weight();
     }

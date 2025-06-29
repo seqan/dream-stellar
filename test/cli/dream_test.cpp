@@ -40,7 +40,7 @@ TEST_P(dream_short_search, short_shared_mem)
                                                         "--repeatPeriod 1",
                                                         "--repeatLength 10", 
                                                         "--numMatches 2");
-    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_SUCCESS(result);
     EXPECT_EQ(result.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 4 database sequences.\n"});
     EXPECT_EQ(result.err, std::string{});
 
@@ -82,7 +82,7 @@ TEST_F(dream_short_search, no_matches)
                                                         "--index ", index_path,
                                                         "--query ", data("dummy_reads.fastq"));
 
-    EXPECT_EQ(result.exit_code, 0);
+    EXPECT_SUCCESS(result);
     EXPECT_EQ(result.out, std::string{"Launching stellar search on a shared memory machine...\nLoaded 4 database sequences.\n"});
     EXPECT_EQ(result.err, std::string{}); // Stellar shortens query IDs until the first whitespace
 

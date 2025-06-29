@@ -1,131 +1,59 @@
-name: CI on Linux
+# SPDX-FileCopyrightText: 2006-2025, Knut Reinert & Freie Universität Berlin
+# SPDX-FileCopyrightText: 2016-2025, Knut Reinert & MPI für molekulare Genetik
+# SPDX-License-Identifier: CC0-1.0
+
+name: Unit
 
 on:
   push:
     branches:
-      # Push events to branches matching refs/heads/main
       - 'main'
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: linux-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'push' }}
+
 env:
-  CMAKE_VERSION: 3.16.9
-  SEQAN3_NO_VERSION_CHECK: 1
   TZ: Europe/Berlin
 
 defaults:
   run:
-    shell: bash -ex {0}
+    shell: bash -Eexuo pipefail {0}
 
 jobs:
   build:
-    name: ${{ matrix.name }}
-    runs-on: ubuntu-22.04
-    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    name: ${{ matrix.compiler }}
+    if: github.repository_owner == 'seqan' || github.event_name == 'workflow_dispatch'
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        include:
-          - name: "gcc12"
-            cxx: "g++-12"
-            cc: "gcc-12"
-            build: unit
-            build_type: Release
-            cxx_flags: "-std=c++23"
-
-          - name: "gcc11"
-            cxx: "g++-11"
-            cc: "gcc-11"
-            build: unit
-            build_type: Release
-            cxx_flags: "-std=c++23"
-
-          - name: "gcc10"
-            cxx: "g++-10"
-            cc: "gcc-10"
-            build: unit
-            build_type: Release
-            cxx_flags: "-std=c++20"
+        compiler: ["clang-latest", "clang-second-latest", "clang-third-latest", "gcc-latest", "gcc-second-latest", "gcc-third-latest", "intel"]
+    container:
+      image: ghcr.io/seqan/${{ matrix.compiler }}
     steps:
-      - name: Set repository name
-        run: echo "REPOSITORY_NAME=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
-
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          path: ${{ env.REPOSITORY_NAME }}
-          fetch-depth: 2
-          submodules: recursive
+        uses: actions/checkout@v4
 
-      - name: Add package source
-        run: bash ./${{ env.REPOSITORY_NAME }}/lib/seqan3/.github/workflows/scripts/configure_apt.sh
-
-      - name: Install CMake
-        run: bash ./${{ env.REPOSITORY_NAME }}/lib/seqan3/.github/workflows/scripts/install_cmake.sh
-
-      - name: Install ccache
-        run: |
-          conda install --yes --override-channels --channel conda-forge ccache
-          sudo ln -s $CONDA/bin/ccache /usr/bin/ccache
-
-      - name: Install compiler ${{ matrix.cxx }}
-        run: sudo apt-get install --yes ${{ matrix.cxx }}
-
-      - name: Load ccache
-        uses: actions/cache@v3
-        with:
-          path: .ccache
-          key: ${{ runner.os }}-${{ matrix.name }}-ccache-${{ github.ref }}-${{ github.run_number }}
-          # Restoring: From current branch, otherwise from base branch, otherwise from any branch.
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.name }}-ccache-${{ github.ref }}
-            ${{ runner.os }}-${{ matrix.name }}-ccache-${{ github.base_ref }}
-            ${{ runner.os }}-${{ matrix.name }}-ccache-
-
-      - name: Tool versions
-        run: |
-          env cmake --version
-          env ${{ matrix.cxx }} --version
+      - name: Setup cache
+        uses: seqan/actions/setup-actions-cache@main
 
       - name: Configure tests
-        env:
-          CXX: ${{ matrix.cxx }}
-          CC: ${{ matrix.cc }}
         run: |
-          mkdir build
-          cd build
-          cmake ../${{ env.REPOSITORY_NAME }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                                              -DCMAKE_CXX_FLAGS="${{ matrix.cxx_flags }}"
-          make -j2 gtest_build
-
-      - name: Build application
-        env:
-          CCACHE_BASEDIR: ${{ github.workspace }}
-          CCACHE_DIR: ${{ github.workspace }}/.ccache
-          CCACHE_COMPRESS: true
-          CCACHE_COMPRESSLEVEL: 12
-          CCACHE_MAXSIZE: 75M
-        run: |
-          ccache -z
-          cd build
-          make -k -j2
-          ccache -sv
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          make gtest_main
 
       - name: Build tests
-        env:
-          CCACHE_BASEDIR: ${{ github.workspace }}
-          CCACHE_DIR: ${{ github.workspace }}/.ccache
-          CCACHE_COMPRESS: true
-          CCACHE_COMPRESSLEVEL: 12
-          CCACHE_MAXSIZE: 75M
+        working-directory: build
         run: |
           ccache -z
-          cd build
-          make -k -j2 api_test cli_test
+          make -k api_test cli_test
           ccache -sv
-
+        
       - name: Run tests
-        run: |
-          cd build
-          ctest . -j2 --output-on-failure
+        working-directory: build
+        run: ctest . -j --output-on-failure --no-tests=error
 

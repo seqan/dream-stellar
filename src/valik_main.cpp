@@ -11,16 +11,18 @@ int main(int argc, char ** argv)
 {
     try
     {
-        sharg::parser top_level_parser{"valik", argc, argv, sharg::update_notifications::off, {"build", "search"}};
+        sharg::parser top_level_parser{"dream-stellar", argc, argv, sharg::update_notifications::off, {"build", "search"}};
         valik::app::init_top_level_parser(top_level_parser);
 
         valik::app::try_parsing(top_level_parser);
 
         sharg::parser & sub_parser = top_level_parser.get_sub_parser();
-        if (sub_parser.info.app_name == std::string_view{"valik-build"})
+        if (sub_parser.info.app_name == std::string_view{"dream-stellar-build"})
             valik::app::run_build(sub_parser);
-        if (sub_parser.info.app_name == std::string_view{"valik-search"})
+        else if (sub_parser.info.app_name == std::string_view{"dream-stellar-search"})
             valik::app::run_search(sub_parser);
+        else
+            throw sharg::parser_error{"Unhandled subcommand"};
     }
     catch(std::exception const& e)
     {

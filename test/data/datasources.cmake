@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.16)
+cmake_minimum_required (VERSION 3.25...3.31)
 
 include (cmake/app_datasources.cmake)
 

@@ -16,17 +16,11 @@ public:
     index_factory() = default;
     index_factory(index_factory const &) = default;
     index_factory(index_factory &&) = default;
-    index_factory & operator=(index_factory const &) = default;
-    index_factory & operator=(index_factory &&) = default;
+    index_factory & operator=(index_factory const &) = delete; // const member
+    index_factory & operator=(index_factory &&) = delete; // const member
     ~index_factory() = default;
 
     explicit index_factory(build_arguments const & args) : arguments{std::addressof(args)} {}
-
-    template <typename view_t = int>
-    [[nodiscard]] auto operator()() const
-    {
-        return construct();
-    }
 
 private:
     build_arguments const * const arguments{nullptr};
@@ -125,6 +119,12 @@ private:
         }
 
         return index;
+    }
+public:
+    template <typename view_t = int>
+    [[nodiscard]] auto operator()() const
+    {
+        return construct();
     }
 };
 
