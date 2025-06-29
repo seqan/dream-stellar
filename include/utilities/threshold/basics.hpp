@@ -86,7 +86,7 @@ inline uint64_t max_segment_len(double const /*pattern_p*/, size_t const pattern
 struct param_space
 {
     constexpr static uint8_t max_errors{15};    
-    uint16_t max_thresh{20};
+    uint16_t max_thresh{25};
     constexpr static size_t max_len{150};
     constexpr static std::pair<uint8_t, uint8_t> kmer_range{7, 23};
 

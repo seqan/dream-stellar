@@ -11,7 +11,7 @@ do
     do
         echo "Splitting the genome into $b segments that overlap by $p"
         seg_meta="multi/"$p"overlap"$b"bins.index"
-        valik build "$seg_input" --pattern "$p" --seg-count "$b" --output "$seg_meta" --without-parameter-tuning
+        dream-stellar build "$seg_input" --pattern "$p" --seg-count "$b" --output "$seg_meta" --without-parameter-tuning
     done
 done
 

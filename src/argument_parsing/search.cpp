@@ -84,24 +84,13 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                       .long_id = "without-parameter-tuning",
                       .description = "Preprocess database without setting default parameters.",
                       .advanced = true});
-    parser.add_flag(arguments.keep_best_repeats,
-                    sharg::config{.short_id = '\0',
-                    .long_id = "keep-best-repeats",
-                    .description = "Consider only high entropy regions for queries with abundant matches.",
-                    .advanced = true});
     parser.add_option(arguments.best_bin_entropy_cutoff,
                       sharg::config{.short_id = '\0',
                       .long_id = "bin-entropy-cutoff",
                       .description = "For queries with abundant matches, search only highly varied reference regions. "
-                                     "Increase this value to search more of the reference. "
-                                     "Use with --keep-best-repeats.",
+                                     "Increase this value to search more of the reference. ",
                       .advanced = true,
                       .validator = sharg::arithmetic_range_validator{0.0, 1.0}});
-    parser.add_flag(arguments.keep_all_repeats,
-                    sharg::config{.short_id = '\0',
-                    .long_id = "keep-all-repeats",
-                    .description = "Do not filter out query matches from repeat regions. This may significantly increase the runtime.",
-                    .advanced = true});
     parser.add_option(arguments.seg_count_in,
                       sharg::config{.short_id = 'n',
                       .long_id = "seg-count",
@@ -254,13 +243,23 @@ void run_search(sharg::parser & parser)
     // ==========================================
     std::ifstream is{arguments.index_file.string(),std::ios::binary};
     cereal::BinaryInputArchive iarchive{is};
-    valik_index<> tmp{};
-    tmp.load_parameters(iarchive);
-    arguments.shape = tmp.shape();
-    arguments.shape_size = arguments.shape.size();
-    arguments.shape_weight = arguments.shape.count();
-    arguments.window_size = tmp.window_size();
-    arguments.bin_path = tmp.bin_path();
+    if (!arguments.stellar_only)
+    {
+        valik_index<> tmp{};
+        tmp.load_parameters(iarchive);
+        arguments.shape = tmp.shape();
+        arguments.shape_size = arguments.shape.size();
+        arguments.shape_weight = arguments.shape.count();
+        arguments.window_size = tmp.window_size();
+        arguments.bin_path = tmp.bin_path();
+    }
+    else
+    {
+        metadata meta(arguments.ref_meta_path);
+        for (auto & f : meta.files)
+            arguments.bin_path.emplace_back(f.path);
+    }
+
     if (arguments.bin_path.size() > 1)
         arguments.distribute = true;
 

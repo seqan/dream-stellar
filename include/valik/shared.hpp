@@ -85,7 +85,7 @@ struct build_arguments final : public split_arguments
     uint8_t threads{1u};
     std::filesystem::path out_path;
     std::filesystem::path out_dir{"./"};
-    float fpr{0.05};
+    float fpr{0.005};
     std::string size{};
     uint64_t bits{4096};
     uint64_t hash{2};
@@ -177,9 +177,7 @@ struct search_arguments final : public minimiser_threshold_arguments, search_pro
     bool fast{false};
     bool verbose{false};
     bool very_verbose{false};
-    bool keep_best_repeats{false};
-    double best_bin_entropy_cutoff{0.25};
-    bool keep_all_repeats{false};
+    double best_bin_entropy_cutoff{1.0}; // 1.0 means all bins, 0.0 means no bins
     bool stellar_only{false};
 
     size_t cart_max_capacity{1000};

@@ -21,8 +21,8 @@ do
                 echo "Query every ${n}th potential match"
                 output="8bins"$w"window"$e"error"$p"pattern"$n"query_every.gff"
                 er=$( echo $e/$p | bc -l )
-                valik search --distribute --index ../build/8bins${w}window.ibf --query query.fq --output "$output" --error-rate "$er" --pattern "$p" \
-                             --query-every "$n" --threads 1 --without-parameter-tuning --cart-max-capacity 3 --max-queued-carts 10 --very-verbose
+                dream-stellar search --distribute --index ../build/8bins${w}window.ibf --query query.fq --output "$output" --error-rate "$er" --pattern "$p" \
+                             --query-every "$n" --threads 1 --without-parameter-tuning --cart-max-capacity 3 --max-queued-carts 10 --very-verbose --bin-entropy-cutoff 0
                 rm "$output"
             done
         done

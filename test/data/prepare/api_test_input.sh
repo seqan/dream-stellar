@@ -14,7 +14,7 @@ do
         rm s${shape}/*
     fi
 
-    valik build "$ref_input" --shape $shape --pattern "$p" --write-out --kmer-count-min 0 --kmer-count-max 254 \
+    dream-stellar build "$ref_input" --shape $shape --pattern "$p" --write-out --kmer-count-min 0 --kmer-count-max 254 \
                             --output "$index" --fast --without-parameter-tuning --seg-count 8 
 
     mv ref.*.header s$shape/

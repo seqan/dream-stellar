@@ -27,13 +27,13 @@ do
     do
         echo "Creating IBF for w=$w and k=$k where segments overlap by $pattern"
         index="single/"$pattern"overlap"$b"bins"$w"window.ibf"
-        valik build "$ref_input" --pattern "$pattern" --seg-count "$b" --kmer "$k" --window "$w" --size "$ibf_size" \
+        dream-stellar build "$ref_input" --pattern "$pattern" --seg-count "$b" --kmer "$k" --window "$w" --size "$ibf_size" \
                                  --output "$index" --without-parameter-tuning --verbose
 
         echo "Searching IBF with $errors errors"
         search_out="single/"$pattern"overlap"$b"bins"$w"window"$errors"errors.gff"
         error_rate=$(echo $errors/$pattern| bc -l )
-        valik search --distribute --index "$index" --query "$query" --output "$search_out" --error-rate "$error_rate" \
+        dream-stellar search --distribute --index "$index" --query "$query" --output "$search_out" --error-rate "$error_rate" \
                      --query-every 1 --threads 1 --very-verbose --cart-max-capacity 3 --max-queued-carts 10
         
         mkdir -p $VALIK_TMP
