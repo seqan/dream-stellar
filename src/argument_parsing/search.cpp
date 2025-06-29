@@ -243,13 +243,23 @@ void run_search(sharg::parser & parser)
     // ==========================================
     std::ifstream is{arguments.index_file.string(),std::ios::binary};
     cereal::BinaryInputArchive iarchive{is};
-    valik_index<> tmp{};
-    tmp.load_parameters(iarchive);
-    arguments.shape = tmp.shape();
-    arguments.shape_size = arguments.shape.size();
-    arguments.shape_weight = arguments.shape.count();
-    arguments.window_size = tmp.window_size();
-    arguments.bin_path = tmp.bin_path();
+    if (!arguments.stellar_only)
+    {
+        valik_index<> tmp{};
+        tmp.load_parameters(iarchive);
+        arguments.shape = tmp.shape();
+        arguments.shape_size = arguments.shape.size();
+        arguments.shape_weight = arguments.shape.count();
+        arguments.window_size = tmp.window_size();
+        arguments.bin_path = tmp.bin_path();
+    }
+    else
+    {
+        metadata meta(arguments.ref_meta_path);
+        for (auto & f : meta.files)
+            arguments.bin_path.emplace_back(f.path);
+    }
+
     if (arguments.bin_path.size() > 1)
         arguments.distribute = true;
 
