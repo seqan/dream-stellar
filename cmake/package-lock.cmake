@@ -18,7 +18,7 @@ CPMDeclarePackage (seqan2
 )
 
 # seqan3
-set (DREAM_STELLAR_SEQAN3_VERSION 9360528ee1a8af873ee376a7a7624f35497a7645 CACHE STRING "")
+set (DREAM_STELLAR_SEQAN3_VERSION 6dfa1b442d1fabd07024edcc37a29b61d5beae8f CACHE STRING "")
 CPMDeclarePackage (seqan3
                    NAME seqan3
                    GIT_TAG ${DREAM_STELLAR_SEQAN3_VERSION} # main
