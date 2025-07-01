@@ -1,16 +1,15 @@
 #include <gtest/gtest.h>
 
+#include "../../../app_test.hpp"
+
 #include <valik/split/metadata.hpp>
 #include <utilities/threshold/find.hpp>
 #include <utilities/threshold/fn_confs.hpp>
 
-// Generate the full path of a test input file that is provided in the data directory.
-std::filesystem::path data(std::string const & filename)
-{
-    return std::filesystem::path{std::string{DATADIR}}.concat(filename);
-}
+struct find : public app_test
+{};
 
-TEST(best_params, small)
+TEST_F(find, best_params_small)
 {
     valik::param_space space{};
     valik::fn_confs fn_attr(space);
@@ -24,7 +23,7 @@ TEST(best_params, small)
 }
 
 
-TEST(find_thresholds, small)
+TEST_F(find, find_thresholds_small)
 {
     valik::param_space space{};
     valik::fn_confs fn_attr(space);

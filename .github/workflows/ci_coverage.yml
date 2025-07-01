@@ -52,16 +52,12 @@ jobs:
                    -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-lgcov"
           make gtest_main
 
-      - name: Build tests
+      - name: Build and run tests
         working-directory: build
         run: |
           ccache -z
-          make -k api_test cli_test
+          make -k check
           ccache -sv
-        
-      - name: Run tests
-        working-directory: build
-        run: ctest . -j --output-on-failure --no-tests=error
 
       - name: Generate coverage report
         run: |

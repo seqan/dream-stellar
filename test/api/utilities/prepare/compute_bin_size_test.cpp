@@ -1,17 +1,16 @@
 #include <gtest/gtest.h>
 
+#include "../../../app_test.hpp"
+
 #include <utilities/prepare/compute_bin_size.hpp>
 #include <valik/shared.hpp>
 #include <valik/split/metadata.hpp>
 #include <valik/split/write_seg_sequences.hpp>
 
-// Generate the full path of a test input file that is provided in the data directory.
-std::filesystem::path data(std::string const & filename)
-{
-    return std::filesystem::path{std::string{DATADIR}}.concat(filename);
-}
+struct compute_bin_size : public app_test
+{};
 
-TEST(max_bin_count, split_db_no_count_cutoff)
+TEST_F(compute_bin_size, split_db_no_count_cutoff)
 {
     valik::build_arguments arguments{};
     arguments.bin_path = std::vector<std::string>{};
@@ -19,7 +18,7 @@ TEST(max_bin_count, split_db_no_count_cutoff)
     arguments.kmer_count_max_cutoff = 254;
     size_t bin_count = 8;
     for (size_t b{0}; b < bin_count; b++)
-        arguments.bin_path.emplace_back(data("ref_bin_" + std::to_string(b) + ".fasta"));
+        arguments.bin_path.emplace_back(data("ref_" + std::to_string(b) + ".fasta"));
 
     std::vector<seqan3::shape> shapes{seqan3::shape{seqan3::ungapped{8}}, seqan3::shape{seqan3::bin_literal{0b111110011111}}};
     for (auto shape : shapes)
@@ -37,7 +36,7 @@ TEST(max_bin_count, split_db_no_count_cutoff)
     }
 }
 
-TEST(max_bin_count, segment_db_no_count_cutoff)
+TEST_F(compute_bin_size, segment_db_no_count_cutoff)
 {
     size_t bin_count = 8;
     valik::build_arguments arguments{};
