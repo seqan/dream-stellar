@@ -1,8 +1,13 @@
 #include <gtest/gtest.h>
 
+#include "../../../app_test.hpp"
+
 #include <valik/split/metadata.hpp>
 
-TEST(trim_fasta_id, no_whitespace)
+struct trim_fasta_id : public app_test
+{};
+
+TEST_F(trim_fasta_id, no_whitespace)
 {
     std::string id = "xy1";
     std::string expected = id;
@@ -11,7 +16,7 @@ TEST(trim_fasta_id, no_whitespace)
     EXPECT_EQ(id, expected);
 }
 
-TEST(trim_fasta_id, only_whitespace)
+TEST_F(trim_fasta_id, only_whitespace)
 {
     EXPECT_THROW({
         try
@@ -28,7 +33,7 @@ TEST(trim_fasta_id, only_whitespace)
     }, std::runtime_error );
 }
 
-TEST(trim_fasta_id, remove_whitespace)
+TEST_F(trim_fasta_id, remove_whitespace)
 {
     std::string id = " \txy1 \n";
     std::string expected = "xy1";

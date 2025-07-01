@@ -10,15 +10,15 @@ do
     index="s${shape}.ibf"
     mkdir -p "s$shape"
     
-    if [ -f "s${shape}/ref.0.header"  ];then   
+    if [ -f "s${shape}/s${shape}_ref.0.header"  ];then   
         rm s${shape}/*
     fi
 
     dream-stellar build "$ref_input" --shape $shape --pattern "$p" --write-out --kmer-count-min 0 --kmer-count-max 254 \
                             --output "$index" --fast --without-parameter-tuning --seg-count 8 
 
-    mv ref.*.header s$shape/
-    mv ref.*.minimiser s$shape/
+    for i in ref.*.header; do mv $i s$shape/s${shape}_${i}; done
+    for i in ref.*.minimiser; do mv $i s$shape/s${shape}_${i}; done
 done
 
 mkdir -p bins

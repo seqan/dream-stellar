@@ -1,28 +1,27 @@
 #include <gtest/gtest.h>
 
+#include "../../../app_test.hpp"
+
 #include <valik/split/metadata.hpp>
 
-// Generate the full path of a test input file that is provided in the data directory.
-static std::filesystem::path data_path(std::string const & filename)
+struct split_options : public app_test
 {
-    return std::filesystem::path{std::string{DATADIR}}.concat(filename);
-}
-
-static std::filesystem::path segment_metadata_path(size_t const overlap, size_t const bins) noexcept
-{
-    std::string name{};
-    name += std::to_string(overlap);
-    name += "overlap";
-    name += std::to_string(bins);
-    name += "bins.bin";
-    return data_path(name);
-}
+    static std::filesystem::path segment_metadata_path(size_t const overlap, size_t const bins) noexcept
+    {
+        std::string name{};
+        name += std::to_string(overlap);
+        name += "overlap";
+        name += std::to_string(bins);
+        name += "bins.bin";
+        return data(name);
+    }
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////// valik split preprocess clusters ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(split_options, split_metagenome_clusters)
+TEST_F(split_options, split_metagenome_clusters)
 {
     valik::build_arguments arguments{};
     arguments.metagenome = true;
@@ -31,7 +30,7 @@ TEST(split_options, split_metagenome_clusters)
     {
         for (size_t i{0}; i < genome_count; i++)
         {
-            std::string file_path = data_path("bin_" + std::to_string(i) + ".fasta");
+            std::string file_path = data("bin_" + std::to_string(i) + ".fasta");
             arguments.bin_path.emplace_back(file_path);
         }
     }
@@ -54,11 +53,11 @@ TEST(split_options, split_metagenome_clusters)
 /////////////////////////////////////////////// valik split index bins /////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(split_options, split_ref)
+TEST_F(split_options, split_ref)
 {
     valik::build_arguments arguments{};
     arguments.error_rate = 0.01;
-    arguments.bin_path.emplace_back(data_path("ref.fasta"));
+    arguments.bin_path.emplace_back(data("ref.fasta"));
 
     try
     {
@@ -85,13 +84,13 @@ TEST(split_options, split_ref)
 ////////////////////////////////////////////// valik split equal length ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(split_options, split_various_length)
+TEST_F(split_options, split_various_length)
 {
     valik::build_arguments arguments{};
     arguments.error_rate = 0.01;
     arguments.manual_parameters = true;
     arguments.pattern_size = 20;
-    arguments.bin_path.emplace_back(data_path("various_chromosome_lengths.fasta"));
+    arguments.bin_path.emplace_back(data("various_chromosome_lengths.fasta"));
 
     try
     {
@@ -113,13 +112,13 @@ TEST(split_options, split_various_length)
     }
 }
 
-TEST(split_options, split_few_long)
+TEST_F(split_options, split_few_long)
 {
     valik::build_arguments arguments{};
     arguments.error_rate = 0.01;
     arguments.manual_parameters = true;
     arguments.pattern_size = 20;
-    arguments.bin_path.emplace_back(data_path("various_chromosome_lengths.fasta"));
+    arguments.bin_path.emplace_back(data("various_chromosome_lengths.fasta"));
 
     try
     {
@@ -145,10 +144,10 @@ TEST(split_options, split_few_long)
 ///////////////////////////////////////////// valik split error handling ///////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(split_options, too_few_segments)
+TEST_F(split_options, too_few_segments)
 {
     valik::build_arguments arguments{};
-    arguments.bin_path.emplace_back(data_path("query.fasta"));
+    arguments.bin_path.emplace_back(data("query.fasta"));
     arguments.seg_count = 30;
     arguments.pattern_size = 10;
 
@@ -165,10 +164,10 @@ TEST(split_options, too_few_segments)
     }, std::runtime_error );
 }
 
-TEST(split_options, overlap_too_large)
+TEST_F(split_options, overlap_too_large)
 {
     valik::build_arguments arguments{};
-    arguments.bin_path.emplace_back(data_path("query.fasta"));
+    arguments.bin_path.emplace_back(data("query.fasta"));
     arguments.seg_count = 30;
     arguments.pattern_size = 1000;
 
@@ -191,10 +190,10 @@ TEST(split_options, overlap_too_large)
     }, std::runtime_error );
 }
 
-TEST(split_options, too_many_segment)
+TEST_F(split_options, too_many_segment)
 {
     valik::build_arguments arguments{};
-    arguments.bin_path.emplace_back(data_path("query.fasta"));
+    arguments.bin_path.emplace_back(data("query.fasta"));
     arguments.seg_count = 300;
     arguments.pattern_size = 20;
 

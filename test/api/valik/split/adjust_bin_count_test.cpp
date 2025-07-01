@@ -1,8 +1,13 @@
 #include <gtest/gtest.h>
 
+#include "../../../app_test.hpp"
+
 #include <valik/shared.hpp>
 
-TEST(adjust_test, try_count)
+struct adjust_bin_count : public app_test
+{};
+
+TEST(adjust_bin_count, try_count)
 {
     std::vector<size_t> bin_count_in{8, 63, 64, 65, 96, 97, 159, 2060, 4111};
     for (size_t b : bin_count_in)

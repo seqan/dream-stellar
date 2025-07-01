@@ -46,14 +46,9 @@ jobs:
           cmake .. -DCMAKE_BUILD_TYPE=Release
           make gtest_main
 
-      - name: Build tests
+      - name: Build and run tests
         working-directory: build
         run: |
           ccache -z
-          make -k api_test cli_test
+          make -k check
           ccache -sv
-        
-      - name: Run tests
-        working-directory: build
-        run: ctest . -j --output-on-failure --no-tests=error
-

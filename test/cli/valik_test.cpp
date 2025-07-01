@@ -4,7 +4,16 @@
 #include <string>                // strings
 #include <vector>                // vectors
 
-#include "cli_test.hpp"
+#include "app_test_cli_base.hpp"
+
+struct valik_build_clusters : public app_test_cli_base, public testing::WithParamInterface<std::tuple<size_t, size_t, bool>> {};
+struct valik_build_segments : public app_test_cli_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t>> {};
+struct valik_search_clusters : public app_test_cli_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t,
+    size_t, size_t>>
+{};
+struct valik_search_segments : public app_test_cli_base, public testing::WithParamInterface<std::tuple<size_t, size_t, size_t,
+    size_t, size_t>> 
+{};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////// valik build clusters /////////////////////////////////////////////////
@@ -19,13 +28,13 @@ TEST_P(valik_build_clusters, build_from_clusters)
         std::ofstream file{"bin_paths.txt"};
         for (size_t i{0}; i < number_of_bins; i++)
         {
-            std::string file_path = cli_test::data("bin_" + std::to_string(i) + ".fasta");
+            std::string file_path = data("bin_" + std::to_string(i) + ".fasta");
             file << file_path << '\n';
         }
         file << '\n';
     }
 
-    cli_test_result const result = execute_app("dream-stellar", "build",
+    app_test_result const result = execute_app("dream-stellar", "build",
                                                          "bin_paths.txt",
                                                          "--metagenome",
                                                          "--kmer 19",
@@ -67,7 +76,7 @@ TEST_P(valik_build_segments, build_from_segments)
 {
     auto const [overlap, number_of_bins, window_size] = GetParam();
 
-    cli_test_result const result = execute_app("dream-stellar", "build",
+    app_test_result const result = execute_app("dream-stellar", "build",
                                                         data("single_reference.fasta"),
                                                         "--kmer 13",
                                                         "--pattern 50", 
@@ -118,7 +127,7 @@ TEST_P(valik_search_clusters, search)
     if (window_size == 23 && number_of_errors == 0)
         GTEST_SKIP() << "Needs dynamic threshold correction";
 
-    cli_test_result const result = execute_app("dream-stellar", "search",
+    app_test_result const result = execute_app("dream-stellar", "search",
                                                         "--output search.gff",
                                                         "--pattern", std::to_string(pattern_size),
                                                         "--query-every", std::to_string(query_every),
@@ -167,7 +176,7 @@ TEST_P(valik_search_segments, search)
     std::ofstream file_handle(file_path);
     file_handle << "\n";
 
-    cli_test_result const result = execute_app("dream-stellar", "search",
+    app_test_result const result = execute_app("dream-stellar", "search",
                                                         "--output search.gff",
                                                         "--distribute",
                                                         "--pattern", std::to_string(pattern_size),

@@ -8,15 +8,15 @@ seqan3::test::create_temporary_snippet_file dummy_sequence_file{"dummy.fasta", "
 seqan3::test::create_temporary_snippet_file dummy_query_file{"query.fasta", "\n>id\nACGTC"};
 seqan3::test::create_temporary_snippet_file tmp_bin_list_file{"all_bins.txt", std::string{"\n"} + dummy_sequence_file.file_path.string()};
 
-#include "cli_test.hpp"
+#include "../app_test.hpp"
 
-struct argparse : public valik_base {};
-struct argparse_build : public valik_base {};
-struct argparse_search : public valik_base {};
+struct argparse : public app_test {};
+struct argparse_build : public app_test {};
+struct argparse_search : public app_test {};
 
 TEST_F(argparse, no_options)
 {
-    cli_test_result const result = execute_app("dream-stellar");
+    app_test_result const result = execute_app("dream-stellar");
     std::string const expected
     {
 	"dream-stellar - DNA search tool for finding local alignments between long sequences.\n"
@@ -30,7 +30,7 @@ TEST_F(argparse, no_options)
 
 TEST_F(argparse_build, no_options)
 {
-    cli_test_result const result = execute_app("dream-stellar", "build");
+    app_test_result const result = execute_app("dream-stellar", "build");
     std::string const expected
     {
 	"dream-stellar - DNA search tool for finding local alignments between long sequences.\n"
@@ -44,7 +44,7 @@ TEST_F(argparse_build, no_options)
 
 TEST_F(argparse_search, no_options)
 {
-    cli_test_result const result = execute_app("dream-stellar", "search");
+    app_test_result const result = execute_app("dream-stellar", "search");
     std::string const expected
     {
 	"dream-stellar - DNA search tool for finding local alignments between long sequences.\n"
@@ -58,7 +58,7 @@ TEST_F(argparse_search, no_options)
 
 TEST_F(argparse, no_subparser)
 {
-    cli_test_result const result = execute_app("dream-stellar", "foo");
+    app_test_result const result = execute_app("dream-stellar", "foo");
     std::string const expected
     {
         "[Error] You specified an unknown subcommand! Available subcommands are: [build, search]. "
@@ -71,7 +71,7 @@ TEST_F(argparse, no_subparser)
 
 TEST_F(argparse, unknown_option)
 {
-    cli_test_result const result = execute_app("dream-stellar", "-v");
+    app_test_result const result = execute_app("dream-stellar", "-v");
     std::string const expected
     {
         "[Error] Unknown option -v. In case this is meant to be a non-option/argument/parameter, "
@@ -84,7 +84,7 @@ TEST_F(argparse, unknown_option)
 
 TEST_F(argparse_build, input_missing)
 {
-    cli_test_result const result = execute_app("dream-stellar", "build",
+    app_test_result const result = execute_app("dream-stellar", "build",
                                                          "--size 8m",
                                                          "--output ./ibf.out");
     EXPECT_FAILURE(result);
@@ -94,7 +94,7 @@ TEST_F(argparse_build, input_missing)
 
 TEST_F(argparse_build, input_invalid)
 {
-    cli_test_result const result = execute_app("dream-stellar", "build",
+    app_test_result const result = execute_app("dream-stellar", "build",
                                                         "nonexistent",
                                                         "--size 8m",
                                                         "--output ./ibf.out");
@@ -105,7 +105,7 @@ TEST_F(argparse_build, input_invalid)
 
 TEST_F(argparse_build, output_wrong)
 {
-    cli_test_result const result = execute_app("dream-stellar", "build",
+    app_test_result const result = execute_app("dream-stellar", "build",
                                                          dummy_sequence_file.file_path,
                                                          "--size 8m",
                                                          "--output foo/out.ibf");
@@ -116,7 +116,7 @@ TEST_F(argparse_build, output_wrong)
 
 TEST_F(argparse_build, size_wrong_space)
 {
-    cli_test_result const result = execute_app("dream-stellar", "build",
+    app_test_result const result = execute_app("dream-stellar", "build",
                                                          dummy_sequence_file.file_path,
                                                          "--size 8 m",
                                                          "--output ./ibf.out");
@@ -128,7 +128,7 @@ TEST_F(argparse_build, size_wrong_space)
 
 TEST_F(argparse_build, size_wrong_suffix)
 {
-    cli_test_result const result = execute_app("dream-stellar", "build",
+    app_test_result const result = execute_app("dream-stellar", "build",
                                                          dummy_sequence_file.file_path,
                                                          "--size 8x",
                                                          "--output ibf.out");
@@ -140,7 +140,7 @@ TEST_F(argparse_build, size_wrong_suffix)
 
 TEST_F(argparse_build, kmer_window)
 {
-    cli_test_result const result = execute_app("dream-stellar", "build",
+    app_test_result const result = execute_app("dream-stellar", "build",
                                                          data("ref.fasta"),
                                                          "--kmer 20",
                                                          "--window 19",
@@ -156,7 +156,7 @@ TEST_F(argparse_build, kmer_window)
 
 TEST_F(argparse_build, kmer_shape)
 {
-    cli_test_result const result = execute_app("dream-stellar", "build",
+    app_test_result const result = execute_app("dream-stellar", "build",
                                                          dummy_sequence_file.file_path,
                                                          "--kmer 20",
                                                          "--shape 1100110011",
@@ -171,7 +171,7 @@ TEST_F(argparse_build, kmer_shape)
 
 TEST_F(argparse_search, ibf_missing)
 {
-    cli_test_result const result = execute_app("dream-stellar", "search",
+    app_test_result const result = execute_app("dream-stellar", "search",
                                                          "--query ", dummy_query_file.file_path,
                                                          "--output search.gff");
     EXPECT_FAILURE(result);
@@ -181,7 +181,7 @@ TEST_F(argparse_search, ibf_missing)
 
 TEST_F(argparse_search, ibf_wrong)
 {
-    cli_test_result const result = execute_app("dream-stellar", "search",
+    app_test_result const result = execute_app("dream-stellar", "search",
                                                          "--query ", dummy_query_file.file_path,
                                                          "--index foo.ibf",
                                                          "--output search.gff");
@@ -193,7 +193,7 @@ TEST_F(argparse_search, ibf_wrong)
 
 TEST_F(argparse_search, query_missing)
 {
-    cli_test_result const result = execute_app("dream-stellar", "search",
+    app_test_result const result = execute_app("dream-stellar", "search",
                                                          "--index ", data("8bins19window.ibf"),
                                                          "--output search.gff");
     EXPECT_FAILURE(result);
@@ -203,7 +203,7 @@ TEST_F(argparse_search, query_missing)
 
 TEST_F(argparse_search, query_wrong)
 {
-    cli_test_result const result = execute_app("dream-stellar", "search",
+    app_test_result const result = execute_app("dream-stellar", "search",
                                                          "--query foo.fasta",
                                                          "--index ", data("8bins19window.ibf"),
                                                          "--output search.gff");
@@ -215,7 +215,7 @@ TEST_F(argparse_search, query_wrong)
 
 TEST_F(argparse_search, output_missing)
 {
-    cli_test_result const result = execute_app("dream-stellar", "search",
+    app_test_result const result = execute_app("dream-stellar", "search",
                                                          "--query ", dummy_query_file.file_path,
                                                          "--index ", data("8bins19window.ibf"));
     EXPECT_FAILURE(result);
@@ -225,7 +225,7 @@ TEST_F(argparse_search, output_missing)
 
 TEST_F(argparse_search, output_wrong)
 {
-    cli_test_result const result = execute_app("dream-stellar", "search",
+    app_test_result const result = execute_app("dream-stellar", "search",
                                                          "--query ", dummy_query_file.file_path,
                                                          "--index ", data("8bins19window.ibf"),
                                                          "--output foo/search.gff");
@@ -236,7 +236,7 @@ TEST_F(argparse_search, output_wrong)
 
 TEST_F(argparse_search, pattern_window)
 {
-    cli_test_result const result = execute_app("dream-stellar", "search",
+    app_test_result const result = execute_app("dream-stellar", "search",
                                                          "--query ", dummy_query_file.file_path,
                                                          "--index ", data("8bins19window.ibf"),
                                                          "--output search.gff",
@@ -249,7 +249,7 @@ TEST_F(argparse_search, pattern_window)
 
 TEST_F(argparse_search, incorrect_error_rate)
 {
-    cli_test_result const result = execute_app("dream-stellar", "search",
+    app_test_result const result = execute_app("dream-stellar", "search",
                                                          "--query ", dummy_query_file.file_path,
                                                          "--index ", data("8bins19window.ibf"),
                                                          "--output search.gff",
@@ -261,7 +261,7 @@ TEST_F(argparse_search, incorrect_error_rate)
 
 TEST_F(argparse_search, no_meta_file)
 {
-    cli_test_result const result = execute_app("dream-stellar", "search",
+    app_test_result const result = execute_app("dream-stellar", "search",
                                                         "--query ", dummy_query_file.file_path,
                                                         "--index ", data("index_copy_without_meta.ibf"),
                                                         "--output search.gff");

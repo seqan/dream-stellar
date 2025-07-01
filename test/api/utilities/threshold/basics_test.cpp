@@ -1,9 +1,14 @@
 #include <gtest/gtest.h>
 
+#include "../../../app_test.hpp"
+
 #include <utilities/threshold/basics.hpp>
 #include <utilities/threshold/kmer.hpp>
 
-TEST(kmer_occurrences, small)
+struct basics : public app_test
+{};
+
+TEST_F(basics, kmer_occurrences_small)
 {
     uint8_t kmer_size = 4;
     uint64_t genome_len = 128u + kmer_size - 1;
@@ -11,7 +16,7 @@ TEST(kmer_occurrences, small)
     EXPECT_EQ(valik::expected_kmer_occurrences(genome_len, kmer_size, inf_cont), 1.0);
 }
 
-TEST(kmer_occurrences, human_genome)
+TEST_F(basics, kmer_occurrences_human_genome)
 {
     uint64_t human_genome_len = 3e9;
     uint8_t kmer_size = 17;
@@ -19,7 +24,7 @@ TEST(kmer_occurrences, human_genome)
     EXPECT_LE(valik::expected_kmer_occurrences(human_genome_len, kmer_size, inf_cont), 1.0);
 }
 
-TEST(kmer_lemma, manual_test)
+TEST_F(basics, kmer_lemma_manual_test)
 {
     size_t l = 100;
     utilities::kmer k{10};
@@ -35,7 +40,7 @@ TEST(kmer_lemma, manual_test)
     EXPECT_EQ(k.lemma_threshold(l, e), 0);
 }
 
-TEST(combinations, edge_cases)
+TEST_F(basics, combinations_edge_cases)
 {
     uint8_t k = 3;
     size_t n = 3;
@@ -49,7 +54,7 @@ TEST(combinations, edge_cases)
     EXPECT_EQ((valik::combinations(k, n)), 1);
 }
 
-TEST(combinations, manual_test)
+TEST_F(basics, combinations_manual_test)
 {
     uint8_t k = 3;
     size_t n = 4;

@@ -1,8 +1,13 @@
 #include <gtest/gtest.h>
 
+#include "../../../app_test.hpp"
+
 #include <utilities/threshold/param_set.hpp>
 
-TEST(ungapped_error_handling, kmer_size)
+struct param_set : public app_test
+{};
+
+TEST_F(param_set, ungapped_error_handling_kmer_size)
 {
     valik::param_space space;
     uint8_t thresh = 5;
@@ -38,7 +43,7 @@ TEST(ungapped_error_handling, kmer_size)
     }, std::runtime_error );
 }
 
-TEST(gapped_error_handling, kmer_size)
+TEST_F(param_set, gapped_error_handling_kmer_size)
 {
     valik::param_space space;
     uint8_t thresh = 5;

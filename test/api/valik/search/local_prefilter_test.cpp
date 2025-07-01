@@ -1,12 +1,20 @@
 #include <gtest/gtest.h>
 
+#include "../../../app_test.hpp"
+
 #include <valik/search/local_prefilter.hpp>
 #include <valik/shared.hpp>
 
 #include <raptor/threshold/threshold.hpp>
 #include <seqan3/search/kmer_index/shape.hpp>
 
-TEST(pattern_begin_positions, read_length_and_pattern_size_are_equal)
+struct pattern_begin_positions : public app_test
+{};
+
+struct make_pattern_bounds : public app_test
+{};
+
+TEST_F(pattern_begin_positions, read_length_and_pattern_size_are_equal)
 {
     // edge case where read_len = pattern_size
     size_t const read_len = 150u;
@@ -24,7 +32,7 @@ TEST(pattern_begin_positions, read_length_and_pattern_size_are_equal)
     EXPECT_EQ(begin_positions, expected); // seen all positions
 }
 
-TEST(pattern_begin_positions, overlaps_are_evenly)
+TEST_F(pattern_begin_positions, overlaps_are_evenly)
 {
     // special case where read_len - pattern_size is exactly the last possible begin position
     size_t const read_len = 150u;
@@ -50,7 +58,7 @@ TEST(pattern_begin_positions, overlaps_are_evenly)
     EXPECT_EQ(begin_positions, expected); // seen all positions
 }
 
-TEST(pattern_begin_positions, extra_overlap)
+TEST_F(pattern_begin_positions, extra_overlap)
 {
     // normal case where read_len - pattern_size has room for an additional element
     size_t const read_len = 150;
@@ -87,7 +95,7 @@ TEST(pattern_begin_positions, extra_overlap)
 //
 // ====================================================================================
 
-TEST(make_pattern_bounds, first_pattern_of_query)
+TEST_F(make_pattern_bounds, first_pattern_of_query)
 {
     // normal case where pattern starts from beginning of query
     valik::search_arguments arguments{};
@@ -123,7 +131,7 @@ TEST(make_pattern_bounds, first_pattern_of_query)
     EXPECT_EQ(bounds.end_position, expected.end_position);
 }
 
-TEST(make_pattern_bounds, same_minimiser_consecutive_windows_begin)
+TEST_F(make_pattern_bounds, same_minimiser_consecutive_windows_begin)
 {
     // special case where pattern starts after the first of multiple consecutive minimisers
     // and pattern ends at the end of the query
@@ -159,7 +167,7 @@ TEST(make_pattern_bounds, same_minimiser_consecutive_windows_begin)
     EXPECT_EQ(bounds.end_position, expected.end_position);
 }
 
-TEST(make_pattern_bounds, pattern_equals_window)
+TEST_F(make_pattern_bounds, pattern_equals_window)
 {
     // special case where pattern_size == window_size
     valik::search_arguments arguments{};
@@ -206,7 +214,7 @@ TEST(make_pattern_bounds, pattern_equals_window)
 // aacc           CGAAGGTT       6                              6
 // ====================================================================================
 
-TEST(make_pattern_bounds, same_minimiser_consecutive_windows_end)
+TEST_F(make_pattern_bounds, same_minimiser_consecutive_windows_end)
 {
     // special case where pattern ends after the first of multiple consecutive minimisers
     valik::search_arguments arguments{};
@@ -253,7 +261,7 @@ TEST(make_pattern_bounds, same_minimiser_consecutive_windows_end)
 // aacc            GAAGGTT       7                              7
 // ====================================================================================
 
-TEST(make_pattern_bounds, odd_lengths)
+TEST_F(make_pattern_bounds, odd_lengths)
 {
     // normal case where kmer size is not divisible by window or pattern size
     valik::search_arguments arguments{};
