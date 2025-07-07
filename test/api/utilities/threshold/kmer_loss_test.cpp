@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include "../../../app_test.hpp"
+
 #include <utilities/threshold/kmer.hpp>
 #include <utilities/threshold/kmer_loss.hpp>
 #include <utilities/threshold/fn_confs.hpp>
@@ -11,13 +13,76 @@
 #include <seqan3/test/expect_range_eq.hpp>
 #include <seqan3/core/debug_stream.hpp>
 
-// Generate the full path of a test input file that is provided in the data directory.
-std::filesystem::path data_path(std::string const & filename)
+struct kmer_loss : public app_test
 {
-    return std::filesystem::path{std::string{DATADIR}}.concat(filename);
-}
+    // Test: case where the thresh parameter is less or equal to the k-mer lemma threshold
+    //       the conf count is 0 because no error configuration destroys more than the allowed number of k-mers
+    static void check_thresh_from_kmer_lemma(valik::kmer_loss const & attr)
+    {
+        for (uint8_t t{1}; t <= attr.fn_conf_counts.size(); t++)
+        {
+            auto thresh_table = attr.fn_conf_counts[t - 1];
+            for (uint8_t e{0}; e < thresh_table.size(); e++)
+            {
+                auto error_row = thresh_table[e];
+                for (size_t l{attr.kmer_weight()}; l < error_row.size(); l++)
+                {
+                    utilities::kmer shaped_kmer{attr.kmer_weight()};
+                    if (shaped_kmer.lemma_threshold(l, e) >= t)
+                    {
+                        if (error_row[l] != 0)
+                        {
+                            std::cout << "l\t" << std::to_string(l) << '\n';
+                            std::cout << "k\t" << std::to_string(shaped_kmer.weight()) << '\n';
+                            std::cout << "e\t" << std::to_string(e) << '\n';
+                            std::cout << "t\t" << std::to_string(t) << '\n';
+                        }
+                        EXPECT_EQ(error_row[l], 0);
+                    }
+                }
+            }
+        }
+    }
 
-TEST(kmer_loss, equal_after_serialization)
+    // Test: case where there are no shared k-mers because the sequence length is less than the k-mer length
+    //       the conf count is equal to (l take e) because all possible error configuration destroy all shared k-mers
+    static void check_len_less_than_kmer_size(valik::kmer_loss const & attr)
+    {
+        for (uint8_t t{1}; t <= attr.fn_conf_counts.size(); t++)
+        {
+            auto thresh_table = attr.fn_conf_counts[t - 1];
+            for (size_t e{0}; e < thresh_table.size(); e++)
+            {
+                auto error_row = thresh_table[e];
+                for (size_t l{0}; l < attr.kmer_weight(); l++)
+                {
+                    if (error_row[l] != valik::combinations(e, l))
+                    {
+                        std::cout << "l\t" << std::to_string(l) << '\n';
+                        std::cout << "k\t" << std::to_string(attr.kmer_weight()) << '\n';
+                        std::cout << "e\t" << std::to_string(e) << '\n';
+                        std::cout << "t\t" << std::to_string(t) << '\n';
+                    }
+                    EXPECT_EQ(error_row[l], valik::combinations(e, l));
+                }
+            }
+        }
+    }
+    
+    void try_fnr(uint8_t e, size_t l, uint8_t k, uint16_t t, double expected_fnr)
+    {
+        valik::param_space space{};
+        valik::search_pattern pattern(e, l);
+        valik::param_set param(k, t);
+
+        valik::fn_confs fn_attr(space);
+
+        utilities::kmer shaped_kmer{k};
+        EXPECT_EQ(fn_attr.get_kmer_loss(shaped_kmer, e).fnr_for_param_set(pattern, param), expected_fnr); 
+    }
+};
+
+TEST_F(kmer_loss, equal_after_serialization)
 {
     valik::param_space space{};
     valik::fn_confs initial_fn_attr(space);
@@ -48,7 +113,7 @@ TEST(kmer_loss, equal_after_serialization)
     }
 }
 
-TEST(kmer_loss, basic_checks)
+TEST_F(kmer_loss, basic_checks)
 {
     valik::param_space space{};
 
@@ -71,61 +136,7 @@ TEST(kmer_loss, basic_checks)
     }
 }
 
-// Test: case where there are no shared k-mers because the sequence length is less than the k-mer length
-//       the conf count is equal to (l take e) because all possible error configuration destroy all shared k-mers
-static void check_len_less_than_kmer_size(valik::kmer_loss const & attr)
-{
-    for (uint8_t t{1}; t <= attr.fn_conf_counts.size(); t++)
-    {
-        auto thresh_table = attr.fn_conf_counts[t - 1];
-        for (size_t e{0}; e < thresh_table.size(); e++)
-        {
-            auto error_row = thresh_table[e];
-            for (size_t l{0}; l < attr.kmer_weight(); l++)
-            {
-                if (error_row[l] != valik::combinations(e, l))
-                {
-                    std::cout << "l\t" << std::to_string(l) << '\n';
-                    std::cout << "k\t" << std::to_string(attr.kmer_weight()) << '\n';
-                    std::cout << "e\t" << std::to_string(e) << '\n';
-                    std::cout << "t\t" << std::to_string(t) << '\n';
-                }
-                EXPECT_EQ(error_row[l], valik::combinations(e, l));
-            }
-        }
-    }
-}
-
-// Test: case where the thresh parameter is less or equal to the k-mer lemma threshold
-//       the conf count is 0 because no error configuration destroys more than the allowed number of k-mers
-static void check_thresh_from_kmer_lemma(valik::kmer_loss const & attr)
-{
-    for (uint8_t t{1}; t <= attr.fn_conf_counts.size(); t++)
-    {
-        auto thresh_table = attr.fn_conf_counts[t - 1];
-        for (uint8_t e{0}; e < thresh_table.size(); e++)
-        {
-            auto error_row = thresh_table[e];
-            for (size_t l{attr.kmer_weight()}; l < error_row.size(); l++)
-            {
-                utilities::kmer shaped_kmer{attr.kmer_weight()};
-                if (shaped_kmer.lemma_threshold(l, e) >= t)
-                {
-                    if (error_row[l] != 0)
-                    {
-                        std::cout << "l\t" << std::to_string(l) << '\n';
-                        std::cout << "k\t" << std::to_string(shaped_kmer.weight()) << '\n';
-                        std::cout << "e\t" << std::to_string(e) << '\n';
-                        std::cout << "t\t" << std::to_string(t) << '\n';
-                    }
-                    EXPECT_EQ(error_row[l], 0);
-                }
-            }
-        }
-    }
-}
-
-TEST(kmer_loss, edge_cases)
+TEST_F(kmer_loss, edge_cases)
 {
     valik::param_space space{};
     valik::fn_confs fn_attr(space);
@@ -143,7 +154,7 @@ TEST(kmer_loss, edge_cases)
     Let f(k, t, e, l) be the number of error configurations that destroy more than t k-mers. 
     The number of error configurations can be calculated in two ways.
 */
-TEST(kmer_loss, exhaustive_comparison)
+TEST_F(kmer_loss, exhaustive_comparison)
 {
     valik::param_space space{};
     valik::fn_confs fn_attr(space);
@@ -177,19 +188,7 @@ TEST(kmer_loss, exhaustive_comparison)
     }
 }
 
-void try_fnr(uint8_t e, size_t l, uint8_t k, uint16_t t, double expected_fnr)
-{
-    valik::param_space space{};
-    valik::search_pattern pattern(e, l);
-    valik::param_set param(k, t);
-
-    valik::fn_confs fn_attr(space);
-
-    utilities::kmer shaped_kmer{k};
-    EXPECT_EQ(fn_attr.get_kmer_loss(shaped_kmer, e).fnr_for_param_set(pattern, param), expected_fnr); 
-}
-
-TEST(false_negative, try_kmer_lemma_thershold)
+TEST_F(kmer_loss, false_negative_try_kmer_lemma_thershold)
 {
     try_fnr(0u, (size_t) 50, 16u, 23u, 0.0);
     try_fnr(1u, (size_t) 50, 16u, 19u, 0.0);
@@ -200,7 +199,7 @@ TEST(false_negative, try_kmer_lemma_thershold)
     try_fnr(2u, (size_t) 1000, 23u, 932u, 0.0);
 }
 
-TEST(false_negative, try_threshold_above_kmer_lemma)
+TEST_F(kmer_loss, false_negative_try_threshold_above_kmer_lemma)
 {
     uint8_t t{35};
     valik::param_space space{};
@@ -218,7 +217,7 @@ TEST(false_negative, try_threshold_above_kmer_lemma)
     }, std::runtime_error );
 }
 
-TEST(false_negative, try_all_destroyed)
+TEST_F(kmer_loss, false_negative_try_all_destroyed)
 {
     try_fnr(5u, (size_t) 10, 9u, 3u, 1.0);
     try_fnr(4u, (size_t) 10, 9u, 3u, 1.0);

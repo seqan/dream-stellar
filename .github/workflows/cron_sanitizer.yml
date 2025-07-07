@@ -89,11 +89,6 @@ jobs:
                    -DCMAKE_CXX_FLAGS="${{ matrix.cxx_flags }}"
           make gtest_main
 
-      - name: Build tests
+      - name: Build and run tests
         working-directory: build
-        run: make -k
-
-      - name: Run tests
-        working-directory: build
-        run: ctest . -j --output-on-failure --no-tests=error ${{ matrix.ctest_excludes }}
-
+        run: make -k check

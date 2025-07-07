@@ -45,23 +45,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     endif ()
 endif ()
 
-# IBF size
-add_library ("${PROJECT_NAME}_index_size_lib" STATIC prepare/compute_bin_size.cpp)
-target_link_libraries ("${PROJECT_NAME}_index_size_lib" PUBLIC "${PROJECT_NAME}_interface")
-
-# Parameter tuning
-add_library ("${PROJECT_NAME}_threshold_lib" STATIC threshold/find.cpp)
-target_link_libraries ("${PROJECT_NAME}_threshold_lib" PUBLIC "${PROJECT_NAME}_interface")
-
-# Valik split
-add_library ("${PROJECT_NAME}_split_lib" STATIC split/write_seg_sequences.cpp)
-target_link_libraries ("${PROJECT_NAME}_split_lib" PUBLIC "${PROJECT_NAME}_interface")
-
-# Valik build
-add_library ("${PROJECT_NAME}_build_lib" STATIC valik_build.cpp)
-target_link_libraries ("${PROJECT_NAME}_build_lib" PUBLIC "${PROJECT_NAME}_interface")
-
-# Valik search
+# Threshold library
 add_library ("raptor_threshold" STATIC
              raptor/threshold/threshold.cpp
              raptor/threshold/one_indirect_error_model.cpp
@@ -73,42 +57,21 @@ add_library ("raptor_threshold" STATIC
 )
 target_link_libraries ("raptor_threshold" PUBLIC "${PROJECT_NAME}_interface")
 
-add_library ("${PROJECT_NAME}_search_lib" STATIC valik_search.cpp)
-target_link_libraries ("${PROJECT_NAME}_search_lib" PUBLIC "raptor_threshold")
-
-# Consolidating matches from split Stellar runs
-add_library ("${PROJECT_NAME}_consolidation_lib" STATIC consolidate/consolidate_matches.cpp)
-target_link_libraries ("${PROJECT_NAME}_consolidation_lib" PUBLIC "raptor_threshold")
-
-add_library ("${PROJECT_NAME}_merge_processes_lib" STATIC consolidate/merge_processes.cpp)
-target_link_libraries ("${PROJECT_NAME}_merge_processes_lib" PUBLIC "raptor_threshold")
-
-# Argument parsing
-add_library ("${PROJECT_NAME}_argument_parsing_shared_lib" STATIC argument_parsing/shared.cpp)
-target_link_libraries ("${PROJECT_NAME}_argument_parsing_shared_lib" PUBLIC "${PROJECT_NAME}_interface")
-
-add_library ("${PROJECT_NAME}_argument_parsing_build_lib" STATIC argument_parsing/build.cpp)
-target_link_libraries ("${PROJECT_NAME}_argument_parsing_build_lib" PUBLIC "${PROJECT_NAME}_argument_parsing_shared_lib")
-
-add_library ("${PROJECT_NAME}_argument_parsing_search_lib" STATIC argument_parsing/search.cpp)
-target_link_libraries ("${PROJECT_NAME}_argument_parsing_search_lib" PUBLIC "${PROJECT_NAME}_argument_parsing_shared_lib")
-
-add_library ("${PROJECT_NAME}_argument_parsing_top_level_lib" STATIC argument_parsing/top_level.cpp)
-target_link_libraries ("${PROJECT_NAME}_argument_parsing_top_level_lib" PUBLIC "${PROJECT_NAME}_argument_parsing_shared_lib")
-
 # Valik library
-add_library ("${PROJECT_NAME}_lib" INTERFACE)
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_build_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_search_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_shared_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_argument_parsing_top_level_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_split_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_build_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_search_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_consolidation_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_merge_processes_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_threshold_lib")
-target_link_libraries ("${PROJECT_NAME}_lib" INTERFACE "${PROJECT_NAME}_index_size_lib")
+add_library ("${PROJECT_NAME}_lib" STATIC 
+             argument_parsing/build.cpp
+             argument_parsing/search.cpp
+             argument_parsing/shared.cpp
+             argument_parsing/top_level.cpp
+             consolidate/consolidate_matches.cpp
+             consolidate/merge_processes.cpp
+             prepare/compute_bin_size.cpp
+             split/write_seg_sequences.cpp
+             threshold/find.cpp
+             valik_build.cpp
+             valik_search.cpp
+)
+target_link_libraries ("${PROJECT_NAME}_lib" PUBLIC "raptor_threshold")
 
 # Valik executable
 add_executable ("${PROJECT_NAME}" valik_main.cpp)
