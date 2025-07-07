@@ -1,0 +1,99 @@
+# SPDX-FileCopyrightText: 2006-2025, Knut Reinert & Freie Universität Berlin
+# SPDX-FileCopyrightText: 2016-2025, Knut Reinert & MPI für molekulare Genetik
+# SPDX-License-Identifier: CC0-1.0
+
+name: Install
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: install-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'push' }}
+
+env:
+  SHARG_NO_VERSION_CHECK: 1
+  TZ: Europe/Berlin
+
+defaults:
+  run:
+    shell: bash -Eexuo pipefail {0}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: ${{ matrix.compiler }}
+    if: github.repository_owner == 'seqan' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: ["clang-latest", "gcc-latest"]
+    container:
+      image: ghcr.io/seqan/${{ matrix.compiler }}
+      options: --privileged
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: dream-stellar
+
+      - name: Remove ccache
+        run: apt-get purge --yes ccache
+
+      - name: Create source package
+        run: |
+          mkdir create_source_package && cd create_source_package
+          cmake ../dream-stellar -DCMAKE_BUILD_TYPE=Release \
+                                 -DDREAM_STELLAR_PACKAGE=ON \
+                                 -DDREAM_STELLAR_TEST=OFF
+          make package_source
+          mkdir ../source_package
+          tar xf dream-stellar-*.tar.xz -C ../source_package --strip-components=1
+
+      - name: Install from source package
+        run: |
+          mkdir build_from_source_package install && cd build_from_source_package
+          unshare -r -n cmake ../source_package -DCMAKE_BUILD_TYPE=Release \
+                                                -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/install \
+                                                -DDREAM_STELLAR_TEST=OFF
+          unshare -r -n make install
+
+      - name: Check installed executable
+        run: ${GITHUB_WORKSPACE}/install/bin/dream-stellar --help
+
+      # Clang builds with libc++, but GTest is built with libstdc++
+      - name: Install GTest
+        if: contains(matrix.compiler, 'gcc')
+        run: apt-get update && apt-get install --yes libgtest-dev
+
+      - name: Build tests
+        if: contains(matrix.compiler, 'gcc')
+        run: |
+          mkdir build && cd build
+          unshare -r -n  cmake ../source_package -DCMAKE_BUILD_TYPE=Release \
+                                                 -DCPM_USE_LOCAL_PACKAGES=ON \
+                                                 -DDREAM_STELLAR_TEST_BINARY_DIR=${GITHUB_WORKSPACE}/install/bin \
+                                                 -DDREAM_STELLAR_TEST=ON
+          unshare -r -n make -k
+          test -n $(find . -type f -executable -name "dream-stellar") # dream-stellar binary should exist
+          rm bin/dream-stellar
+          test -z $(find . -type f -executable -name "dream-stellar") # dream-stellar binary should not exist
+
+      - name: Run tests
+        if: contains(matrix.compiler, 'gcc')
+        working-directory: build
+        run: |
+          unshare -r -n ctest -j
+          test -z $(find . -type f -executable -name "dream-stellar") # dream-stellar binary should not exist
+
+      - name: Upload source package
+        if: contains(matrix.compiler, 'gcc')
+        uses: actions/upload-artifact@v4
+        with:
+          name: dream-stellar-source-package
+          path: create_source_package/dream-stellar-*.tar.xz*
+          retention-days: 1

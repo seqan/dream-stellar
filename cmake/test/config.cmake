@@ -12,7 +12,19 @@ enable_testing ()
 file (MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output)
 add_definitions (-DOUTPUTDIR=\"${CMAKE_CURRENT_BINARY_DIR}/output/\")
 add_definitions (-DDATADIR=\"${CMAKE_CURRENT_BINARY_DIR}/data/\")
-add_definitions (-DBINDIR=\"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\")
+
+if (DREAM_STELLAR_TEST_BINARY_DIR)
+    if (NOT EXISTS "${DREAM_STELLAR_TEST_BINARY_DIR}")
+        message (FATAL_ERROR "The directory \"${DREAM_STELLAR_TEST_BINARY_DIR}\" (DREAM_STELLAR_TEST_BINARY_DIR) does not exist.")
+    endif ()
+    if (NOT EXISTS "${DREAM_STELLAR_TEST_BINARY_DIR}/${PROJECT_NAME}")
+        message (FATAL_ERROR "Executable \"${PROJECT_NAME}\" not found in \"${DREAM_STELLAR_TEST_BINARY_DIR}\" (DREAM_STELLAR_TEST_BINARY_DIR)."
+        )
+    endif ()
+else ()
+    set (DREAM_STELLAR_TEST_BINARY_DIR "${CMAKE_BINARY_DIR}/bin")
+endif ()
+add_definitions (-DBINDIR=\"${DREAM_STELLAR_TEST_BINARY_DIR}/\")
 
 # Add the test interface library.
 if (NOT TARGET dream-stellar_test)

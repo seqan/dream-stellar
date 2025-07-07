@@ -77,6 +77,10 @@ target_link_libraries ("dream-stellar_lib" PUBLIC "raptor_threshold")
 add_executable ("dream-stellar" valik_main.cpp)
 target_link_libraries ("dream-stellar" PUBLIC "dream-stellar_lib")
 
+set_target_properties ("dream-stellar" PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+include (GNUInstallDirs)
+install (TARGETS "dream-stellar" RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
 if (NOT DEFINED ENV{CI})
     # Log git commit
     execute_process(COMMAND git rev-parse HEAD
@@ -87,7 +91,7 @@ if (NOT DEFINED ENV{CI})
 
     add_custom_command(TARGET "dream-stellar" POST_BUILD
         WORKING_DIRECTORY
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+            "${CMAKE_BINARY_DIR}/bin"
         COMMAND
             ${CMAKE_COMMAND} -E echo ${COMMIT_ID} > version.md
         COMMENT
