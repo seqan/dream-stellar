@@ -24,6 +24,15 @@ include (output_directories)
 # Add packages.
 # We use CPM for package management: https://github.com/cpm-cmake/CPM.cmake
 # The added packages (e.g., hibf, sharg, seqan3) are defined in the `cmake/package-lock.cmake` file.
+option (DREAM_STELLAR_PACKAGE "Enable packaging for dream-stellar." OFF)
+if (DREAM_STELLAR_PACKAGE)
+    set (CPM_SOURCE_CACHE "${CMAKE_CURRENT_BINARY_DIR}/vendor")
+    set (CPM_USE_LOCAL_PACKAGES OFF)
+    include (package)
+elseif (EXISTS "${CMAKE_CURRENT_LIST_DIR}/vendor")
+    set (CPM_SOURCE_CACHE "${CMAKE_CURRENT_LIST_DIR}/vendor")
+endif ()
+
 include (CPM)
 CPMUsePackageLock (${CMAKE_CURRENT_LIST_DIR}/cmake/package-lock.cmake)
 
@@ -40,13 +49,14 @@ CPMGetPackage (seqan3)
 add_subdirectory (src)
 
 # An option to disable configuring and building the tests. Tests are enabled if this is the main CMakeLists.txt.
-# It can be used when calling CMake: `cmake .. -Ddream-stellar_TEST=OFF`.
+# It can be used when calling CMake: `cmake .. -DDREAM_STELLAR_TEST=OFF`.
 # It is good practice to allow disabling tests. If another project includes your application,
 # it might not want to build your tests.
-option (${PROJECT_NAME}_TEST "Enable testing for ${PROJECT_NAME}." ${PROJECT_IS_TOP_LEVEL})
+option (DREAM_STELLAR_TEST "Enable testing for dream-stellar." ${PROJECT_IS_TOP_LEVEL})
 
-if (${PROJECT_NAME}_TEST)
+if (DREAM_STELLAR_TEST)
+    list (APPEND CMAKE_CTEST_ARGUMENTS "--output-on-failure;--no-tests=error") # Must be before `enable_testing ()`.
     enable_testing () # Makes ctest work in root build directory.
     # Add the tests. This will include `test/CMakeLists.txt`.
-    add_subdirectory (test EXCLUDE_FROM_ALL)
+    add_subdirectory (test)
 endif ()

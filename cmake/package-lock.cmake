@@ -8,13 +8,14 @@
 # cmake-format: off
 
 # seqan2
-set (DREAM_STELLAR_SEQAN2_VERSION seqan-v2.5.1 CACHE STRING "")
+set (DREAM_STELLAR_SEQAN2_VERSION 2.5.1 CACHE STRING "")
 CPMDeclarePackage (seqan2
                    NAME seqan2
                    VERSION ${DREAM_STELLAR_SEQAN2_VERSION}
-                   GIT_TAG ${DREAM_STELLAR_SEQAN2_VERSION}
+                   GIT_TAG seqan-v${DREAM_STELLAR_SEQAN2_VERSION}
                    GITHUB_REPOSITORY seqan/seqan
                    DOWNLOAD_ONLY TRUE
+                   QUIET TRUE
 )
 
 # seqan3
