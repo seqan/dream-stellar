@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 # SPDX-License-Identifier: CC0-1.0
 
-set (DATASOURCES_DATA_DIR "${${PROJECT_NAME}_SOURCE_DIR}/test/data")
+set (DATASOURCES_DATA_DIR "${dream-stellar_SOURCE_DIR}/test/data")
 
 file (GLOB_RECURSE datasources
       LIST_DIRECTORIES false

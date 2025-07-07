@@ -40,12 +40,12 @@ CPMGetPackage (seqan3)
 add_subdirectory (src)
 
 # An option to disable configuring and building the tests. Tests are enabled if this is the main CMakeLists.txt.
-# It can be used when calling CMake: `cmake .. -Ddream-stellar_TEST=OFF`.
+# It can be used when calling CMake: `cmake .. -DDREAM_STELLAR_TEST=OFF`.
 # It is good practice to allow disabling tests. If another project includes your application,
 # it might not want to build your tests.
-option (${PROJECT_NAME}_TEST "Enable testing for ${PROJECT_NAME}." ${PROJECT_IS_TOP_LEVEL})
+option (DREAM_STELLAR_TEST "Enable testing for dream-stellar." ${PROJECT_IS_TOP_LEVEL})
 
-if (${PROJECT_NAME}_TEST)
+if (DREAM_STELLAR_TEST)
     enable_testing () # Makes ctest work in root build directory.
     # Add the tests. This will include `test/CMakeLists.txt`.
     add_subdirectory (test EXCLUDE_FROM_ALL)

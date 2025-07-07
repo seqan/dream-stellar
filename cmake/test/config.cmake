@@ -15,39 +15,39 @@ add_definitions (-DDATADIR=\"${CMAKE_CURRENT_BINARY_DIR}/data/\")
 add_definitions (-DBINDIR=\"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\")
 
 # Add the test interface library.
-if (NOT TARGET ${PROJECT_NAME}_test)
-    add_library (${PROJECT_NAME}_test INTERFACE)
-    target_link_libraries (${PROJECT_NAME}_test INTERFACE GTest::gtest_main ${PROJECT_NAME}_lib)
-    add_library (${PROJECT_NAME}::test ALIAS ${PROJECT_NAME}_test)
+if (NOT TARGET dream-stellar_test)
+    add_library (dream-stellar_test INTERFACE)
+    target_link_libraries (dream-stellar_test INTERFACE GTest::gtest_main dream-stellar_lib)
+    add_library (dream-stellar::test ALIAS dream-stellar_test)
     
     # !Workaround: Get seqan3 test include dir from seqan3 target
     find_path (SEQAN3_TEST_INCLUDE_DIR
                NAMES seqan3/test/tmp_directory.hpp
                HINTS "${seqan3_SOURCE_DIR}/test/include"
     )
-    target_include_directories (${PROJECT_NAME}_test SYSTEM INTERFACE "${SEQAN3_TEST_INCLUDE_DIR}")
+    target_include_directories (dream-stellar_test SYSTEM INTERFACE "${SEQAN3_TEST_INCLUDE_DIR}")
 endif ()
 
 # Add the check target that builds and runs tests.
 add_custom_target (check COMMAND ${CMAKE_CTEST_COMMAND} ${CMAKE_CTEST_ARGUMENTS})
 
-get_directory_property (${PROJECT_NAME}_targets DIRECTORY "${${PROJECT_NAME}_SOURCE_DIR}/src" BUILDSYSTEM_TARGETS)
-foreach (target IN LISTS ${PROJECT_NAME}_targets)
+get_directory_property (dream-stellar_targets DIRECTORY "${dream-stellar_SOURCE_DIR}/src" BUILDSYSTEM_TARGETS)
+foreach (target IN LISTS dream-stellar_targets)
     get_target_property (type ${target} TYPE)
     if (type STREQUAL "EXECUTABLE")
-        list (APPEND ${PROJECT_NAME}_EXECUTABLE_LIST ${target})
+        list (APPEND dream-stellar_EXECUTABLE_LIST ${target})
     endif ()
 endforeach ()
-unset (${PROJECT_NAME}_targets)
+unset (dream-stellar_targets)
 
 macro (add_app_test test_filename)
-    file (RELATIVE_PATH source_file "${${PROJECT_NAME}_SOURCE_DIR}" "${CMAKE_CURRENT_LIST_DIR}/${test_filename}")
+    file (RELATIVE_PATH source_file "${dream-stellar_SOURCE_DIR}" "${CMAKE_CURRENT_LIST_DIR}/${test_filename}")
     get_filename_component (target "${source_file}" NAME_WE)
 
     add_executable (${target} ${test_filename})
-    target_link_libraries (${target} ${PROJECT_NAME}::test)
+    target_link_libraries (${target} dream-stellar::test)
 
-    add_dependencies (${target} ${${PROJECT_NAME}_EXECUTABLE_LIST})
+    add_dependencies (${target} ${dream-stellar_EXECUTABLE_LIST})
     add_dependencies (check ${target})
 
     add_test (NAME ${target} COMMAND ${target})
