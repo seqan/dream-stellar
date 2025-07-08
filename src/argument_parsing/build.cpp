@@ -116,7 +116,7 @@ void init_build_parser(sharg::parser & parser, build_arguments & arguments)
                                     .long_id = "kmer-count-min",
                                     .description = "Only store k-mers with at least (>=) x occurrences. "
                                                    "Mutually exclusive with --use-filesize-dependent-cutoff.",
-                                    .validator = sharg::arithmetic_range_validator{0, 254}});
+                                    .validator = sharg::arithmetic_range_validator{1, 254}});
     parser.add_option(arguments.kmer_count_max_cutoff,
                       sharg::config{.short_id = '\0',
                                     .long_id = "kmer-count-max",
@@ -224,6 +224,8 @@ void run_build(sharg::parser & parser)
         std::cout << "database size " << meta.total_len << "bp\n";
         std::cout << "segment count " << meta.seg_count << '\n';
         std::cout << "segment len " << std::to_string((uint64_t) std::round(meta.total_len / (double) meta.seg_count)) << "bp\n";
+        std::cout << "\n-----------Reference segments-----------\n";
+        std::cout << meta.to_string();
     }
 
 
@@ -278,6 +280,15 @@ void run_build(sharg::parser & parser)
         }
         else
             arguments.window_size = arguments.kmer_size;
+    }
+
+    if (parser.is_option_set("kmer-count-min") ||
+        parser.is_option_set("kmer-count-max"))
+    {
+        if (arguments.kmer_count_min_cutoff > arguments.kmer_count_max_cutoff)
+            throw sharg::parser_error{"Set --kmer-count-min <= --kmer-count-max."};
+        if (!arguments.input_is_minimiser)
+            seqan3::debug_stream << "[Warning] Arguments --kmer-count-min and --kmer-count-max are only compatible with minimisers (add --fast).\n";
     }
 
     if (arguments.kmer_size > arguments.window_size)
