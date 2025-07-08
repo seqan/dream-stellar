@@ -94,7 +94,7 @@ TEST_F(split_options, split_various_length)
 
     try
     {
-        for (uint32_t b : std::vector<uint32_t>{4, 16})
+        for (uint32_t b : std::vector<uint32_t>{5, 16})
         {
             arguments.seg_count = b;
             auto expected_segments = valik::metadata(segment_metadata_path(arguments.pattern_size, arguments.seg_count));
@@ -119,18 +119,23 @@ TEST_F(split_options, split_few_long)
     arguments.manual_parameters = true;
     arguments.pattern_size = 20;
     arguments.bin_path.emplace_back(data("various_chromosome_lengths.fasta"));
+    const uint8_t record_count{5};
 
     try
     {
-        for (uint32_t b : std::vector<uint32_t>{4, 12, 19})
+        for (uint32_t b : std::vector<uint32_t>{5, 12, 19})
         {
             arguments.seg_count = b;
             valik::metadata meta(arguments);
-
-            if (arguments.seg_count > meta.seq_count) // one-to-many pairing of sequences and segments
+            std::unordered_set<size_t> sequenes_ids{};
+            for (auto & seg : meta.segments)
             {
-                EXPECT_GE(0.2f, meta.segment_length_cv());  // create segments of roughly equal length
+                for (auto & seq_id : seg.seq_vec)
+                {
+                    sequenes_ids.insert(seq_id);
+                }
             }
+            EXPECT_EQ(sequenes_ids.size(), record_count); // all sequences should be used
         }
     }
     catch( const std::runtime_error& e )
