@@ -288,25 +288,32 @@ void local_prefilter(
         minimiser.clear();
 
         std::unordered_set<size_t> sequence_hits{};
-        pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, [&](size_t const begin)
+        uint8_t threshold_correction{0};
+        auto find_bins_for_begin = [&](size_t const begin)
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
-            find_pattern_bins(pattern, bin_count, counting_table, sequence_hits);
-            
-            if (!arguments.static_threshold)
+            if ((pattern.threshold + threshold_correction) > pattern.minimiser_count())
+                return;
+            else
+                find_pattern_bins(pattern, bin_count, counting_table, sequence_hits, threshold_correction);
+            std::cerr << ". Correcting " << std::to_string(threshold_correction + pattern.threshold) << " threshold " << std::to_string(pattern.threshold) << " for pattern starting at" << std::to_string(begin) << ". Hit count:" << std::to_string(sequence_hits.size()) << '\n';
+        };
+
+        pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
+
+        if (!arguments.static_threshold)
+        {
+            threshold_correction = 1u;
+            while ((sequence_hits.size() > std::max<size_t>(4, std::round(bin_count / 4.0))))
             {
-                uint8_t threshold_correction{1};
-                while ((sequence_hits.size() > std::max<size_t>(4, std::round(bin_count / 4.0))) &&
-                       (pattern.threshold + threshold_correction) < pattern.minimiser_count())
-                {
-                    std::cerr << "Query " << record.sequence_id << ". Correcting " << std::to_string(threshold_correction + pattern.threshold) << " threshold " << std::to_string(pattern.threshold) << " for pattern starting at" << std::to_string(begin) << ". Hit count:" << std::to_string(sequence_hits.size()) << '\n';
-                    sequence_hits.clear();
-                    find_pattern_bins(pattern, bin_count, counting_table, sequence_hits, threshold_correction);
-                    std::cerr << "New hit count: " << std::to_string(sequence_hits.size()) << '\n';
-                    threshold_correction++;
-                }
+                std::cerr << "Query " << record.sequence_id;
+                sequence_hits.clear();
+                pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
+                std::cerr << "New hit count: " << std::to_string(sequence_hits.size()) << '\n';
+                threshold_correction++;
             }
-        });
+        }
+
         std::cerr << "Final hit count for query " << record.sequence_id << ": " << std::to_string(sequence_hits.size()) << '\n';
 
         result_cb(record, sequence_hits);
