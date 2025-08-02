@@ -30,7 +30,7 @@ CPMDeclarePackage (seqan3
 )
 
 # sharg
-set (DREAM_STELLAR_SHARG_VERSION be113bcffe49c0d62cbd65a191820f05386aa8da CACHE STRING "")
+set (DREAM_STELLAR_SHARG_VERSION cb13c0ccb2f682dede3f74e399ae52a6a1c2d15e CACHE STRING "")
 CPMDeclarePackage (sharg
                    NAME sharg
                    GIT_TAG ${DREAM_STELLAR_SHARG_VERSION} # main
