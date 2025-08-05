@@ -29,14 +29,15 @@ namespace valik
  * @param callback Functor that calls make_pattern_bounds and find_pattern_bins on each begin position.
  */
 template <typename functor_t>
-constexpr void pattern_begin_positions(size_t const read_len, uint64_t const pattern_size, uint8_t const query_every, functor_t && callback)
+constexpr bool pattern_begin_positions(size_t const read_len, uint64_t const pattern_size, uint8_t const query_every, functor_t && callback)
 {
     assert(read_len >= pattern_size);
 
     size_t last_begin{0u};
+    bool max_threshold{false};
     for (size_t pos = 0; pos <= read_len - pattern_size; pos = pos + query_every)
     {
-        callback(pos);
+        max_threshold = callback(pos);
         last_begin = pos;
     }
 
@@ -45,6 +46,8 @@ constexpr void pattern_begin_positions(size_t const read_len, uint64_t const pat
         // last pattern might have a smaller overlap to make sure the end of the record is covered
         callback(read_len - pattern_size);
     }
+
+    return max_threshold;
 }
 
 /**
@@ -206,13 +209,16 @@ void local_prefilter(
 
         std::unordered_set<size_t> sequence_hits{};
         uint8_t threshold_correction{0};
-        auto find_bins_for_begin = [&](size_t const begin)
+        auto find_bins_for_begin = [&](size_t const begin) -> bool
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
-            if ((pattern.threshold + threshold_correction) > pattern.minimiser_count())
-                return;
+            if ((pattern.threshold + threshold_correction) >= pattern.minimiser_count())
+                return true;
             else
+            {
                 find_pattern_bins(pattern, bin_count, counting_table, sequence_hits, threshold_correction);
+                return false;
+            }
         };
 
         pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
@@ -220,10 +226,12 @@ void local_prefilter(
         if (!arguments.static_threshold)
         {
             threshold_correction = 1u;
-            while ((sequence_hits.size() > std::max<size_t>(4, std::round(bin_count / 4.0))))
+            while (sequence_hits.size() > std::max<size_t>(4, std::round(bin_count * arguments.best_bin_cutoff)))
             {
                 sequence_hits.clear();
-                pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
+                bool max_threshold = pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
+                if (max_threshold)
+                    break;
                 threshold_correction++;
             }
         }
