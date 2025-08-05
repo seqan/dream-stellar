@@ -46,7 +46,7 @@ inline void prefilter_queries_parallel(index_t const & index,
         std::span<query_t const> records_slice{records.data() + start, extent};
 
         auto prefilter_cb = [&queue,&arguments,&verbose_out,&index](query_t const & record, 
-                                                                  std::unordered_set<size_t> const & bin_hits)
+                                                                    std::unordered_set<size_t> const & bin_hits)
         {
             auto & ibf = index.ibf();
             if (bin_hits.size() > std::max((size_t) 4, (size_t) std::round(ibf.bin_count() / 2.0)))
@@ -74,6 +74,7 @@ inline void prefilter_queries_parallel(index_t const & index,
                 }
                 else if (arguments.best_bin_entropy_cutoff == 1.0)
                 {
+                    //seqan3::debug_stream << "bin_hits.size()\t" << bin_hits.size() << '\n';
                     for (auto & bin : bin_hits)
                     {
                         queue.insert(bin, record);

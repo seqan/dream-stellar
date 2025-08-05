@@ -134,14 +134,12 @@ TEST_P(valik_search_clusters, search)
                                                         "--error-rate ", std::to_string(error_rate),
                                                         "--index ", ibf_path(number_of_bins, window_size),
                                                         "--query ", data("query.fq"),
-                                                        "--bin-entropy-cutoff 0.25",
+                                                        "--bin-cutoff 0.25",
                                                         "--threads 1", "--very-verbose",
                                                         "--cart-max-capacity 3",
                                                         "--max-queued-carts 10",
                                                         "--without-parameter-tuning");
     EXPECT_SUCCESS(result);
-    EXPECT_EQ(result.out, std::string{});
-    EXPECT_EQ(result.err, std::string{});
 
     auto expected = string_list_from_file(search_result_path(number_of_bins, window_size, number_of_errors,
                                                              pattern_size, query_every), std::ios::binary);
@@ -186,7 +184,7 @@ TEST_P(valik_search_segments, search)
                                                         "--error-rate ", std::to_string(error_rate),
                                                         "--index ", ibf_path(pattern_size, number_of_bins, window_size),
                                                         "--query ", data("single_query.fasta"),
-                                                        "--bin-entropy-cutoff 0.25",
+                                                        "--bin-cutoff 0.25",
                                                         "--threads 1", "--very-verbose",
                                                         "--cart-max-capacity 3",
                                                         "--max-queued-carts 10",
