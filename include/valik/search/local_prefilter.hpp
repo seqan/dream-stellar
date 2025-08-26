@@ -9,6 +9,7 @@
 
 #include <valik/search/query_record.hpp>
 #include <valik/shared.hpp> // search_arguments
+#include <valik/search/compat.hpp>
 
 namespace valik
 {
@@ -167,7 +168,13 @@ void local_prefilter(
 
         // basically: minimiser = seq | minimiser_hash_adaptor | seqan3::views::to<decltype(minimiser)>;
         {
-            auto const minimiser_hash = minimiser_hash_adaptor(seq);
+            auto const minimiser_hash = [&]()
+                                        {
+                                            if constexpr (std::same_as<query_t, valik::query_record>)
+                                                return minimiser_hash_adaptor(seq); 
+                                            else
+                                                return minimiser_hash_adaptor(record.querySegment);
+                                        }();
             auto it = minimiser_hash.begin();
             auto const sentinel = minimiser_hash.end();
             auto const hash_begin = it.base();
