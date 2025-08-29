@@ -39,7 +39,7 @@ public:
     void write_warning(t && query_record, size_t const & bin_count)
     {
         std::lock_guard<std::mutex> lock(write_mutex);
-        warning_message(bin_count, query_record.sequence.size());
+        warning_message(bin_count, query_record.size());
     }
     // outfile gets unlocked as soon as the current thread exits the write function
 
@@ -48,7 +48,7 @@ public:
     { 
         std::lock_guard<std::mutex> lock(write_mutex);
         if (verbose)
-            warning_message(bin_count, query_record.sequence.size());        
+            warning_message(bin_count, query_record.size());        
         sequence_record_type output_record{query_record.sequence, query_record.sequence_id};
         //!TODO: this causes memory error
         // fout.push_back(output_record); 
