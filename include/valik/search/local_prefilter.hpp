@@ -9,6 +9,7 @@
 
 #include <valik/search/query_record.hpp>
 #include <valik/shared.hpp> // search_arguments
+#include <valik/search/compat.hpp>
 
 namespace valik
 {
@@ -159,15 +160,19 @@ void local_prefilter(
 
     for (query_t const & record : records)
     {
-        std::vector<seqan3::dna4> const & seq = record.sequence;
-
         // sequence can't contain local match if it's shorter than pattern length
-        if (seq.size() < arguments.pattern_size)
+        if (record.size() < arguments.pattern_size)
             continue;
 
         // basically: minimiser = seq | minimiser_hash_adaptor | seqan3::views::to<decltype(minimiser)>;
         {
-            auto const minimiser_hash = minimiser_hash_adaptor(seq);
+            auto const minimiser_hash = [&]()
+                                        {
+                                            if constexpr (std::same_as<query_t, valik::query_record>)
+                                                return minimiser_hash_adaptor(record.sequence); 
+                                            else
+                                                return minimiser_hash_adaptor(record.querySegment);
+                                        }();
             auto it = minimiser_hash.begin();
             auto const sentinel = minimiser_hash.end();
             auto const hash_begin = it.base();
@@ -199,7 +204,7 @@ void local_prefilter(
         minimiser.clear();
 
         std::unordered_set<size_t> sequence_hits{};
-        pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, [&](size_t const begin)
+        pattern_begin_positions(record.size(), arguments.pattern_size, arguments.query_every, [&](size_t const begin)
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
             find_pattern_bins(pattern, bin_count, counting_table, sequence_hits);
