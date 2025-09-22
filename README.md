@@ -1,4 +1,4 @@
-# DREAM-Stellar [![build status][1]][2] [![codecov][3]][4]
+# DREAM-Stellar [![install with bioconda][1]][2] [![build status][3]][4] [![codecov][5]][6]
 <!--
     Above uses reference-style links with numbers.
     See also https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links.
@@ -16,6 +16,8 @@
     The picture, or alternative text, should link to `[2]`.
 -->
 
+[1]: https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat "Install with bioconda"
+[2]: #install-with-bioconda-linux
 <!--
     This is the CI badge image:
         `https://img.shields.io/github/workflow/status/` - we do not use GitHub's badges as they are not customisable.
@@ -26,13 +28,13 @@
         `&label=dream-stellar%20CI` - text on the badge
         `"Open GitHub actions page"` - this text will be shown on hover
 -->
-[1]: https://img.shields.io/github/actions/workflow/status/seqan/dream-stellar/ci_linux.yml?branch=main&style=flat&logo=github&label=DREAM-Stellar%20CI "Open GitHub actions page"
+[3]: https://img.shields.io/github/actions/workflow/status/seqan/dream-stellar/ci_linux.yml?branch=main&style=flat&logo=github&label=DREAM-Stellar%20CI "Open GitHub actions page"
 <!--
     This is the CI badge link:
         `https://github.com/seqan/dream-stellar/actions` - actions page of owner/repository
         `?query=branch%3Amain` - only show actions that ran on the mater branch
 -->
-[2]: https://github.com/seqan/dream-stellar/actions?query=branch%3Amain
+[4]: https://github.com/seqan/dream-stellar/actions?query=branch%3Amain
 <!--
     This is the Codecov badge image:
         Codecov offers badges: https://app.codecov.io/gh/seqan/dream-stellar/settings/badge
@@ -40,14 +42,14 @@
         Copy the image part of the markdown badge here.
     `"Open Codecov page"` - this text will be shown on hover
 -->
-[3]: https://codecov.io/gh/seqan/dream-stellar/branch/main/graph/badge.svg "Open Codecov page"
+[5]: https://codecov.io/gh/seqan/dream-stellar/branch/main/graph/badge.svg "Open Codecov page"
 <!--
     This is the Codecov badge link:
         Codecov offers badges: https://app.codecov.io/gh/seqan/dream-stellar/settings/badge
         While being logged in into Codecov, navigate to Settings->Badge and copy the markdown badge.
         Copy the URL part of the markdown badge here.
 -->
-[4]: https://codecov.io/gh/seqan/dream-stellar
+[6]: https://codecov.io/gh/seqan/dream-stellar
 
 ## Getting started 
 Find the set of local alignments between sets of reference and query sequences.
@@ -65,6 +67,13 @@ dream-stellar search --help
 
 ## Download and Installation
 
+### Install with [bioconda](http://bioconda.github.io/recipes/dream-stellar/README.html) (Linux)
+
+```bash
+conda install -c bioconda -c conda-forge dream-stellar
+```
+
+### Download and compile from source
 <details><summary>Prerequisites (click to expand)</summary>
 
 * CMake >= 3.25
