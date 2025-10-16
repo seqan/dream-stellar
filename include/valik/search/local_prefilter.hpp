@@ -212,7 +212,8 @@ void local_prefilter(
         auto find_bins_for_begin = [&](size_t const begin) -> bool
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
-            if ((pattern.threshold + threshold_correction) >= pattern.minimiser_count())
+            //seqan3::debug_stream << "pattern.minimiser_count()\t" << pattern.minimiser_count() << '\n';
+            if ((pattern.threshold + threshold_correction) > pattern.minimiser_count())
                 return true;
             else
             {
@@ -225,6 +226,7 @@ void local_prefilter(
 
         if (!arguments.static_threshold)
         {
+            seqan3::debug_stream << "sequence_hits.size()\t" << sequence_hits.size() << '\n';
             threshold_correction = 1u;
             while (sequence_hits.size() > std::max<size_t>(4, std::round(bin_count * arguments.best_bin_cutoff)))
             {
