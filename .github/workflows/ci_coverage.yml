@@ -35,7 +35,7 @@ jobs:
       image: ghcr.io/seqan/${{ matrix.compiler }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup cache
         uses: seqan/actions/setup-actions-cache@main
@@ -78,7 +78,7 @@ jobs:
 
       # https://docs.codecov.com/docs/adding-the-codecov-token
       - name: Submit coverage build
-        uses: codecov/codecov-action@v5.4.3
+        uses: codecov/codecov-action@v5.5.1
         with:
           disable_search: true
           fail_ci_if_error: false
