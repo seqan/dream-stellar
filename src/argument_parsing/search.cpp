@@ -91,6 +91,13 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                                      "Increase this value to search more of the reference. ",
                       .advanced = true,
                       .validator = sharg::arithmetic_range_validator{0.0, 1.0}});
+    parser.add_option(arguments.best_bin_cutoff,
+                      sharg::config{.short_id = '\0',
+                      .long_id = "bin-cutoff",
+                      .description = "For queries with abundant matches, adapt the threshold to find best matching bins. "
+                                     "Increase this value to search more of the reference. ",
+                      .advanced = true,
+                      .validator = sharg::arithmetic_range_validator{0.0, 1.0}});
     parser.add_option(arguments.seg_count_in,
                       sharg::config{.short_id = 'n',
                       .long_id = "seg-count",
@@ -324,7 +331,7 @@ void run_search(sharg::parser & parser)
             {
                 arguments.search_type = search_kind::LEMMA;
                 if (arguments.threshold < lemma_thresh)
-                    std::cerr << "[Warning] chosen threshold is less than the k-mer lemma threshold. Ignore this warning if this was deliberate.";
+                    std::cerr << "[Warning] The chosen threshold is less than the k-mer lemma threshold. Ignore this warning if this was deliberate.";
             }
         }
         if (arguments.stellar_only)

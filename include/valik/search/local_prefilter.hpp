@@ -14,6 +14,7 @@
 namespace valik
 {
 
+
 /**
  * @brief Function that finds the begin positions of all pattern of a query.
  *
@@ -29,15 +30,16 @@ namespace valik
  * @param callback Functor that calls make_pattern_bounds and find_pattern_bins on each begin position.
  */
 template <typename functor_t>
-constexpr void pattern_begin_positions(size_t const read_len, uint64_t const pattern_size, uint8_t const query_every, functor_t && callback)
+constexpr bool pattern_begin_positions(size_t const read_len, uint64_t const pattern_size, uint8_t const query_every, functor_t && callback)
 {
     assert(read_len >= pattern_size);
 
     size_t last_begin{0u};
-    for (size_t i = 0; i <= read_len - pattern_size; i = i + query_every)
+    bool max_threshold{false};
+    for (size_t pos = 0; pos <= read_len - pattern_size; pos = pos + query_every)
     {
-        callback(i);
-        last_begin = i;
+        max_threshold = callback(pos);
+        last_begin = pos;
     }
 
     if (last_begin < read_len - pattern_size)
@@ -45,6 +47,8 @@ constexpr void pattern_begin_positions(size_t const read_len, uint64_t const pat
         // last pattern might have a smaller overlap to make sure the end of the record is covered
         callback(read_len - pattern_size);
     }
+
+    return max_threshold;
 }
 
 /**
@@ -55,6 +59,11 @@ struct pattern_bounds
     size_t begin_position;
     size_t end_position;
     size_t threshold;
+
+    size_t minimiser_count() const
+    {
+        return end_position - begin_position;
+    }
 };
 
 /**
@@ -90,9 +99,7 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
     assert(end_it != window_span_begin.begin());
     pattern.end_position = end_it - window_span_begin.begin();
 
-    size_t const minimiser_count = pattern.end_position - pattern.begin_position;
-
-    pattern.threshold = thresholder.get(minimiser_count);
+    pattern.threshold = thresholder.get(pattern.minimiser_count());
     return pattern;
 }
 
@@ -100,25 +107,27 @@ pattern_bounds make_pattern_bounds(size_t const & begin,
  * @brief Function that for a single pattern counts matching k-mers and returns bins that exceed the threshold.
  *
  * @param pattern Slice of a query record that is being considered.
+ * @param correction Threshold correction determined from a sample of patterns.
  * @param bin_count Number of bins in the IBF.
  * @param counting_table Rows: minimisers of the query. Columns: bins of the IBF.
  * @param sequence_hits Bins that likely contain a match for the pattern (IN-OUT parameter).
  */
 template <typename binning_bitvector_t>
 void find_pattern_bins(pattern_bounds const & pattern,
-                        size_t const & bin_count,
-                        binning_bitvector_t const & counting_table,
-                        std::unordered_set<size_t> & sequence_hits)
+                       size_t const bin_count,
+                       binning_bitvector_t const & counting_table,
+                       std::unordered_set<size_t> & sequence_hits,
+                       uint8_t const correction = 0)
 {
     // counting vector for the current pattern
     seqan3::counting_vector<uint8_t> total_counts(bin_count, 0);
 
     for (size_t i = pattern.begin_position; i < pattern.end_position; i++)
         total_counts += counting_table[i];
+
     for (size_t current_bin = 0; current_bin < total_counts.size(); current_bin++)
     {
-        auto &&count = total_counts[current_bin];
-        if (count >= pattern.threshold)
+        if (total_counts[current_bin] >= (pattern.threshold + correction))
         {
             // the result is a union of results from all patterns of a read
             sequence_hits.insert(current_bin);
@@ -204,11 +213,30 @@ void local_prefilter(
         minimiser.clear();
 
         std::unordered_set<size_t> sequence_hits{};
-        pattern_begin_positions(record.size(), arguments.pattern_size, arguments.query_every, [&](size_t const begin)
+        uint8_t threshold_correction{0};
+        auto find_bins_for_begin = [&](size_t const begin) -> bool
         {
             pattern_bounds const pattern = make_pattern_bounds(begin, arguments, window_span_begin, thresholder);
-            find_pattern_bins(pattern, bin_count, counting_table, sequence_hits);
-        });
+            //seqan3::debug_stream << "pattern.minimiser_count()\t" << pattern.minimiser_count() << '\n';
+            if ((pattern.threshold + threshold_correction) > pattern.minimiser_count())
+                return true;
+            else
+            {
+                find_pattern_bins(pattern, bin_count, counting_table, sequence_hits, threshold_correction);
+                return false;
+            }
+        };
+
+        pattern_begin_positions(record.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
+
+        while (sequence_hits.size() > std::max<size_t>(1, std::round(bin_count * arguments.best_bin_cutoff)))
+        {
+            threshold_correction++;
+            sequence_hits.clear();
+            bool max_threshold = pattern_begin_positions(record.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
+            if (max_threshold)
+                break;
+        }
 
         result_cb(record, sequence_hits);
     }

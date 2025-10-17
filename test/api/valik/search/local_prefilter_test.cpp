@@ -24,9 +24,10 @@ TEST_F(pattern_begin_positions, read_length_and_pattern_size_are_equal)
     std::vector<size_t> begin_positions{};
     std::vector<size_t> expected{0u}; // pattern interval [0, 150]
 
-    valik::pattern_begin_positions(read_len, pattern_size, query_every, [&](size_t const begin)
+    valik::pattern_begin_positions(read_len, pattern_size, query_every, [&](size_t const begin) -> bool
     {
         begin_positions.push_back(begin);
+        return false;
     });
 
     EXPECT_EQ(begin_positions, expected); // seen all positions
@@ -50,9 +51,10 @@ TEST_F(pattern_begin_positions, overlaps_are_evenly)
         100u // ends here, because read_len - pattern_size = 100u
     };
 
-    valik::pattern_begin_positions(read_len, pattern_size, query_every, [&](size_t const begin)
+    valik::pattern_begin_positions(read_len, pattern_size, query_every, [&](size_t const begin) -> bool
     {
         begin_positions.push_back(begin);
+        return false;
     });
 
     EXPECT_EQ(begin_positions, expected); // seen all positions
@@ -75,9 +77,10 @@ TEST_F(pattern_begin_positions, extra_overlap)
         100u // ends here, because read_len - pattern_size = 110u
     };
 
-    valik::pattern_begin_positions(read_len, pattern_size, query_every, [&](size_t const begin)
+    valik::pattern_begin_positions(read_len, pattern_size, query_every, [&](size_t const begin) -> bool
     {
         begin_positions.push_back(begin);
+        return false;
     });
 
     EXPECT_EQ(begin_positions, expected); // seen all positions

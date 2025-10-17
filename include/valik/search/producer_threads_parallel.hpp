@@ -46,10 +46,12 @@ inline void prefilter_queries_parallel(index_t const & index,
         std::span<query_t const> records_slice{records.data() + start, extent};
 
         auto prefilter_cb = [&queue,&arguments,&verbose_out,&index](query_t const & record, 
-                                                                  std::unordered_set<size_t> const & bin_hits)
+                                                                    std::unordered_set<size_t> const & bin_hits)
         {
             auto & ibf = index.ibf();
-            if (bin_hits.size() > std::max((size_t) 4, (size_t) std::round(ibf.bin_count() / 2.0)))
+            auto max_bin_hits = std::max((size_t) 1, (size_t) std::round(ibf.bin_count() * arguments.best_bin_entropy_cutoff));
+
+            if (bin_hits.size() > max_bin_hits)
             {
                 if (arguments.verbose)
                     verbose_out.write_warning(record, bin_hits.size());
@@ -61,22 +63,16 @@ inline void prefilter_queries_parallel(index_t const & index,
                 {
                     auto const & entropy_ranking = index.entropy_ranking();
                     size_t inserted_bins{0};
-                    for (size_t bin : entropy_ranking)
+                    size_t i{0};
+                    while (inserted_bins < max_bin_hits)
                     {
+                        size_t bin = entropy_ranking[i];
                         if (bin_hits.count(bin) > 0)
                         {
                             queue.insert(bin, record);
                             inserted_bins++;
                         }
-                        if (inserted_bins >= std::max((size_t) 4, (size_t) std::round(ibf.bin_count() * arguments.best_bin_entropy_cutoff)))
-                            return;
-                    }
-                }
-                else if (arguments.best_bin_entropy_cutoff == 1.0)
-                {
-                    for (auto & bin : bin_hits)
-                    {
-                        queue.insert(bin, record);
+                        i++;
                     }
                 }
 
