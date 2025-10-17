@@ -227,13 +227,13 @@ void local_prefilter(
             }
         };
 
-        pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
+        pattern_begin_positions(record.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
 
         while (sequence_hits.size() > std::max<size_t>(1, std::round(bin_count * arguments.best_bin_cutoff)))
         {
             threshold_correction++;
             sequence_hits.clear();
-            bool max_threshold = pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
+            bool max_threshold = pattern_begin_positions(record.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
             if (max_threshold)
                 break;
         }
