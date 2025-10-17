@@ -128,6 +128,7 @@ TEST_P(valik_search_clusters, search)
         GTEST_SKIP() << "Needs dynamic threshold correction";
 
     app_test_result const result = execute_app("dream-stellar", "search",
+                                                        "--distribute",
                                                         "--output search.gff",
                                                         "--pattern", std::to_string(pattern_size),
                                                         "--query-every", std::to_string(query_every),
@@ -184,7 +185,7 @@ TEST_P(valik_search_segments, search)
                                                         "--error-rate ", std::to_string(error_rate),
                                                         "--index ", ibf_path(pattern_size, number_of_bins, window_size),
                                                         "--query ", data("single_query.fasta"),
-                                                        "--bin-cutoff 0.25",
+                                                        "--bin-cutoff 0.5",
                                                         "--threads 1", "--very-verbose",
                                                         "--cart-max-capacity 3",
                                                         "--max-queued-carts 10",

@@ -226,9 +226,8 @@ void local_prefilter(
 
         if (!arguments.static_threshold)
         {
-            seqan3::debug_stream << "sequence_hits.size()\t" << sequence_hits.size() << '\n';
             threshold_correction = 1u;
-            while (sequence_hits.size() > std::max<size_t>(4, std::round(bin_count * arguments.best_bin_cutoff)))
+            while (sequence_hits.size() > std::max<size_t>(1, std::round(bin_count * arguments.best_bin_cutoff)))
             {
                 sequence_hits.clear();
                 bool max_threshold = pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);

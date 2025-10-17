@@ -34,8 +34,7 @@ do
         search_out="single/"$pattern"overlap"$b"bins"$w"window"$errors"errors.gff"
         error_rate=$(echo $errors/$pattern| bc -l )
         dream-stellar search --distribute --index "$index" --query "$query" --output "$search_out" --error-rate "$error_rate" \
-                     --query-every 1 --threads 1 --very-verbose --cart-max-capacity 3 --max-queued-carts 10
-        
+                     --query-every 1 --threads 1 --very-verbose --cart-max-capacity 3 --max-queued-carts 10 --bin-cutoff 0.5
         mkdir -p $VALIK_TMP
 
     rm "$search_out"    # only look at .gff.out

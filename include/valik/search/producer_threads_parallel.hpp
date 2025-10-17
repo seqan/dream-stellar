@@ -49,7 +49,8 @@ inline void prefilter_queries_parallel(index_t const & index,
                                                                     std::unordered_set<size_t> const & bin_hits)
         {
             auto & ibf = index.ibf();
-            if (bin_hits.size() > std::max((size_t) 4, (size_t) std::round(ibf.bin_count() / 2.0)))
+            size_t const max_bin_hits = 
+            if (bin_hits.size() > std::max((size_t) 1, (size_t) std::round(ibf.bin_count() / 2.0)))
             {
                 if (arguments.verbose)
                     verbose_out.write_warning(record, bin_hits.size());
@@ -68,7 +69,7 @@ inline void prefilter_queries_parallel(index_t const & index,
                             queue.insert(bin, record);
                             inserted_bins++;
                         }
-                        if (inserted_bins >= std::max((size_t) 4, (size_t) std::round(ibf.bin_count() * arguments.best_bin_entropy_cutoff)))
+                        if (inserted_bins >= std::max((size_t) 1, (size_t) std::round(ibf.bin_count() * arguments.best_bin_entropy_cutoff)))
                             return;
                     }
                 }
