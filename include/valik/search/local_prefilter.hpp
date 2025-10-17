@@ -224,17 +224,13 @@ void local_prefilter(
 
         pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
 
-        if (!arguments.static_threshold)
+        while (sequence_hits.size() > std::max<size_t>(1, std::round(bin_count * arguments.best_bin_cutoff)))
         {
-            threshold_correction = 1u;
-            while (sequence_hits.size() > std::max<size_t>(1, std::round(bin_count * arguments.best_bin_cutoff)))
-            {
-                sequence_hits.clear();
-                bool max_threshold = pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
-                if (max_threshold)
-                    break;
-                threshold_correction++;
-            }
+            threshold_correction++;
+            sequence_hits.clear();
+            bool max_threshold = pattern_begin_positions(seq.size(), arguments.pattern_size, arguments.query_every, find_bins_for_begin);
+            if (max_threshold)
+                break;
         }
 
         result_cb(record, sequence_hits);
