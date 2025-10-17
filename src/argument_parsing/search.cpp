@@ -98,11 +98,6 @@ void init_search_parser(sharg::parser & parser, search_arguments & arguments)
                                      "Increase this value to search more of the reference. ",
                       .advanced = true,
                       .validator = sharg::arithmetic_range_validator{0.0, 1.0}});
-    parser.add_flag(arguments.static_threshold,
-                    sharg::config{.short_id = '\0',
-                    .long_id = "static-threshold",
-                    .description = "Do not correct threshold to avoid many spuriously matching bins.",
-                    .advanced = true});
     parser.add_option(arguments.seg_count_in,
                       sharg::config{.short_id = 'n',
                       .long_id = "seg-count",
