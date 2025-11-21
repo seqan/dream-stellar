@@ -69,8 +69,6 @@ inline double segment_fpr(double const pattern_p, size_t const patterns_per_segm
 */
 inline uint64_t max_segment_len(double const /*pattern_p*/, size_t const pattern_size, uint8_t query_every)
 {
-    //!TODO: this const is the *minimum* number of patterns per segment
-    // higher values are possible if pattern_p is small    
     return pattern_size + query_every * (PATTERNS_PER_SEGMENT - 1);
 }
 
