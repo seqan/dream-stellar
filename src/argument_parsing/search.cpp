@@ -344,6 +344,7 @@ void run_search(sharg::parser & parser)
         }
         else
         {
+            // use constexpr PATTERNS_PER_SEGMENT to find segment length
             arguments.max_segment_len = max_segment_len(error_profile.fp_per_pattern, arguments.pattern_size, arguments.query_every);
             if (!parser.is_option_set("threshold"))
                 arguments.threshold = error_profile.params.t;
