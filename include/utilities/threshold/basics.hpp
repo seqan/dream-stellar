@@ -23,11 +23,11 @@
 namespace valik
 {
 
-constexpr double FPR_UPPER{0.045};
-constexpr double EXACT_FNR_UPPER{0.01};
-constexpr double MIN_FNR_UPPER{0.1};
+constexpr double FPR_UPPER{0.25};
+constexpr double EXACT_FNR_UPPER{0.005};
+constexpr double MIN_FNR_UPPER{0.05};
 
-constexpr uint8_t THRESH_LOWER{2};
+constexpr uint8_t THRESH_LOWER{1};
 constexpr size_t PATTERNS_PER_SEGMENT{1000};
 
 enum class search_kind {LEMMA, HEURISTIC, GAPPED, STELLAR};

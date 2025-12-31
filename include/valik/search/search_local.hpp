@@ -47,8 +47,8 @@ static inline dream_stellar::StellarOptions make_thread_options(search_arguments
         threadOptions.strVerificationMethod = arguments.strVerificationMethod;
         threadOptions.xDrop = arguments.xDrop;
         threadOptions.qgramAbundanceCut = arguments.qgramAbundanceCut;
-        threadOptions.numMatches = arguments.numMatches;
-        threadOptions.compactThresh = arguments.compactThresh;
+        threadOptions.numMatches = arguments.numMatches / 100000;
+        threadOptions.compactThresh = arguments.compactThresh / 100000;
     }
 
     return threadOptions;
