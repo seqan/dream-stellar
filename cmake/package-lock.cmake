@@ -8,7 +8,7 @@
 # cmake-format: off
 
 # seqan2
-set (DREAM_STELLAR_SEQAN2_VERSION 2.5.1 CACHE STRING "")
+set (DREAM_STELLAR_SEQAN2_VERSION 2.5.2 CACHE STRING "")
 CPMDeclarePackage (seqan2
                    NAME seqan2
                    VERSION ${DREAM_STELLAR_SEQAN2_VERSION}
