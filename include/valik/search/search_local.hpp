@@ -274,7 +274,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                     for (auto database : databases)
                     {
                         reverseComplement(database);
-                        seqan2::appendValue(reverseDatabases, database, seqan2::Generous());
+                        seqan2::appendValue(reverseDatabases, std::move(database), seqan2::Generous());
                     }
                 }
                 
