@@ -284,7 +284,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                 if (threadOptions.forward)
                 {
                     auto databaseSegment = dream_stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
-                                            (databases[threadOptions.binSequences[0]], threadOptions);
+                                            (databases[0], threadOptions);
                     stellarThreadTime.forward_strand_stellar_time.measure_time([&]()
                     {
                         size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
@@ -344,7 +344,7 @@ bool search_local(search_arguments & arguments, search_time_statistics & time_st
                     stellarThreadTime.reverse_complement_database_time.measure_time([&]()
                     {
                         databaseSegment = _getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>
-                                            (reverseDatabases[threadOptions.binSequences[0]], threadOptions, reverse);
+                                            (reverseDatabases[0], threadOptions, reverse);
                     }); // measure_time
 
                     stellarThreadTime.reverse_strand_stellar_time.measure_time([&]()
