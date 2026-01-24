@@ -31,10 +31,11 @@ CPMDeclarePackage (seqan3
 )
 
 # sharg
-set (DREAM_STELLAR_SHARG_VERSION 983dc3dc415d9fc193fb4dac110cc2ecac2ca4bc CACHE STRING "")
+set (DREAM_STELLAR_SHARG_VERSION 1.2.1 CACHE STRING "")
 CPMDeclarePackage (sharg
                    NAME sharg
-                   GIT_TAG ${DREAM_STELLAR_SHARG_VERSION} # main
+                   VERSION ${DREAM_STELLAR_SHARG_VERSION}
+                   GIT_TAG ${DREAM_STELLAR_SHARG_VERSION}
                    GITHUB_REPOSITORY seqan/sharg-parser
                    SYSTEM TRUE
                    EXCLUDE_FROM_ALL TRUE

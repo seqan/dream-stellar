@@ -33,12 +33,20 @@ TEST_F(argparse_build, no_options)
     app_test_result const result = execute_app("dream-stellar", "build");
     std::string const expected
     {
-	"dream-stellar - DNA search tool for finding local alignments between long sequences.\n"
-	"====================================================================================\n"
-    	"    Try -h or --help for more information.\n"
+        "dream-stellar - DNA search tool for finding local alignments between long sequences.\n"
+        "====================================================================================\n"
+        "    dream-stellar build [--metagenome] [--fast] [--without-parameter-tuning]\n"
+        "    [--split-only] [--write-out] [--verbose] [--pattern uint64]\n"
+        "    [-e|--error-rate float] [--fpr float] [-k|--kmer uint8] [-s|--shape\n"
+        "    string] [-n|--seg-count uint32] [-o|--output path] [--threads uint8]\n"
+        "    [--inf-cont double] [-w|--window uint8] [--hash uint64] [--size string]\n"
+        "    [--kmer-count-min uint8] [--kmer-count-max uint8] [--] path\n"
+        "    Try -h or --help for more information.\n"
     };
     EXPECT_SUCCESS(result);
+#ifndef __APPLE__ // uint64_t vs unsigned long in sharg 1.2.1
     EXPECT_EQ(result.out, expected);
+#endif
     EXPECT_EQ(result.err, std::string{});
 }
 
@@ -47,12 +55,24 @@ TEST_F(argparse_search, no_options)
     app_test_result const result = execute_app("dream-stellar", "search");
     std::string const expected
     {
-	"dream-stellar - DNA search tool for finding local alignments between long sequences.\n"
-	"====================================================================================\n"
-    	"    Try -h or --help for more information.\n"
+        "dream-stellar - DNA search tool for finding local alignments between long sequences.\n"
+        "====================================================================================\n"
+        "    dream-stellar search [--split-query] [--fast] [--time] [--verbose]\n"
+        "    [--very-verbose] [--distribute] [--stellar-only]\n"
+        "    [--without-parameter-tuning] [--cache-thresholds] --index path --query\n"
+        "    path --output path [-e|--error-rate float] [--pattern uint64] [--threads\n"
+            "    uint8] [--bin-entropy-cutoff double] [--bin-cutoff double] [-n|--seg-count\n"
+            "    uint32] [--threshold uint64] [--query-every uint8] [--cart-max-capacity\n"
+            "    uint64] [--max-queued-carts uint64] [--minLength uint32] [--disableThresh\n"
+            "    uint64] [-s|--sortThresh uint64] [-q|--stellar-kmer uint64]\n"
+        "    [-c|--abundanceCut double] [--repeatPeriod uint64] [--repeatLength uint64]\n"
+        "    [-x|--xDrop double] [--verification string] [--numMatches uint64]\n"
+        "    Try -h or --help for more information.\n"
     };
     EXPECT_SUCCESS(result);
+#ifndef __APPLE__ // uint64_t vs unsigned long in sharg 1.2.1
     EXPECT_EQ(result.out, expected);
+#endif
     EXPECT_EQ(result.err, std::string{});
 }
 
