@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <charconv>
+#include <sharg/std/charconv>
 #include <string>
 
 #include <seqan3/search/kmer_index/shape.hpp>
