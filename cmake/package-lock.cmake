@@ -19,7 +19,7 @@ CPMDeclarePackage (seqan2
 )
 
 # seqan3
-set (DREAM_STELLAR_SEQAN3_VERSION 3.4.0 CACHE STRING "")
+set (DREAM_STELLAR_SEQAN3_VERSION 3.4.1 CACHE STRING "")
 CPMDeclarePackage (seqan3
                    NAME seqan3
                    VERSION ${DREAM_STELLAR_SEQAN3_VERSION}
@@ -31,7 +31,7 @@ CPMDeclarePackage (seqan3
 )
 
 # sharg
-set (DREAM_STELLAR_SHARG_VERSION 1.2.1 CACHE STRING "")
+set (DREAM_STELLAR_SHARG_VERSION 1.2.2 CACHE STRING "")
 CPMDeclarePackage (sharg
                    NAME sharg
                    VERSION ${DREAM_STELLAR_SHARG_VERSION}
