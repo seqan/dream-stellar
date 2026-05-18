@@ -103,7 +103,7 @@ template<typename TMatch, typename TSize>
 bool
 _checkAlignColOverlap(TMatch const & matchA, TMatch const & matchB, TSize const minLength)
 {
-    TSize equalCols = 0;
+    [[maybe_unused]] TSize equalCols = 0;
     TSize diffCols = 0;
 
     for  (typename TMatch::TPos pos = matchB.begin1; pos < _min(matchA.end1, matchB.end1); ++pos)
