@@ -72,6 +72,7 @@ jobs:
                 --exclude-throw-branches \
                 --exclude-unreachable-branches \
                 --merge-mode-functions separate \
+                --gcov-ignore-parse-errors negative_hits.warn_once_per_file \
                 -j \
                 --cobertura \
                 --output ${GITHUB_WORKSPACE}/build/coverage_report.xml
